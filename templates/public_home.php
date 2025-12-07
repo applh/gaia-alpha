@@ -113,10 +113,10 @@
 
                 grid.innerHTML = pages.map(page => {
                     // Extract first image from content if exists, else placeholder
-                    const div = document.createElement('div');
-                    div.innerHTML = page.content;
-                    const img = div.querySelector('img');
-                    const imgSrc = img ? img.src : 'https://placehold.co/600x400/1e222d/FFF?text=Gaia+Alpha';
+                    // Extract first image from content if exists, else placeholder
+                    // Extract first image using regex, handling potential escaped quotes from JSON
+                    const imgMatch = page.content.match(/<img[^>]+src=\\?"([^\\">]+)\\?"/);
+                    const imgSrc = imgMatch ? imgMatch[1] : 'https://placehold.co/600x400/1e222d/FFF?text=Gaia+Alpha';
 
                     return `
                         <article class="card">

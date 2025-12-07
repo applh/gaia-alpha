@@ -78,7 +78,9 @@
 <body>
     <div id="app">
         <header>
-            <h1>Gaia Alpha</h1>
+            <a href="/" style="text-decoration: none; color: inherit;">
+                <h1>Gaia Alpha</h1>
+            </a>
             <nav>
                 <a href="/app" class="button">Login / App</a>
             </nav>

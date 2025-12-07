@@ -11,7 +11,9 @@ const App = {
     template: `
         <div class="app-container">
             <header>
-                <h1>Gaia Alpha</h1>
+                <a href="/" style="text-decoration: none; color: inherit;">
+                    <h1>Gaia Alpha</h1>
+                </a>
                 <nav v-if="user">
                     <!-- Admin Menu -->
                     <template v-if="isAdmin">

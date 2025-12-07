@@ -328,9 +328,9 @@ class App
             return;
         }
 
-        $stmt = $this->db->getPdo()->prepare("INSERT INTO cms_pages (user_id, title, slug, content, created_at, updated_at) VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
+        $stmt = $this->db->getPdo()->prepare("INSERT INTO cms_pages (user_id, title, slug, content, image, created_at, updated_at) VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
         try {
-            $stmt->execute([$_SESSION['user_id'], $data['title'], $data['slug'], $data['content'] ?? '']);
+            $stmt->execute([$_SESSION['user_id'], $data['title'], $data['slug'], $data['content'] ?? '', $data['image'] ?? null]);
             echo json_encode(['success' => true, 'id' => $this->db->getPdo()->lastInsertId()]);
         } catch (\PDOException $e) {
             http_response_code(400);
@@ -355,6 +355,10 @@ class App
         if (isset($data['content'])) {
             $fields[] = "content = ?";
             $values[] = $data['content'];
+        }
+        if (isset($data['image'])) {
+            $fields[] = "image = ?";
+            $values[] = $data['image'];
         }
 
         if (empty($fields)) {
@@ -474,7 +478,7 @@ class App
     private function getPublicPages()
     {
         $stmt = $this->db->getPdo()->query("
-            SELECT id, title, slug, content, created_at, user_id 
+            SELECT id, title, slug, content, image, created_at, user_id 
             FROM cms_pages 
             ORDER BY created_at DESC 
             LIMIT 10
@@ -486,7 +490,7 @@ class App
     private function getPublicPageBySlug($slug)
     {
         $stmt = $this->db->getPdo()->prepare("
-            SELECT id, title, slug, content, created_at, user_id 
+            SELECT id, title, slug, content, image, created_at, user_id 
             FROM cms_pages 
             WHERE slug = ?
         ");

@@ -24,7 +24,7 @@ export default {
                     <tbody>
                         <tr v-for="page in pages" :key="page.id">
                             <td>
-                                <img v-if="getFirstImage(page.content)" :src="getFirstImage(page.content)" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;">
+                                <img v-if="page.image" :src="page.image" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;">
                                 <span v-else style="color: #666; font-size: 0.8em;">No Img</span>
                             </td>
                             <td>{{ page.title }}</td>
@@ -53,6 +53,14 @@ export default {
                         <input v-model="form.slug" required placeholder="page-slug">
                     </div>
                     <div class="form-group">
+                        <label>Featured Image URL</label>
+                        <div style="display: flex; gap: 10px;">
+                            <input v-model="form.image" placeholder="/uploads/..." style="flex:1">
+                            <input type="file" ref="featuredInput" @change="uploadFeatured" style="display: none" accept="image/jpeg,image/png,image/webp">
+                            <button type="button" @click="$refs.featuredInput.click()" class="btn-secondary">Upload Cover</button>
+                        </div>
+                    </div>
+                    <div class="form-group">
                         <label>Content</label>
                         <div class="editor-toolbar">
                              <input type="file" ref="fileInput" @change="uploadImage" style="display: none" accept="image/jpeg,image/png,image/webp">
@@ -77,6 +85,9 @@ export default {
             id: null,
             title: '',
             slug: '',
+            title: '',
+            slug: '',
+            image: '',
             content: ''
         });
 
@@ -93,7 +104,7 @@ export default {
         };
 
         const openCreate = () => {
-            Object.assign(form, { id: null, title: '', slug: '', content: '' });
+            Object.assign(form, { id: null, title: '', slug: '', image: '', content: '' });
             showForm.value = true;
         };
 
@@ -144,6 +155,33 @@ export default {
             event.target.value = '';
         };
 
+        const uploadFeatured = async (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const formData = new FormData();
+            formData.append('image', file);
+
+            try {
+                const res = await fetch('/api/cms/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    form.image = data.url;
+                } else {
+                    const err = await res.json();
+                    alert(err.error || 'Upload failed');
+                }
+            } catch (e) {
+                console.error(e);
+                alert('Upload failed');
+            }
+            event.target.value = '';
+        };
+
         const savePage = async () => {
             const url = form.id ? `/api/cms/pages/${form.id}` : '/api/cms/pages';
             const method = form.id ? 'PATCH' : 'POST';
@@ -190,7 +228,7 @@ export default {
 
         return {
             pages, loading, showForm, form, fileInput,
-            openCreate, editPage, savePage, deletePage, cancelForm, generateSlug, formatDate, triggerUpload, uploadImage, getFirstImage
+            openCreate, editPage, savePage, deletePage, cancelForm, generateSlug, formatDate, triggerUpload, uploadImage, uploadFeatured
         };
     }
 };

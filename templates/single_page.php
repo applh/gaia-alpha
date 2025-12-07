@@ -97,6 +97,7 @@
                         <div class="page-meta">
                             Published on ${new Date(page.created_at).toLocaleDateString()}
                         </div>
+                        ${page.image ? `<img src="${page.image}" alt="${page.title}" style="max-width: 100%; height: auto; border-radius: 8px; margin-top: 2rem;">` : ''}
                     </div>
                     <div class="page-content">
                         ${page.content}

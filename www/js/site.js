@@ -20,6 +20,7 @@ const App = {
                         <button @click="setView('dashboard')" :class="{ active: currentView === 'dashboard' }">Dashboard</button>
                         <button @click="setView('todos')" :class="{ active: currentView === 'todos' }">My Todos</button>
                         <button @click="setView('users')" :class="{ active: currentView === 'users' }">Users</button>
+                        <button @click="setView('cms')" :class="{ active: currentView === 'cms' }">CMS</button>
                     </template>
 
                     <!-- Member Menu -->

@@ -5,18 +5,31 @@ export default {
         <div class="cms-container">
             <div class="cms-header">
                 <h2>Content Management</h2>
-                <button v-if="!showForm" @click="openCreate" class="btn-primary">Create Page</button>
+                <div class="header-actions">
+                    <select v-model="filterCat" @change="fetchPages">
+                        <option value="page">Pages</option>
+                        <option value="image">Images</option>
+                    </select>
+                    <button v-if="!showForm && filterCat === 'page'" @click="openCreate" class="btn-primary">Create Page</button>
+                    <!-- Images are uploaded via inline or drag drop usually, but maybe we want a dedicated upload button here too? -->
+                    <!-- For now, requirement says "member cms will only list rows with cat 'page'". 
+                         Actually "member cms will only list rows with cat 'page' (by default I assume? or strictly?)"
+                         "add a filter to select cat possible values" -> implies we can see others.
+                    -->
+                    <button v-if="!showForm && filterCat === 'image'" @click="$refs.headerUpload.click()" class="btn-secondary">Upload Image</button>
+                    <input type="file" ref="headerUpload" @change="uploadHeaderImage" style="display: none" accept="image/*">
+                </div>
             </div>
 
             <!-- List View -->
             <div v-if="!showForm" class="cms-list">
-                <div v-if="loading" class="loading">Loading pages...</div>
+                <div v-if="loading" class="loading">Loading {{ filterCat }}s...</div>
                 <table v-else-if="pages.length">
                     <thead>
                         <tr>
                             <th>Image</th>
-                            <th>Title</th>
-                            <th>Slug</th>
+                            <th>{{ filterCat === 'image' ? 'Filename' : 'Title' }}</th>
+                            <th v-if="filterCat === 'page'">Slug</th>
                             <th>Created</th>
                             <th>Actions</th>
                         </tr>
@@ -28,22 +41,22 @@ export default {
                                 <span v-else style="color: #666; font-size: 0.8em;">No Img</span>
                             </td>
                             <td>{{ page.title }}</td>
-                            <td>
+                            <td v-if="filterCat === 'page'">
                                 <a :href="'/page/' + page.slug" target="_blank">{{ page.slug }}</a>
                             </td>
                             <td>{{ formatDate(page.created_at) }}</td>
                             <td class="actions">
-                                <button @click="editPage(page)" class="btn-small">Edit</button>
+                                <button v-if="filterCat === 'page'" @click="editPage(page)" class="btn-small">Edit</button>
                                 <button @click="deletePage(page.id)" class="btn-small btn-danger">Delete</button>
                             </td>
                         </tr>
                     </tbody>
                 </table>
-                <p v-else class="empty-state">No pages found. Create your first one!</p>
+                <p v-else class="empty-state">No {{ filterCat }}s found.</p>
             </div>
 
-            <!-- Form View -->
-            <div v-else class="cms-form">
+            <!-- Form View (Only for Pages) -->
+            <div v-if="showForm" class="cms-form">
                 <h3>{{ form.id ? 'Edit Page' : 'New Page' }}</h3>
                 <form @submit.prevent="savePage">
                     <div class="form-group">
@@ -89,20 +102,22 @@ export default {
         const loading = ref(true);
         const showForm = ref(false);
         const fileInput = ref(null);
+        const headerUpload = ref(null);
+        const filterCat = ref('page');
+
         const form = reactive({
             id: null,
             title: '',
             slug: '',
-            title: '',
-            slug: '',
             image: '',
-            content: ''
+            content: '',
+            cat: 'page'
         });
 
         const fetchPages = async () => {
             loading.value = true;
             try {
-                const res = await fetch('/api/cms/pages');
+                const res = await fetch(`/api/cms/pages?cat=${filterCat.value}`);
                 if (res.ok) {
                     pages.value = await res.json();
                 }
@@ -112,7 +127,7 @@ export default {
         };
 
         const openCreate = () => {
-            Object.assign(form, { id: null, title: '', slug: '', image: '', content: '' });
+            Object.assign(form, { id: null, title: '', slug: '', image: '', content: '', cat: 'page' });
             showForm.value = true;
         };
 
@@ -171,10 +186,7 @@ export default {
             formData.append('image', file);
 
             try {
-                const res = await fetch('/api/cms/upload', {
-                    method: 'POST',
-                    body: formData
-                });
+                const res = await fetch('/api/cms/upload', { method: 'POST', body: formData });
 
                 if (res.ok) {
                     const data = await res.json();
@@ -182,6 +194,25 @@ export default {
                 } else {
                     const err = await res.json();
                     alert(err.error || 'Upload failed');
+                }
+            } catch (e) {
+                console.error(e);
+                alert('Upload failed');
+            }
+            event.target.value = '';
+        };
+
+        const uploadHeaderImage = async (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+            const formData = new FormData();
+            formData.append('image', file);
+            try {
+                const res = await fetch('/api/cms/upload', { method: 'POST', body: formData });
+                if (res.ok) {
+                    fetchPages(); // Refresh list to see new image
+                } else {
+                    alert('Upload failed');
                 }
             } catch (e) {
                 console.error(e);
@@ -210,7 +241,6 @@ export default {
         };
 
         const deletePage = async (id) => {
-
             const res = await fetch(`/api/cms/pages/${id}`, { method: 'DELETE' });
             if (res.ok) {
                 fetchPages();
@@ -226,16 +256,12 @@ export default {
             return new Date(dateStr).toLocaleDateString();
         };
 
-        const getFirstImage = (content) => {
-            const match = content.match(/<img[^>]+src=\\?"([^\\">]+)\\?"/);
-            return match ? match[1] : null;
-        };
-
         onMounted(fetchPages);
 
         return {
-            pages, loading, showForm, form, fileInput,
-            openCreate, editPage, savePage, deletePage, cancelForm, generateSlug, formatDate, triggerUpload, uploadImage, uploadFeatured
+            pages, loading, showForm, form, fileInput, headerUpload, filterCat,
+            openCreate, editPage, savePage, deletePage, cancelForm, generateSlug,
+            formatDate, triggerUpload, uploadImage, uploadFeatured, uploadHeaderImage, fetchPages
         };
     }
 };

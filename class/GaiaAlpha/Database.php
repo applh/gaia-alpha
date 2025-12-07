@@ -46,6 +46,8 @@ class Database
                 content TEXT,
                 created_at DATETIME,
                 updated_at DATETIME,
+                cat TEXT DEFAULT 'page',
+                tag TEXT,
                 FOREIGN KEY(user_id) REFERENCES users(id),
                 UNIQUE(slug)
             )"
@@ -70,16 +72,16 @@ class Database
                 'slug' => 'TEXT',
                 'content' => 'TEXT',
                 'created_at' => 'DATETIME',
-                'updated_at' => 'DATETIME'
+                'updated_at' => 'DATETIME',
+                'cat' => "TEXT DEFAULT 'page'",
+                'tag' => 'TEXT'
             ]
         ];
 
         foreach ($columnsToAdd as $table => $columns) {
-            // Ensure table exists for migration loop (if created by previous loop, this is redundant but safe)
-            // Actually, we should just let the CREATE TABLE handle fresh installs.
-            // This loop is specifically for altering existing tables.
-            if ($table === 'cms_pages')
-                continue; // Handled by CREATE TABLE for new table
+            // Ensure table exists for migration loop
+            // In a real migration system we'd check existence properly.
+            // For now, suppress errors if table doesn't exist (e.g. fresh install handled by CREATE TABLE)
 
             foreach ($columns as $column => $definition) {
                 try {
@@ -90,12 +92,13 @@ class Database
             }
         }
 
-        // Backfill timestamps
+        // Backfill timestamps and defaults
         try {
             $this->pdo->exec("UPDATE users SET created_at = CURRENT_TIMESTAMP WHERE created_at IS NULL");
             $this->pdo->exec("UPDATE users SET updated_at = CURRENT_TIMESTAMP WHERE updated_at IS NULL");
             $this->pdo->exec("UPDATE todos SET created_at = CURRENT_TIMESTAMP WHERE created_at IS NULL");
             $this->pdo->exec("UPDATE todos SET updated_at = CURRENT_TIMESTAMP WHERE updated_at IS NULL");
+            $this->pdo->exec("UPDATE cms_pages SET cat = 'page' WHERE cat IS NULL");
         } catch (\PDOException $e) {
             // Ignore for now
         }

@@ -9,12 +9,14 @@ class Cli
 {
     private Database $db;
     private PDO $pdo;
+    private Media $media;
 
     public function __construct(string $dbPath)
     {
         $this->db = new Database($dbPath);
         $this->db->ensureSchema();
         $this->pdo = $this->db->getPdo();
+        $this->media = new Media(dirname($dbPath));
     }
 
     public function run(array $argv): void
@@ -43,6 +45,12 @@ class Cli
                 case 'sql':
                     $this->handleSql($argv);
                     break;
+                case 'media:stats':
+                    $this->handleMediaStats();
+                    break;
+                case 'media:clear-cache':
+                    $this->handleMediaClearCache();
+                    break;
                 case 'help':
                     $this->showHelp();
                     break;
@@ -66,6 +74,8 @@ class Cli
         echo "  table:update <table> <id> <json>    Update a row by ID\n";
         echo "  table:delete <table> <id>           Delete a row by ID\n";
         echo "  sql <query>                         Execute a raw SQL query\n";
+        echo "  media:stats                         Show storage stats for uploads and cache\n";
+        echo "  media:clear-cache                   Clear all cached images\n";
         echo "  help                                Show this help message\n";
     }
 
@@ -153,5 +163,30 @@ class Cli
         } else {
             echo "Query executed. Rows affected: " . $stmt->rowCount() . "\n";
         }
+    }
+
+    private function handleMediaStats(): void
+    {
+        $stats = $this->media->getStats();
+        echo "Media Storage Stats:\n";
+        echo "--------------------\n";
+        echo "Uploads: " . $stats['uploads']['count'] . " files (" . $this->formatBytes($stats['uploads']['size']) . ")\n";
+        echo "Cache:   " . $stats['cache']['count'] . " files (" . $this->formatBytes($stats['cache']['size']) . ")\n";
+    }
+
+    private function handleMediaClearCache(): void
+    {
+        $count = $this->media->clearCache();
+        echo "Cache cleared. Deleted $count files.\n";
+    }
+
+    private function formatBytes($bytes, $precision = 2)
+    {
+        $units = ['B', 'KB', 'MB', 'GB', 'TB'];
+        $bytes = max($bytes, 0);
+        $pow = floor(($bytes ? log($bytes) : 0) / log(1024));
+        $pow = min($pow, count($units) - 1);
+        $bytes /= (1 << (10 * $pow));
+        return round($bytes, $precision) . ' ' . $units[$pow];
     }
 }

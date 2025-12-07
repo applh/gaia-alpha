@@ -154,4 +154,63 @@ class Media
         // imagedestroy($image); // Removed as it caused issues in PHP 8.5
         // imagedestroy($output);
     }
+
+    public function getStats(): array
+    {
+        $uploadStats = $this->getDirStats($this->uploadsDir);
+        $cacheStats = $this->getDirStats($this->cacheDir);
+
+        return [
+            'uploads' => $uploadStats,
+            'cache' => $cacheStats
+        ];
+    }
+
+    public function clearCache(): int
+    {
+        return $this->deleteDirContents($this->cacheDir);
+    }
+
+    private function getDirStats(string $dir): array
+    {
+        $count = 0;
+        $size = 0;
+
+        if (!is_dir($dir)) {
+            return ['count' => 0, 'size' => 0];
+        }
+
+        $iterator = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator($dir, \RecursiveDirectoryIterator::SKIP_DOTS)
+        );
+
+        foreach ($iterator as $file) {
+            $count++;
+            $size += $file->getSize();
+        }
+
+        return ['count' => $count, 'size' => $size];
+    }
+
+    private function deleteDirContents(string $dir): int
+    {
+        $count = 0;
+        if (!is_dir($dir)) {
+            return 0;
+        }
+
+        $iterator = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator($dir, \RecursiveDirectoryIterator::SKIP_DOTS),
+            \RecursiveIteratorIterator::CHILD_FIRST
+        );
+
+        foreach ($iterator as $file) {
+            if ($file->isFile()) {
+                unlink($file->getRealPath());
+                $count++;
+            }
+        }
+
+        return $count;
+    }
 }

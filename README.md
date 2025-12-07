@@ -19,21 +19,19 @@ Gaia Alpha is a lightweight, self-contained web application framework demonstrat
 
 ## Architecture
 
+For detailed information, please refer to:
+- [System Architecture](docs/architecture.md): Lifecycle, directory structure, and database schema.
+- [API Documentation](docs/api.md): Media API and JSON endpoints.
+- [Security Comparison](docs/security_comparison.md): Analysis of security features.
+
 ### Backend (PHP)
 - **Server**: Built-in PHP server (`php -S`).
-- **Database**: SQLite (`database.sqlite`).
-- **Structure**:
-  - `class/GaiaAlpha/App.php`: Main application logic and API routing.
-  - `class/GaiaAlpha/Database.php`: PDO wrapper for SQLite connection and schema migration.
-  - `templates/`: HTML templates (php files).
-  - `index.php`: Entry point (Auto-loading).
+- **Database**: SQLite (`my-data/database.sqlite`).
+- **Media**: Secure image processing via `GaiaAlpha\Media`.
 
 ### Frontend (Vue.js)
 - **Framework**: Vue 3 (ES Module build).
-- **Components**: Async components loaded on demand.
-  - `Login.js`: Authentication form.
-  - `TodoList.js`: Protected todo management.
-- **State**: Simple reactive state management in `site.js`.
+- **Entry**: `www/index.php` serves the initial HTML.
 
 ## User Manual
 
@@ -65,31 +63,6 @@ Gaia Alpha supports Role-Based Access Control (RBAC):
 - **User Management**: View list of registered users and their levels.
 - **Login/Register Toggle**: Header buttons allow switching between Login and Register modes when logged out.
 
-#
-## SQL Architecture
-
-### Tables
-
-#### `users`
-| Column | Type | Description |
-| :--- | :--- | :--- |
-| `id` | INTEGER | Primary Key, Auto-increment |
-| `username` | TEXT | Unique username |
-| `password_hash` | TEXT | Hashed password |
-| `level` | INTEGER | Access level (10=Member, 100=Admin) |
-| `created_at` | DATETIME | Creation timestamp |
-| `updated_at` | DATETIME | Last modification timestamp |
-
-#### `todos`
-| Column | Type | Description |
-| :--- | :--- | :--- |
-| `id` | INTEGER | Primary Key, Auto-increment |
-| `user_id` | INTEGER | Foreign Key to `users.id` |
-| `title` | TEXT | Todo item text |
-| `completed` | INTEGER | Status (0=Pending, 1=Completed) |
-| `created_at` | DATETIME | Creation timestamp |
-| `updated_at` | DATETIME | Last modification timestamp |
-
 ## CLI Tool
 Gaia Alpha includes a command-line tool (`cli.php`) for database management.
 
@@ -101,12 +74,14 @@ Gaia Alpha includes a command-line tool (`cli.php`) for database management.
 - `table:update <table> <id> <json_data>`: Update a row.
 - `table:delete <table> <id>`: Delete a row.
 - `sql <query>`: Execute a raw SQL query.
+- `media:stats`: Show storage stats for uploads and cache.
+- `media:clear-cache`: Clear all cached images.
 - `help`: Show usage instructions.
 
 **Examples:**
 ```bash
 php cli.php table:list users
-php cli.php table:insert users '{"username":"new_admin","password_hash":"...","level":100}'
+php cli.php media:stats
 php cli.php sql "SELECT count(*) FROM todos"
 ```
 

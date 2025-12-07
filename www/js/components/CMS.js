@@ -208,7 +208,6 @@ export default {
         };
 
         const deletePage = async (id) => {
-            if (!confirm('Are you sure you want to delete this page?')) return;
 
             const res = await fetch(`/api/cms/pages/${id}`, { method: 'DELETE' });
             if (res.ok) {

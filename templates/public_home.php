@@ -119,15 +119,19 @@
                     const imgSrc = imgMatch ? imgMatch[1] : 'https://placehold.co/600x400/1e222d/FFF?text=Gaia+Alpha';
 
                     return `
-                        <article class="card">
-                            <img src="${imgSrc}" alt="${page.title}" class="card-img">
-                            <div class="card-body">
-                                <h3 class="card-title">${page.title}</h3>
-                                <div class="card-meta">
-                                    <span>${new Date(page.created_at).toLocaleDateString()}</span>
-                                </div>
-                            </div>
-                        </article>
+                    return `
+                        < article class="card" >
+                            <a href="/page/${page.slug}" style="text-decoration: none; color: inherit;">
+                                <img src="${imgSrc}" alt="${page.title}" class="card-img">
+                                    <div class="card-body">
+                                        <h3 class="card-title">${page.title}</h3>
+                                        <div class="card-meta">
+                                            <span>${new Date(page.created_at).toLocaleDateString()}</span>
+                                        </div>
+                                    </div>
+                            </a>
+                        </article >
+                        `;
                     `;
                 }).join('');
 

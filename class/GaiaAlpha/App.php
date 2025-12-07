@@ -19,10 +19,15 @@ class App
     {
         $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
+        // error_log("Routing URI: " . $uri);
         if (strpos($uri, '/api/') === 0) {
             $this->handleApi($uri);
         } elseif ($uri === '/app' || strpos($uri, '/app/') === 0) {
             include dirname(__DIR__, 2) . '/templates/app.php';
+        } elseif (preg_match('#^/page/([\w-]+)/?$#', $uri, $matches)) {
+            $slug = $matches[1];
+            // error_log("Matched slug: " . $slug);
+            include dirname(__DIR__, 2) . '/templates/single_page.php';
         } else {
             include dirname(__DIR__, 2) . '/templates/public_home.php';
         }
@@ -73,8 +78,12 @@ class App
                 $this->addCmsPage($input);
             } elseif ($uri === '/api/cms/upload' && $method === 'POST') {
                 $this->uploadImage();
+            } elseif ($uri === '/api/cms/upload' && $method === 'POST') {
+                $this->uploadImage();
             } elseif ($uri === '/api/public/pages' && $method === 'GET') {
                 $this->getPublicPages();
+            } elseif (preg_match('#^/api/public/pages/([\w-]+)$#', $uri, $matches) && $method === 'GET') {
+                $this->getPublicPageBySlug($matches[1]);
             } elseif (preg_match('#^/api/cms/pages/(\d+)$#', $uri, $matches)) {
                 $id = (int) $matches[1];
                 if ($method === 'PATCH') {
@@ -472,5 +481,24 @@ class App
         ");
         $results = $stmt->fetchAll();
         echo json_encode($results);
+    }
+
+    private function getPublicPageBySlug($slug)
+    {
+        $stmt = $this->db->getPdo()->prepare("
+            SELECT id, title, slug, content, created_at, user_id 
+            FROM cms_pages 
+            WHERE slug = ?
+        ");
+        $stmt->execute([$slug]);
+        $page = $stmt->fetch();
+
+        if (!$page) {
+            http_response_code(404);
+            echo json_encode(['error' => 'Page not found']);
+            return;
+        }
+
+        echo json_encode($page);
     }
 }

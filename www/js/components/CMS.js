@@ -14,6 +14,7 @@ export default {
                 <table v-else-if="pages.length">
                     <thead>
                         <tr>
+                            <th>Image</th>
                             <th>Title</th>
                             <th>Slug</th>
                             <th>Created</th>
@@ -22,12 +23,16 @@ export default {
                     </thead>
                     <tbody>
                         <tr v-for="page in pages" :key="page.id">
+                            <td>
+                                <img v-if="getFirstImage(page.content)" :src="getFirstImage(page.content)" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;">
+                                <span v-else style="color: #666; font-size: 0.8em;">No Img</span>
+                            </td>
                             <td>{{ page.title }}</td>
                             <td>{{ page.slug }}</td>
                             <td>{{ formatDate(page.created_at) }}</td>
                             <td class="actions">
                                 <button @click="editPage(page)" class="btn-small">Edit</button>
-                                <button @click="deletePage(page.id)" class="btn-small danger">Delete</button>
+                                <button @click="deletePage(page.id)" class="btn-small btn-danger">Delete</button>
                             </td>
                         </tr>
                     </tbody>
@@ -176,11 +181,16 @@ export default {
             return new Date(dateStr).toLocaleDateString();
         };
 
+        const getFirstImage = (content) => {
+            const match = content.match(/<img[^>]+src=\\?"([^\\">]+)\\?"/);
+            return match ? match[1] : null;
+        };
+
         onMounted(fetchPages);
 
         return {
             pages, loading, showForm, form, fileInput,
-            openCreate, editPage, savePage, deletePage, cancelForm, generateSlug, formatDate, triggerUpload, uploadImage
+            openCreate, editPage, savePage, deletePage, cancelForm, generateSlug, formatDate, triggerUpload, uploadImage, getFirstImage
         };
     }
 };

@@ -21,8 +21,10 @@ class App
 
         if (strpos($uri, '/api/') === 0) {
             $this->handleApi($uri);
+        } elseif ($uri === '/app' || strpos($uri, '/app/') === 0) {
+            include dirname(__DIR__, 2) . '/templates/app.php';
         } else {
-            include dirname(__DIR__, 2) . '/templates/home.php';
+            include dirname(__DIR__, 2) . '/templates/public_home.php';
         }
     }
 
@@ -71,6 +73,8 @@ class App
                 $this->addCmsPage($input);
             } elseif ($uri === '/api/cms/upload' && $method === 'POST') {
                 $this->uploadImage();
+            } elseif ($uri === '/api/public/pages' && $method === 'GET') {
+                $this->getPublicPages();
             } elseif (preg_match('#^/api/cms/pages/(\d+)$#', $uri, $matches)) {
                 $id = (int) $matches[1];
                 if ($method === 'PATCH') {
@@ -456,5 +460,17 @@ class App
         imagedestroy($src);
 
         echo json_encode(['url' => '/uploads/' . $_SESSION['user_id'] . '/' . $filename]);
+    }
+
+    private function getPublicPages()
+    {
+        $stmt = $this->db->getPdo()->query("
+            SELECT id, title, slug, content, created_at, user_id 
+            FROM cms_pages 
+            ORDER BY created_at DESC 
+            LIMIT 10
+        ");
+        $results = $stmt->fetchAll();
+        echo json_encode($results);
     }
 }

@@ -28,7 +28,9 @@ export default {
                                 <span v-else style="color: #666; font-size: 0.8em;">No Img</span>
                             </td>
                             <td>{{ page.title }}</td>
-                            <td>{{ page.slug }}</td>
+                            <td>
+                                <a :href="'/page/' + page.slug" target="_blank">{{ page.slug }}</a>
+                            </td>
                             <td>{{ formatDate(page.created_at) }}</td>
                             <td class="actions">
                                 <button @click="editPage(page)" class="btn-small">Edit</button>

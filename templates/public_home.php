@@ -114,7 +114,7 @@
                 }
 
                 grid.innerHTML = pages.map(page => {
-                    const imgSrc = page.image ? page.image : 'https://placehold.co/600x400/1e222d/FFF?text=Gaia+Alpha';
+                    const imgSrc = page.image ? `${page.image}?w=600&h=400&fit=cover` : 'https://placehold.co/600x400/1e222d/FFF?text=Gaia+Alpha';
 
                     return `
                         <article class="card">

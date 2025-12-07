@@ -5,11 +5,13 @@ namespace GaiaAlpha;
 class App
 {
     private Database $db;
+    private Media $media;
 
     public function __construct()
     {
         $this->db = new Database(__DIR__ . '/../../my-data/database.sqlite');
         $this->db->ensureSchema();
+        $this->media = new Media(__DIR__ . '/../../my-data');
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
@@ -28,6 +30,8 @@ class App
             $slug = $matches[1];
             // error_log("Matched slug: " . $slug);
             include dirname(__DIR__, 2) . '/templates/single_page.php';
+        } elseif (preg_match('#^/media/(\d+)/(.+)$#', $uri, $matches)) {
+            $this->media->handleRequest($matches[1], $matches[2], $_GET);
         } else {
             include dirname(__DIR__, 2) . '/templates/public_home.php';
         }
@@ -470,7 +474,10 @@ class App
         $outputPath = $userDir . '/' . $filename;
         imagewebp($src, $outputPath, 80);
 
-        echo json_encode(['url' => '/uploads/' . $_SESSION['user_id'] . '/' . $filename]);
+        // Return media URL instead of direct upload URL
+        // Old: /uploads/1/xxx.webp
+        // New: /media/1/xxx.webp
+        echo json_encode(['url' => '/media/' . $_SESSION['user_id'] . '/' . $filename]);
     }
 
     private function getPublicPages()

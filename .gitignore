@@ -1,4 +1,5 @@
 .DS_Store
 vendor/
-.vscode/
+!www/js/vendor/
+*.logvscode/
 *.log

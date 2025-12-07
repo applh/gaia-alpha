@@ -53,18 +53,24 @@ export default {
                         <input v-model="form.slug" required placeholder="page-slug">
                     </div>
                     <div class="form-group">
-                        <label>Featured Image URL</label>
-                        <div style="display: flex; gap: 10px;">
-                            <input v-model="form.image" placeholder="/uploads/..." style="flex:1">
+                        <label>Featured Image</label>
+                        <div class="featured-image-control">
+                            <div v-if="form.image" class="image-preview">
+                                <img :src="form.image" alt="Featured">
+                                <button type="button" @click="form.image = ''" class="btn-xs btn-danger remove-btn">×</button>
+                            </div>
+                            <div v-else class="upload-placeholder" @click="$refs.featuredInput.click()">
+                                <span>+ Upload Cover Image</span>
+                            </div>
+                            <input type="hidden" v-model="form.image">
                             <input type="file" ref="featuredInput" @change="uploadFeatured" style="display: none" accept="image/jpeg,image/png,image/webp">
-                            <button type="button" @click="$refs.featuredInput.click()" class="btn-secondary">Upload Cover</button>
                         </div>
                     </div>
                     <div class="form-group">
                         <label>Content</label>
                         <div class="editor-toolbar">
                              <input type="file" ref="fileInput" @change="uploadImage" style="display: none" accept="image/jpeg,image/png,image/webp">
-                             <button type="button" @click="triggerUpload" class="btn-small">Upload Image</button>
+                             <button type="button" @click="triggerUpload" class="btn-small">Insert Image in Content</button>
                         </div>
                         <textarea v-model="form.content" rows="10" placeholder="Page content (HTML allowed)"></textarea>
                     </div>

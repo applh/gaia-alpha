@@ -291,7 +291,52 @@ td {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: var(--space-lg);
+    margin-bottom: var(--space-xs);
+    font-weight: 500;
+}
+
+.featured-image-control {
+    border: 2px dashed var(--border-color);
+    border-radius: var(--radius-md);
+    padding: var(--space-md);
+    text-align: center;
+    background: rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.featured-image-control:hover {
+    border-color: var(--primary-color);
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.upload-placeholder {
+    padding: var(--space-lg);
+    color: var(--text-secondary);
+}
+
+.image-preview {
+    position: relative;
+    display: inline-block;
+}
+
+.image-preview img {
+    max-height: 200px;
+    border-radius: var(--radius-sm);
+    display: block;
+}
+
+.remove-btn {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    line-height: 22px;
+    font-size: 16px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .editor-toolbar {

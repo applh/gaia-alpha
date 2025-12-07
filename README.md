@@ -2,6 +2,17 @@
 
 Gaia Alpha is a lightweight, self-contained web application framework demonstrating a PHP backend with a Vue.js frontend, using SQLite for data persistence.
 
+
+## Repository Information
+
+- **GitHub Repo**: [https://github.com/applh/gaia-alpha](https://github.com/applh/gaia-alpha)
+- **SSH Key**: A custom SSH key has been generated for this repository.
+  - **Key File**: `~/.ssh/id_ed25519_github`
+  - **Usage**: To push/pull without password, ensure your local git config uses this key:
+    ```bash
+    git config core.sshCommand "ssh -i ~/.ssh/id_ed25519_github -o IdentitiesOnly=yes"
+    ```
+
 ## Architecture
 
 ### Backend (PHP)

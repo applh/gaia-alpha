@@ -4,6 +4,7 @@ namespace GaiaAlpha\Controller;
 
 use GaiaAlpha\Model\User;
 use GaiaAlpha\Model\Todo;
+use GaiaAlpha\Model\Page;
 
 class AdminController extends BaseController
 {
@@ -19,10 +20,13 @@ class AdminController extends BaseController
         $this->requireAdmin();
         $userModel = new User($this->db);
         $todoModel = new Todo($this->db);
+        $pageModel = new Page($this->db);
 
         $this->jsonResponse([
             'users' => $userModel->count(),
-            'todos' => $todoModel->count()
+            'todos' => $todoModel->count(),
+            'pages' => $pageModel->count('page'),
+            'images' => $pageModel->count('image')
         ]);
     }
 

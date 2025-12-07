@@ -14,6 +14,14 @@ export default {
                     <h3>Total Todos</h3>
                     <p>{{ stats.todos }}</p>
                 </div>
+                <div class="stat-card">
+                    <h3>Total Pages</h3>
+                    <p>{{ stats.pages }}</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Total Images</h3>
+                    <p>{{ stats.images }}</p>
+                </div>
             </div>
             <div v-else>Loading stats...</div>
         </div>

@@ -103,4 +103,14 @@ class Page extends BaseModel
         $stmt->execute([$userId]);
         return $stmt->fetchAll(\PDO::FETCH_COLUMN);
     }
+
+    public function count(?string $cat = null)
+    {
+        if ($cat) {
+            $stmt = $this->db->prepare("SELECT count(*) FROM cms_pages WHERE cat = ?");
+            $stmt->execute([$cat]);
+            return $stmt->fetchColumn();
+        }
+        return $this->db->query("SELECT count(*) FROM cms_pages")->fetchColumn();
+    }
 }

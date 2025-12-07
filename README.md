@@ -12,6 +12,10 @@ Gaia Alpha is a lightweight, self-contained web application framework demonstrat
     ```bash
     git config core.sshCommand "ssh -i ~/.ssh/id_ed25519_github -o IdentitiesOnly=yes"
     ```
+  - **Generation Command**:
+    ```bash
+    ssh-keygen -t ed25519 -C "gaia-alpha-dev" -f ~/.ssh/id_ed25519_github -N ""
+    ```
 
 ## Architecture
 

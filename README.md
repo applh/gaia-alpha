@@ -55,6 +55,16 @@ Gaia Alpha is a lightweight, self-contained web application framework demonstrat
    - **Delete**: Click the red "x" button to remove a todo.
 4. **Logout**: Click the "Logout" button in the header.
 
+### User Levels & Roles
+Gaia Alpha supports Role-Based Access Control (RBAC):
+- **Member (Level 10)**: Default role. Access to personal Todo List and CMS.
+- **Admin (Level 100)**: Access to Admin Dashboard, User Management, and personal Todos.
+
+#### Admin Features
+- **Dashboard**: View system stats (total users, total todos).
+- **User Management**: View list of registered users and their levels.
+- **Login/Register Toggle**: Header buttons allow switching between Login and Register modes when logged out.
+
 ## Vue 3 Version Sizes
 
 | Version | Description | Minified | Compiler | Size (approx) |

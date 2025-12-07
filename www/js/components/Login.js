@@ -1,4 +1,4 @@
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 
 export default {
     template: `
@@ -24,8 +24,15 @@ export default {
             <p v-if="error" class="error">{{ error }}</p>
         </div>
     `,
+    props: ['mode'],
     setup(props, { emit }) {
-        const isLogin = ref(true);
+        const isLogin = ref(props.mode === 'login');
+
+        // Update local state when prop changes
+        watch(() => props.mode, (newMode) => {
+            isLogin.value = newMode === 'login';
+        });
+
         const username = ref('');
         const password = ref('');
         const error = ref('');

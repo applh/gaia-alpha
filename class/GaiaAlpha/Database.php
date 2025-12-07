@@ -26,7 +26,8 @@ class Database
             "CREATE TABLE IF NOT EXISTS users (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 username TEXT UNIQUE NOT NULL,
-                password_hash TEXT NOT NULL
+                password_hash TEXT NOT NULL,
+                level INTEGER DEFAULT 10
             )",
             "CREATE TABLE IF NOT EXISTS todos (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -39,6 +40,13 @@ class Database
 
         foreach ($commands as $command) {
             $this->pdo->exec($command);
+        }
+
+        // Migration for existing databases
+        try {
+            $this->pdo->exec("ALTER TABLE users ADD COLUMN level INTEGER DEFAULT 10");
+        } catch (\PDOException $e) {
+            // Column likely already exists, ignore
         }
     }
 

@@ -52,6 +52,10 @@ class App
                 } elseif ($method === 'DELETE') {
                     $this->deleteTodo($id);
                 }
+            } elseif ($uri === '/api/admin/users' && $method === 'GET') {
+                $this->getAdminUsers();
+            } elseif ($uri === '/api/admin/stats' && $method === 'GET') {
+                $this->getAdminStats();
             } else {
                 http_response_code(404);
                 echo json_encode(['error' => 'Not Found']);
@@ -67,7 +71,7 @@ class App
         if (empty($data['username']) || empty($data['password'])) {
             throw new \Exception('Missing credentials');
         }
-        $stmt = $this->db->getPdo()->prepare("INSERT INTO users (username, password_hash) VALUES (?, ?)");
+        $stmt = $this->db->getPdo()->prepare("INSERT INTO users (username, password_hash, level) VALUES (?, ?, 10)");
         try {
             $stmt->execute([$data['username'], password_hash($data['password'], PASSWORD_DEFAULT)]);
             echo json_encode(['success' => true]);
@@ -86,7 +90,14 @@ class App
         if ($user && password_verify($data['password'], $user['password_hash'])) {
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['username'] = $user['username'];
-            echo json_encode(['success' => true, 'user' => ['username' => $user['username']]]);
+            $_SESSION['level'] = (int) $user['level'];
+            echo json_encode([
+                'success' => true,
+                'user' => [
+                    'username' => $user['username'],
+                    'level' => (int) $user['level']
+                ]
+            ]);
         } else {
             http_response_code(401);
             echo json_encode(['error' => 'Invalid credentials']);
@@ -102,7 +113,12 @@ class App
     private function getCurrentUser()
     {
         if (isset($_SESSION['user_id'])) {
-            echo json_encode(['user' => ['username' => $_SESSION['username']]]);
+            echo json_encode([
+                'user' => [
+                    'username' => $_SESSION['username'],
+                    'level' => $_SESSION['level'] ?? 10
+                ]
+            ]);
         } else {
             echo json_encode(['user' => null]);
         }
@@ -150,5 +166,26 @@ class App
         $stmt = $this->db->getPdo()->prepare("DELETE FROM todos WHERE id = ? AND user_id = ?");
         $stmt->execute([$id, $_SESSION['user_id']]);
         echo json_encode(['success' => true]);
+    }
+
+    private function getAdminUsers()
+    {
+        if (!isset($_SESSION['level']) || $_SESSION['level'] < 100) {
+            http_response_code(403);
+            return;
+        }
+        $stmt = $this->db->getPdo()->query("SELECT id, username, level FROM users ORDER BY id DESC");
+        echo json_encode($stmt->fetchAll());
+    }
+
+    private function getAdminStats()
+    {
+        if (!isset($_SESSION['level']) || $_SESSION['level'] < 100) {
+            http_response_code(403);
+            return;
+        }
+        $userCount = $this->db->getPdo()->query("SELECT count(*) FROM users")->fetchColumn();
+        $todoCount = $this->db->getPdo()->query("SELECT count(*) FROM todos")->fetchColumn();
+        echo json_encode(['users' => $userCount, 'todos' => $todoCount]);
     }
 }

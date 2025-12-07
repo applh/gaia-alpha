@@ -13,7 +13,7 @@
         }
     </script>
     <link rel="stylesheet" href="/css/site.css">
-    <script type="module" src="/js/site.js"></script>
+    <script type="module" src="/js/site.js?v=2"></script>
 </head>
 
 <body>

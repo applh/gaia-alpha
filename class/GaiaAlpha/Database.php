@@ -43,10 +43,36 @@ class Database
         }
 
         // Migration for existing databases
+        $columnsToAdd = [
+            'users' => [
+                'level' => 'INTEGER DEFAULT 10',
+                'created_at' => 'DATETIME',
+                'updated_at' => 'DATETIME'
+            ],
+            'todos' => [
+                'created_at' => 'DATETIME',
+                'updated_at' => 'DATETIME'
+            ]
+        ];
+
+        foreach ($columnsToAdd as $table => $columns) {
+            foreach ($columns as $column => $definition) {
+                try {
+                    $this->pdo->exec("ALTER TABLE $table ADD COLUMN $column $definition");
+                } catch (\PDOException $e) {
+                    // Column likely already exists, ignore
+                }
+            }
+        }
+
+        // Backfill timestamps
         try {
-            $this->pdo->exec("ALTER TABLE users ADD COLUMN level INTEGER DEFAULT 10");
+            $this->pdo->exec("UPDATE users SET created_at = CURRENT_TIMESTAMP WHERE created_at IS NULL");
+            $this->pdo->exec("UPDATE users SET updated_at = CURRENT_TIMESTAMP WHERE updated_at IS NULL");
+            $this->pdo->exec("UPDATE todos SET created_at = CURRENT_TIMESTAMP WHERE created_at IS NULL");
+            $this->pdo->exec("UPDATE todos SET updated_at = CURRENT_TIMESTAMP WHERE updated_at IS NULL");
         } catch (\PDOException $e) {
-            // Column likely already exists, ignore
+            // Ignore for now
         }
     }
 

@@ -13,6 +13,7 @@ class Cli
     public function __construct(string $dbPath)
     {
         $this->db = new Database($dbPath);
+        $this->db->ensureSchema();
         $this->pdo = $this->db->getPdo();
     }
 

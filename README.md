@@ -65,7 +65,32 @@ Gaia Alpha supports Role-Based Access Control (RBAC):
 - **User Management**: View list of registered users and their levels.
 - **Login/Register Toggle**: Header buttons allow switching between Login and Register modes when logged out.
 
-### CLI Tool
+#
+## SQL Architecture
+
+### Tables
+
+#### `users`
+| Column | Type | Description |
+| :--- | :--- | :--- |
+| `id` | INTEGER | Primary Key, Auto-increment |
+| `username` | TEXT | Unique username |
+| `password_hash` | TEXT | Hashed password |
+| `level` | INTEGER | Access level (10=Member, 100=Admin) |
+| `created_at` | DATETIME | Creation timestamp |
+| `updated_at` | DATETIME | Last modification timestamp |
+
+#### `todos`
+| Column | Type | Description |
+| :--- | :--- | :--- |
+| `id` | INTEGER | Primary Key, Auto-increment |
+| `user_id` | INTEGER | Foreign Key to `users.id` |
+| `title` | TEXT | Todo item text |
+| `completed` | INTEGER | Status (0=Pending, 1=Completed) |
+| `created_at` | DATETIME | Creation timestamp |
+| `updated_at` | DATETIME | Last modification timestamp |
+
+## CLI Tool
 Gaia Alpha includes a command-line tool (`cli.php`) for database management.
 
 **Usage:** `php cli.php <command> [arguments]`

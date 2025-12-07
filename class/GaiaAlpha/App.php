@@ -54,6 +54,15 @@ class App
                 }
             } elseif ($uri === '/api/admin/users' && $method === 'GET') {
                 $this->getAdminUsers();
+            } elseif ($uri === '/api/admin/users' && $method === 'POST') {
+                $this->handleAdminCreateUser($input);
+            } elseif (preg_match('#^/api/admin/users/(\d+)$#', $uri, $matches)) {
+                $id = (int) $matches[1];
+                if ($method === 'PATCH') {
+                    $this->handleAdminUpdateUser($id, $input);
+                } elseif ($method === 'DELETE') {
+                    $this->handleAdminDeleteUser($id);
+                }
             } elseif ($uri === '/api/admin/stats' && $method === 'GET') {
                 $this->getAdminStats();
             } else {
@@ -71,7 +80,7 @@ class App
         if (empty($data['username']) || empty($data['password'])) {
             throw new \Exception('Missing credentials');
         }
-        $stmt = $this->db->getPdo()->prepare("INSERT INTO users (username, password_hash, level) VALUES (?, ?, 10)");
+        $stmt = $this->db->getPdo()->prepare("INSERT INTO users (username, password_hash, level, created_at, updated_at) VALUES (?, ?, 10, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
         try {
             $stmt->execute([$data['username'], password_hash($data['password'], PASSWORD_DEFAULT)]);
             echo json_encode(['success' => true]);
@@ -141,7 +150,7 @@ class App
             http_response_code(401);
             return;
         }
-        $stmt = $this->db->getPdo()->prepare("INSERT INTO todos (user_id, title) VALUES (?, ?)");
+        $stmt = $this->db->getPdo()->prepare("INSERT INTO todos (user_id, title, created_at, updated_at) VALUES (?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
         $stmt->execute([$_SESSION['user_id'], $data['title']]);
         echo json_encode(['id' => $this->db->getPdo()->lastInsertId(), 'title' => $data['title'], 'completed' => 0]);
     }
@@ -152,7 +161,7 @@ class App
             http_response_code(401);
             return;
         }
-        $stmt = $this->db->getPdo()->prepare("UPDATE todos SET completed = ? WHERE id = ? AND user_id = ?");
+        $stmt = $this->db->getPdo()->prepare("UPDATE todos SET completed = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ? AND user_id = ?");
         $stmt->execute([$data['completed'] ? 1 : 0, $id, $_SESSION['user_id']]);
         echo json_encode(['success' => true]);
     }
@@ -174,7 +183,7 @@ class App
             http_response_code(403);
             return;
         }
-        $stmt = $this->db->getPdo()->query("SELECT id, username, level FROM users ORDER BY id DESC");
+        $stmt = $this->db->getPdo()->query("SELECT id, username, level, created_at, updated_at FROM users ORDER BY id DESC");
         echo json_encode($stmt->fetchAll());
     }
 
@@ -187,5 +196,85 @@ class App
         $userCount = $this->db->getPdo()->query("SELECT count(*) FROM users")->fetchColumn();
         $todoCount = $this->db->getPdo()->query("SELECT count(*) FROM todos")->fetchColumn();
         echo json_encode(['users' => $userCount, 'todos' => $todoCount]);
+    }
+
+    private function handleAdminCreateUser($data)
+    {
+        if (!isset($_SESSION['level']) || $_SESSION['level'] < 100) {
+            http_response_code(403);
+            return;
+        }
+        if (empty($data['username']) || empty($data['password'])) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Missing username or password']);
+            return;
+        }
+        $level = isset($data['level']) ? (int) $data['level'] : 10;
+
+        $stmt = $this->db->getPdo()->prepare("INSERT INTO users (username, password_hash, level, created_at, updated_at) VALUES (?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
+        try {
+            $stmt->execute([$data['username'], password_hash($data['password'], PASSWORD_DEFAULT), $level]);
+            echo json_encode(['success' => true, 'id' => $this->db->getPdo()->lastInsertId()]);
+        } catch (\PDOException $e) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Username already exists']);
+        }
+    }
+
+    private function handleAdminUpdateUser($id, $data)
+    {
+        if (!isset($_SESSION['level']) || $_SESSION['level'] < 100) {
+            http_response_code(403);
+            return;
+        }
+
+        // Build query efficiently
+        $fields = [];
+        $values = [];
+
+        if (isset($data['level'])) {
+            $fields[] = "level = ?";
+            $values[] = (int) $data['level'];
+        }
+
+        if (!empty($data['password'])) {
+            $fields[] = "password_hash = ?";
+            $values[] = password_hash($data['password'], PASSWORD_DEFAULT);
+        }
+
+        if (empty($fields)) {
+            echo json_encode(['success' => true, 'message' => 'No changes made']);
+            return;
+        }
+
+        $fields[] = "updated_at = CURRENT_TIMESTAMP";
+
+        $sql = "UPDATE users SET " . implode(', ', $fields) . " WHERE id = ?";
+        $values[] = $id;
+
+        $stmt = $this->db->getPdo()->prepare($sql);
+        $stmt->execute($values);
+
+        echo json_encode(['success' => true]);
+    }
+
+    private function handleAdminDeleteUser($id)
+    {
+        if (!isset($_SESSION['level']) || $_SESSION['level'] < 100) {
+            http_response_code(403);
+            return;
+        }
+
+        // Prevent deleting yourself
+        if ($id == $_SESSION['user_id']) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Cannot delete yourself']);
+            return;
+        }
+
+        $stmt = $this->db->getPdo()->prepare("DELETE FROM users WHERE id = ?");
+        $stmt->execute([$id]);
+
+        echo json_encode(['success' => true]);
     }
 }

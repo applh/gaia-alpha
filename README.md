@@ -1,11 +1,44 @@
 # GAIA: GeoDynamic Artificial Intelligence Applications
 
-## php local server
+Gaia Alpha is a lightweight, self-contained web application framework demonstrating a PHP backend with a Vue.js frontend, using SQLite for data persistence.
 
-how to run:
-```bash
-php -S localhost:8000 -t www
-```
+## Architecture
+
+### Backend (PHP)
+- **Server**: Built-in PHP server (`php -S`).
+- **Database**: SQLite (`database.sqlite`).
+- **Structure**:
+  - `class/GaiaAlpha/App.php`: Main application logic and API routing.
+  - `class/GaiaAlpha/Database.php`: PDO wrapper for SQLite connection and schema migration.
+  - `templates/`: HTML templates (php files).
+  - `index.php`: Entry point (Auto-loading).
+
+### Frontend (Vue.js)
+- **Framework**: Vue 3 (ES Module build).
+- **Components**: Async components loaded on demand.
+  - `Login.js`: Authentication form.
+  - `TodoList.js`: Protected todo management.
+- **State**: Simple reactive state management in `site.js`.
+
+## User Manual
+
+### Installation & Run
+1. Ensure you have PHP 8.0+ installed.
+2. Clone the repository.
+3. Start the local server:
+   ```bash
+   php -S localhost:8000 -t www
+   ```
+4. Open [http://localhost:8000](http://localhost:8000) in your browser.
+
+### Usage
+1. **Register**: On the home page, toggle to "Register" mode. Enter a username and password.
+2. **Login**: Use your credentials to log in.
+3. **Manage Todos**:
+   - **Add**: Type a task in the input box and press Enter or click "Add".
+   - **Complete**: Click on a todo item to toggle its completed status (strikethrough).
+   - **Delete**: Click the red "x" button to remove a todo.
+4. **Logout**: Click the "Logout" button in the header.
 
 ## Vue 3 Version Sizes
 

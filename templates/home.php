@@ -17,10 +17,7 @@
 </head>
 
 <body>
-    <div id="app">
-        <h1>{{ message }}</h1>
-        <p>Welcome to the application.</p>
-    </div>
+    <div id="app"></div>
 </body>
 
 </html>

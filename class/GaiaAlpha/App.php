@@ -69,6 +69,8 @@ class App
                 $this->getCmsPages();
             } elseif ($uri === '/api/cms/pages' && $method === 'POST') {
                 $this->addCmsPage($input);
+            } elseif ($uri === '/api/cms/upload' && $method === 'POST') {
+                $this->uploadImage();
             } elseif (preg_match('#^/api/cms/pages/(\d+)$#', $uri, $matches)) {
                 $id = (int) $matches[1];
                 if ($method === 'PATCH') {
@@ -367,5 +369,92 @@ class App
         $stmt = $this->db->getPdo()->prepare("DELETE FROM cms_pages WHERE id = ? AND user_id = ?");
         $stmt->execute([$id, $_SESSION['user_id']]);
         echo json_encode(['success' => true]);
+    }
+
+    private function uploadImage()
+    {
+        if (!isset($_SESSION['user_id'])) {
+            http_response_code(401);
+            return;
+        }
+
+        if (!isset($_FILES['image']) || $_FILES['image']['error'] !== UPLOAD_ERR_OK) {
+            http_response_code(400);
+            echo json_encode(['error' => 'No image uploaded or upload error']);
+            return;
+        }
+
+        $file = $_FILES['image'];
+        $allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+        $finfo = new \finfo(FILEINFO_MIME_TYPE);
+        $mime = $finfo->file($file['tmp_name']);
+
+        if (!in_array($mime, $allowedTypes)) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Invalid file type. Allowed: JPG, PNG, WEBP']);
+            return;
+        }
+
+        // Create user directory
+        $userDir = __DIR__ . '/../../www/uploads/' . $_SESSION['user_id'];
+        if (!is_dir($userDir)) {
+            mkdir($userDir, 0755, true);
+        }
+
+        $filename = time() . '_' . bin2hex(random_bytes(4)) . '.webp'; // Force webp conversion/ext for simplicity or keep original
+        // Let's keep original extension or convert? Plan said resize. Let's convert to WebP for uniformity if resizing, or just keep original.
+        // Actually, let's keep it simple: output is always what we process.
+
+        // Load image
+        switch ($mime) {
+            case 'image/jpeg':
+                $src = imagecreatefromjpeg($file['tmp_name']);
+                break;
+            case 'image/png':
+                $src = imagecreatefrompng($file['tmp_name']);
+                break;
+            case 'image/webp':
+                $src = imagecreatefromwebp($file['tmp_name']);
+                break;
+            default:
+                $src = false;
+        }
+
+        if (!$src) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Failed to process image']);
+            return;
+        }
+
+        $width = imagesx($src);
+        $height = imagesy($src);
+        $maxWidth = 3840;
+        $maxHeight = 2160;
+
+        // Resize if needed
+        if ($width > $maxWidth || $height > $maxHeight) {
+            $ratio = min($maxWidth / $width, $maxHeight / $height);
+            $newWidth = (int) ($width * $ratio);
+            $newHeight = (int) ($height * $ratio);
+
+            $dst = imagecreatetruecolor($newWidth, $newHeight);
+
+            // Handle transparency for PNG/WEBP
+            imagealphablending($dst, false);
+            imagesavealpha($dst, true);
+            $transparent = imagecolorallocatealpha($dst, 255, 255, 255, 127);
+            imagefilledrectangle($dst, 0, 0, $newWidth, $newHeight, $transparent);
+
+            imagecopyresampled($dst, $src, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
+            imagedestroy($src);
+            $src = $dst;
+        }
+
+        // Save as WebP for efficiency
+        $outputPath = $userDir . '/' . $filename;
+        imagewebp($src, $outputPath, 80);
+        imagedestroy($src);
+
+        echo json_encode(['url' => '/uploads/' . $_SESSION['user_id'] . '/' . $filename]);
     }
 }

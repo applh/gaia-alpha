@@ -49,6 +49,10 @@ export default {
                     </div>
                     <div class="form-group">
                         <label>Content</label>
+                        <div class="editor-toolbar">
+                             <input type="file" ref="fileInput" @change="uploadImage" style="display: none" accept="image/jpeg,image/png,image/webp">
+                             <button type="button" @click="triggerUpload" class="btn-small">Upload Image</button>
+                        </div>
                         <textarea v-model="form.content" rows="10" placeholder="Page content (HTML allowed)"></textarea>
                     </div>
                     <div class="form-actions">
@@ -63,6 +67,7 @@ export default {
         const pages = ref([]);
         const loading = ref(true);
         const showForm = ref(false);
+        const fileInput = ref(null);
         const form = reactive({
             id: null,
             title: '',
@@ -98,6 +103,40 @@ export default {
                     .replace(/[^a-z0-9]+/g, '-')
                     .replace(/(^-|-$)/g, '');
             }
+        };
+
+        const triggerUpload = () => {
+            fileInput.value.click();
+        };
+
+        const uploadImage = async (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const formData = new FormData();
+            formData.append('image', file);
+
+            try {
+                const res = await fetch('/api/cms/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    // Append image to content
+                    form.content += `\n<img src="${data.url}" alt="Uploaded Image" style="max-width: 100%; border-radius: 8px;">\n`;
+                } else {
+                    const err = await res.json();
+                    alert(err.error || 'Upload failed');
+                }
+            } catch (e) {
+                console.error(e);
+                alert('Upload failed');
+            }
+
+            // Reset input
+            event.target.value = '';
         };
 
         const savePage = async () => {
@@ -140,8 +179,8 @@ export default {
         onMounted(fetchPages);
 
         return {
-            pages, loading, showForm, form,
-            openCreate, editPage, savePage, deletePage, cancelForm, generateSlug, formatDate
+            pages, loading, showForm, form, fileInput,
+            openCreate, editPage, savePage, deletePage, cancelForm, generateSlug, formatDate, triggerUpload, uploadImage
         };
     }
 };

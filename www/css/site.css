@@ -294,6 +294,10 @@ td {
     margin-bottom: var(--space-lg);
 }
 
+.editor-toolbar {
+    margin-bottom: var(--space-sm);
+}
+
 .cms-container textarea {
     width: 100%;
     padding: var(--space-md);

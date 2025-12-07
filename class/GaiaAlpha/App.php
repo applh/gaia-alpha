@@ -6,6 +6,6 @@ class App
 {
     public function run()
     {
-        echo "Gaia Alpha is running" . PHP_EOL;
+        include dirname(__DIR__, 2) . '/templates/home.php';
     }
 }

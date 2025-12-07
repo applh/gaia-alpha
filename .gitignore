@@ -6,3 +6,4 @@ vendor/
 .vscode/
 *.log
 my-data/
+cookies_*.txt

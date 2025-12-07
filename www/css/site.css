@@ -281,6 +281,51 @@ td {
 
 .auth-container,
 .todo-container,
-.users-admin {
+.users-admin,
+.cms-container {
     animation: fadeIn 0.4s ease-out;
+}
+
+/* CMS Styles */
+.cms-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-lg);
+}
+
+.cms-container textarea {
+    width: 100%;
+    padding: var(--space-md);
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    font-size: 1rem;
+    font-family: monospace;
+    resize: vertical;
+}
+
+.form-actions {
+    display: flex;
+    gap: var(--space-md);
+    margin-top: var(--space-lg);
+}
+
+.btn-secondary {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.btn-small {
+    padding: var(--space-xs) var(--space-sm);
+    font-size: 0.8rem;
+}
+
+.actions {
+    display: flex;
+    gap: var(--space-sm);
 }

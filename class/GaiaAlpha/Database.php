@@ -34,7 +34,20 @@ class Database
                 user_id INTEGER NOT NULL,
                 title TEXT NOT NULL,
                 completed INTEGER DEFAULT 0,
+                created_at DATETIME,
+                updated_at DATETIME,
                 FOREIGN KEY(user_id) REFERENCES users(id)
+            )",
+            "CREATE TABLE IF NOT EXISTS cms_pages (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                title TEXT NOT NULL,
+                slug TEXT NOT NULL,
+                content TEXT,
+                created_at DATETIME,
+                updated_at DATETIME,
+                FOREIGN KEY(user_id) REFERENCES users(id),
+                UNIQUE(slug)
             )"
         ];
 
@@ -52,10 +65,22 @@ class Database
             'todos' => [
                 'created_at' => 'DATETIME',
                 'updated_at' => 'DATETIME'
+            ],
+            'cms_pages' => [
+                'slug' => 'TEXT',
+                'content' => 'TEXT',
+                'created_at' => 'DATETIME',
+                'updated_at' => 'DATETIME'
             ]
         ];
 
         foreach ($columnsToAdd as $table => $columns) {
+            // Ensure table exists for migration loop (if created by previous loop, this is redundant but safe)
+            // Actually, we should just let the CREATE TABLE handle fresh installs.
+            // This loop is specifically for altering existing tables.
+            if ($table === 'cms_pages')
+                continue; // Handled by CREATE TABLE for new table
+
             foreach ($columns as $column => $definition) {
                 try {
                     $this->pdo->exec("ALTER TABLE $table ADD COLUMN $column $definition");

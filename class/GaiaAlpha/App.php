@@ -65,6 +65,17 @@ class App
                 }
             } elseif ($uri === '/api/admin/stats' && $method === 'GET') {
                 $this->getAdminStats();
+            } elseif ($uri === '/api/cms/pages' && $method === 'GET') {
+                $this->getCmsPages();
+            } elseif ($uri === '/api/cms/pages' && $method === 'POST') {
+                $this->addCmsPage($input);
+            } elseif (preg_match('#^/api/cms/pages/(\d+)$#', $uri, $matches)) {
+                $id = (int) $matches[1];
+                if ($method === 'PATCH') {
+                    $this->updateCmsPage($id, $input);
+                } elseif ($method === 'DELETE') {
+                    $this->deleteCmsPage($id);
+                }
             } else {
                 http_response_code(404);
                 echo json_encode(['error' => 'Not Found']);
@@ -275,6 +286,86 @@ class App
         $stmt = $this->db->getPdo()->prepare("DELETE FROM users WHERE id = ?");
         $stmt->execute([$id]);
 
+
+        echo json_encode(['success' => true]);
+    }
+
+    private function getCmsPages()
+    {
+        if (!isset($_SESSION['user_id'])) {
+            http_response_code(401);
+            return;
+        }
+        $stmt = $this->db->getPdo()->prepare("SELECT * FROM cms_pages WHERE user_id = ? ORDER BY created_at DESC");
+        $stmt->execute([$_SESSION['user_id']]);
+        echo json_encode($stmt->fetchAll());
+    }
+
+    private function addCmsPage($data)
+    {
+        if (!isset($_SESSION['user_id'])) {
+            http_response_code(401);
+            return;
+        }
+        if (empty($data['title']) || empty($data['slug'])) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Missing title or slug']);
+            return;
+        }
+
+        $stmt = $this->db->getPdo()->prepare("INSERT INTO cms_pages (user_id, title, slug, content, created_at, updated_at) VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
+        try {
+            $stmt->execute([$_SESSION['user_id'], $data['title'], $data['slug'], $data['content'] ?? '']);
+            echo json_encode(['success' => true, 'id' => $this->db->getPdo()->lastInsertId()]);
+        } catch (\PDOException $e) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Slug already exists']);
+        }
+    }
+
+    private function updateCmsPage($id, $data)
+    {
+        if (!isset($_SESSION['user_id'])) {
+            http_response_code(401);
+            return;
+        }
+
+        $fields = [];
+        $values = [];
+
+        if (isset($data['title'])) {
+            $fields[] = "title = ?";
+            $values[] = $data['title'];
+        }
+        if (isset($data['content'])) {
+            $fields[] = "content = ?";
+            $values[] = $data['content'];
+        }
+
+        if (empty($fields)) {
+            echo json_encode(['success' => true, 'message' => 'No changes made']);
+            return;
+        }
+
+        $fields[] = "updated_at = CURRENT_TIMESTAMP";
+        $sql = "UPDATE cms_pages SET " . implode(', ', $fields) . " WHERE id = ? AND user_id = ?";
+        $values[] = $id;
+        $values[] = $_SESSION['user_id'];
+
+        $stmt = $this->db->getPdo()->prepare($sql);
+        $stmt->execute($values);
+
+        echo json_encode(['success' => true]);
+    }
+
+    private function deleteCmsPage($id)
+    {
+        if (!isset($_SESSION['user_id'])) {
+            http_response_code(401);
+            return;
+        }
+        $stmt = $this->db->getPdo()->prepare("DELETE FROM cms_pages WHERE id = ? AND user_id = ?");
+        $stmt->execute([$id, $_SESSION['user_id']]);
         echo json_encode(['success' => true]);
     }
 }

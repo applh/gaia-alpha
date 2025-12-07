@@ -1,4 +1,6 @@
+database.sqlite
 .DS_Store
+/www/uploads/
 vendor/
 !www/js/vendor/
 .vscode/

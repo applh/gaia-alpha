@@ -65,6 +65,26 @@ Gaia Alpha supports Role-Based Access Control (RBAC):
 - **User Management**: View list of registered users and their levels.
 - **Login/Register Toggle**: Header buttons allow switching between Login and Register modes when logged out.
 
+### CLI Tool
+Gaia Alpha includes a command-line tool (`cli.php`) for database management.
+
+**Usage:** `php cli.php <command> [arguments]`
+
+**Commands:**
+- `table:list <table>`: List all rows in a table.
+- `table:insert <table> <json_data>`: Insert a row.
+- `table:update <table> <id> <json_data>`: Update a row.
+- `table:delete <table> <id>`: Delete a row.
+- `sql <query>`: Execute a raw SQL query.
+- `help`: Show usage instructions.
+
+**Examples:**
+```bash
+php cli.php table:list users
+php cli.php table:insert users '{"username":"new_admin","password_hash":"...","level":100}'
+php cli.php sql "SELECT count(*) FROM todos"
+```
+
 ## Vue 3 Version Sizes
 
 | Version | Description | Minified | Compiler | Size (approx) |

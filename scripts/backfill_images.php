@@ -7,7 +7,7 @@ use GaiaAlpha\Database;
 // But Database class might depend on something. Let's check Database.php content previously or just try straight PDO.
 // Actually, looking at previous file reads, Database.php is simple.
 
-$dbPath = __DIR__ . '/../database.sqlite';
+$dbPath = __DIR__ . '/../my-data/database.sqlite';
 $pdo = new PDO('sqlite:' . $dbPath);
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 

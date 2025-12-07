@@ -8,7 +8,7 @@ class App
 
     public function __construct()
     {
-        $this->db = new Database(__DIR__ . '/../../database.sqlite');
+        $this->db = new Database(__DIR__ . '/../../my-data/database.sqlite');
         $this->db->ensureSchema();
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
@@ -413,7 +413,7 @@ class App
         }
 
         // Create user directory
-        $userDir = __DIR__ . '/../../www/uploads/' . $_SESSION['user_id'];
+        $userDir = __DIR__ . '/../../my-data/uploads/' . $_SESSION['user_id'];
         if (!is_dir($userDir)) {
             mkdir($userDir, 0755, true);
         }
@@ -463,14 +463,12 @@ class App
             imagefilledrectangle($dst, 0, 0, $newWidth, $newHeight, $transparent);
 
             imagecopyresampled($dst, $src, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
-            imagedestroy($src);
             $src = $dst;
         }
 
         // Save as WebP for efficiency
         $outputPath = $userDir . '/' . $filename;
         imagewebp($src, $outputPath, 80);
-        imagedestroy($src);
 
         echo json_encode(['url' => '/uploads/' . $_SESSION['user_id'] . '/' . $filename]);
     }

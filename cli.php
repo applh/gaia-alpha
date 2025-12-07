@@ -15,7 +15,7 @@ if ($argc < 2) {
 }
 
 try {
-    $db = new Database(__DIR__ . '/database.sqlite');
+    $db = new Database(__DIR__ . '/my-data/database.sqlite');
     $pdo = $db->getPdo();
     $command = $argv[1];
 

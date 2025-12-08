@@ -215,7 +215,13 @@ td {
 }
 
 /* Todo List */
-.todo-list li {
+.todo-list {
+    list-style: none;
+    padding: 0;
+    margin-top: var(--space-lg);
+}
+
+.todo-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -226,15 +232,198 @@ td {
     transition: background 0.2s;
 }
 
-.todo-list li:hover {
+.todo-item:hover {
     background: rgba(255, 255, 255, 0.04);
 }
 
-.todo-list li.completed span {
+.todo-item.completed .todo-title {
     text-decoration: line-through;
     color: var(--text-secondary);
     opacity: 0.6;
 }
+
+.child-todo {
+    margin-left: var(--space-xl);
+    border-left: 2px solid var(--accent-color);
+    background: rgba(108, 92, 231, 0.05);
+}
+
+.child-indicator {
+    color: var(--accent-color);
+    margin-right: var(--space-sm);
+    font-weight: bold;
+}
+
+.todo-content {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    flex: 1;
+}
+
+.todo-title {
+    cursor: pointer;
+    flex: 1;
+}
+
+.todo-labels {
+    display: flex;
+    gap: var(--space-xs);
+    flex-wrap: wrap;
+}
+
+.label-tag {
+    background: var(--accent-color);
+    color: white;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.todo-actions {
+    display: flex;
+    gap: var(--space-sm);
+}
+
+.delete-btn {
+    background: rgba(255, 107, 107, 0.1);
+    color: var(--danger-color);
+    padding: var(--space-xs) var(--space-sm);
+    font-size: 1.2rem;
+    line-height: 1;
+}
+
+.delete-btn:hover {
+    background: var(--danger-color);
+    color: white;
+}
+
+/* Add Todo Form */
+.add-todo {
+    display: flex;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-md);
+    flex-wrap: wrap;
+}
+
+.todo-input {
+    flex: 2;
+    min-width: 200px;
+}
+
+.labels-input {
+    flex: 1;
+    min-width: 150px;
+    padding: var(--space-md);
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    font-size: 1rem;
+}
+
+.labels-input:focus {
+    outline: none;
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.2);
+}
+
+.parent-select {
+    flex: 1;
+    min-width: 150px;
+    padding: var(--space-md);
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    font-size: 1rem;
+}
+
+.parent-select:focus {
+    outline: none;
+    border-color: var(--accent-color);
+}
+
+/* Todo Filters */
+.todo-filters {
+    display: flex;
+    gap: var(--space-sm);
+    align-items: center;
+    margin-bottom: var(--space-md);
+    flex-wrap: wrap;
+}
+
+.todo-filters label {
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.label-filter {
+    background: rgba(255, 255, 255, 0.05);
+    padding: var(--space-xs) var(--space-md);
+    font-size: 0.85rem;
+}
+
+.label-filter.active {
+    background: var(--accent-color);
+    color: white;
+}
+
+/* Edit Modal */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    animation: fadeIn 0.2s ease-out;
+}
+
+.modal-content {
+    background: var(--card-bg);
+    backdrop-filter: var(--glass-blur);
+    border-radius: var(--radius-lg);
+    padding: var(--space-xl);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-md);
+    max-width: 500px;
+    width: 90%;
+    animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.modal-content h3 {
+    margin-bottom: var(--space-lg);
+    color: var(--text-primary);
+}
+
+.modal-content .form-group {
+    margin-bottom: var(--space-md);
+}
+
+.modal-content .form-actions {
+    display: flex;
+    gap: var(--space-md);
+    margin-top: var(--space-lg);
+}
+
 
 /* Responsive */
 @media (max-width: 768px) {

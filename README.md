@@ -48,10 +48,20 @@ For detailed information, please refer to:
 1. **Register**: On the home page, toggle to "Register" mode. Enter a username and password.
 2. **Login**: Use your credentials to log in.
 3. **Manage Todos**:
-   - **Add**: Type a task in the input box and press Enter or click "Add".
+   - **Add**: Type a task in the input box. Optionally add labels (comma-separated) and select a parent todo.
    - **Complete**: Click on a todo item to toggle its completed status (strikethrough).
-   - **Delete**: Click the red "x" button to remove a todo.
+   - **Edit**: Click the edit button (✎) to modify title, labels, or parent relationship.
+   - **Delete**: Click the delete button (×) to remove a todo.
+   - **Filter**: Click label buttons to filter todos by label.
+   - **Hierarchy**: Child todos are indented and marked with ↳ symbol.
 4. **Logout**: Click the "Logout" button in the header.
+
+### Todo Features
+- **Hierarchical Tasks**: Create parent-child relationships for complex task structures
+- **Labels**: Tag todos with multiple labels for easy categorization
+- **Label Filtering**: Quick filter by clicking any label
+- **Inline Editing**: Edit todos without leaving the page
+
 
 ### User Levels & Roles
 Gaia Alpha supports Role-Based Access Control (RBAC):

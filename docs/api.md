@@ -27,13 +27,19 @@ These endpoints return JSON and require Session Authentication.
 - `GET /api/me`: Returns current user info (`id`, `username`, `level`).
 
 ### Todo Management
-- `GET /api/todos`: List user's todos.
+- `GET /api/todos`: List user's todos (ordered by hierarchy).
+  - **Query Params**: `label` - Filter by label (e.g., `?label=work`)
 - `POST /api/todos`: Create a new todo.
-  - Body: `{"title": "My Task"}`
-- `POST /api/todos/toggle`: Toggle completion status.
-  - Body: `{"id": 123}`
-- `POST /api/todos/delete`: Delete a todo.
-  - Body: `{"id": 123}`
+  - Body: `{"title": "My Task", "parent_id": 1, "labels": "work,urgent"}`
+  - `parent_id` (optional): ID of parent todo for hierarchical structure
+  - `labels` (optional): Comma-separated labels
+- `PATCH /api/todos/{id}`: Update a todo.
+  - Body: `{"title": "...", "completed": true, "parent_id": 2, "labels": "work"}`
+  - All fields are optional
+- `DELETE /api/todos/{id}`: Delete a todo.
+  - Note: Children are unlinked (parent_id set to NULL), not deleted
+- `GET /api/todos/{id}/children`: Get all child todos of a parent.
+
 
 ### Admin Handlers
 - `POST /api/admin/users/delete`: Delete a user (Level 100+ only).

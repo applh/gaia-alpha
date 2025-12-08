@@ -51,6 +51,7 @@ class App
         $this->router->add('POST', '/api/todos', [$todo, 'create']);
         $this->router->add('PATCH', '/api/todos/(\d+)', [$todo, 'update']);
         $this->router->add('DELETE', '/api/todos/(\d+)', [$todo, 'delete']);
+        $this->router->add('GET', '/api/todos/(\d+)/children', [$todo, 'getChildren']);
 
         // Admin
         $this->router->add('GET', '/api/admin/users', [$admin, 'index']);

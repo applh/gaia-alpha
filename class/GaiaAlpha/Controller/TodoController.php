@@ -67,4 +67,28 @@ class TodoController extends BaseController
         $children = $todoModel->findChildren($id, $_SESSION['user_id']);
         $this->jsonResponse($children);
     }
+
+    public function reorder()
+    {
+        $this->requireAuth();
+        $data = $this->getJsonInput();
+
+        if (!isset($data['id']) || !isset($data['position'])) {
+            $this->jsonResponse(['error' => 'Missing required fields'], 400);
+        }
+
+        $todoModel = new Todo($this->db);
+        $success = $todoModel->updatePosition(
+            $data['id'],
+            $_SESSION['user_id'],
+            $data['parent_id'] ?? null,
+            (float) $data['position']
+        );
+
+        if ($success) {
+            $this->jsonResponse(['success' => true]);
+        } else {
+            $this->jsonResponse(['error' => 'Failed to update position'], 500);
+        }
+    }
 }

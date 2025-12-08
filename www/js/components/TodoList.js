@@ -9,40 +9,126 @@ const TodoItem = {
         level: { type: Number, default: 0 }
     },
     setup(props) {
-        // Inject actions provided by parent
         const toggleTodo = inject('toggleTodo');
         const deleteTodo = inject('deleteTodo');
         const showEditForm = inject('showEditForm');
         const parseLabels = inject('parseLabels');
+        const onDrop = inject('onDrop');
+
+        const isDragOver = ref(false);
+        const dragPlacement = ref(null); // 'before', 'after', 'inside'
 
         const children = computed(() => {
-            return props.allTodos.filter(t => t.parent_id == props.todo.id);
+            // Sort by position ASC, then ID ASC
+            return props.allTodos
+                .filter(t => t.parent_id == props.todo.id)
+                .sort((a, b) => (a.position - b.position) || (a.id - b.id));
         });
+
+        const onDragStart = (e) => {
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/plain', props.todo.id);
+            e.target.classList.add('dragging');
+        };
+
+        const onDragEnd = (e) => {
+            e.target.classList.remove('dragging');
+            isDragOver.value = false;
+            dragPlacement.value = null;
+        };
+
+        const onDragOver = (e) => {
+            e.preventDefault(); // allow drop
+            e.stopPropagation();
+
+            const rect = e.currentTarget.getBoundingClientRect();
+            const y = e.clientY - rect.top;
+            const h = rect.height;
+
+            // Logic: Top 25% = before, Bottom 25% = after, Middle 50% = inside (if allowed)
+            // Or simpler: Top 50% = before, Bottom 50% = after?
+            // "Inside" is useful for Reparenting. Let's do:
+            // Top 1/3: Before
+            // Bottom 1/3: After
+            // Middle 1/3: Inside
+
+            if (y < h / 3) {
+                dragPlacement.value = 'before';
+            } else if (y > (h * 2) / 3) {
+                dragPlacement.value = 'after';
+            } else {
+                dragPlacement.value = 'inside';
+            }
+            isDragOver.value = true;
+        };
+
+        const onDragLeave = (e) => {
+            // Only clear if leaving the element itself, not entering children
+            // Simple check: clear styling
+            isDragOver.value = false;
+            dragPlacement.value = null;
+        };
+
+        const onDropHandler = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            isDragOver.value = false;
+            const srcId = parseInt(e.dataTransfer.getData('text/plain'));
+            if (srcId && onDrop) {
+                onDrop(srcId, props.todo.id, dragPlacement.value);
+            }
+            dragPlacement.value = null;
+        };
 
         return {
             children,
             toggleTodo,
             deleteTodo,
             showEditForm,
-            parseLabels
+            parseLabels,
+            onDragStart,
+            onDragEnd,
+            onDragOver,
+            onDragLeave,
+            onDropHandler,
+            isDragOver,
+            dragPlacement
         };
     },
     template: `
-        <li :class="{ completed: todo.completed }" class="todo-item">
-            <div class="todo-content" :style="{ paddingLeft: (level * 20) + 'px' }">
-                <span v-if="level > 0" class="child-indicator">↳</span>
-                <span @click="toggleTodo(todo)" class="todo-title">
-                    {{ todo.title }}
-                </span>
-                <span v-if="todo.labels" class="todo-labels">
-                    <span v-for="label in parseLabels(todo.labels)" :key="label" class="label-tag">
-                        {{ label }}
+        <li 
+            class="todo-item-wrapper"
+            draggable="true"
+            @dragstart="onDragStart"
+            @dragend="onDragEnd"
+            @dragover="onDragOver"
+            @dragleave="onDragLeave"
+            @drop="onDropHandler"
+        >
+            <div 
+                class="todo-item" 
+                :class="{ 
+                    completed: todo.completed,
+                    'drag-over-top': isDragOver && dragPlacement === 'before',
+                    'drag-over-bottom': isDragOver && dragPlacement === 'after',
+                    'drag-over-inside': isDragOver && dragPlacement === 'inside'
+                }"
+            >
+                <div class="todo-content" :style="{ paddingLeft: (level * 20) + 'px' }">
+                    <span v-if="level > 0" class="child-indicator">↳</span>
+                    <span @click="toggleTodo(todo)" class="todo-title">
+                        {{ todo.title }}
                     </span>
-                </span>
-            </div>
-            <div class="todo-actions">
-                <button @click="showEditForm(todo)" class="btn-small" title="Edit">✎</button>
-                <button @click="deleteTodo(todo.id)" class="delete-btn" title="Delete">×</button>
+                    <span v-if="todo.labels" class="todo-labels">
+                        <span v-for="label in parseLabels(todo.labels)" :key="label" class="label-tag">
+                            {{ label }}
+                        </span>
+                    </span>
+                </div>
+                <div class="todo-actions">
+                    <button @click="showEditForm(todo)" class="btn-small" title="Edit">✎</button>
+                    <button @click="deleteTodo(todo.id)" class="delete-btn" title="Delete">×</button>
+                </div>
             </div>
         </li>
         <!-- Recursively render children -->
@@ -268,11 +354,95 @@ export default {
             editForm.value = {};
         };
 
+        const handleDrop = async (srcId, targetId, position) => {
+            // Find src and target todos
+            const findTodo = (id) => todos.value.find(t => t.id === id);
+            const srcTodo = findTodo(srcId);
+            const targetTodo = findTodo(targetId);
+
+            if (!srcTodo || !targetTodo) return;
+            if (srcId === targetId) return;
+
+            let newParentId = targetTodo.parent_id;
+            let newPosition = 0;
+
+            // Simple logic: 
+            // If dropping ON target, make it child (if not already child of self)
+            // But for reordering, we usually want "insert before" or "insert after"
+            // Let's implement "insert after" target for simplicity, unless holding modifier?
+            // Or better: Drag and Drop API doesn't give precise "between" without complexity.
+            // Let's assume we drop "into" if target has kids, or "after" if it's a leaf?
+            // Actually, best simple UX for now: Drop ON = Make Child.
+            // But user asked for REORDERING.
+            // Complex logic needed: detect top/bottom half of target.
+            // This requires passing event Y coordinates.
+
+            // Re-implementing TodoItem to emit dragover details?
+            // Let's keep it simple first: 
+            // We need `reorder(id, parentId, position)` API call.
+            // We'll trust the child component to tell us WHERE it was dropped relative to target.
+        };
+
+        // Revised provided method to children
+        const onDrop = async (draggedId, targetId, placement) => {
+            // placement: 'before', 'after', 'inside'
+            const findTodo = (id) => todos.value.find(t => t.id === id);
+            const srcTodo = findTodo(draggedId);
+            const targetTodo = findTodo(targetId);
+
+            if (!draggedId || !targetId || draggedId === targetId) return;
+
+            let newParentId = null;
+            let newPosition = 0;
+
+            if (placement === 'inside') {
+                newParentId = targetId;
+                // Add to end of children
+                const siblings = todos.value.filter(t => t.parent_id == targetId);
+                const maxPos = siblings.reduce((max, t) => Math.max(max, t.position || 0), 0);
+                newPosition = maxPos + 1024;
+            } else {
+                newParentId = targetTodo.parent_id;
+                const siblings = todos.value.filter(t => t.parent_id == newParentId).sort((a, b) => (a.position - b.position) || (a.id - b.id));
+                const targetIdx = siblings.findIndex(t => t.id === targetId);
+
+                let prevPos = -1024;
+                let nextPos = 1000000;
+
+                if (placement === 'before') {
+                    if (targetIdx > 0) prevPos = siblings[targetIdx - 1].position;
+                    nextPos = targetTodo.position;
+                } else { // after
+                    prevPos = targetTodo.position;
+                    if (targetIdx < siblings.length - 1) nextPos = siblings[targetIdx + 1].position;
+                }
+
+                newPosition = (prevPos + nextPos) / 2;
+            }
+
+            // Optimistic Update
+            srcTodo.parent_id = newParentId;
+            srcTodo.position = newPosition;
+            todos.value.sort((a, b) => (a.position - b.position) || (a.id - b.id));
+
+            // API Call
+            await fetch('/api/todos/reorder', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    id: draggedId,
+                    parent_id: newParentId,
+                    position: newPosition
+                })
+            });
+        };
+
         // Provide actions to children
         provide('toggleTodo', toggleTodo);
         provide('deleteTodo', deleteTodo);
         provide('showEditForm', showEditForm);
         provide('parseLabels', parseLabels);
+        provide('onDrop', onDrop);
 
         onMounted(fetchTodos);
 

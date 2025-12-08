@@ -309,6 +309,24 @@ td {
     color: white;
 }
 
+/* Drag and Drop Styles */
+.todo-item-wrapper.dragging {
+    opacity: 0.5;
+}
+
+.todo-item.drag-over-top {
+    border-top: 2px solid var(--accent-color);
+}
+
+.todo-item.drag-over-bottom {
+    border-bottom: 2px solid var(--accent-color);
+}
+
+.todo-item.drag-over-inside {
+    background: rgba(108, 92, 231, 0.2);
+    border: 1px dashed var(--accent-color);
+}
+
 /* Add Todo Form */
 .add-todo {
     display: flex;

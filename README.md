@@ -54,10 +54,12 @@ For detailed information, please refer to:
    - **Delete**: Click the delete button (×) to remove a todo.
    - **Filter**: Click label buttons to filter todos by label.
    - **Hierarchy**: Child todos are indented and marked with ↳ symbol.
+   - **Reorder**: Drag and drop todos to change their order or move them into other todos.
 4. **Logout**: Click the "Logout" button in the header.
 
 ### Todo Features
 - **Hierarchical Tasks**: Create parent-child relationships with infinite nesting depth
+- **Drag and Drop**: Reorder items or change parents via simple drag interactions
 - **Labels**: Tag todos with multiple labels for easy categorization
 - **Label Filtering**: Quick filter by clicking any label
 - **Inline Editing**: Edit todos without leaving the page

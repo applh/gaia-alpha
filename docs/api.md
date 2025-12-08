@@ -72,3 +72,22 @@ These endpoints return JSON and require Session Authentication.
 - `PATCH /api/admin/users/{id}`: Update a user (Admin only).
   - **Body**: `{"level":100,"password":"..."}`
 - `DELETE /api/admin/users/{id}`: Delete a user (Admin only).
+
+### Database Manager (Admin Only)
+- `GET /api/admin/db/tables`: List all database tables.
+  - **Returns**: `{"tables": ["users", "todos", "cms_pages", "data_store"]}`
+- `GET /api/admin/db/table/{tableName}`: Get table schema and data.
+  - **Returns**: `{"table": "users", "schema": [...], "data": [...], "count": 10}`
+- `POST /api/admin/db/query`: Execute a SQL query.
+  - **Body**: `{"query": "SELECT * FROM users WHERE level >= 100"}`
+  - **Returns**: 
+    - SELECT: `{"success": true, "type": "select", "results": [...], "count": 5}`
+    - Other: `{"success": true, "type": "modification", "affected_rows": 3}`
+- `POST /api/admin/db/table/{tableName}`: Create a record.
+  - **Body**: `{"column1": "value1", "column2": "value2"}`
+  - **Returns**: `{"success": true, "id": "123"}`
+- `PATCH /api/admin/db/table/{tableName}/{id}`: Update a record.
+  - **Body**: `{"column1": "new_value"}`
+  - **Returns**: `{"success": true}`
+- `DELETE /api/admin/db/table/{tableName}/{id}`: Delete a record.
+  - **Returns**: `{"success": true}`

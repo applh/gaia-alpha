@@ -4,7 +4,7 @@
 require_once __DIR__ . '/class/autoload.php';
 
 // start the application
-$app = new \GaiaAlpha\App();
+$app = new \GaiaAlpha\App(__DIR__);
 $app->run();
 
 

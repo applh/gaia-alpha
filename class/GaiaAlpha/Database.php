@@ -22,85 +22,61 @@ class Database
 
     public function ensureSchema(): void
     {
-        $commands = [
-            "CREATE TABLE IF NOT EXISTS users (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                username TEXT UNIQUE NOT NULL,
-                password_hash TEXT NOT NULL,
-                level INTEGER DEFAULT 10
-            )",
-            "CREATE TABLE IF NOT EXISTS todos (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                user_id INTEGER NOT NULL,
-                title TEXT NOT NULL,
-                completed INTEGER DEFAULT 0,
-                created_at DATETIME,
-                updated_at DATETIME,
-                FOREIGN KEY(user_id) REFERENCES users(id)
-            )",
-            "CREATE TABLE IF NOT EXISTS cms_pages (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                user_id INTEGER NOT NULL,
-                title TEXT NOT NULL,
-                slug TEXT NOT NULL,
-                content TEXT,
-                created_at DATETIME,
-                updated_at DATETIME,
-                cat TEXT DEFAULT 'page',
-                tag TEXT,
-                FOREIGN KEY(user_id) REFERENCES users(id),
-                UNIQUE(slug)
-            )"
-        ];
+        // Load SQL commands from template files
+        $sqlDir = App::$rootDir . '/templates/sql';
+
+        // Scan for schema files and sort them
+        // Use numbered prefixes for explicit order: 001_users.sql, 002_todos.sql, etc.
+        // Only scans files directly in /templates/sql/, not subdirectories like /migrations/
+        $sqlFiles = glob($sqlDir . '/*.sql');
+
+        if ($sqlFiles === false || empty($sqlFiles)) {
+            throw new \RuntimeException("No SQL schema files found in: $sqlDir");
+        }
+
+        sort($sqlFiles); // Ensures consistent alphabetical order (001_users.sql, 002_todos.sql, etc.)
+
+        $commands = [];
+        foreach ($sqlFiles as $filePath) {
+            if (file_exists($filePath)) {
+                $commands[] = file_get_contents($filePath);
+            } else {
+                throw new \RuntimeException("SQL template file not found: $filePath");
+            }
+        }
 
         foreach ($commands as $command) {
             $this->pdo->exec($command);
         }
 
-        // Migration for existing databases
-        $columnsToAdd = [
-            'users' => [
-                'level' => 'INTEGER DEFAULT 10',
-                'created_at' => 'DATETIME',
-                'updated_at' => 'DATETIME'
-            ],
-            'todos' => [
-                'created_at' => 'DATETIME',
-                'updated_at' => 'DATETIME'
-            ],
-            'cms_pages' => [
-                'slug' => 'TEXT',
-                'content' => 'TEXT',
-                'created_at' => 'DATETIME',
-                'updated_at' => 'DATETIME',
-                'cat' => "TEXT DEFAULT 'page'",
-                'tag' => 'TEXT'
-            ]
-        ];
 
-        foreach ($columnsToAdd as $table => $columns) {
-            // Ensure table exists for migration loop
-            // In a real migration system we'd check existence properly.
-            // For now, suppress errors if table doesn't exist (e.g. fresh install handled by CREATE TABLE)
+        // Run migrations for existing databases
+        $migrationsDir = App::$rootDir . '/templates/sql/migrations';
 
-            foreach ($columns as $column => $definition) {
-                try {
-                    $this->pdo->exec("ALTER TABLE $table ADD COLUMN $column $definition");
-                } catch (\PDOException $e) {
-                    // Column likely already exists, ignore
+        if (is_dir($migrationsDir)) {
+            $migrationFiles = glob($migrationsDir . '/*.sql');
+            sort($migrationFiles); // Ensure migrations run in order
+
+            foreach ($migrationFiles as $migrationFile) {
+                $sqlStatements = file_get_contents($migrationFile);
+
+                // Split by semicolon to handle multiple statements
+                $statements = array_filter(
+                    array_map('trim', explode(';', $sqlStatements)),
+                    function ($stmt) {
+                        // Filter out empty statements and comments
+                        return !empty($stmt) && !str_starts_with($stmt, '--');
+                    }
+                );
+
+                foreach ($statements as $statement) {
+                    try {
+                        $this->pdo->exec($statement);
+                    } catch (\PDOException $e) {
+                        // Column/constraint likely already exists, ignore
+                    }
                 }
             }
-        }
-
-        // Backfill timestamps and defaults
-        try {
-            $this->pdo->exec("UPDATE users SET created_at = CURRENT_TIMESTAMP WHERE created_at IS NULL");
-            $this->pdo->exec("UPDATE users SET updated_at = CURRENT_TIMESTAMP WHERE updated_at IS NULL");
-            $this->pdo->exec("UPDATE todos SET created_at = CURRENT_TIMESTAMP WHERE created_at IS NULL");
-            $this->pdo->exec("UPDATE todos SET updated_at = CURRENT_TIMESTAMP WHERE updated_at IS NULL");
-            $this->pdo->exec("UPDATE cms_pages SET cat = 'page' WHERE cat IS NULL");
-        } catch (\PDOException $e) {
-            // Ignore for now
         }
     }
 

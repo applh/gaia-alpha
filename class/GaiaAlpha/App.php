@@ -6,14 +6,15 @@ class App
 {
     private Database $db;
     private Media $media;
-
-
-
     private Router $router;
 
-    public function __construct()
+    public static string $rootDir;
+
+    public function __construct(string $rootDir)
     {
-        $dataPath = defined('GAIA_DATA_PATH') ? GAIA_DATA_PATH : __DIR__ . '/../../my-data';
+        self::$rootDir = $rootDir;
+
+        $dataPath = defined('GAIA_DATA_PATH') ? GAIA_DATA_PATH : self::$rootDir . '/my-data';
 
         $dsn = defined('GAIA_DB_DSN') ? GAIA_DB_DSN : 'sqlite:' . (defined('GAIA_DB_PATH') ? GAIA_DB_PATH : $dataPath . '/database.sqlite');
         $this->db = new Database($dsn);
@@ -58,6 +59,14 @@ class App
         $this->router->add('DELETE', '/api/admin/users/(\d+)', [$admin, 'delete']);
         $this->router->add('GET', '/api/admin/stats', [$admin, 'stats']);
 
+        // Database Management
+        $this->router->add('GET', '/api/admin/db/tables', [$admin, 'getTables']);
+        $this->router->add('GET', '/api/admin/db/table/(\w+)', [$admin, 'getTableData']);
+        $this->router->add('POST', '/api/admin/db/query', [$admin, 'executeQuery']);
+        $this->router->add('POST', '/api/admin/db/table/(\w+)', [$admin, 'createRecord']);
+        $this->router->add('PATCH', '/api/admin/db/table/(\w+)/(\d+)', [$admin, 'updateRecord']);
+        $this->router->add('DELETE', '/api/admin/db/table/(\w+)/(\d+)', [$admin, 'deleteRecord']);
+
         // CMS
         $this->router->add('GET', '/api/cms/pages', [$cms, 'index']);
         $this->router->add('POST', '/api/cms/pages', [$cms, 'create']);
@@ -93,12 +102,12 @@ class App
 
         // Frontend Routing
         if ($uri === '/app' || strpos($uri, '/app/') === 0) {
-            include dirname(__DIR__, 2) . '/templates/app.php';
+            include self::$rootDir . '/templates/app.php';
         } elseif (preg_match('#^/page/([\w-]+)/?$#', $uri, $matches)) {
             $slug = $matches[1];
-            include dirname(__DIR__, 2) . '/templates/single_page.php';
+            include self::$rootDir . '/templates/single_page.php';
         } else {
-            include dirname(__DIR__, 2) . '/templates/public_home.php';
+            include self::$rootDir . '/templates/public_home.php';
         }
     }
 }

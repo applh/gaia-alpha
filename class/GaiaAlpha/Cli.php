@@ -51,6 +51,21 @@ class Cli
                 case 'media:clear-cache':
                     $this->handleMediaClearCache();
                     break;
+                case 'file:write':
+                    $this->handleFileWrite($argv);
+                    break;
+                case 'file:read':
+                    $this->handleFileRead($argv);
+                    break;
+                case 'file:list':
+                    $this->handleFileList($argv);
+                    break;
+                case 'file:delete':
+                    $this->handleFileDelete($argv);
+                    break;
+                case 'file:move':
+                    $this->handleFileMove($argv);
+                    break;
                 case 'help':
                     $this->showHelp();
                     break;
@@ -76,6 +91,11 @@ class Cli
         echo "  sql <query>                         Execute a raw SQL query\n";
         echo "  media:stats                         Show storage stats for uploads and cache\n";
         echo "  media:clear-cache                   Clear all cached images\n";
+        echo "  file:write <path> <content>         Write content to a file in my-data\n";
+        echo "  file:read <path>                    Read content from a file in my-data\n";
+        echo "  file:list [path]                    List files in my-data (or subdirectory)\n";
+        echo "  file:delete <path>                  Delete a file in my-data\n";
+        echo "  file:move <source> <destination>    Move/rename a file in my-data\n";
         echo "  help                                Show this help message\n";
     }
 
@@ -188,5 +208,142 @@ class Cli
         $pow = min($pow, count($units) - 1);
         $bytes /= (1 << (10 * $pow));
         return round($bytes, $precision) . ' ' . $units[$pow];
+    }
+
+    // File Management Methods
+
+    private function getDataPath(): string
+    {
+        return defined('GAIA_DATA_PATH') ? GAIA_DATA_PATH : App::$rootDir . '/my-data';
+    }
+
+    private function validatePath(string $path): string
+    {
+        // Remove any directory traversal attempts
+        $path = str_replace(['../', '..\\'], '', $path);
+        $fullPath = $this->getDataPath() . '/' . ltrim($path, '/');
+
+        // Ensure the path is within my-data directory
+        $realDataPath = realpath($this->getDataPath());
+        $realFullPath = realpath(dirname($fullPath));
+
+        if ($realFullPath === false || strpos($realFullPath, $realDataPath) !== 0) {
+            throw new Exception("Access denied: Path must be within my-data directory");
+        }
+
+        return $fullPath;
+    }
+
+    private function handleFileWrite(array $args): void
+    {
+        if (!isset($args[2]) || !isset($args[3])) {
+            die("Usage: file:write <path> <content>\n");
+        }
+
+        $path = $args[2];
+        $content = $args[3];
+        $fullPath = $this->validatePath($path);
+
+        // Create directory if it doesn't exist
+        $dir = dirname($fullPath);
+        if (!is_dir($dir)) {
+            mkdir($dir, 0755, true);
+        }
+
+        file_put_contents($fullPath, $content);
+        echo "File written: $path\n";
+    }
+
+    private function handleFileRead(array $args): void
+    {
+        if (!isset($args[2])) {
+            die("Usage: file:read <path>\n");
+        }
+
+        $path = $args[2];
+        $fullPath = $this->validatePath($path);
+
+        if (!file_exists($fullPath)) {
+            die("File not found: $path\n");
+        }
+
+        if (!is_file($fullPath)) {
+            die("Not a file: $path\n");
+        }
+
+        echo file_get_contents($fullPath);
+    }
+
+    private function handleFileList(array $args): void
+    {
+        $subPath = $args[2] ?? '';
+        $basePath = $this->getDataPath();
+        $fullPath = $subPath ? $this->validatePath($subPath) : $basePath;
+
+        if (!is_dir($fullPath)) {
+            die("Not a directory: $subPath\n");
+        }
+
+        $items = scandir($fullPath);
+        echo "Contents of " . ($subPath ?: '/') . ":\n";
+        echo "--------------------\n";
+
+        foreach ($items as $item) {
+            if ($item === '.' || $item === '..')
+                continue;
+
+            $itemPath = $fullPath . '/' . $item;
+            $type = is_dir($itemPath) ? 'DIR ' : 'FILE';
+            $size = is_file($itemPath) ? $this->formatBytes(filesize($itemPath)) : '';
+
+            echo sprintf("%-5s %-20s %s\n", $type, $item, $size);
+        }
+    }
+
+    private function handleFileDelete(array $args): void
+    {
+        if (!isset($args[2])) {
+            die("Usage: file:delete <path>\n");
+        }
+
+        $path = $args[2];
+        $fullPath = $this->validatePath($path);
+
+        if (!file_exists($fullPath)) {
+            die("File not found: $path\n");
+        }
+
+        if (is_dir($fullPath)) {
+            die("Cannot delete directories. Use file:delete on individual files.\n");
+        }
+
+        unlink($fullPath);
+        echo "File deleted: $path\n";
+    }
+
+    private function handleFileMove(array $args): void
+    {
+        if (!isset($args[2]) || !isset($args[3])) {
+            die("Usage: file:move <source> <destination>\n");
+        }
+
+        $source = $args[2];
+        $destination = $args[3];
+
+        $sourcePath = $this->validatePath($source);
+        $destPath = $this->validatePath($destination);
+
+        if (!file_exists($sourcePath)) {
+            die("Source file not found: $source\n");
+        }
+
+        // Create destination directory if needed
+        $destDir = dirname($destPath);
+        if (!is_dir($destDir)) {
+            mkdir($destDir, 0755, true);
+        }
+
+        rename($sourcePath, $destPath);
+        echo "File moved: $source -> $destination\n";
     }
 }

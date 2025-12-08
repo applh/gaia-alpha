@@ -378,3 +378,247 @@ td {
     display: flex;
     gap: var(--space-sm);
 }
+
+/* Database Manager Styles */
+.database-manager {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+}
+
+.database-manager .card {
+    background: var(--card-bg);
+    backdrop-filter: var(--glass-blur);
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-md);
+}
+
+.database-manager h2 {
+    font-size: 2rem;
+    margin-bottom: var(--space-lg);
+    background: linear-gradient(135deg, #fff 0%, #a0aaec 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.database-manager h3 {
+    font-size: 1.3rem;
+    margin-bottom: var(--space-md);
+    color: var(--text-primary);
+}
+
+.database-manager h4 {
+    font-size: 1.1rem;
+    margin-bottom: var(--space-md);
+    color: var(--text-secondary);
+}
+
+/* SQL Executor */
+.sql-executor {
+    animation: fadeIn 0.4s ease-out;
+}
+
+.sql-input {
+    width: 100%;
+    padding: var(--space-md);
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    font-family: 'Monaco', 'Courier New', monospace;
+    font-size: 0.9rem;
+    resize: vertical;
+    margin-bottom: var(--space-md);
+}
+
+.sql-input:focus {
+    outline: none;
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.2);
+}
+
+.query-result {
+    margin-top: var(--space-lg);
+    padding: var(--space-md);
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-color);
+}
+
+.query-result .error {
+    color: var(--danger-color);
+    padding: var(--space-md);
+    background: rgba(255, 107, 107, 0.1);
+    border-radius: var(--radius-sm);
+}
+
+.query-result .success {
+    color: var(--success-color);
+    font-weight: 600;
+}
+
+/* Table Browser */
+.table-browser {
+    animation: fadeIn 0.4s ease-out 0.1s;
+    animation-fill-mode: both;
+}
+
+.table-selector {
+    display: flex;
+    gap: var(--space-md);
+    align-items: center;
+    margin-bottom: var(--space-lg);
+}
+
+.table-selector label {
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.table-selector select {
+    flex: 1;
+    padding: var(--space-md);
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+.table-selector select:focus {
+    outline: none;
+    border-color: var(--accent-color);
+}
+
+.table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-md);
+}
+
+.table-container {
+    overflow-x: auto;
+    margin-top: var(--space-md);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-color);
+}
+
+.table-container table {
+    margin: 0;
+}
+
+.table-container th {
+    background: rgba(0, 0, 0, 0.3);
+    position: sticky;
+    top: 0;
+}
+
+.table-container td input {
+    padding: var(--space-xs) var(--space-sm);
+    font-size: 0.9rem;
+}
+
+/* Schema Details */
+.schema-details {
+    margin: var(--space-md) 0;
+    padding: var(--space-md);
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-color);
+}
+
+.schema-details summary {
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--text-secondary);
+    padding: var(--space-sm);
+    user-select: none;
+}
+
+.schema-details summary:hover {
+    color: var(--text-primary);
+}
+
+.schema-details[open] summary {
+    margin-bottom: var(--space-md);
+    color: var(--text-primary);
+}
+
+/* Record Form */
+.record-form {
+    margin: var(--space-lg) 0;
+    padding: var(--space-lg);
+    background: rgba(0, 0, 0, 0.2);
+    animation: fadeIn 0.3s ease-out;
+}
+
+.record-form .form-group {
+    margin-bottom: var(--space-md);
+}
+
+.record-form input {
+    width: 100%;
+}
+
+/* Button Variants */
+.btn-primary {
+    background: var(--accent-color);
+}
+
+.btn-primary:hover {
+    background: var(--accent-hover);
+}
+
+.btn-secondary {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.2);
+    box-shadow: none;
+}
+
+.btn-success {
+    background: var(--success-color);
+}
+
+.btn-success:hover {
+    background: #00a077;
+}
+
+.btn-danger {
+    background: rgba(255, 107, 107, 0.1);
+    color: var(--danger-color);
+}
+
+.btn-danger:hover {
+    background: var(--danger-color);
+    color: white;
+}
+
+.btn-small {
+    padding: var(--space-xs) var(--space-sm);
+    font-size: 0.8rem;
+}
+
+/* Responsive Database Manager */
+@media (max-width: 768px) {
+    .table-selector {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .table-header {
+        flex-direction: column;
+        gap: var(--space-md);
+        align-items: stretch;
+    }
+
+    .database-manager h2 {
+        font-size: 1.5rem;
+    }
+}

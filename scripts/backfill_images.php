@@ -1,19 +1,23 @@
 <?php
-require __DIR__ . '/../class/GaiaAlpha/Database.php';
+require __DIR__ . '/../class/autoload.php';
 
 use GaiaAlpha\Database;
+use GaiaAlpha\App;
+
+// Initialize root directory
+App::$rootDir = dirname(__DIR__);
 
 // Mock session/env if needed, but for CLI usually not strictly required if we just access DB
 // But Database class might depend on something. Let's check Database.php content previously or just try straight PDO.
 // Actually, looking at previous file reads, Database.php is simple.
 
 // Load local configuration if exists
-$configFile = __DIR__ . '/../my-config.php';
+$configFile = App::$rootDir . '/my-config.php';
 if (file_exists($configFile)) {
     include $configFile;
 }
 
-$dataPath = defined('GAIA_DATA_PATH') ? GAIA_DATA_PATH : __DIR__ . '/../my-data';
+$dataPath = defined('GAIA_DATA_PATH') ? GAIA_DATA_PATH : App::$rootDir . '/my-data';
 $dsn = defined('GAIA_DB_DSN') ? GAIA_DB_DSN : 'sqlite:' . (defined('GAIA_DB_PATH') ? GAIA_DB_PATH : $dataPath . '/database.sqlite');
 $pdo = new PDO($dsn);
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);

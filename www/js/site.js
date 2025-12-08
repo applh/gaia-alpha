@@ -5,6 +5,7 @@ const TodoList = defineAsyncComponent(() => import('./components/TodoList.js'));
 const AdminDashboard = defineAsyncComponent(() => import('./components/AdminDashboard.js'));
 const UsersAdmin = defineAsyncComponent(() => import('./components/UsersAdmin.js'));
 const CMS = defineAsyncComponent(() => import('./components/CMS.js'));
+const DatabaseManager = defineAsyncComponent(() => import('./components/DatabaseManager.js'));
 
 const App = {
     components: { Login },
@@ -21,6 +22,7 @@ const App = {
                         <button @click="setView('todos')" :class="{ active: currentView === 'todos' }">My Todos</button>
                         <button @click="setView('users')" :class="{ active: currentView === 'users' }">Users</button>
                         <button @click="setView('cms')" :class="{ active: currentView === 'cms' }">CMS</button>
+                        <button @click="setView('database')" :class="{ active: currentView === 'database' }">Database</button>
                     </template>
 
                     <!-- Member Menu -->
@@ -62,6 +64,7 @@ const App = {
                 case 'dashboard': return isAdmin.value ? AdminDashboard : TodoList;
                 case 'users': return isAdmin.value ? UsersAdmin : TodoList;
                 case 'cms': return CMS;
+                case 'database': return isAdmin.value ? DatabaseManager : TodoList;
                 case 'todos': default: return TodoList;
             }
         });

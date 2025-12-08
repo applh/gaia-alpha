@@ -69,4 +69,180 @@ class AdminController extends BaseController
         $userModel->delete($id);
         $this->jsonResponse(['success' => true]);
     }
+
+    // Database Management Endpoints
+
+    public function getTables()
+    {
+        $this->requireAdmin();
+        $pdo = $this->db->getPdo();
+
+        // Get all tables from SQLite
+        $stmt = $pdo->query("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name");
+        $tables = $stmt->fetchAll(\PDO::FETCH_COLUMN);
+
+        $this->jsonResponse(['tables' => $tables]);
+    }
+
+    public function getTableData($tableName)
+    {
+        $this->requireAdmin();
+
+        // Validate table name to prevent SQL injection
+        if (!preg_match('/^[a-zA-Z_][a-zA-Z0-9_]*$/', $tableName)) {
+            $this->jsonResponse(['error' => 'Invalid table name'], 400);
+            return;
+        }
+
+        $pdo = $this->db->getPdo();
+
+        // Get table schema
+        $schemaStmt = $pdo->query("PRAGMA table_info($tableName)");
+        $schema = $schemaStmt->fetchAll();
+
+        // Get table data
+        $dataStmt = $pdo->query("SELECT * FROM $tableName LIMIT 100");
+        $data = $dataStmt->fetchAll();
+
+        $this->jsonResponse([
+            'table' => $tableName,
+            'schema' => $schema,
+            'data' => $data,
+            'count' => count($data)
+        ]);
+    }
+
+    public function executeQuery()
+    {
+        $this->requireAdmin();
+        $data = $this->getJsonInput();
+
+        if (empty($data['query'])) {
+            $this->jsonResponse(['error' => 'No query provided'], 400);
+            return;
+        }
+
+        $query = trim($data['query']);
+        $pdo = $this->db->getPdo();
+
+        try {
+            // Determine if it's a SELECT query or a modification query
+            $isSelect = stripos($query, 'SELECT') === 0;
+
+            if ($isSelect) {
+                $stmt = $pdo->query($query);
+                $results = $stmt->fetchAll();
+                $this->jsonResponse([
+                    'success' => true,
+                    'type' => 'select',
+                    'results' => $results,
+                    'count' => count($results)
+                ]);
+            } else {
+                $affectedRows = $pdo->exec($query);
+                $this->jsonResponse([
+                    'success' => true,
+                    'type' => 'modification',
+                    'affected_rows' => $affectedRows
+                ]);
+            }
+        } catch (\PDOException $e) {
+            $this->jsonResponse([
+                'error' => 'Query execution failed: ' . $e->getMessage()
+            ], 400);
+        }
+    }
+
+    public function createRecord($tableName)
+    {
+        $this->requireAdmin();
+
+        if (!preg_match('/^[a-zA-Z_][a-zA-Z0-9_]*$/', $tableName)) {
+            $this->jsonResponse(['error' => 'Invalid table name'], 400);
+            return;
+        }
+
+        $data = $this->getJsonInput();
+        $pdo = $this->db->getPdo();
+
+        try {
+            $columns = array_keys($data);
+            $placeholders = array_fill(0, count($columns), '?');
+
+            $sql = sprintf(
+                "INSERT INTO %s (%s) VALUES (%s)",
+                $tableName,
+                implode(', ', $columns),
+                implode(', ', $placeholders)
+            );
+
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute(array_values($data));
+
+            $this->jsonResponse([
+                'success' => true,
+                'id' => $pdo->lastInsertId()
+            ]);
+        } catch (\PDOException $e) {
+            $this->jsonResponse(['error' => 'Insert failed: ' . $e->getMessage()], 400);
+        }
+    }
+
+    public function updateRecord($tableName, $id)
+    {
+        $this->requireAdmin();
+
+        if (!preg_match('/^[a-zA-Z_][a-zA-Z0-9_]*$/', $tableName)) {
+            $this->jsonResponse(['error' => 'Invalid table name'], 400);
+            return;
+        }
+
+        $data = $this->getJsonInput();
+        $pdo = $this->db->getPdo();
+
+        try {
+            $setParts = [];
+            $values = [];
+
+            foreach ($data as $column => $value) {
+                $setParts[] = "$column = ?";
+                $values[] = $value;
+            }
+            $values[] = $id;
+
+            $sql = sprintf(
+                "UPDATE %s SET %s WHERE id = ?",
+                $tableName,
+                implode(', ', $setParts)
+            );
+
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute($values);
+
+            $this->jsonResponse(['success' => true]);
+        } catch (\PDOException $e) {
+            $this->jsonResponse(['error' => 'Update failed: ' . $e->getMessage()], 400);
+        }
+    }
+
+    public function deleteRecord($tableName, $id)
+    {
+        $this->requireAdmin();
+
+        if (!preg_match('/^[a-zA-Z_][a-zA-Z0-9_]*$/', $tableName)) {
+            $this->jsonResponse(['error' => 'Invalid table name'], 400);
+            return;
+        }
+
+        $pdo = $this->db->getPdo();
+
+        try {
+            $stmt = $pdo->prepare("DELETE FROM $tableName WHERE id = ?");
+            $stmt->execute([$id]);
+
+            $this->jsonResponse(['success' => true]);
+        } catch (\PDOException $e) {
+            $this->jsonResponse(['error' => 'Delete failed: ' . $e->getMessage()], 400);
+        }
+    }
 }

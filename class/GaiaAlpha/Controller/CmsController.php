@@ -71,7 +71,7 @@ class CmsController extends BaseController
             $this->jsonResponse(['error' => 'Invalid file type. Allowed: JPG, PNG, WEBP'], 400);
         }
 
-        $userDir = (defined('GAIA_DATA_PATH') ? GAIA_DATA_PATH : dirname(__DIR__, 3) . '/my-data') . '/uploads/' . $_SESSION['user_id'];
+        $userDir = (defined('GAIA_DATA_PATH') ? GAIA_DATA_PATH : \GaiaAlpha\App::$rootDir . '/my-data') . '/uploads/' . $_SESSION['user_id'];
         if (!is_dir($userDir)) {
             mkdir($userDir, 0755, true);
         }

@@ -61,28 +61,61 @@ Gaia Alpha supports Role-Based Access Control (RBAC):
 #### Admin Features
 - **Dashboard**: View system stats (total users, total todos).
 - **User Management**: View list of registered users and their levels.
+- **Database Manager**: Execute SQL queries, browse tables, and perform CRUD operations on any table.
 - **Login/Register Toggle**: Header buttons allow switching between Login and Register modes when logged out.
 
+## Database
+
+### Schema Management
+- **Schema Files**: SQL table definitions in `templates/sql/` (e.g., `001_users.sql`, `002_todos.sql`)
+- **Migrations**: Database migrations in `templates/sql/migrations/`
+- **Auto-Discovery**: Tables are automatically created from numbered SQL files
+
+### Tables
+- **users**: User accounts with role-based access control
+- **todos**: Task management
+- **cms_pages**: Content management system
+- **data_store**: Generic key-value storage with type classification
+
 ## CLI Tool
-Gaia Alpha includes a command-line tool (`cli.php`) for database management.
+Gaia Alpha includes a command-line tool (`cli.php`) for database and file management.
 
 **Usage:** `php cli.php <command> [arguments]`
 
-**Commands:**
+### Database Commands
 - `table:list <table>`: List all rows in a table.
 - `table:insert <table> <json_data>`: Insert a row.
 - `table:update <table> <id> <json_data>`: Update a row.
 - `table:delete <table> <id>`: Delete a row.
 - `sql <query>`: Execute a raw SQL query.
+
+### Media Commands
 - `media:stats`: Show storage stats for uploads and cache.
 - `media:clear-cache`: Clear all cached images.
+
+### File Management Commands
+- `file:write <path> <content>`: Write content to a file in my-data.
+- `file:read <path>`: Read content from a file in my-data.
+- `file:list [path]`: List files in my-data (or subdirectory).
+- `file:delete <path>`: Delete a file in my-data.
+- `file:move <source> <destination>`: Move/rename a file in my-data.
+
+### General
 - `help`: Show usage instructions.
 
 **Examples:**
 ```bash
+# Database operations
 php cli.php table:list users
-php cli.php media:stats
 php cli.php sql "SELECT count(*) FROM todos"
+
+# Media management
+php cli.php media:stats
+
+# File management
+php cli.php file:list
+php cli.php file:read PROJECT_INFO.md
+php cli.php file:write notes.txt "My notes"
 ```
 
 ## Vue 3 Version Sizes

@@ -5,5 +5,5 @@ vendor/
 !www/js/vendor/
 .vscode/
 *.log
-my-data/
+my-*
 cookies_*.txt

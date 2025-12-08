@@ -38,13 +38,8 @@ class TodoController extends BaseController
             $data['labels'] ?? null
         );
 
-        $this->jsonResponse([
-            'id' => $id,
-            'title' => $data['title'],
-            'completed' => 0,
-            'parent_id' => $data['parent_id'] ?? null,
-            'labels' => $data['labels'] ?? null
-        ]);
+        $newTodo = $todoModel->find($id, $_SESSION['user_id']);
+        $this->jsonResponse($newTodo);
     }
 
     public function update($id)

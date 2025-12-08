@@ -57,7 +57,7 @@ For detailed information, please refer to:
 4. **Logout**: Click the "Logout" button in the header.
 
 ### Todo Features
-- **Hierarchical Tasks**: Create parent-child relationships for complex task structures
+- **Hierarchical Tasks**: Create parent-child relationships with infinite nesting depth
 - **Labels**: Tag todos with multiple labels for easy categorization
 - **Label Filtering**: Quick filter by clicking any label
 - **Inline Editing**: Edit todos without leaving the page

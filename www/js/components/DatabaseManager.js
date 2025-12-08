@@ -1,4 +1,4 @@
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 
 export default {
     template: `
@@ -14,13 +14,16 @@ export default {
                     rows="6"
                     class="sql-input"
                 ></textarea>
-                <button @click="executeQuery" class="btn-primary">Execute Query</button>
+                <div class="executor-actions">
+                    <button @click="executeQuery" class="btn-primary">Execute Query</button>
+                    <span class="hint">Use SELECT, INSERT, UPDATE, DELETE</span>
+                </div>
                 
                 <div v-if="queryResult" class="query-result">
                     <h4>Result:</h4>
                     <div v-if="queryResult.error" class="error">{{ queryResult.error }}</div>
                     <div v-else>
-                        <p class="success">✓ {{ queryResult.type === 'select' ? 'Query executed' : 'Query executed' }}</p>
+                        <p class="success">✓ {{ queryResult.type === 'select' ? 'Query executed' : 'Modification successful' }}</p>
                         <p v-if="queryResult.type === 'select'">Rows returned: {{ queryResult.count }}</p>
                         <p v-if="queryResult.type === 'modification'">Affected rows: {{ queryResult.affected_rows }}</p>
                         
@@ -58,23 +61,7 @@ export default {
                 <div v-if="tableData" class="table-data">
                     <div class="table-header">
                         <h4>{{ tableData.table }} ({{ tableData.count }} rows)</h4>
-                        <button @click="showCreateForm = !showCreateForm" class="btn-primary">
-                            {{ showCreateForm ? 'Cancel' : 'Add New Record' }}
-                        </button>
-                    </div>
-
-                    <!-- Create Form -->
-                    <div v-if="showCreateForm" class="record-form card">
-                        <h4>Create New Record</h4>
-                        <div v-for="col in tableData.schema.filter(c => c.name !== 'id')" :key="col.name" class="form-group">
-                            <label>{{ col.name }} ({{ col.type }})</label>
-                            <input 
-                                v-model="newRecord[col.name]" 
-                                :type="getInputType(col.type)"
-                                :placeholder="col.name"
-                            />
-                        </div>
-                        <button @click="createRecord" class="btn-primary">Create</button>
+                        <button @click="openCreateModal" class="btn-primary">Add New Record</button>
                     </div>
 
                     <!-- Schema Info -->
@@ -85,18 +72,18 @@ export default {
                                 <tr>
                                     <th>Column</th>
                                     <th>Type</th>
-                                    <th>Not Null</th>
+                                    <th>PK</th>
+                                    <th>NotNull</th>
                                     <th>Default</th>
-                                    <th>Primary Key</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr v-for="col in tableData.schema" :key="col.cid">
                                     <td>{{ col.name }}</td>
                                     <td>{{ col.type }}</td>
-                                    <td>{{ col.notnull ? 'Yes' : 'No' }}</td>
+                                    <td>{{ col.pk ? '✓' : '' }}</td>
+                                    <td>{{ col.notnull ? '✓' : '' }}</td>
                                     <td>{{ col.dflt_value || '-' }}</td>
-                                    <td>{{ col.pk ? 'Yes' : 'No' }}</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -107,35 +94,82 @@ export default {
                         <table>
                             <thead>
                                 <tr>
-                                    <th v-for="col in tableData.schema" :key="col.name">{{ col.name }}</th>
-                                    <th>Actions</th>
+                                    <th class="actions-header">Actions</th>
+                                    <th 
+                                        v-for="col in tableData.schema" 
+                                        :key="col.name"
+                                        @click="sortBy(col.name)"
+                                        class="sortable-header"
+                                    >
+                                        {{ col.name }}
+                                        <span v-if="sortColumn === col.name" class="sort-indicator">
+                                            {{ sortDirection === 'asc' ? '▲' : '▼' }}
+                                        </span>
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="row in tableData.data" :key="row.id">
-                                    <td v-for="col in tableData.schema" :key="col.name">
-                                        <span v-if="editingRow !== row.id">{{ row[col.name] }}</span>
-                                        <input 
-                                            v-else-if="col.name !== 'id'"
-                                            v-model="editData[col.name]"
-                                            :type="getInputType(col.type)"
-                                        />
-                                        <span v-else>{{ row[col.name] }}</span>
-                                    </td>
+                                <tr v-for="row in sortedData" :key="row.id">
                                     <td class="actions">
-                                        <template v-if="editingRow !== row.id">
-                                            <button @click="startEdit(row)" class="btn-small">Edit</button>
-                                            <button @click="deleteRecord(row.id)" class="btn-small btn-danger">Delete</button>
-                                        </template>
-                                        <template v-else>
-                                            <button @click="saveEdit(row.id)" class="btn-small btn-success">Save</button>
-                                            <button @click="cancelEdit" class="btn-small">Cancel</button>
-                                        </template>
+                                        <button @click="openEditModal(row)" class="btn-small" title="Edit Record">Edit</button>
+                                        <button @click="deleteRecord(row.id)" class="btn-small btn-danger" title="Delete Record">Delete</button>
                                     </td>
+                                    <td v-for="col in tableData.schema" :key="col.name">
+                                        {{ formatDisplayValue(row[col.name]) }}
+                                    </td>
+                                </tr>
+                                <tr v-if="sortedData.length === 0">
+                                    <td :colspan="tableData.schema.length + 1" class="text-center">No records found</td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
+                </div>
+            </div>
+
+            <!-- Edit/Create Modal -->
+            <div v-if="showModal" class="modal-overlay" @click="closeModal">
+                <div class="modal-content" @click.stop>
+                    <h3>{{ modalMode === 'create' ? 'Create New Record' : 'Edit Record #' + editingId }}</h3>
+                    
+                    <form @submit.prevent="saveRecord">
+                        <div v-for="col in formColumns" :key="col.name" class="form-group">
+                            <label>
+                                {{ col.name }} 
+                                <span class="type-hint">{{ col.type }}</span>
+                                <span v-if="col.notnull" class="required">*</span>
+                            </label>
+                            
+                            <!-- Textarea for text/clob -->
+                            <textarea 
+                                v-if="isLongText(col.type)"
+                                v-model="formData[col.name]"
+                                rows="4"
+                                :placeholder="col.dflt_value"
+                            ></textarea>
+                            
+                            <!-- Number input -->
+                            <input 
+                                v-else-if="isNumber(col.type)"
+                                type="number"
+                                v-model="formData[col.name]"
+                                :placeholder="col.dflt_value"
+                            >
+                            
+                            <!-- Standard input -->
+                            <input 
+                                v-else
+                                type="text"
+                                v-model="formData[col.name]"
+                                :placeholder="col.dflt_value"
+                            >
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="submit" class="btn-primary">Save {{ modalMode === 'create' ? 'Record' : 'Changes' }}</button>
+                            <button type="button" @click="closeModal" class="btn-secondary">Cancel</button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
@@ -146,10 +180,16 @@ export default {
         const tableData = ref(null);
         const sqlQuery = ref('');
         const queryResult = ref(null);
-        const editingRow = ref(null);
-        const editData = ref({});
-        const showCreateForm = ref(false);
-        const newRecord = ref({});
+
+        // Sorting State
+        const sortColumn = ref(null);
+        const sortDirection = ref('asc');
+
+        // Modal State
+        const showModal = ref(false);
+        const modalMode = ref('create'); // 'create' or 'edit'
+        const editingId = ref(null);
+        const formData = ref({});
 
         const loadTables = async () => {
             try {
@@ -163,24 +203,66 @@ export default {
 
         const loadTableData = async () => {
             if (!selectedTable.value) return;
-
             try {
                 const res = await fetch(`/api/admin/db/table/${selectedTable.value}`);
                 const data = await res.json();
                 tableData.value = data;
-                showCreateForm.value = false;
-                newRecord.value = {};
+                // Reset Sort
+                sortColumn.value = null;
+                sortDirection.value = 'asc';
             } catch (e) {
                 console.error('Failed to load table data', e);
             }
         };
+
+        const sortBy = (colName) => {
+            if (sortColumn.value === colName) {
+                sortDirection.value = sortDirection.value === 'asc' ? 'desc' : 'asc';
+            } else {
+                sortColumn.value = colName;
+                sortDirection.value = 'asc';
+            }
+        };
+
+        const sortedData = computed(() => {
+            if (!tableData.value || !tableData.value.data) return [];
+            let data = [...tableData.value.data];
+
+            if (sortColumn.value) {
+                const col = sortColumn.value;
+                const dir = sortDirection.value === 'asc' ? 1 : -1;
+
+                data.sort((a, b) => {
+                    let valA = a[col];
+                    let valB = b[col];
+
+                    // Handle Nulls (always last)
+                    if (valA === valB) return 0;
+                    if (valA === null || valA === undefined) return 1;
+                    if (valB === null || valB === undefined) return -1;
+
+                    // Numeric Sort
+                    if (typeof valA === 'number' && typeof valB === 'number') {
+                        return (valA - valB) * dir;
+                    }
+
+                    // String Sort (Case Insensitive)
+                    valA = String(valA).toLowerCase();
+                    valB = String(valB).toLowerCase();
+
+                    if (valA < valB) return -1 * dir;
+                    if (valA > valB) return 1 * dir;
+                    return 0;
+                });
+            }
+            return data;
+        });
 
         const executeQuery = async () => {
             if (!sqlQuery.value.trim()) {
                 alert('Please enter a SQL query');
                 return;
             }
-
             try {
                 const res = await fetch('/api/admin/db/query', {
                     method: 'POST',
@@ -193,47 +275,73 @@ export default {
             }
         };
 
-        const startEdit = (row) => {
-            editingRow.value = row.id;
-            editData.value = { ...row };
+        // Modal Logic
+        const formColumns = computed(() => {
+            if (!tableData.value) return [];
+            // Hide primary key (assumed 'id') from form, or strictly auto-increment columns?
+            // Safer to hide 'id' if it's PK.
+            return tableData.value.schema.filter(c => c.name !== 'id');
+        });
+
+        const isLongText = (type) => ['TEXT', 'CLOB'].some(t => type && type.toUpperCase().includes(t));
+        const isNumber = (type) => ['INT', 'REAL', 'FLO', 'DOUB', 'NUM'].some(t => type && type.toUpperCase().includes(t));
+
+        const openCreateModal = () => {
+            modalMode.value = 'create';
+            formData.value = {};
+            // Pre-fill defaults? SQLite defaults are strings like "'default'" or "0"
+            // For now leave empty
+            showModal.value = true;
         };
 
-        const cancelEdit = () => {
-            editingRow.value = null;
-            editData.value = {};
+        const openEditModal = (row) => {
+            modalMode.value = 'edit';
+            editingId.value = row.id;
+            formData.value = { ...row }; // Clone row data
+            showModal.value = true;
         };
 
-        const saveEdit = async (id) => {
+        const closeModal = () => {
+            showModal.value = false;
+            formData.value = {};
+            editingId.value = null;
+        };
+
+        const saveRecord = async () => {
             try {
-                const dataToUpdate = { ...editData.value };
-                delete dataToUpdate.id; // Don't update the ID
+                const url = modalMode.value === 'create'
+                    ? `/api/admin/db/table/${selectedTable.value}`
+                    : `/api/admin/db/table/${selectedTable.value}/${editingId.value}`;
 
-                const res = await fetch(`/api/admin/db/table/${selectedTable.value}/${id}`, {
-                    method: 'PATCH',
+                const method = modalMode.value === 'create' ? 'POST' : 'PATCH';
+
+                // Prepare payload: remove ID to avoid updating PK
+                const payload = { ...formData.value };
+                delete payload.id;
+
+                const res = await fetch(url, {
+                    method: method,
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(dataToUpdate)
+                    body: JSON.stringify(payload)
                 });
 
                 if (res.ok) {
                     await loadTableData();
-                    cancelEdit();
+                    closeModal();
                 } else {
                     const error = await res.json();
-                    alert('Update failed: ' + (error.error || 'Unknown error'));
+                    alert('Save failed: ' + (error.error || 'Unknown error'));
                 }
             } catch (e) {
-                alert('Failed to update record: ' + e.message);
+                alert('Failed to save record: ' + e.message);
             }
         };
 
         const deleteRecord = async (id) => {
-            if (!confirm('Are you sure you want to delete this record?')) return;
-
             try {
                 const res = await fetch(`/api/admin/db/table/${selectedTable.value}/${id}`, {
                     method: 'DELETE'
                 });
-
                 if (res.ok) {
                     await loadTableData();
                 } else {
@@ -245,31 +353,11 @@ export default {
             }
         };
 
-        const createRecord = async () => {
-            try {
-                const res = await fetch(`/api/admin/db/table/${selectedTable.value}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(newRecord.value)
-                });
-
-                if (res.ok) {
-                    await loadTableData();
-                    newRecord.value = {};
-                    showCreateForm.value = false;
-                } else {
-                    const error = await res.json();
-                    alert('Create failed: ' + (error.error || 'Unknown error'));
-                }
-            } catch (e) {
-                alert('Failed to create record: ' + e.message);
-            }
-        };
-
-        const getInputType = (sqlType) => {
-            if (sqlType.includes('INT')) return 'number';
-            if (sqlType.includes('DATE') || sqlType.includes('TIME')) return 'datetime-local';
-            return 'text';
+        const formatDisplayValue = (val) => {
+            if (val === null) return 'NULL';
+            if (val === undefined) return '';
+            if (typeof val === 'string' && val.length > 50) return val.substring(0, 50) + '...';
+            return val;
         };
 
         onMounted(loadTables);
@@ -278,21 +366,28 @@ export default {
             tables,
             selectedTable,
             tableData,
+            sortedData,
             sqlQuery,
             queryResult,
-            editingRow,
-            editData,
-            showCreateForm,
-            newRecord,
+            showModal,
+            modalMode,
+            editingId,
+            formData,
+            formColumns,
+            sortColumn,
+            sortDirection,
             loadTables,
             loadTableData,
+            sortBy,
             executeQuery,
-            startEdit,
-            cancelEdit,
-            saveEdit,
+            openCreateModal,
+            openEditModal,
+            closeModal,
+            saveRecord,
             deleteRecord,
-            createRecord,
-            getInputType
+            isLongText,
+            isNumber,
+            formatDisplayValue
         };
     }
 };

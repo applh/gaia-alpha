@@ -25,6 +25,13 @@ class Todo extends BaseModel
         return $stmt->fetchAll();
     }
 
+    public function find(int $id, int $userId)
+    {
+        $stmt = $this->db->prepare("SELECT * FROM todos WHERE id = ? AND user_id = ?");
+        $stmt->execute([$id, $userId]);
+        return $stmt->fetch();
+    }
+
     public function create(int $userId, string $title, ?int $parentId = null, ?string $labels = null)
     {
         $stmt = $this->db->prepare("INSERT INTO todos (user_id, title, parent_id, labels, created_at, updated_at) VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");

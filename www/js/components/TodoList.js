@@ -1,6 +1,63 @@
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, provide, inject } from 'vue';
+
+// Recursive Todo Item Component
+const TodoItem = {
+    name: 'TodoItem',
+    props: {
+        todo: Object,
+        allTodos: Array,
+        level: { type: Number, default: 0 }
+    },
+    setup(props) {
+        // Inject actions provided by parent
+        const toggleTodo = inject('toggleTodo');
+        const deleteTodo = inject('deleteTodo');
+        const showEditForm = inject('showEditForm');
+        const parseLabels = inject('parseLabels');
+
+        const children = computed(() => {
+            return props.allTodos.filter(t => t.parent_id == props.todo.id);
+        });
+
+        return {
+            children,
+            toggleTodo,
+            deleteTodo,
+            showEditForm,
+            parseLabels
+        };
+    },
+    template: `
+        <li :class="{ completed: todo.completed }" class="todo-item">
+            <div class="todo-content" :style="{ paddingLeft: (level * 20) + 'px' }">
+                <span v-if="level > 0" class="child-indicator">↳</span>
+                <span @click="toggleTodo(todo)" class="todo-title">
+                    {{ todo.title }}
+                </span>
+                <span v-if="todo.labels" class="todo-labels">
+                    <span v-for="label in parseLabels(todo.labels)" :key="label" class="label-tag">
+                        {{ label }}
+                    </span>
+                </span>
+            </div>
+            <div class="todo-actions">
+                <button @click="showEditForm(todo)" class="btn-small" title="Edit">✎</button>
+                <button @click="deleteTodo(todo.id)" class="delete-btn" title="Delete">×</button>
+            </div>
+        </li>
+        <!-- Recursively render children -->
+        <todo-item 
+            v-for="child in children" 
+            :key="child.id" 
+            :todo="child" 
+            :all-todos="allTodos"
+            :level="level + 1"
+        ></todo-item>
+    `
+};
 
 export default {
+    components: { TodoItem },
     template: `
         <div class="todo-container">
             <h2>My Todos</h2>
@@ -37,8 +94,8 @@ export default {
                 >
                 <select v-model="newParentId" class="parent-select">
                     <option :value="null">No parent</option>
-                    <option v-for="todo in rootTodos" :key="todo.id" :value="todo.id">
-                        ↳ {{ todo.title }}
+                    <option v-for="todo in todos" :key="todo.id" :value="todo.id">
+                        {{ todo.title }} (ID: {{ todo.id }})
                     </option>
                 </select>
                 <button @click="addTodo">Add</button>
@@ -47,62 +104,7 @@ export default {
             <!-- Todo list with hierarchy -->
             <ul class="todo-list">
                 <template v-for="todo in filteredRootTodos" :key="todo.id">
-                    <li :class="{ completed: todo.completed }" class="todo-item">
-                        <div class="todo-content">
-                            <span @click="toggleTodo(todo)" class="todo-title">
-                                {{ todo.title }}
-                            </span>
-                            <span v-if="todo.labels" class="todo-labels">
-                                <span v-for="label in parseLabels(todo.labels)" :key="label" class="label-tag">
-                                    {{ label }}
-                                </span>
-                            </span>
-                        </div>
-                        <div class="todo-actions">
-                            <button 
-                                @click="showEditForm(todo)" 
-                                class="btn-small"
-                                title="Edit"
-                            >✎</button>
-                            <button 
-                                @click="deleteTodo(todo.id)" 
-                                class="delete-btn"
-                                title="Delete"
-                            >×</button>
-                        </div>
-                    </li>
-                    
-                    <!-- Child todos -->
-                    <li 
-                        v-for="child in getChildren(todo.id)" 
-                        :key="child.id"
-                        :class="{ completed: child.completed }"
-                        class="todo-item child-todo"
-                    >
-                        <div class="todo-content">
-                            <span class="child-indicator">↳</span>
-                            <span @click="toggleTodo(child)" class="todo-title">
-                                {{ child.title }}
-                            </span>
-                            <span v-if="child.labels" class="todo-labels">
-                                <span v-for="label in parseLabels(child.labels)" :key="label" class="label-tag">
-                                    {{ label }}
-                                </span>
-                            </span>
-                        </div>
-                        <div class="todo-actions">
-                            <button 
-                                @click="showEditForm(child)" 
-                                class="btn-small"
-                                title="Edit"
-                            >✎</button>
-                            <button 
-                                @click="deleteTodo(child.id)" 
-                                class="delete-btn"
-                                title="Delete"
-                            >×</button>
-                        </div>
-                    </li>
+                    <todo-item :todo="todo" :all-todos="todos"></todo-item>
                 </template>
             </ul>
             
@@ -123,7 +125,7 @@ export default {
                         <select v-model="editForm.parent_id" class="parent-select">
                             <option :value="null">No parent</option>
                             <option 
-                                v-for="todo in rootTodos.filter(t => t.id !== editingTodo.id)" 
+                                v-for="todo in todos.filter(t => t.id !== editingTodo.id)" 
                                 :key="todo.id" 
                                 :value="todo.id"
                             >
@@ -161,6 +163,11 @@ export default {
             );
         });
 
+        const parseLabels = (labelsString) => {
+            if (!labelsString) return [];
+            return labelsString.split(',').map(l => l.trim()).filter(l => l);
+        };
+
         const allLabels = computed(() => {
             const labels = new Set();
             todos.value.forEach(todo => {
@@ -170,15 +177,6 @@ export default {
             });
             return Array.from(labels).sort();
         });
-
-        const parseLabels = (labelsString) => {
-            if (!labelsString) return [];
-            return labelsString.split(',').map(l => l.trim()).filter(l => l);
-        };
-
-        const getChildren = (parentId) => {
-            return todos.value.filter(t => t.parent_id === parentId);
-        };
 
         const fetchTodos = async () => {
             const res = await fetch('/api/todos');
@@ -194,18 +192,25 @@ export default {
                 labels: newLabels.value || null
             };
 
-            const res = await fetch('/api/todos', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-            });
+            try {
+                const res = await fetch('/api/todos', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
 
-            if (res.ok) {
-                const todo = await res.json();
-                todos.value.push(todo);
-                newTodo.value = '';
-                newLabels.value = '';
-                newParentId.value = null;
+                if (res.ok) {
+                    const todo = await res.json();
+                    todos.value.push(todo);
+                    newTodo.value = '';
+                    newLabels.value = '';
+                    newParentId.value = null;
+                } else {
+                    const error = await res.json();
+                    alert('Failed to add todo: ' + (error.error || 'Unknown error'));
+                }
+            } catch (e) {
+                alert('Connection error: ' + e.message);
             }
         };
 
@@ -247,7 +252,13 @@ export default {
             });
 
             if (res.ok) {
+                // Update local state is tricky with references, easier to refetch or find & update
+                // Given we rely on 'todos' for everything, updating the object in 'todos' works
+                // But finding it might be needed if objects were replaced
+                // Object.assign works if the object reference is the same
+                // We are passing objects from 'todos.value', so reference holds
                 Object.assign(editingTodo.value, editForm.value);
+                // Also need to handle parent_id change affecting hierarchy!
                 cancelEdit();
             }
         };
@@ -256,6 +267,12 @@ export default {
             editingTodo.value = null;
             editForm.value = {};
         };
+
+        // Provide actions to children
+        provide('toggleTodo', toggleTodo);
+        provide('deleteTodo', deleteTodo);
+        provide('showEditForm', showEditForm);
+        provide('parseLabels', parseLabels);
 
         onMounted(fetchTodos);
 
@@ -270,12 +287,7 @@ export default {
             rootTodos,
             filteredRootTodos,
             allLabels,
-            parseLabels,
-            getChildren,
             addTodo,
-            toggleTodo,
-            deleteTodo,
-            showEditForm,
             saveEdit,
             cancelEdit
         };

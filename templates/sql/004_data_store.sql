@@ -1,9 +1,10 @@
 CREATE TABLE IF NOT EXISTS data_store (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER,
     type TEXT NOT NULL,
     key TEXT NOT NULL,
     value TEXT,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE(type, key)
+    UNIQUE(user_id, type, key)
 );

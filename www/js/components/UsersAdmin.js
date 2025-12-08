@@ -1,28 +1,33 @@
 
-import { ref, reactive, onMounted } from 'vue';
+import { ref, reactive, onMounted, computed } from 'vue';
+import SortTh from './SortTh.js';
+import { useSorting } from '../composables/useSorting.js';
 
 export default {
+    components: { SortTh },
     template: `
-        <div class="users-admin">
-            <div class="header-actions">
-                <h2>User Management</h2>
+        <div class="admin-page">
+            <div class="admin-header">
+                <h2 class="page-title">User Management</h2>
                 <button @click="openCreateModal">Add User</button>
             </div>
+            
+            <div class="admin-card">
 
             <table v-if="users.length">
                 <thead>
                     <tr>
-                        <th>ID</th>
-                        <th>Username</th>
-                        <th>Level</th>
-                        <th>Created</th>
-                        <th>Updated</th>
-                        <th>Role</th>
+                        <SortTh name="id" label="ID" :current-sort="sortColumn" :sort-dir="sortDirection" @sort="sortBy" />
+                        <SortTh name="username" label="Username" :current-sort="sortColumn" :sort-dir="sortDirection" @sort="sortBy" />
+                        <SortTh name="level" label="Level" :current-sort="sortColumn" :sort-dir="sortDirection" @sort="sortBy" />
+                        <SortTh name="created_at" label="Created" :current-sort="sortColumn" :sort-dir="sortDirection" @sort="sortBy" />
+                        <SortTh name="updated_at" label="Updated" :current-sort="sortColumn" :sort-dir="sortDirection" @sort="sortBy" />
+                        <SortTh name="role" label="Role" :current-sort="sortColumn" :sort-dir="sortDirection" @sort="sortBy" />
                         <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="user in users" :key="user.id">
+                    <tr v-for="user in sortedUsers" :key="user.id">
                         <td>{{ user.id }}</td>
                         <td>{{ user.username }}</td>
                         <td>{{ user.level }}</td>
@@ -64,10 +69,14 @@ export default {
                 </div>
             </div>
         </div>
+    </div>
     `,
     setup() {
         const users = ref([]);
         const showModal = ref(false);
+        const { sortColumn, sortDirection, sortBy, sortedData: sortedUsers } = useSorting(users, 'id', 'asc', {
+            role: (u) => u.level >= 100 ? 'Admin' : 'Member'
+        });
         const editMode = ref(false);
         const error = ref('');
         const form = reactive({
@@ -149,6 +158,6 @@ export default {
 
         onMounted(fetchUsers);
 
-        return { users, showModal, editMode, form, error, openCreateModal, openEditModal, closeModal, saveUser, deleteUser };
+        return { users, showModal, editMode, form, error, openCreateModal, openEditModal, closeModal, saveUser, deleteUser, sortBy, sortColumn, sortDirection, sortedUsers };
     }
 };

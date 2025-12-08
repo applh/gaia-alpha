@@ -46,6 +46,11 @@ class App
         $this->router->add('POST', '/api/logout', [$auth, 'logout']);
         $this->router->add('GET', '/api/user', [$auth, 'me']);
 
+        // Settings
+        $settings = new Controller\SettingsController($db);
+        $this->router->add('GET', '/api/settings', [$settings, 'index']);
+        $this->router->add('POST', '/api/settings', [$settings, 'update']);
+
         // Todos
         $this->router->add('GET', '/api/todos', [$todo, 'index']);
         $this->router->add('POST', '/api/todos', [$todo, 'create']);

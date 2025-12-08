@@ -3,27 +3,39 @@ import { ref, onMounted } from 'vue';
 
 export default {
     template: `
-        <div class="admin-dashboard">
-            <h2>Admin Dashboard</h2>
+        <div class="admin-page">
+            <div class="admin-header">
+                <h2 class="page-title">Admin Dashboard</h2>
+            </div>
+            
             <div v-if="stats" class="stats-grid">
                 <div class="stat-card">
                     <h3>Total Users</h3>
-                    <p>{{ stats.users }}</p>
+                    <div class="stat-number">{{ stats.users }}</div>
+                    <div class="stat-icon">👥</div>
                 </div>
                 <div class="stat-card">
                     <h3>Total Todos</h3>
-                    <p>{{ stats.todos }}</p>
+                    <div class="stat-number">{{ stats.todos }}</div>
+                    <div class="stat-icon">✅</div>
                 </div>
                 <div class="stat-card">
                     <h3>Total Pages</h3>
-                    <p>{{ stats.pages }}</p>
+                    <div class="stat-number">{{ stats.pages }}</div>
+                    <div class="stat-icon">📄</div>
                 </div>
                 <div class="stat-card">
                     <h3>Total Images</h3>
-                    <p>{{ stats.images }}</p>
+                    <div class="stat-number">{{ stats.images }}</div>
+                    <div class="stat-icon">🖼️</div>
+                </div>
+                 <div class="stat-card">
+                    <h3>Datastore</h3>
+                    <div class="stat-number">{{ stats.datastore }}</div>
+                    <div class="stat-icon">💾</div>
                 </div>
             </div>
-            <div v-else>Loading stats...</div>
+            <div v-else class="admin-card">Loading stats...</div>
         </div>
     `,
     setup() {

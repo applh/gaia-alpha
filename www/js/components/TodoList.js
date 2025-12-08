@@ -145,8 +145,12 @@ const TodoItem = {
 export default {
     components: { TodoItem },
     template: `
-        <div class="todo-container">
-            <h2>My Todos</h2>
+        <div class="admin-page">
+            <div class="admin-header">
+                <h2 class="page-title">My Todos</h2>
+            </div>
+            
+            <div class="admin-card">
             
             <!-- Filter by label -->
             <div class="todo-filters" v-if="allLabels.length > 0">
@@ -193,6 +197,7 @@ export default {
                     <todo-item :todo="todo" :all-todos="todos"></todo-item>
                 </template>
             </ul>
+            </div>
             
             <!-- Edit modal -->
             <div v-if="editingTodo" class="modal-overlay" @click="cancelEdit">

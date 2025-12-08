@@ -26,7 +26,8 @@ class AdminController extends BaseController
             'users' => $userModel->count(),
             'todos' => $todoModel->count(),
             'pages' => $pageModel->count('page'),
-            'images' => $pageModel->count('image')
+            'images' => $pageModel->count('image'),
+            'datastore' => $this->db->getPdo()->query("SELECT COUNT(*) FROM data_store")->fetchColumn()
         ]);
     }
 

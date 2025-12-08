@@ -1,25 +1,25 @@
-import { ref, reactive, onMounted } from 'vue';
+import { ref, reactive, onMounted, computed } from 'vue';
+import SortTh from './SortTh.js';
+import { useSorting } from '../composables/useSorting.js';
 
 export default {
+    components: { SortTh },
     template: `
-        <div class="cms-container">
-            <div class="cms-header">
-                <h2>Content Management</h2>
+        <div class="admin-page">
+            <div class="admin-header">
+                <h2 class="page-title">Content Management</h2>
                 <div class="header-actions">
-                    <select v-model="filterCat" @change="fetchPages">
+                    <select v-model="filterCat" @change="fetchPages" style="width: auto; padding: 4px 8px; margin-right: 10px;">
                         <option value="page">Pages</option>
                         <option value="image">Images</option>
                     </select>
                     <button v-if="!showForm && filterCat === 'page'" @click="openCreate" class="btn-primary">Create Page</button>
-                    <!-- Images are uploaded via inline or drag drop usually, but maybe we want a dedicated upload button here too? -->
-                    <!-- For now, requirement says "member cms will only list rows with cat 'page'". 
-                         Actually "member cms will only list rows with cat 'page' (by default I assume? or strictly?)"
-                         "add a filter to select cat possible values" -> implies we can see others.
-                    -->
                     <button v-if="!showForm && filterCat === 'image'" @click="$refs.headerUpload.click()" class="btn-secondary">Upload Image</button>
                     <input type="file" ref="headerUpload" @change="uploadHeaderImage" style="display: none" accept="image/*">
                 </div>
             </div>
+            
+            <div class="admin-card">
 
             <!-- List View -->
             <div v-if="!showForm" class="cms-list">
@@ -28,14 +28,14 @@ export default {
                     <thead>
                         <tr>
                             <th>Image</th>
-                            <th>{{ filterCat === 'image' ? 'Filename' : 'Title' }}</th>
-                            <th v-if="filterCat === 'page'">Slug</th>
-                            <th>Created</th>
+                            <SortTh name="title" :label="filterCat === 'image' ? 'Filename' : 'Title'" :current-sort="sortColumn" :sort-dir="sortDirection" @sort="sortBy" />
+                            <SortTh v-if="filterCat === 'page'" name="slug" label="Slug" :current-sort="sortColumn" :sort-dir="sortDirection" @sort="sortBy" />
+                            <SortTh name="created_at" label="Created" :current-sort="sortColumn" :sort-dir="sortDirection" @sort="sortBy" />
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="page in pages" :key="page.id">
+                        <tr v-for="page in sortedPages" :key="page.id">
                             <td>
                                 <img v-if="page.image" :src="page.image" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;">
                                 <span v-else style="color: #666; font-size: 0.8em;">No Img</span>
@@ -96,6 +96,7 @@ export default {
                 </form>
             </div>
         </div>
+    </div>
     `,
     setup() {
         const pages = ref([]);
@@ -104,6 +105,9 @@ export default {
         const fileInput = ref(null);
         const headerUpload = ref(null);
         const filterCat = ref('page');
+        const { sortColumn, sortDirection, sortBy, sortedData: sortedPages } = useSorting(pages, 'created_at', 'desc', {
+            title: (row) => row.title || row.filename
+        });
 
         const form = reactive({
             id: null,
@@ -261,7 +265,8 @@ export default {
         return {
             pages, loading, showForm, form, fileInput, headerUpload, filterCat,
             openCreate, editPage, savePage, deletePage, cancelForm, generateSlug,
-            formatDate, triggerUpload, uploadImage, uploadFeatured, uploadHeaderImage, fetchPages
+            formatDate, triggerUpload, uploadImage, uploadFeatured, uploadHeaderImage, fetchPages,
+            sortBy, sortColumn, sortDirection, sortedPages
         };
     }
 };

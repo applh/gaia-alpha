@@ -2,11 +2,13 @@ import { ref, onMounted, computed } from 'vue';
 
 export default {
     template: `
-        <div class="database-manager">
-            <h2>Database Manager</h2>
+        <div class="admin-page">
+            <div class="admin-header">
+                <h2 class="page-title">Database Manager</h2>
+            </div>
             
             <!-- SQL Query Executor -->
-            <div class="sql-executor card">
+            <div class="admin-card sql-executor">
                 <h3>SQL Query Executor</h3>
                 <textarea 
                     v-model="sqlQuery" 
@@ -46,7 +48,7 @@ export default {
             </div>
 
             <!-- Table Browser -->
-            <div class="table-browser card">
+            <div class="admin-card table-browser">
                 <h3>Table Browser</h3>
                 
                 <div class="table-selector">

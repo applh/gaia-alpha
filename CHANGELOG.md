@@ -1,31 +1,20 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
-## [v0.4.0] - 2025-12-08
+## [v0.5.0] - 2025-12-08
 
 ### Added
-- **Todo List**: Implemented Drag and Drop support.
-    - **Reordering**: Drag items up or down to change their order in the list.
-    - **Reparenting**: Drag an item onto another to make it a child.
-    - **Visual Feedback**: visual indicators for drop targets (top, bottom, inside).
-- **Database**: Added `position` column to `todos` table for custom sorting.
-- **API**: Added `POST /api/todos/reorder` endpoint.
-
-
-## [v0.3.0] - 2025-12-08
-
-### Added
-- **Admin Database Manager**: Added sorting feature to the table browser. Click on column headers to sort data ascending or descending.
-- **Admin Database Manager**: Implemented modal-based CRUD operations for better user experience.
-- **Todo List**: Added recursive rendering to support infinite nesting of todo items.
-- **Todo List**: Parenting logic updated to allow any todo item to be a parent of another.
-- **Database**: Added migration `005_add_parent_id.sql` to add missing `parent_id` column to `todos` table.
+- **UI**: Added Column Sorting to User Management and CMS panels.
+- **UI**: Added expandable 100% width layout for all Admin Panels.
+- **Technical**: Introduced `useSorting` composable and `SortTh` component for standardized table features.
 
 ### Changed
-- **Todo List**: Improved error handling during todo creation.
-- **Admin Database Manager**: Actions column is now sticky to the left for better visibility on wide tables.
-- **UI**: General CSS improvements for tables and modals.
+- **UI**: Harmonized `TodoList` layout to match the standard Admin Panel design.
+- **UI**: Refined Top Menu layout (Theme toggle position, iconic Logout).
+- **Refactor**: Migrated manual sorting logic in Admin panels to shared components.
 
 ### Fixed
-- Fixed an issue where creating a new todo would fail silently due to missing database column.
-- Fixed an issue where the frontend did not display the newly created todo immediately.
+- **Bugs**: Fixed Vue template syntax errors in `DatabaseManager`, `UsersAdmin`, `CMS`, and `UserSettings`.
+- **Bugs**: Fixed layout constraints preventing panels from using full screen width.
+
+## [v0.4.0] - 2025-12-08

@@ -134,3 +134,19 @@ The application uses SQLite.
   - User uploads are stored in `my-data/uploads` (outside web root).
   - Images are served securely via `Media` class, preventing direct file access and directory traversal.
 - **CSRF**: (Planned) Currently relies on Session Auth.
+
+## Frontend Architecture
+Gaia Alpha uses a "Bundle-Free" architecture optimized for modern browsers (ES Modules).
+
+### CSS Strategy
+- **Global Stylesheet**: `www/css/site.css` serves all application styles.
+- **Why?**:
+    - **Performance**: The file is extremely small (< 20KB). Splitting it would introduce network request overhead without significant load time improvement.
+    - **Simplicity**: No build step (PostCSS, Sass, Webpack) is required.
+    - **Maintainability**: Styles are centralized and use CSS Variables for consistent theming.
+- **Scaling**: If the file grows significantly (> 100KB), we may reconsider component-scoped CSS or a lightweight build tool.
+
+### JavaScript Strategy
+- **Vue 3 ES Modules**: Uses `vue.esm-browser.js` directly via import map or direct import.
+- **Async Components**: `defineAsyncComponent` allows lazy-loading components (e.g., `AdminDashboard`) only when the user requests that view.
+- **No Bundler**: We avoid Webpack/Vite complexity. HTTP/2+ handles multiple small file requests efficiently, and caching strategies are simplified.

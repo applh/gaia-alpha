@@ -38,16 +38,73 @@ gaia-alpha/
 > [!IMPORTANT]
 > The `my-data/` directory MUST be blocked from public access. The `www/` directory is the only path that should be exposed by the web server.
 
+## Configuration System
+Gaia Alpha supports local environment configuration via `my-config.php` (git-ignored).
+
+### Configuration Constants
+- `GAIA_DATA_PATH`: Path to data directory (default: `./my-data`)
+- `GAIA_DB_PATH`: Path to database file (default: `GAIA_DATA_PATH/database.sqlite`)
+- `GAIA_DB_DSN`: PDO DSN string (default: `sqlite:GAIA_DB_PATH`)
+
+### Example Configuration
+```php
+<?php
+define('GAIA_DATA_PATH', __DIR__ . '/my-data');
+define('GAIA_DB_PATH', GAIA_DATA_PATH . '/database.sqlite');
+define('GAIA_DB_DSN', 'sqlite:' . GAIA_DB_PATH);
+// For MySQL:
+// define('GAIA_DB_DSN', 'mysql:host=localhost;dbname=gaia');
+```
+
 ## Application Lifecycle
 1. **Request**: All requests to non-static files are routed to `www/index.php`.
-2. **Bootstrap**: `index.php` initializes the autoloader.
+2. **Bootstrap**: `index.php` initializes the autoloader, which loads `my-config.php` if present.
 3. **App Initialization**: `GaiaAlpha\App` is instantiated.
-   - Connects to SQLite database in `my-data/`.
-   - Initializes `Media` handler with `my-data/` paths.
+   - Connects to database using `GAIA_DB_DSN`.
+   - Initializes `Media` handler with `GAIA_DATA_PATH`.
 4. **Routing (`App->run()`)**:
-   - **API Requests**: `/api/...` -> `handleApi()`
-   - **Media Requests**: `/media/...` -> `media->handleRequest()`
-   - **Page Requests**: Default -> Renders `templates/public_home.php` (Vue App host)
+   - **API Requests**: `/api/...` -> Router dispatches to Controllers
+   - **Media Requests**: `/media/{userId}/{filename}` -> `Media->handleRequest()`
+   - **Page Requests**: Default -> Renders templates (Vue App host)
+
+## Media Handling
+The `Media` class provides on-demand image processing with caching.
+
+- **Upload Path**: `my-data/uploads/{user_id}/{filename}`
+- **Cache Path**: `my-data/cache/{hash}.webp`
+- **Supported Formats**: JPEG, PNG, WebP (all converted to WebP for delivery)
+
+### Request Format
+```
+/media/{userId}/{filename}?w=800&h=600&q=80&fit=contain
+```
+
+### Query Parameters
+- `w`: Width in pixels
+- `h`: Height in pixels
+- `q`: Quality (1-100, default: 80)
+- `fit`: Resize mode (`contain` or `cover`, default: `contain`)
+
+### Processing Flow
+1. **Request**: Client requests `/media/1/image.jpg?w=800`
+2. **Cache Check**: System checks if processed version exists in cache
+3. **Cache Hit**: Serve cached file with 1-year cache headers
+4. **Cache Miss**: 
+   - Load source image from uploads
+   - Resize/crop according to parameters
+   - Convert to WebP
+   - Save to cache
+   - Serve processed image
+
+### Async Processing
+Image processing happens **synchronously on first request** (cache miss), then subsequent requests are served from cache. This approach:
+- Avoids complexity of background job queues
+- Ensures images are available immediately after processing
+- Leverages HTTP caching for performance
+- Uses filesystem-based cache invalidation (mtime comparison)
+
+> [!TIP]
+> For high-traffic sites, consider pre-generating common sizes during upload or using a CDN with origin caching.
 
 ## Database Schema
 The application uses SQLite.

@@ -50,4 +50,25 @@ These endpoints return JSON and require Session Authentication.
     - `cat`: "page" | "image" (default: "page")
 - `POST /api/cms/pages`: Create a page.
   - **Body**: `{"title":"...","slug":"...","content":"...","image":"...","cat":"page"}`
+- `PATCH /api/cms/pages/{id}`: Update a page.
+  - **Body**: `{"title":"...","content":"...","image":"..."}`
 - `DELETE /api/cms/pages/{id}`: Delete a page.
+- `POST /api/cms/upload`: Upload an image.
+  - **Multipart Form Data**: field `image`
+  - **Returns**: `{"url": "/media/1/newimage.webp"}`
+  - **Processing**: 
+    - Accepts JPEG, PNG, WebP
+    - Converts to WebP format
+    - Resizes to max 3840x2160 if larger
+    - Stores in `uploads/{user_id}/`
+    - Auto-creates CMS entry with `cat='image'`
+
+### Admin
+- `GET /api/admin/stats`: Get system statistics (Admin only).
+  - **Returns**: `{"users": 12, "todos": 6, "pages": 3, "images": 1}`
+- `GET /api/admin/users`: List all users (Admin only).
+- `POST /api/admin/users`: Create a user (Admin only).
+  - **Body**: `{"username":"...","password":"...","level":10}`
+- `PATCH /api/admin/users/{id}`: Update a user (Admin only).
+  - **Body**: `{"level":100,"password":"..."}`
+- `DELETE /api/admin/users/{id}`: Delete a user (Admin only).

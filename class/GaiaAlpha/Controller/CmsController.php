@@ -155,4 +155,13 @@ class CmsController extends BaseController
 
         $this->jsonResponse(['url' => $mediaUrl]);
     }
+
+    public function registerRoutes(\GaiaAlpha\Router $router)
+    {
+        $router->add('GET', '/api/cms/pages', [$this, 'index']);
+        $router->add('POST', '/api/cms/pages', [$this, 'create']);
+        $router->add('PATCH', '/api/cms/pages/(\d+)', [$this, 'update']);
+        $router->add('DELETE', '/api/cms/pages/(\d+)', [$this, 'delete']);
+        $router->add('POST', '/api/cms/upload', [$this, 'upload']);
+    }
 }

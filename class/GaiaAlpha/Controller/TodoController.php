@@ -91,4 +91,14 @@ class TodoController extends BaseController
             $this->jsonResponse(['error' => 'Failed to update position'], 500);
         }
     }
+
+    public function registerRoutes(\GaiaAlpha\Router $router)
+    {
+        $router->add('GET', '/api/todos', [$this, 'index']);
+        $router->add('POST', '/api/todos', [$this, 'create']);
+        $router->add('PATCH', '/api/todos/(\d+)', [$this, 'update']);
+        $router->add('DELETE', '/api/todos/(\d+)', [$this, 'delete']);
+        $router->add('GET', '/api/todos/(\d+)/children', [$this, 'getChildren']);
+        $router->add('POST', '/api/todos/reorder', [$this, 'reorder']);
+    }
 }

@@ -29,6 +29,16 @@ export default {
                     <div class="stat-number">{{ stats.images }}</div>
                     <div class="stat-icon">🖼️</div>
                 </div>
+                <div class="stat-card">
+                    <h3>Total Forms</h3>
+                    <div class="stat-number">{{ stats.forms }}</div>
+                    <div class="stat-icon">📋</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Form Submissions</h3>
+                    <div class="stat-number">{{ stats.submissions }}</div>
+                    <div class="stat-icon">📨</div>
+                </div>
                  <div class="stat-card">
                     <h3>Datastore</h3>
                     <div class="stat-number">{{ stats.datastore }}</div>

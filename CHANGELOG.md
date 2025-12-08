@@ -1,6 +1,19 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+## [v0.6.0] - 2025-12-08
+
+### Added
+- **Form Builder**: Added customizable Submit button label.
+- **Form Builder**: Added "Rows" setting for Text Area fields.
+- **Admin**: Added "Forms" and "Submissions" stats to Admin Dashboard.
+- **UX**: Improved visual contrast for form inputs in dark mode.
+- **UX**: Added custom animated checkbox styling.
+
+### Changed
+- **Tech**: Decentralized route registration from `App.php` to individual controllers.
+- **Tech**: Implemented `registerRoutes()` method across the controller layer.
+
 ## [v0.5.0] - 2025-12-08
 
 ### Added

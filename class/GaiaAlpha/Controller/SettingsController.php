@@ -60,4 +60,10 @@ class SettingsController
             $this->jsonResponse(['error' => 'Failed to update setting'], 500);
         }
     }
+
+    public function registerRoutes(\GaiaAlpha\Router $router)
+    {
+        $router->add('GET', '/api/settings', [$this, 'index']);
+        $router->add('POST', '/api/settings', [$this, 'update']);
+    }
 }

@@ -23,4 +23,10 @@ class PublicController extends BaseController
 
         $this->jsonResponse($page);
     }
+
+    public function registerRoutes(\GaiaAlpha\Router $router)
+    {
+        $router->add('GET', '/api/public/pages', [$this, 'index']);
+        $router->add('GET', '/api/public/pages/([\w-]+)', [$this, 'show']);
+    }
 }

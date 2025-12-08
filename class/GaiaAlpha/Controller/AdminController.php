@@ -22,12 +22,20 @@ class AdminController extends BaseController
         $todoModel = new Todo($this->db);
         $pageModel = new Page($this->db);
 
+        // Raw queries for forms as we don't have a model method for "count all" easily accessible without refactor
+        // Actually FormController has no model usage, it uses raw SQL. So we do same here.
+        $pdo = $this->db->getPdo();
+        $formsCount = $pdo->query("SELECT COUNT(*) FROM forms")->fetchColumn();
+        $subsCount = $pdo->query("SELECT COUNT(*) FROM form_submissions")->fetchColumn();
+
         $this->jsonResponse([
             'users' => $userModel->count(),
             'todos' => $todoModel->count(),
             'pages' => $pageModel->count('page'),
             'images' => $pageModel->count('image'),
-            'datastore' => $this->db->getPdo()->query("SELECT COUNT(*) FROM data_store")->fetchColumn()
+            'forms' => $formsCount,
+            'submissions' => $subsCount,
+            'datastore' => $pdo->query("SELECT COUNT(*) FROM data_store")->fetchColumn()
         ]);
     }
 
@@ -245,5 +253,22 @@ class AdminController extends BaseController
         } catch (\PDOException $e) {
             $this->jsonResponse(['error' => 'Delete failed: ' . $e->getMessage()], 400);
         }
+    }
+
+    public function registerRoutes(\GaiaAlpha\Router $router)
+    {
+        $router->add('GET', '/api/admin/users', [$this, 'index']);
+        $router->add('POST', '/api/admin/users', [$this, 'create']);
+        $router->add('PATCH', '/api/admin/users/(\d+)', [$this, 'update']);
+        $router->add('DELETE', '/api/admin/users/(\d+)', [$this, 'delete']);
+        $router->add('GET', '/api/admin/stats', [$this, 'stats']);
+
+        // Database Management
+        $router->add('GET', '/api/admin/db/tables', [$this, 'getTables']);
+        $router->add('GET', '/api/admin/db/table/(\w+)', [$this, 'getTableData']);
+        $router->add('POST', '/api/admin/db/query', [$this, 'executeQuery']);
+        $router->add('POST', '/api/admin/db/table/(\w+)', [$this, 'createRecord']);
+        $router->add('PATCH', '/api/admin/db/table/(\w+)/(\d+)', [$this, 'updateRecord']);
+        $router->add('DELETE', '/api/admin/db/table/(\w+)/(\d+)', [$this, 'deleteRecord']);
     }
 }

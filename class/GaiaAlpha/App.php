@@ -9,6 +9,7 @@ class App
     private Router $router;
 
     public static string $rootDir;
+    public static array $controllers = [];
 
     public function __construct(string $rootDir)
     {
@@ -33,57 +34,20 @@ class App
         // Dependencies
         $db = $this->db;
 
-        // Controllers
-        $auth = new Controller\AuthController($db);
-        $todo = new Controller\TodoController($db);
-        $admin = new Controller\AdminController($db);
-        $cms = new Controller\CmsController($db);
-        $public = new Controller\PublicController($db);
+        // Init Controllers
+        self::$controllers = [
+            'auth' => new Controller\AuthController($db),
+            'todo' => new Controller\TodoController($db),
+            'admin' => new Controller\AdminController($db),
+            'cms' => new Controller\CmsController($db),
+            'form' => new Controller\FormController($db),
+            'public' => new Controller\PublicController($db),
+            'settings' => new Controller\SettingsController($db)
+        ];
 
-        // Auth
-        $this->router->add('POST', '/api/login', [$auth, 'login']);
-        $this->router->add('POST', '/api/register', [$auth, 'register']);
-        $this->router->add('POST', '/api/logout', [$auth, 'logout']);
-        $this->router->add('GET', '/api/user', [$auth, 'me']);
-
-        // Settings
-        $settings = new Controller\SettingsController($db);
-        $this->router->add('GET', '/api/settings', [$settings, 'index']);
-        $this->router->add('POST', '/api/settings', [$settings, 'update']);
-
-        // Todos
-        $this->router->add('GET', '/api/todos', [$todo, 'index']);
-        $this->router->add('POST', '/api/todos', [$todo, 'create']);
-        $this->router->add('PATCH', '/api/todos/(\d+)', [$todo, 'update']);
-        $this->router->add('DELETE', '/api/todos/(\d+)', [$todo, 'delete']);
-        $this->router->add('GET', '/api/todos/(\d+)/children', [$todo, 'getChildren']);
-        $this->router->add('POST', '/api/todos/reorder', [$todo, 'reorder']);
-
-        // Admin
-        $this->router->add('GET', '/api/admin/users', [$admin, 'index']);
-        $this->router->add('POST', '/api/admin/users', [$admin, 'create']);
-        $this->router->add('PATCH', '/api/admin/users/(\d+)', [$admin, 'update']);
-        $this->router->add('DELETE', '/api/admin/users/(\d+)', [$admin, 'delete']);
-        $this->router->add('GET', '/api/admin/stats', [$admin, 'stats']);
-
-        // Database Management
-        $this->router->add('GET', '/api/admin/db/tables', [$admin, 'getTables']);
-        $this->router->add('GET', '/api/admin/db/table/(\w+)', [$admin, 'getTableData']);
-        $this->router->add('POST', '/api/admin/db/query', [$admin, 'executeQuery']);
-        $this->router->add('POST', '/api/admin/db/table/(\w+)', [$admin, 'createRecord']);
-        $this->router->add('PATCH', '/api/admin/db/table/(\w+)/(\d+)', [$admin, 'updateRecord']);
-        $this->router->add('DELETE', '/api/admin/db/table/(\w+)/(\d+)', [$admin, 'deleteRecord']);
-
-        // CMS
-        $this->router->add('GET', '/api/cms/pages', [$cms, 'index']);
-        $this->router->add('POST', '/api/cms/pages', [$cms, 'create']);
-        $this->router->add('PATCH', '/api/cms/pages/(\d+)', [$cms, 'update']);
-        $this->router->add('DELETE', '/api/cms/pages/(\d+)', [$cms, 'delete']);
-        $this->router->add('POST', '/api/cms/upload', [$cms, 'upload']);
-
-        // Public API
-        $this->router->add('GET', '/api/public/pages', [$public, 'index']);
-        $this->router->add('GET', '/api/public/pages/([\w-]+)', [$public, 'show']);
+        foreach (self::$controllers as $controller) {
+            $controller->registerRoutes($this->router);
+        }
     }
 
     public function run()
@@ -110,6 +74,9 @@ class App
         // Frontend Routing
         if ($uri === '/app' || strpos($uri, '/app/') === 0) {
             include self::$rootDir . '/templates/app.php';
+        } elseif (preg_match('#^/f/([\w-]+)/?$#', $uri, $matches)) {
+            $slug = $matches[1];
+            include self::$rootDir . '/templates/public_form.php';
         } elseif (preg_match('#^/page/([\w-]+)/?$#', $uri, $matches)) {
             $slug = $matches[1];
             include self::$rootDir . '/templates/single_page.php';

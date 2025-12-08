@@ -40,4 +40,9 @@ abstract class BaseController
             $this->jsonResponse(['error' => 'Forbidden'], 403);
         }
     }
+
+    public function registerRoutes(\GaiaAlpha\Router $router)
+    {
+        // Override in subclasses
+    }
 }

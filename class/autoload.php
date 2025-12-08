@@ -1,5 +1,11 @@
 <?php
 
+// Load local configuration if exists
+$configFile = dirname(__DIR__) . '/my-config.php';
+if (file_exists($configFile)) {
+    include_once $configFile;
+}
+
 spl_autoload_register(function ($class) {
     $file = __DIR__ . '/GaiaAlpha/' . str_replace('GaiaAlpha\\', '', $class) . '.php';
     // Wait, the previous autoloader was:

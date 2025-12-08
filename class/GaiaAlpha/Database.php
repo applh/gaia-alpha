@@ -9,10 +9,10 @@ class Database
 {
     private ?PDO $pdo = null;
 
-    public function __construct(string $dbPath)
+    public function __construct(string $dsn)
     {
         try {
-            $this->pdo = new PDO("sqlite:" . $dbPath);
+            $this->pdo = new PDO($dsn);
             $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             $this->pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
         } catch (PDOException $e) {

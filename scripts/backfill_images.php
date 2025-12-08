@@ -7,8 +7,15 @@ use GaiaAlpha\Database;
 // But Database class might depend on something. Let's check Database.php content previously or just try straight PDO.
 // Actually, looking at previous file reads, Database.php is simple.
 
-$dbPath = __DIR__ . '/../my-data/database.sqlite';
-$pdo = new PDO('sqlite:' . $dbPath);
+// Load local configuration if exists
+$configFile = __DIR__ . '/../my-config.php';
+if (file_exists($configFile)) {
+    include $configFile;
+}
+
+$dataPath = defined('GAIA_DATA_PATH') ? GAIA_DATA_PATH : __DIR__ . '/../my-data';
+$dsn = defined('GAIA_DB_DSN') ? GAIA_DB_DSN : 'sqlite:' . (defined('GAIA_DB_PATH') ? GAIA_DB_PATH : $dataPath . '/database.sqlite');
+$pdo = new PDO($dsn);
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
 echo "Connected to database.\n";

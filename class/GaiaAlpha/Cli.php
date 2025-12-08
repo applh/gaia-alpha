@@ -11,12 +11,12 @@ class Cli
     private PDO $pdo;
     private Media $media;
 
-    public function __construct(string $dbPath)
+    public function __construct(string $dsn, string $mediaPath)
     {
-        $this->db = new Database($dbPath);
+        $this->db = new Database($dsn);
         $this->db->ensureSchema();
         $this->pdo = $this->db->getPdo();
-        $this->media = new Media(dirname($dbPath));
+        $this->media = new Media($mediaPath);
     }
 
     public function run(array $argv): void

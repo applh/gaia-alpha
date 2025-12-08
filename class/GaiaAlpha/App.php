@@ -13,9 +13,12 @@ class App
 
     public function __construct()
     {
-        $this->db = new Database(__DIR__ . '/../../my-data/database.sqlite');
+        $dataPath = defined('GAIA_DATA_PATH') ? GAIA_DATA_PATH : __DIR__ . '/../../my-data';
+
+        $dsn = defined('GAIA_DB_DSN') ? GAIA_DB_DSN : 'sqlite:' . (defined('GAIA_DB_PATH') ? GAIA_DB_PATH : $dataPath . '/database.sqlite');
+        $this->db = new Database($dsn);
         $this->db->ensureSchema();
-        $this->media = new Media(__DIR__ . '/../../my-data');
+        $this->media = new Media($dataPath);
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }

@@ -35,15 +35,20 @@ class App
         $db = $this->db;
 
         // Init Controllers
-        self::$controllers = [
-            'auth' => new Controller\AuthController($db),
-            'todo' => new Controller\TodoController($db),
-            'admin' => new Controller\AdminController($db),
-            'cms' => new Controller\CmsController($db),
-            'form' => new Controller\FormController($db),
-            'public' => new Controller\PublicController($db),
-            'settings' => new Controller\SettingsController($db)
-        ];
+        // Dynamically Init Controllers
+        self::$controllers = [];
+        foreach (glob(__DIR__ . '/Controller/*Controller.php') as $file) {
+            $filename = basename($file, '.php');
+            if ($filename === 'BaseController')
+                continue;
+
+            $key = strtolower(str_replace('Controller', '', $filename));
+            $className = "GaiaAlpha\\Controller\\$filename";
+
+            if (class_exists($className)) {
+                self::$controllers[$key] = new $className($db);
+            }
+        }
 
         foreach (self::$controllers as $controller) {
             $controller->registerRoutes($this->router);

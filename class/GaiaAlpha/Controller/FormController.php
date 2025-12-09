@@ -248,15 +248,15 @@ class FormController extends BaseController
         $this->jsonResponse($submissions);
     }
 
-    public function registerRoutes(\GaiaAlpha\Router $router)
+    public function registerRoutes()
     {
-        $router->add('GET', '/api/forms', [$this, 'index']);
-        $router->add('POST', '/api/forms', [$this, 'store']);
-        $router->add('GET', '/api/forms/(\d+)', [$this, 'show']);
-        $router->add('PUT', '/api/forms/(\d+)', [$this, 'update']);
-        $router->add('DELETE', '/api/forms/(\d+)', [$this, 'destroy']);
-        $router->add('GET', '/api/public/form/([\w-]+)', [$this, 'publicShow']);
-        $router->add('POST', '/api/public/form/([\w-]+)', [$this, 'submit']);
-        $router->add('GET', '/api/forms/(\d+)/submissions', [$this, 'submissions']);
+        \GaiaAlpha\Router::add('GET', '/api/forms', [$this, 'index']);
+        \GaiaAlpha\Router::add('POST', '/api/forms', [$this, 'store']);
+        \GaiaAlpha\Router::add('GET', '/api/forms/(\d+)', [$this, 'show']);
+        \GaiaAlpha\Router::add('PUT', '/api/forms/(\d+)', [$this, 'update']);
+        \GaiaAlpha\Router::add('DELETE', '/api/forms/(\d+)', [$this, 'destroy']);
+        \GaiaAlpha\Router::add('GET', '/api/public/form/([\w-]+)', [$this, 'publicShow']);
+        \GaiaAlpha\Router::add('POST', '/api/public/form/([\w-]+)', [$this, 'submit']);
+        \GaiaAlpha\Router::add('GET', '/api/forms/(\d+)/submissions', [$this, 'submissions']);
     }
 }

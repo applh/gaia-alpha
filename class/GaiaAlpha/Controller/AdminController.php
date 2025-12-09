@@ -255,20 +255,20 @@ class AdminController extends BaseController
         }
     }
 
-    public function registerRoutes(\GaiaAlpha\Router $router)
+    public function registerRoutes()
     {
-        $router->add('GET', '/api/admin/users', [$this, 'index']);
-        $router->add('POST', '/api/admin/users', [$this, 'create']);
-        $router->add('PATCH', '/api/admin/users/(\d+)', [$this, 'update']);
-        $router->add('DELETE', '/api/admin/users/(\d+)', [$this, 'delete']);
-        $router->add('GET', '/api/admin/stats', [$this, 'stats']);
+        \GaiaAlpha\Router::add('GET', '/api/admin/users', [$this, 'index']);
+        \GaiaAlpha\Router::add('POST', '/api/admin/users', [$this, 'create']);
+        \GaiaAlpha\Router::add('PATCH', '/api/admin/users/(\d+)', [$this, 'update']);
+        \GaiaAlpha\Router::add('DELETE', '/api/admin/users/(\d+)', [$this, 'delete']);
+        \GaiaAlpha\Router::add('GET', '/api/admin/stats', [$this, 'stats']);
 
         // Database Management
-        $router->add('GET', '/api/admin/db/tables', [$this, 'getTables']);
-        $router->add('GET', '/api/admin/db/table/(\w+)', [$this, 'getTableData']);
-        $router->add('POST', '/api/admin/db/query', [$this, 'executeQuery']);
-        $router->add('POST', '/api/admin/db/table/(\w+)', [$this, 'createRecord']);
-        $router->add('PATCH', '/api/admin/db/table/(\w+)/(\d+)', [$this, 'updateRecord']);
-        $router->add('DELETE', '/api/admin/db/table/(\w+)/(\d+)', [$this, 'deleteRecord']);
+        \GaiaAlpha\Router::add('GET', '/api/admin/db/tables', [$this, 'getTables']);
+        \GaiaAlpha\Router::add('GET', '/api/admin/db/table/(\w+)', [$this, 'getTableData']);
+        \GaiaAlpha\Router::add('POST', '/api/admin/db/query', [$this, 'executeQuery']);
+        \GaiaAlpha\Router::add('POST', '/api/admin/db/table/(\w+)', [$this, 'createRecord']);
+        \GaiaAlpha\Router::add('PATCH', '/api/admin/db/table/(\w+)/(\d+)', [$this, 'updateRecord']);
+        \GaiaAlpha\Router::add('DELETE', '/api/admin/db/table/(\w+)/(\d+)', [$this, 'deleteRecord']);
     }
 }

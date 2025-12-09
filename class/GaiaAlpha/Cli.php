@@ -5,25 +5,28 @@ namespace GaiaAlpha;
 use Exception;
 use PDO;
 use GaiaAlpha\Env;
+use GaiaAlpha\Controller\DbController;
 
 class Cli
 {
-    private Database $db;
-    private PDO $pdo;
-    private Media $media;
+    private static Database $db;
+    private static PDO $pdo;
+    private static Media $media;
 
-    public function __construct(string $dsn, string $mediaPath)
+    public static function init()
     {
-        $this->db = new Database($dsn);
-        $this->db->ensureSchema();
-        $this->pdo = $this->db->getPdo();
-        $this->media = new Media($mediaPath);
+        self::$db = DbController::connect();
+        self::$pdo = self::$db->getPdo();
+        self::$media = new Media(Env::get('path_data'));
     }
 
-    public function run(array $argv): void
+    public static function run(): void
     {
+        global $argv;
+        self::init();
+
         if (count($argv) < 2) {
-            $this->showHelp();
+            self::showHelp();
             exit(1);
         }
 
@@ -32,47 +35,47 @@ class Cli
         try {
             switch ($command) {
                 case 'table:list':
-                    $this->handleTableList($argv);
+                    self::handleTableList($argv);
                     break;
                 case 'table:insert':
-                    $this->handleTableInsert($argv);
+                    self::handleTableInsert($argv);
                     break;
                 case 'table:update':
-                    $this->handleTableUpdate($argv);
+                    self::handleTableUpdate($argv);
                     break;
                 case 'table:delete':
-                    $this->handleTableDelete($argv);
+                    self::handleTableDelete($argv);
                     break;
                 case 'sql':
-                    $this->handleSql($argv);
+                    self::handleSql($argv);
                     break;
                 case 'media:stats':
-                    $this->handleMediaStats();
+                    self::handleMediaStats();
                     break;
                 case 'media:clear-cache':
-                    $this->handleMediaClearCache();
+                    self::handleMediaClearCache();
                     break;
                 case 'file:write':
-                    $this->handleFileWrite($argv);
+                    self::handleFileWrite($argv);
                     break;
                 case 'file:read':
-                    $this->handleFileRead($argv);
+                    self::handleFileRead($argv);
                     break;
                 case 'file:list':
-                    $this->handleFileList($argv);
+                    self::handleFileList($argv);
                     break;
                 case 'file:delete':
-                    $this->handleFileDelete($argv);
+                    self::handleFileDelete($argv);
                     break;
                 case 'file:move':
-                    $this->handleFileMove($argv);
+                    self::handleFileMove($argv);
                     break;
                 case 'help':
-                    $this->showHelp();
+                    self::showHelp();
                     break;
                 default:
                     echo "Unknown command: $command\n";
-                    $this->showHelp();
+                    self::showHelp();
                     exit(1);
             }
         } catch (Exception $e) {
@@ -81,7 +84,7 @@ class Cli
         }
     }
 
-    private function showHelp(): void
+    private static function showHelp(): void
     {
         echo "Usage: php cli.php <command> [arguments]\n\n";
         echo "Commands:\n";
@@ -100,18 +103,18 @@ class Cli
         echo "  help                                Show this help message\n";
     }
 
-    private function handleTableList(array $args): void
+    private static function handleTableList(array $args): void
     {
         if (!isset($args[2]))
             die("Missing table name.\n");
         $table = $args[2];
-        $stmt = $this->pdo->prepare("SELECT * FROM $table");
+        $stmt = self::$pdo->prepare("SELECT * FROM $table");
         $stmt->execute();
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
         echo json_encode($rows, JSON_PRETTY_PRINT) . "\n";
     }
 
-    private function handleTableInsert(array $args): void
+    private static function handleTableInsert(array $args): void
     {
         if (!isset($args[2]) || !isset($args[3]))
             die("Usage: table:insert <table> <json_data>\n");
@@ -124,13 +127,13 @@ class Cli
         $placeholders = implode(', ', array_fill(0, count($data), '?'));
 
         $sql = "INSERT INTO $table ($columns) VALUES ($placeholders)";
-        $stmt = $this->pdo->prepare($sql);
+        $stmt = self::$pdo->prepare($sql);
         $stmt->execute(array_values($data));
 
-        echo "Row inserted. ID: " . $this->pdo->lastInsertId() . "\n";
+        echo "Row inserted. ID: " . self::$pdo->lastInsertId() . "\n";
     }
 
-    private function handleTableUpdate(array $args): void
+    private static function handleTableUpdate(array $args): void
     {
         if (!isset($args[2]) || !isset($args[3]) || !isset($args[4]))
             die("Usage: table:update <table> <id> <json_data>\n");
@@ -150,32 +153,32 @@ class Cli
         $values = array_values($data);
         $values[] = $id;
 
-        $stmt = $this->pdo->prepare($sql);
+        $stmt = self::$pdo->prepare($sql);
         $stmt->execute($values);
 
         echo "Row updated.\n";
     }
 
-    private function handleTableDelete(array $args): void
+    private static function handleTableDelete(array $args): void
     {
         if (!isset($args[2]) || !isset($args[3]))
             die("Usage: table:delete <table> <id>\n");
         $table = $args[2];
         $id = $args[3];
 
-        $stmt = $this->pdo->prepare("DELETE FROM $table WHERE id = ?");
+        $stmt = self::$pdo->prepare("DELETE FROM $table WHERE id = ?");
         $stmt->execute([$id]);
 
         echo "Row deleted.\n";
     }
 
-    private function handleSql(array $args): void
+    private static function handleSql(array $args): void
     {
         if (!isset($args[2]))
             die("Missing SQL query.\n");
         $sql = $args[2];
 
-        $stmt = $this->pdo->prepare($sql);
+        $stmt = self::$pdo->prepare($sql);
         $stmt->execute();
 
         if (stripos(trim($sql), 'SELECT') === 0) {
@@ -186,22 +189,22 @@ class Cli
         }
     }
 
-    private function handleMediaStats(): void
+    private static function handleMediaStats(): void
     {
-        $stats = $this->media->getStats();
+        $stats = self::$media->getStats();
         echo "Media Storage Stats:\n";
         echo "--------------------\n";
-        echo "Uploads: " . $stats['uploads']['count'] . " files (" . $this->formatBytes($stats['uploads']['size']) . ")\n";
-        echo "Cache:   " . $stats['cache']['count'] . " files (" . $this->formatBytes($stats['cache']['size']) . ")\n";
+        echo "Uploads: " . $stats['uploads']['count'] . " files (" . self::formatBytes($stats['uploads']['size']) . ")\n";
+        echo "Cache:   " . $stats['cache']['count'] . " files (" . self::formatBytes($stats['cache']['size']) . ")\n";
     }
 
-    private function handleMediaClearCache(): void
+    private static function handleMediaClearCache(): void
     {
-        $count = $this->media->clearCache();
+        $count = self::$media->clearCache();
         echo "Cache cleared. Deleted $count files.\n";
     }
 
-    private function formatBytes($bytes, $precision = 2)
+    private static function formatBytes($bytes, $precision = 2)
     {
         $units = ['B', 'KB', 'MB', 'GB', 'TB'];
         $bytes = max($bytes, 0);
@@ -213,19 +216,19 @@ class Cli
 
     // File Management Methods
 
-    private function getDataPath(): string
+    private static function getDataPath(): string
     {
         return defined('GAIA_DATA_PATH') ? GAIA_DATA_PATH : Env::get('root_dir') . '/my-data';
     }
 
-    private function validatePath(string $path): string
+    private static function validatePath(string $path): string
     {
         // Remove any directory traversal attempts
         $path = str_replace(['../', '..\\'], '', $path);
-        $fullPath = $this->getDataPath() . '/' . ltrim($path, '/');
+        $fullPath = self::getDataPath() . '/' . ltrim($path, '/');
 
         // Ensure the path is within my-data directory
-        $realDataPath = realpath($this->getDataPath());
+        $realDataPath = realpath(self::getDataPath());
         $realFullPath = realpath(dirname($fullPath));
 
         if ($realFullPath === false || strpos($realFullPath, $realDataPath) !== 0) {
@@ -235,7 +238,7 @@ class Cli
         return $fullPath;
     }
 
-    private function handleFileWrite(array $args): void
+    private static function handleFileWrite(array $args): void
     {
         if (!isset($args[2]) || !isset($args[3])) {
             die("Usage: file:write <path> <content>\n");
@@ -243,7 +246,7 @@ class Cli
 
         $path = $args[2];
         $content = $args[3];
-        $fullPath = $this->validatePath($path);
+        $fullPath = self::validatePath($path);
 
         // Create directory if it doesn't exist
         $dir = dirname($fullPath);
@@ -255,14 +258,14 @@ class Cli
         echo "File written: $path\n";
     }
 
-    private function handleFileRead(array $args): void
+    private static function handleFileRead(array $args): void
     {
         if (!isset($args[2])) {
             die("Usage: file:read <path>\n");
         }
 
         $path = $args[2];
-        $fullPath = $this->validatePath($path);
+        $fullPath = self::validatePath($path);
 
         if (!file_exists($fullPath)) {
             die("File not found: $path\n");
@@ -275,11 +278,11 @@ class Cli
         echo file_get_contents($fullPath);
     }
 
-    private function handleFileList(array $args): void
+    private static function handleFileList(array $args): void
     {
         $subPath = $args[2] ?? '';
-        $basePath = $this->getDataPath();
-        $fullPath = $subPath ? $this->validatePath($subPath) : $basePath;
+        $basePath = self::getDataPath();
+        $fullPath = $subPath ? self::validatePath($subPath) : $basePath;
 
         if (!is_dir($fullPath)) {
             die("Not a directory: $subPath\n");
@@ -295,20 +298,20 @@ class Cli
 
             $itemPath = $fullPath . '/' . $item;
             $type = is_dir($itemPath) ? 'DIR ' : 'FILE';
-            $size = is_file($itemPath) ? $this->formatBytes(filesize($itemPath)) : '';
+            $size = is_file($itemPath) ? self::formatBytes(filesize($itemPath)) : '';
 
             echo sprintf("%-5s %-20s %s\n", $type, $item, $size);
         }
     }
 
-    private function handleFileDelete(array $args): void
+    private static function handleFileDelete(array $args): void
     {
         if (!isset($args[2])) {
             die("Usage: file:delete <path>\n");
         }
 
         $path = $args[2];
-        $fullPath = $this->validatePath($path);
+        $fullPath = self::validatePath($path);
 
         if (!file_exists($fullPath)) {
             die("File not found: $path\n");
@@ -322,7 +325,7 @@ class Cli
         echo "File deleted: $path\n";
     }
 
-    private function handleFileMove(array $args): void
+    private static function handleFileMove(array $args): void
     {
         if (!isset($args[2]) || !isset($args[3])) {
             die("Usage: file:move <source> <destination>\n");
@@ -331,8 +334,8 @@ class Cli
         $source = $args[2];
         $destination = $args[3];
 
-        $sourcePath = $this->validatePath($source);
-        $destPath = $this->validatePath($destination);
+        $sourcePath = self::validatePath($source);
+        $destPath = self::validatePath($destination);
 
         if (!file_exists($sourcePath)) {
             die("Source file not found: $source\n");

@@ -1,6 +1,16 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+## [v0.9.0] - 2025-12-10
+
+### Changed
+- **Architecture**: Introduced `Framework` class to handle controller loading and route registration.
+- **Refactor**: `App` class now separates web and CLI setup (`web_setup`, `cli_setup`).
+- **Refactor**: Combined `Router` and `App` logic into `Framework` tasks.
+- **Refactor**: `Cli` class converted to static methods and integrated with `App::run`.
+- **Refactor**: Removed `Router` instance dependency injection in `registerRoutes`.
+- **Technical**: `cli.php` now uses `App::run` for standardized execution.
+
 ## [v0.8.0] - 2025-12-10
 
 ### Changed

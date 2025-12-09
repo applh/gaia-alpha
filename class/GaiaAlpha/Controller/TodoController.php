@@ -95,13 +95,13 @@ class TodoController extends BaseController
         }
     }
 
-    public function registerRoutes(\GaiaAlpha\Router $router)
+    public function registerRoutes()
     {
-        $router->add('GET', '/api/todos', [$this, 'index']);
-        $router->add('POST', '/api/todos', [$this, 'create']);
-        $router->add('PATCH', '/api/todos/(\d+)', [$this, 'update']);
-        $router->add('DELETE', '/api/todos/(\d+)', [$this, 'delete']);
-        $router->add('GET', '/api/todos/(\d+)/children', [$this, 'getChildren']);
-        $router->add('POST', '/api/todos/reorder', [$this, 'reorder']);
+        \GaiaAlpha\Router::add('GET', '/api/todos', [$this, 'index']);
+        \GaiaAlpha\Router::add('POST', '/api/todos', [$this, 'create']);
+        \GaiaAlpha\Router::add('PATCH', '/api/todos/(\d+)', [$this, 'update']);
+        \GaiaAlpha\Router::add('DELETE', '/api/todos/(\d+)', [$this, 'delete']);
+        \GaiaAlpha\Router::add('GET', '/api/todos/(\d+)/children', [$this, 'getChildren']);
+        \GaiaAlpha\Router::add('POST', '/api/todos/reorder', [$this, 'reorder']);
     }
 }

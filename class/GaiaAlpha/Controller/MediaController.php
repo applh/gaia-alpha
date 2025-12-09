@@ -58,8 +58,8 @@ class MediaController extends BaseController
         }
     }
 
-    public function registerRoutes(Router $router)
+    public function registerRoutes()
     {
-        $router->add('GET', '/media/(\d+)/(.+)', [$this, 'serve']);
+        Router::add('GET', '/media/(\d+)/(.+)', [$this, 'serve']);
     }
 }

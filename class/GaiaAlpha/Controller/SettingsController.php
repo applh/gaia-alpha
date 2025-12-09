@@ -62,9 +62,9 @@ class SettingsController
         }
     }
 
-    public function registerRoutes(\GaiaAlpha\Router $router)
+    public function registerRoutes()
     {
-        $router->add('GET', '/api/settings', [$this, 'index']);
-        $router->add('POST', '/api/settings', [$this, 'update']);
+        \GaiaAlpha\Router::add('GET', '/api/settings', [$this, 'index']);
+        \GaiaAlpha\Router::add('POST', '/api/settings', [$this, 'update']);
     }
 }

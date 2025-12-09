@@ -43,7 +43,7 @@ abstract class BaseController
         }
     }
 
-    public function registerRoutes(\GaiaAlpha\Router $router)
+    public function registerRoutes()
     {
         // Override in subclasses
     }

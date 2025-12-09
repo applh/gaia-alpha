@@ -72,11 +72,11 @@ class AuthController extends BaseController
         }
     }
 
-    public function registerRoutes(\GaiaAlpha\Router $router)
+    public function registerRoutes()
     {
-        $router->add('POST', '/api/login', [$this, 'login']);
-        $router->add('POST', '/api/register', [$this, 'register']);
-        $router->add('POST', '/api/logout', [$this, 'logout']);
-        $router->add('GET', '/api/user', [$this, 'me']);
+        \GaiaAlpha\Router::add('POST', '/api/login', [$this, 'login']);
+        \GaiaAlpha\Router::add('POST', '/api/register', [$this, 'register']);
+        \GaiaAlpha\Router::add('POST', '/api/logout', [$this, 'logout']);
+        \GaiaAlpha\Router::add('GET', '/api/user', [$this, 'me']);
     }
 }

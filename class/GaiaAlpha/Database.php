@@ -5,6 +5,8 @@ namespace GaiaAlpha;
 use PDO;
 use PDOException;
 
+use GaiaAlpha\Env;
+
 class Database
 {
     private ?PDO $pdo = null;
@@ -23,7 +25,7 @@ class Database
     public function ensureSchema(): void
     {
         // Load SQL commands from template files
-        $sqlDir = App::$rootDir . '/templates/sql';
+        $sqlDir = Env::get('root_dir') . '/templates/sql';
 
         // Scan for schema files and sort them
         // Use numbered prefixes for explicit order: 001_users.sql, 002_todos.sql, etc.
@@ -51,7 +53,7 @@ class Database
 
 
         // Run migrations for existing databases
-        $migrationsDir = App::$rootDir . '/templates/sql/migrations';
+        $migrationsDir = Env::get('root_dir') . '/templates/sql/migrations';
 
         if (is_dir($migrationsDir)) {
             $migrationFiles = glob($migrationsDir . '/*.sql');

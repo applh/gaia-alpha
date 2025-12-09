@@ -17,48 +17,17 @@ class Media
         }
     }
 
-    public function handleRequest(string $userId, string $filename, array $params): void
+    public function getUploadsDir(): string
     {
-        // Sanitize path to prevent directory traversal
-        $filename = basename($filename);
-        $userId = (int) $userId;
-
-        $sourcePath = $this->uploadsDir . '/' . $userId . '/' . $filename;
-
-        if (!file_exists($sourcePath)) {
-            http_response_code(404);
-            header("Content-Type: text/plain");
-            echo "File not found";
-            return;
-        }
-
-        // Cache Key Logic
-        $width = isset($params['w']) ? (int) $params['w'] : 0;
-        $height = isset($params['h']) ? (int) $params['h'] : 0;
-        $quality = isset($params['q']) ? (int) $params['q'] : 80;
-        $fit = isset($params['fit']) ? $params['fit'] : 'contain'; // contain, cover
-
-        $cacheKey = md5($userId . '_' . $filename . '_' . $width . '_' . $height . '_' . $quality . '_' . $fit);
-        $cachePath = $this->cacheDir . '/' . $cacheKey . '.webp'; // We convert everything to webp
-
-        // Serve from cache if exists
-        if (file_exists($cachePath) && filemtime($cachePath) >= filemtime($sourcePath)) {
-            $this->serveRaw($cachePath);
-            return;
-        }
-
-        // Process Image
-        $this->processImage($sourcePath, $cachePath, $width, $height, $quality, $fit);
-
-        if (file_exists($cachePath)) {
-            $this->serveRaw($cachePath);
-        } else {
-            http_response_code(500);
-            echo "Image processing failed";
-        }
+        return $this->uploadsDir;
     }
 
-    private function serveRaw(string $path): void
+    public function getCacheDir(): string
+    {
+        return $this->cacheDir;
+    }
+
+    public function serveFile(string $path): void
     {
         $mime = 'image/webp';
         header("Content-Type: $mime");
@@ -69,7 +38,7 @@ class Media
         exit;
     }
 
-    private function processImage(string $src, string $dst, int $w, int $h, int $q, string $fit): void
+    public function processImage(string $src, string $dst, int $w, int $h, int $q, string $fit): void
     {
         $info = getimagesize($src);
         if (!$info)

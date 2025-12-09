@@ -140,3 +140,9 @@ php cli.php file:write notes.txt "My notes"
 | `vue.runtime.esm-browser.prod.js` | Runtime-only (production) | Yes | No | ~103 KB |
 
 Source: [Valid Vue 3 Versions](https://app.unpkg.com/vue@3.5.25/files/dist)
+
+## AI Tools
+
+Antigravity tools to help AI to manage code.
+* CLI
+

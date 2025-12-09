@@ -433,7 +433,7 @@ export default {
         };
 
         const deleteTodo = async (id) => {
-            if (!confirm('Delete this todo?')) return;
+            // if (!confirm('Delete this todo?')) return;
 
             const res = await fetch(`/api/todos/${id}`, { method: 'DELETE' });
             if (res.ok) {

@@ -88,7 +88,7 @@ export default {
         };
 
         const deleteForm = async (id) => {
-            if (!confirm('Are you sure? This will delete all submissions too.')) return;
+            // if (!confirm('Are you sure? This will delete all submissions too.')) return;
             await fetch(`/api/forms/${id}`, { method: 'DELETE' });
             fetchForms();
         };

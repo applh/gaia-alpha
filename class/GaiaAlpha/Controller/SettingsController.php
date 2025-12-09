@@ -4,14 +4,15 @@ namespace GaiaAlpha\Controller;
 
 use GaiaAlpha\Database;
 use GaiaAlpha\Model\DataStore;
+use GaiaAlpha\Controller\DbController;
 
 class SettingsController
 {
     private Database $db;
 
-    public function __construct(Database $db)
+    public function __construct()
     {
-        $this->db = $db;
+        $this->db = DbController::connect();
     }
 
     private function requireAuth()

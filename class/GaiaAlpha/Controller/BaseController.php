@@ -4,13 +4,15 @@ namespace GaiaAlpha\Controller;
 
 use GaiaAlpha\Database;
 
+use GaiaAlpha\Controller\DbController;
+
 abstract class BaseController
 {
     protected Database $db;
 
-    public function __construct(Database $db)
+    public function __construct()
     {
-        $this->db = $db;
+        $this->db = DbController::connect();
     }
 
     protected function jsonResponse($data, int $status = 200)
@@ -42,6 +44,11 @@ abstract class BaseController
     }
 
     public function registerRoutes(\GaiaAlpha\Router $router)
+    {
+        // Override in subclasses
+    }
+
+    public function init()
     {
         // Override in subclasses
     }

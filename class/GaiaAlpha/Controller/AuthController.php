@@ -6,6 +6,13 @@ use GaiaAlpha\Model\User;
 
 class AuthController extends BaseController
 {
+    public function init()
+    {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+    }
+
     public function login()
     {
         $data = $this->getJsonInput();

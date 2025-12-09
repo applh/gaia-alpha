@@ -1,6 +1,15 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+## [v0.8.0] - 2025-12-10
+
+### Changed
+- **Refactor**: Converted `App` and `Router` to static classes for streamlined access.
+- **Refactor**: Introduced `Env` class for centralized global state and configuration.
+- **Refactor**: Moved Database initialization to `DbController` and Session start to `AuthController`.
+- **Refactor**: Updated controller loading logic to be dependency-free in constructors.
+- **Technical**: Replaced `App::$rootDir` with `Env` based path management across CLI and Web.
+
 ## [v0.7.0] - 2025-12-09
 
 ### Added

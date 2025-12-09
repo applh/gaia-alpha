@@ -4,6 +4,7 @@ namespace GaiaAlpha;
 
 use Exception;
 use PDO;
+use GaiaAlpha\Env;
 
 class Cli
 {
@@ -214,7 +215,7 @@ class Cli
 
     private function getDataPath(): string
     {
-        return defined('GAIA_DATA_PATH') ? GAIA_DATA_PATH : App::$rootDir . '/my-data';
+        return defined('GAIA_DATA_PATH') ? GAIA_DATA_PATH : Env::get('root_dir') . '/my-data';
     }
 
     private function validatePath(string $path): string

@@ -53,6 +53,12 @@ class App
         foreach (self::$controllers as $controller) {
             $controller->registerRoutes($this->router);
         }
+
+        // Register Media Route
+        $this->router->add('GET', '/media/(\d+)/(.+)', function ($userId, $filename) {
+            $this->media->handleRequest($userId, $filename, $_GET);
+            return true; // Ensure handled is true
+        });
     }
 
     public function run()
@@ -61,18 +67,17 @@ class App
         $method = $_SERVER['REQUEST_METHOD'];
 
         // API Routing
-        if (strpos($uri, '/api/') === 0) {
+        // API & Media Routing
+        if (strpos($uri, '/api/') === 0 || strpos($uri, '/media/') === 0) {
             $handled = $this->router->dispatch($method, $uri);
             if (!$handled) {
                 http_response_code(404);
-                echo json_encode(['error' => 'API Endpoint Not Found']);
+                if (strpos($uri, '/api/') === 0) {
+                    echo json_encode(['error' => 'API Endpoint Not Found']);
+                } else {
+                    echo "File not found";
+                }
             }
-            return;
-        }
-
-        // Media Routing
-        if (preg_match('#^/media/(\d+)/(.+)$#', $uri, $matches)) {
-            $this->media->handleRequest($matches[1], $matches[2], $_GET);
             return;
         }
 

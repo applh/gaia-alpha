@@ -1,4 +1,7 @@
-import { ref, onMounted, computed, provide, inject } from 'vue';
+import { ref, onMounted, onActivated, computed, provide, inject } from 'vue';
+import CalendarView from './CalendarView.js';
+import GanttView from './GanttView.js';
+import ColorPicker from './ColorPicker.js';
 
 // Recursive Todo Item Component
 const TodoItem = {
@@ -113,6 +116,7 @@ const TodoItem = {
                     'drag-over-bottom': isDragOver && dragPlacement === 'after',
                     'drag-over-inside': isDragOver && dragPlacement === 'inside'
                 }"
+                :style="{ borderLeft: todo.color ? '4px solid ' + todo.color : '' }"
             >
                 <div class="todo-content" :style="{ paddingLeft: (level * 20) + 'px' }">
                     <span v-if="level > 0" class="child-indicator">↳</span>
@@ -123,6 +127,11 @@ const TodoItem = {
                         <span v-for="label in parseLabels(todo.labels)" :key="label" class="label-tag">
                             {{ label }}
                         </span>
+                    </span>
+                    <span v-if="todo.start_date || todo.end_date" class="todo-dates">
+                        <span v-if="todo.start_date" class="date-tag" title="Start Date">{{ todo.start_date }}</span>
+                        <span v-if="todo.start_date && todo.end_date"> - </span>
+                        <span v-if="todo.end_date" class="date-tag" title="End Date">{{ todo.end_date }}</span>
                     </span>
                 </div>
                 <div class="todo-actions">
@@ -143,14 +152,21 @@ const TodoItem = {
 };
 
 export default {
-    components: { TodoItem },
+    components: { TodoItem, CalendarView, GanttView, ColorPicker },
     template: `
         <div class="admin-page">
             <div class="admin-header">
                 <h2 class="page-title">My Todos</h2>
+                <div class="nav-tabs">
+                    <button @click="viewMode = 'list'" :class="{ active: viewMode === 'list' }">List</button>
+                    <button @click="viewMode = 'calendar'" :class="{ active: viewMode === 'calendar' }">Calendar</button>
+                    <button @click="viewMode = 'gantt'" :class="{ active: viewMode === 'gantt' }">Gantt</button>
+                </div>
             </div>
             
             <div class="admin-card">
+            
+            <div v-if="viewMode === 'list'">
             
             <!-- Filter by label -->
             <div class="todo-filters" v-if="allLabels.length > 0">
@@ -182,6 +198,26 @@ export default {
                     placeholder="Labels (comma-separated)"
                     class="labels-input"
                 >
+                <div class="date-inputs">
+                    <input type="date" v-model="newStartDate" title="Start Date">
+                    <input type="date" v-model="newEndDate" title="End Date">
+                </div>
+                
+                <div class="color-select-wrapper" style="position: relative;">
+                    <div 
+                        class="color-indicator" 
+                        :style="{ backgroundColor: newColor || '#transparent', border: newColor ? '1px solid ' + newColor : '1px solid #ccc' }"
+                        @click="showColorPicker = !showColorPicker"
+                        title="Select Color"
+                    ></div>
+                    <div v-if="showColorPicker" class="color-picker-popover">
+                         <ColorPicker v-model="newColor" :palette="palette" />
+                         <div class="picker-footer">
+                            <button @click="showColorPicker = false" class="btn-small">Close</button>
+                         </div>
+                    </div>
+                </div>
+
                 <select v-model="newParentId" class="parent-select">
                     <option :value="null">No parent</option>
                     <option v-for="todo in todos" :key="todo.id" :value="todo.id">
@@ -198,6 +234,16 @@ export default {
                 </template>
             </ul>
             </div>
+
+            <div v-else-if="viewMode === 'calendar'">
+                <CalendarView :todos="todos" />
+            </div>
+
+            <div v-else-if="viewMode === 'gantt'">
+                <GanttView :todos="todos" />
+            </div>
+            
+            </div>
             
             <!-- Edit modal -->
             <div v-if="editingTodo" class="modal-overlay" @click="cancelEdit">
@@ -208,8 +254,31 @@ export default {
                         <input v-model="editForm.title" class="todo-input">
                     </div>
                     <div class="form-group">
-                        <label>Labels:</label>
                         <input v-model="editForm.labels" placeholder="comma-separated" class="labels-input">
+                    </div>
+                    <div class="form-group">
+                        <label>Start Date:</label>
+                        <input type="date" v-model="editForm.start_date" class="date-input">
+                    </div>
+                    <div class="form-group">
+                        <label>End Date:</label>
+                        <input type="date" v-model="editForm.end_date" class="date-input">
+                    </div>
+                    <div class="form-group">
+                        <label>Color:</label>
+                        <div style="position: relative;">
+                            <div 
+                                class="color-indicator" 
+                                :style="{ backgroundColor: editForm.color || '#transparent', border: editForm.color ? '1px solid ' + editForm.color : '1px solid #ccc' }"
+                                @click="showEditColorPicker = !showEditColorPicker"
+                            ></div>
+                            <div v-if="showEditColorPicker" class="color-picker-popover">
+                                <ColorPicker v-model="editForm.color" :palette="palette" />
+                                <div class="picker-footer">
+                                    <button @click="showEditColorPicker = false" class="btn-small">Close</button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <div class="form-group">
                         <label>Parent:</label>
@@ -233,9 +302,25 @@ export default {
         </div>
     `,
     setup() {
+        const viewMode = ref('list');
         const todos = ref([]);
         const newTodo = ref('');
         const newLabels = ref('');
+        const newStartDate = ref(new Date().toISOString().split('T')[0]);
+        const defaultDuration = ref(parseInt(localStorage.getItem('defaultDuration') || '1'));
+
+        const getEndDate = (start, duration) => {
+            const d = new Date(start);
+            d.setDate(d.getDate() + duration);
+            return d.toISOString().split('T')[0];
+        };
+
+        const newEndDate = ref(getEndDate(newStartDate.value, defaultDuration.value));
+        const newColor = ref('');
+        const palette = ref(['#FF6B6B', '#4ECDC4', '#FFE66D', '#1A535C', '#F7FFF7']);
+        const showColorPicker = ref(false);
+        const showEditColorPicker = ref(false);
+
         const newParentId = ref(null);
         const selectedLabel = ref(null);
         const editingTodo = ref(null);
@@ -259,6 +344,29 @@ export default {
             return labelsString.split(',').map(l => l.trim()).filter(l => l);
         };
 
+        const fetchSettings = async () => {
+            // Try to get setting from API if not in local storage or to refresh
+            try {
+                const res = await fetch('/api/settings');
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.settings && data.settings.default_todo_duration) {
+                        defaultDuration.value = parseInt(data.settings.default_todo_duration);
+                        localStorage.setItem('defaultDuration', defaultDuration.value);
+                        // Update end date if user hasn't touched it? 
+                        // Simplified: update it based on current start date
+                        newEndDate.value = getEndDate(newStartDate.value, defaultDuration.value);
+                    }
+                    if (data.settings && data.settings.todo_palette) {
+                        try {
+                            palette.value = JSON.parse(data.settings.todo_palette);
+                            localStorage.setItem('todo_palette', data.settings.todo_palette);
+                        } catch (e) { }
+                    }
+                }
+            } catch (e) { }
+        };
+
         const allLabels = computed(() => {
             const labels = new Set();
             todos.value.forEach(todo => {
@@ -280,7 +388,10 @@ export default {
             const data = {
                 title: newTodo.value,
                 parent_id: newParentId.value,
-                labels: newLabels.value || null
+                labels: newLabels.value || null,
+                start_date: newStartDate.value || null,
+                end_date: newEndDate.value || null,
+                color: newColor.value || null
             };
 
             try {
@@ -295,6 +406,10 @@ export default {
                     todos.value.push(todo);
                     newTodo.value = '';
                     newLabels.value = '';
+                    newStartDate.value = new Date().toISOString().split('T')[0];
+                    newEndDate.value = getEndDate(newStartDate.value, defaultDuration.value);
+                    newColor.value = '';
+                    showColorPicker.value = false;
                     newParentId.value = null;
                 } else {
                     const error = await res.json();
@@ -331,7 +446,10 @@ export default {
             editForm.value = {
                 title: todo.title,
                 labels: todo.labels || '',
-                parent_id: todo.parent_id
+                parent_id: todo.parent_id,
+                start_date: todo.start_date || '',
+                end_date: todo.end_date || '',
+                color: todo.color || ''
             };
         };
 
@@ -449,12 +567,22 @@ export default {
         provide('parseLabels', parseLabels);
         provide('onDrop', onDrop);
 
-        onMounted(fetchTodos);
+        onMounted(() => {
+            fetchTodos();
+            fetchSettings();
+        });
+
+        onActivated(() => {
+            fetchSettings();
+        });
 
         return {
+            viewMode,
             todos,
             newTodo,
             newLabels,
+            newStartDate,
+            newEndDate,
             newParentId,
             selectedLabel,
             editingTodo,
@@ -464,7 +592,11 @@ export default {
             allLabels,
             addTodo,
             saveEdit,
-            cancelEdit
+            cancelEdit,
+            palette,
+            newColor,
+            showColorPicker,
+            showEditColorPicker
         };
     }
 };

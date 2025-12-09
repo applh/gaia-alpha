@@ -1,6 +1,15 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+## [v0.7.0] - 2025-12-09
+
+### Added
+- **Features**: Added "Todo Colors" functionality. Users can now assign colors to todos.
+- **Features**: Added "Default Todo Duration" user preference to prefill end dates.
+- **UI**: Added `ColorPicker` component with Custom Palette and HSV controls.
+- **UI**: Added "Todo Color Palette" manager in User Settings.
+- **Views**: Calendar and Gantt views now visualize todo colors.
+
 ## [v0.6.0] - 2025-12-08
 
 ### Added

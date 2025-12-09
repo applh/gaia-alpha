@@ -33,10 +33,10 @@ class Todo extends BaseModel
         return $stmt->fetch();
     }
 
-    public function create(int $userId, string $title, ?int $parentId = null, ?string $labels = null)
+    public function create(int $userId, string $title, ?int $parentId = null, ?string $labels = null, ?string $startDate = null, ?string $endDate = null, ?string $color = null)
     {
         // Calculate next position
-        $pdo = $this->db->getPdo();
+        $pdo = $this->db;
         $sql = "SELECT MAX(position) FROM todos WHERE user_id = ? AND parent_id " . ($parentId === null ? "IS NULL" : "= ?");
         $params = [$userId];
         if ($parentId !== null)
@@ -47,8 +47,8 @@ class Todo extends BaseModel
         $maxPos = $stmt->fetchColumn();
         $position = ($maxPos !== false && $maxPos !== null) ? $maxPos + 1024 : 1024; // Use large gaps for easier reordering
 
-        $stmt = $this->db->prepare("INSERT INTO todos (user_id, title, parent_id, labels, position, created_at, updated_at) VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
-        $stmt->execute([$userId, $title, $parentId, $labels, $position]);
+        $stmt = $this->db->prepare("INSERT INTO todos (user_id, title, parent_id, labels, start_date, end_date, color, position, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
+        $stmt->execute([$userId, $title, $parentId, $labels, $startDate, $endDate, $color, $position]);
         return $this->db->lastInsertId();
     }
 
@@ -81,6 +81,21 @@ class Todo extends BaseModel
         if (isset($data['labels'])) {
             $fields[] = 'labels = ?';
             $values[] = $data['labels'];
+        }
+
+        if (isset($data['start_date'])) {
+            $fields[] = 'start_date = ?';
+            $values[] = $data['start_date'];
+        }
+
+        if (isset($data['end_date'])) {
+            $fields[] = 'end_date = ?';
+            $values[] = $data['end_date'];
+        }
+
+        if (isset($data['color'])) {
+            $fields[] = 'color = ?';
+            $values[] = $data['color'];
         }
 
         if (empty($fields)) {

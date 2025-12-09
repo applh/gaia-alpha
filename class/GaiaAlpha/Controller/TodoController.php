@@ -35,7 +35,10 @@ class TodoController extends BaseController
             $_SESSION['user_id'],
             $data['title'],
             $data['parent_id'] ?? null,
-            $data['labels'] ?? null
+            $data['labels'] ?? null,
+            $data['start_date'] ?? null,
+            $data['end_date'] ?? null,
+            $data['color'] ?? null
         );
 
         $newTodo = $todoModel->find($id, $_SESSION['user_id']);

@@ -37,7 +37,7 @@ class App
         // Init Controllers
         // Dynamically Init Controllers
         self::$controllers = [];
-        foreach (glob(__DIR__ . '/Controller/*Controller.php') as $file) {
+        foreach (glob(self::$rootDir . '/class/GaiaAlpha/Controller/*Controller.php') as $file) {
             $filename = basename($file, '.php');
             if ($filename === 'BaseController')
                 continue;

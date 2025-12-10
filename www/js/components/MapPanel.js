@@ -3,10 +3,36 @@ import { ref, onMounted, nextTick } from 'vue';
 
 export default {
     template: `
-        <div class="map-container" style="height: calc(100vh - 80px); position: relative;">
-            <div id="leaflet-map" style="height: 100%; width: 100%; z-index: 1;"></div>
+        <div class="map-page" style="height: calc(100vh - 80px); display: flex; flex-direction: column;">
+            <div id="leaflet-map" style="flex: 1; min-height: 50%; width: 100%; z-index: 1;"></div>
             
-            <!-- Floating Action Button for Adding Marker (if needed, but click on map is better) -->
+            <div class="markers-table-container" style="flex: 1; overflow-y: auto; padding: 20px; background: #fff; color: #333;">
+                <h3>Markers</h3>
+                <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+                    <thead>
+                        <tr style="border-bottom: 2px solid #eee; text-align: left;">
+                            <th style="padding: 10px;">ID</th>
+                            <th style="padding: 10px;">Label</th>
+                            <th style="padding: 10px;">Position</th>
+                            <th style="padding: 10px;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="marker in markers" :key="marker.id" style="border-bottom: 1px solid #eee;">
+                            <td style="padding: 10px;">{{ marker.id }}</td>
+                            <td style="padding: 10px;">{{ marker.label }}</td>
+                            <td style="padding: 10px;">{{ marker.lat.toFixed(4) }}, {{ marker.lng.toFixed(4) }}</td>
+                            <td style="padding: 10px;">
+                                <button @click="centerOnMarker(marker)" style="padding: 5px 10px; cursor: pointer;">View</button>
+                            </td>
+                        </tr>
+                        <tr v-if="markers.length === 0">
+                            <td colspan="4" style="padding: 20px; text-align: center; color: #666;">No markers yet. Click on the map to add one.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
             <!-- Modal for new marker -->
             <div v-if="showModal" class="modal-overlay" style="z-index: 1000;">
                 <div class="modal">
@@ -99,6 +125,13 @@ export default {
                 marker.on('dragend', (e) => {
                     const latlng = e.target.getLatLng();
                     updateMarkerPosition(m.id, latlng.lat, latlng.lng);
+
+                    // Update local state to reflect new position in table
+                    const localMarker = markers.value.find(x => x.id === m.id);
+                    if (localMarker) {
+                        localMarker.lat = latlng.lat;
+                        localMarker.lng = latlng.lng;
+                    }
                 });
             });
         };
@@ -150,8 +183,20 @@ export default {
                             .on('dragend', (e) => {
                                 // Assuming new marker ID is returned in result.id
                                 updateMarkerPosition(result.id, e.target.getLatLng().lat, e.target.getLatLng().lng);
+                                // Update local state
+                                const localMarker = markers.value.find(x => x.id === result.id);
+                                if (localMarker) {
+                                    localMarker.lat = e.target.getLatLng().lat;
+                                    localMarker.lng = e.target.getLatLng().lng;
+                                }
                             });
                     }
+
+                    // Add to reactive list so table updates
+                    markers.value.push({
+                        id: result.id,
+                        ...payload
+                    });
 
                     closeModal();
                 } else {
@@ -167,6 +212,16 @@ export default {
             newMarkerPos.value = null;
         };
 
+        const centerOnMarker = (marker) => {
+            if (map.value && window.L) {
+                map.value.flyTo([marker.lat, marker.lng], 16);
+                window.L.popup()
+                    .setLatLng([marker.lat, marker.lng])
+                    .setContent(marker.label)
+                    .openOn(map.value);
+            }
+        };
+
         onMounted(() => {
             // Wait for DOM
             nextTick(() => {
@@ -174,6 +229,7 @@ export default {
             });
         });
 
-        return { showModal, newMarkerLabel, saveMarker, closeModal, labelInput };
+        return { showModal, newMarkerLabel, saveMarker, closeModal, labelInput, markers, centerOnMarker };
     }
 };
+

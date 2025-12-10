@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 ## [v0.12.0] - 2025-12-10
 ### Added
 - **Feature**: Marker Updates. Users can drag existing markers to update their position.
+- **Feature**: Markers Table. Added a table view below the map to list and navigate to markers.
+- **CLI**: Added `vendor:update` command to manage third-party assets (e.g., Leaflet).
+
+### Changed
+- **Refactor**: Split monolithic `Cli` class into modular `TableCommands`, `FileCommands`, `MediaCommands`, and `VendorCommands`.
 
 ### Improved
 - **Infrastructure**: Switched from CDN to local Leaflet assets for better reliability and offline support.

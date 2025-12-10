@@ -3,8 +3,17 @@ import { ref, onMounted, nextTick } from 'vue';
 
 export default {
     template: `
-        <div class="map-page" style="height: calc(100vh - 80px); display: flex; flex-direction: column;">
-            <div id="leaflet-map" style="flex: 1; min-height: 50%; width: 100%; z-index: 1;"></div>
+    <div class="map-page" style="height: calc(100vh - 80px); display: flex; flex-direction: column;">
+            
+            <div style="padding: 10px; background: #f0f0f0; display: flex; justify-content: flex-end; gap: 10px;">
+                <button @click="setViewMode('2d')" :class="{ active: viewMode === '2d' }" style="padding: 5px 15px; cursor: pointer;">2D Map</button>
+                <button @click="setViewMode('3d')" :class="{ active: viewMode === '3d' }" style="padding: 5px 15px; cursor: pointer;">3D Globe</button>
+            </div >
+
+            <div style="flex: 1; min-height: 50%; width: 100%; position: relative;">
+                <div v-show="viewMode === '2d'" id="leaflet-map" style="width: 100%; height: 100%; z-index: 1;"></div>
+                <div v-show="viewMode === '3d'" id="globe-container" style="width: 100%; height: 100%; z-index: 1; background: #000;"></div>
+            </div>
             
             <div class="markers-table-container" style="flex: 1; overflow-y: auto; padding: 20px; background: #fff; color: #333;">
                 <h3>Markers</h3>
@@ -30,29 +39,32 @@ export default {
                             <td colspan="4" style="padding: 20px; text-align: center; color: #666;">No markers yet. Click on the map to add one.</td>
                         </tr>
                     </tbody>
-                </table>
-            </div>
+                </table >
+            </div >
 
             <!-- Modal for new marker -->
-            <div v-if="showModal" class="modal-overlay" style="z-index: 1000;">
-                <div class="modal">
-                    <h3>New Marker</h3>
-                    <input v-model="newMarkerLabel" placeholder="Enter label" @keyup.enter="saveMarker" ref="labelInput" />
-                    <div style="margin-top: 10px; display: flex; justify-content: flex-end; gap: 10px;">
-                        <button @click="closeModal">Cancel</button>
-                        <button @click="saveMarker" class="primary">Save</button>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <div v-if="showModal" class="modal-overlay" style="z-index: 1000;">
+        <div class="modal">
+            <h3>New Marker</h3>
+            <input v-model="newMarkerLabel" placeholder="Enter label" @keyup.enter="saveMarker" ref="labelInput" />
+            <div style="margin-top: 10px; display: flex; justify-content: flex-end; gap: 10px;">
+                <button @click="closeModal">Cancel</button>
+            <button @click="saveMarker" class="primary">Save</button>
+    </div>
+                </div >
+            </div >
+        </div >
     `,
     setup() {
         const map = ref(null);
+        const globe = ref(null);
         const markers = ref([]);
         const showModal = ref(false);
         const newMarkerLabel = ref('');
         const newMarkerPos = ref(null);
         const labelInput = ref(null);
+        const viewMode = ref('2d'); // '2d' or '3d'
+        const globeInitialized = ref(false);
 
         const initMap = async () => {
             // Lazy load CSS
@@ -89,6 +101,56 @@ export default {
             loadMarkers(L);
         };
 
+        const initGlobe = async () => {
+            if (globeInitialized.value) return;
+
+            // Lazy load Globe.gl
+            if (!window.Globe) {
+                await new Promise((resolve, reject) => {
+                    const script = document.createElement('script');
+                    script.src = '/js/vendor/globe.gl.js';
+                    script.onload = resolve;
+                    script.onerror = reject;
+                    document.head.appendChild(script);
+                });
+            }
+
+            const Globe = window.Globe;
+            const container = document.getElementById('globe-container');
+
+            globe.value = Globe()(container)
+                .globeImageUrl('https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
+                .bumpImageUrl('https://unpkg.com/three-globe/example/img/earth-topology.png')
+                .backgroundImageUrl('https://unpkg.com/three-globe/example/img/night-sky.png')
+                .pointsData(markers.value)
+                .pointLat('lat')
+                .pointLng('lng')
+                .pointLabel('label')
+                .pointAltitude(0.1) // make points float a bit
+                .pointRadius(0.5)
+                .pointColor(() => 'red');
+
+            // Adjust controls
+            globe.value.controls().autoRotate = true;
+            globe.value.controls().autoRotateSpeed = 0.5;
+
+            globeInitialized.value = true;
+        };
+
+        const setViewMode = (mode) => {
+            viewMode.value = mode;
+            if (mode === '3d') {
+                nextTick(() => {
+                    initGlobe();
+                });
+            } else {
+                // Resize map when coming back to view
+                nextTick(() => {
+                    if (map.value) map.value.invalidateSize();
+                });
+            }
+        };
+
         const onMapClick = (e, L) => {
             newMarkerPos.value = e.latlng;
             newMarkerLabel.value = '';
@@ -105,6 +167,9 @@ export default {
                     const data = await res.json();
                     markers.value = data;
                     renderMarkers(L);
+                    if (globe.value) {
+                        globe.value.pointsData(markers.value);
+                    }
                 }
             } catch (e) {
                 console.error("Failed to load markers", e);
@@ -132,6 +197,7 @@ export default {
                         localMarker.lat = latlng.lat;
                         localMarker.lng = latlng.lng;
                     }
+                    if (globe.value) globe.value.pointsData(markers.value);
                 });
             });
         };
@@ -189,6 +255,7 @@ export default {
                                     localMarker.lat = e.target.getLatLng().lat;
                                     localMarker.lng = e.target.getLatLng().lng;
                                 }
+                                if (globe.value) globe.value.pointsData(markers.value);
                             });
                     }
 
@@ -197,6 +264,8 @@ export default {
                         id: result.id,
                         ...payload
                     });
+
+                    if (globe.value) globe.value.pointsData(markers.value);
 
                     closeModal();
                 } else {
@@ -213,12 +282,19 @@ export default {
         };
 
         const centerOnMarker = (marker) => {
-            if (map.value && window.L) {
-                map.value.flyTo([marker.lat, marker.lng], 16);
-                window.L.popup()
-                    .setLatLng([marker.lat, marker.lng])
-                    .setContent(marker.label)
-                    .openOn(map.value);
+            if (viewMode.value === '2d') {
+                if (map.value && window.L) {
+                    map.value.flyTo([marker.lat, marker.lng], 16);
+                    window.L.popup()
+                        .setLatLng([marker.lat, marker.lng])
+                        .setContent(marker.label)
+                        .openOn(map.value);
+                }
+            } else {
+                // 3D Globe centering
+                if (globe.value) {
+                    globe.value.pointOfView({ lat: marker.lat, lng: marker.lng, altitude: 2 }, 2000); // Animate to view
+                }
             }
         };
 
@@ -229,7 +305,7 @@ export default {
             });
         });
 
-        return { showModal, newMarkerLabel, saveMarker, closeModal, labelInput, markers, centerOnMarker };
+        return { showModal, newMarkerLabel, saveMarker, closeModal, labelInput, markers, centerOnMarker, viewMode, setViewMode };
     }
 };
 

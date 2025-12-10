@@ -1,0 +1,21 @@
+Usage: php cli.php <command> [arguments]
+
+Commands:
+  table:list <table>                  List all rows in a table
+  table:insert <table> <json_data>    Insert a row (e.g. '{"col":"val"}')
+  table:update <table> <id> <json>    Update a row by ID
+  table:delete <table> <id>           Delete a row by ID
+  sql <query>                         Execute a raw SQL query
+  media:stats                         Show storage stats for uploads and cache
+  media:clear-cache                   Clear all cached images
+  file:write <path> <content>         Write content to a file in my-data
+  file:read <path>                    Read content from a file in my-data
+  file:list [path]                    List files in my-data (or subdirectory)
+  file:delete <path>                  Delete a file in my-data
+  file:move <source> <destination>    Move/rename a file in my-data
+  vendor:update                       Update vendor libraries (Leaflet, Vue, Globe.gl)
+  user:list                           List all users
+  user:create <user> <pass> [level]   Create a new user
+  user:update-password <user> <pass>  Update a user's password
+  user:delete <user>                  Delete a user
+  help                                Show this help message

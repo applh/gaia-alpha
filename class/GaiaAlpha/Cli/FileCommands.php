@@ -39,8 +39,10 @@ class FileCommands
         return round($bytes, $precision) . ' ' . $units[$pow];
     }
 
-    public static function handleWrite(array $args): void
+    public static function handleWrite(): void
     {
+        global $argv;
+        $args = $argv;
         if (!isset($args[2]) || !isset($args[3])) {
             die("Usage: file:write <path> <content>\n");
         }
@@ -59,8 +61,10 @@ class FileCommands
         echo "File written: $path\n";
     }
 
-    public static function handleRead(array $args): void
+    public static function handleRead(): void
     {
+        global $argv;
+        $args = $argv;
         if (!isset($args[2])) {
             die("Usage: file:read <path>\n");
         }
@@ -79,8 +83,10 @@ class FileCommands
         echo file_get_contents($fullPath);
     }
 
-    public static function handleList(array $args): void
+    public static function handleList(): void
     {
+        global $argv;
+        $args = $argv;
         $subPath = $args[2] ?? '';
         $basePath = self::getDataPath();
         $fullPath = $subPath ? self::validatePath($subPath) : $basePath;
@@ -105,8 +111,10 @@ class FileCommands
         }
     }
 
-    public static function handleDelete(array $args): void
+    public static function handleDelete(): void
     {
+        global $argv;
+        $args = $argv;
         if (!isset($args[2])) {
             die("Usage: file:delete <path>\n");
         }
@@ -126,8 +134,10 @@ class FileCommands
         echo "File deleted: $path\n";
     }
 
-    public static function handleMove(array $args): void
+    public static function handleMove(): void
     {
+        global $argv;
+        $args = $argv;
         if (!isset($args[2]) || !isset($args[3])) {
             die("Usage: file:move <source> <destination>\n");
         }

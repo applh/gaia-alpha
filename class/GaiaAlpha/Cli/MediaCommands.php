@@ -3,14 +3,12 @@
 namespace GaiaAlpha\Cli;
 
 use GaiaAlpha\Media;
-
+use GaiaAlpha\Env;
 class MediaCommands
 {
-    private static Media $media;
-
-    public static function setMedia(Media $media)
+    private static function getMedia(): Media
     {
-        self::$media = $media;
+        return new Media(Env::get('path_data'));
     }
 
     private static function formatBytes($bytes, $precision = 2)
@@ -25,7 +23,7 @@ class MediaCommands
 
     public static function handleStats(): void
     {
-        $stats = self::$media->getStats();
+        $stats = self::getMedia()->getStats();
         echo "Media Storage Stats:\n";
         echo "--------------------\n";
         echo "Uploads: " . $stats['uploads']['count'] . " files (" . self::formatBytes($stats['uploads']['size']) . ")\n";
@@ -34,7 +32,7 @@ class MediaCommands
 
     public static function handleClearCache(): void
     {
-        $count = self::$media->clearCache();
+        $count = self::getMedia()->clearCache();
         echo "Cache cleared. Deleted $count files.\n";
     }
 }

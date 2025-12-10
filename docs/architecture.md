@@ -174,7 +174,15 @@ The frontend is a lightweight, bundle-free Vue 3 application that relies on nati
 - **Centralized Logic**: Business logic for Auth, Theme, and Navigation resides in the Store actions (`setUser`, `setTheme`).
 - **Access**: Components import `store` directly, eliminating the need for complex prop drilling.
 
-#### 4. Routing
+#### 4. Reusable Patterns
+- **Composables**: Shared logic is extracted into composables.
+  - `useCrud`: Standardizes API interactions (Fetch/Create/Update/Delete).
+  - `useSorting`: Provides table sorting state and logic.
+- **Shared Components**: UI Consistency is maintained via shared components.
+  - `Modal`: Standard dialog overlay.
+  - `SortTh`: Sortable table header.
+
+#### 5. Routing
 - **View-Based Routing**: The app uses a simple state-based router managed by `store.state.currentView`.
 - **Navigation**: Switching views updates the store state, triggering the async load of the corresponding component.
 

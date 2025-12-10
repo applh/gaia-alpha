@@ -1,6 +1,16 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+## [v0.17.0] - 2025-12-10
+### Added
+- **Components**: Added `Modal.js`, a reusable Vue component for standard dialogs.
+- **Composables**: Added `useCrud.js`, a reusable composable for standard fetch/create/update/delete API logic.
+
+### Refactored
+- **Admin**: Refactored `UsersAdmin` to use `Modal` and `useCrud`, reducing code by ~30%.
+- **Admin**: Refactored `DatabaseManager` to use `Modal` and `useSorting` for consistent behavior.
+- **Modularity**: Removed duplicated modal implementations and custom sorting logic across admin panels.
+
 ## [v0.16.0] - 2025-12-10
 ### Added
 - **Architecture**: Introduced `store.js`, a custom Vue 3 Data Store for centralized state management (User, Theme, Navigation).

@@ -1,6 +1,9 @@
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
+import { useSorting } from '../composables/useSorting.js';
+import Modal from './Modal.js';
 
 export default {
+    components: { Modal },
     template: `
         <div class="admin-page">
             <div class="admin-header">
@@ -130,50 +133,46 @@ export default {
             </div>
 
             <!-- Edit/Create Modal -->
-            <div v-if="showModal" class="modal-overlay" @click="closeModal">
-                <div class="modal-content" @click.stop>
-                    <h3>{{ modalMode === 'create' ? 'Create New Record' : 'Edit Record #' + editingId }}</h3>
-                    
-                    <form @submit.prevent="saveRecord">
-                        <div v-for="col in formColumns" :key="col.name" class="form-group">
-                            <label>
-                                {{ col.name }} 
-                                <span class="type-hint">{{ col.type }}</span>
-                                <span v-if="col.notnull" class="required">*</span>
-                            </label>
-                            
-                            <!-- Textarea for text/clob -->
-                            <textarea 
-                                v-if="isLongText(col.type)"
-                                v-model="formData[col.name]"
-                                rows="4"
-                                :placeholder="col.dflt_value"
-                            ></textarea>
-                            
-                            <!-- Number input -->
-                            <input 
-                                v-else-if="isNumber(col.type)"
-                                type="number"
-                                v-model="formData[col.name]"
-                                :placeholder="col.dflt_value"
-                            >
-                            
-                            <!-- Standard input -->
-                            <input 
-                                v-else
-                                type="text"
-                                v-model="formData[col.name]"
-                                :placeholder="col.dflt_value"
-                            >
-                        </div>
+            <Modal :show="showModal" :title="modalMode === 'create' ? 'Create New Record' : 'Edit Record #' + editingId" @close="closeModal">
+                <form @submit.prevent="saveRecord">
+                    <div v-for="col in formColumns" :key="col.name" class="form-group">
+                        <label>
+                            {{ col.name }} 
+                            <span class="type-hint">{{ col.type }}</span>
+                            <span v-if="col.notnull" class="required">*</span>
+                        </label>
                         
-                        <div class="form-actions">
-                            <button type="submit" class="btn-primary">Save {{ modalMode === 'create' ? 'Record' : 'Changes' }}</button>
-                            <button type="button" @click="closeModal" class="btn-secondary">Cancel</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
+                        <!-- Textarea for text/clob -->
+                        <textarea 
+                            v-if="isLongText(col.type)"
+                            v-model="formData[col.name]"
+                            rows="4"
+                            :placeholder="col.dflt_value"
+                        ></textarea>
+                        
+                        <!-- Number input -->
+                        <input 
+                            v-else-if="isNumber(col.type)"
+                            type="number"
+                            v-model="formData[col.name]"
+                            :placeholder="col.dflt_value"
+                        >
+                        
+                        <!-- Standard input -->
+                        <input 
+                            v-else
+                            type="text"
+                            v-model="formData[col.name]"
+                            :placeholder="col.dflt_value"
+                        >
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary">Save {{ modalMode === 'create' ? 'Record' : 'Changes' }}</button>
+                        <button type="button" @click="closeModal" class="btn-secondary">Cancel</button>
+                    </div>
+                </form>
+            </Modal>
         </div>
     `,
     setup() {
@@ -183,9 +182,20 @@ export default {
         const sqlQuery = ref('');
         const queryResult = ref(null);
 
-        // Sorting State
-        const sortColumn = ref(null);
-        const sortDirection = ref('asc');
+        // Use Composables
+        // Note: rawData is a computed prop that references tableData, so we need to bridge it slightly
+        const rawRows = computed(() => tableData.value ? tableData.value.data : []);
+        // We can't use useSorting directly on a Ref<Array> easily if the array is replaced entirely.
+        // Actually useSorting takes a Ref. So we can pass a computed or a ref that we update.
+        // But tableData.value.data is what we want to sort.
+        // Let's create a proxy ref
+        const rowsProxy = ref([]);
+
+        watch(() => tableData.value, (val) => {
+            rowsProxy.value = val ? [...val.data] : [];
+        });
+
+        const { sortColumn, sortDirection, sortBy, sortedData } = useSorting(rowsProxy);
 
         // Modal State
         const showModal = ref(false);
@@ -217,49 +227,6 @@ export default {
             }
         };
 
-        const sortBy = (colName) => {
-            if (sortColumn.value === colName) {
-                sortDirection.value = sortDirection.value === 'asc' ? 'desc' : 'asc';
-            } else {
-                sortColumn.value = colName;
-                sortDirection.value = 'asc';
-            }
-        };
-
-        const sortedData = computed(() => {
-            if (!tableData.value || !tableData.value.data) return [];
-            let data = [...tableData.value.data];
-
-            if (sortColumn.value) {
-                const col = sortColumn.value;
-                const dir = sortDirection.value === 'asc' ? 1 : -1;
-
-                data.sort((a, b) => {
-                    let valA = a[col];
-                    let valB = b[col];
-
-                    // Handle Nulls (always last)
-                    if (valA === valB) return 0;
-                    if (valA === null || valA === undefined) return 1;
-                    if (valB === null || valB === undefined) return -1;
-
-                    // Numeric Sort
-                    if (typeof valA === 'number' && typeof valB === 'number') {
-                        return (valA - valB) * dir;
-                    }
-
-                    // String Sort (Case Insensitive)
-                    valA = String(valA).toLowerCase();
-                    valB = String(valB).toLowerCase();
-
-                    if (valA < valB) return -1 * dir;
-                    if (valA > valB) return 1 * dir;
-                    return 0;
-                });
-            }
-            return data;
-        });
-
         const executeQuery = async () => {
             if (!sqlQuery.value.trim()) {
                 alert('Please enter a SQL query');
@@ -280,8 +247,6 @@ export default {
         // Modal Logic
         const formColumns = computed(() => {
             if (!tableData.value) return [];
-            // Hide primary key (assumed 'id') from form, or strictly auto-increment columns?
-            // Safer to hide 'id' if it's PK.
             return tableData.value.schema.filter(c => c.name !== 'id');
         });
 
@@ -291,8 +256,6 @@ export default {
         const openCreateModal = () => {
             modalMode.value = 'create';
             formData.value = {};
-            // Pre-fill defaults? SQLite defaults are strings like "'default'" or "0"
-            // For now leave empty
             showModal.value = true;
         };
 

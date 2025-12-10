@@ -2,6 +2,7 @@ import { ref, reactive, onMounted, computed, watch } from 'vue';
 import SortTh from './SortTh.js';
 import TemplateBuilder from './TemplateBuilder.js';
 import { useSorting } from '../composables/useSorting.js';
+import { store } from '../store.js';
 
 export default {
     components: { SortTh, TemplateBuilder },
@@ -121,8 +122,7 @@ export default {
         </div>
     </div>
     `,
-    props: ['activeView'],
-    setup(props) {
+    setup() {
         const pages = ref([]);
         const allTemplates = ref([]);
         const loading = ref(true);
@@ -324,8 +324,8 @@ export default {
             return new Date(dateStr).toLocaleDateString();
         };
 
-        // Watch activeView prop to switch tabs if needed
-        watch(() => props.activeView, (val) => {
+        // Watch store.state.currentView to switch tabs if needed
+        watch(() => store.state.currentView, (val) => {
             if (val === 'cms-templates') {
                 filterCat.value = 'template';
                 fetchPages();

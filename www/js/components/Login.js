@@ -1,4 +1,5 @@
-import { ref, watch } from 'vue';
+import { ref, watch, computed } from 'vue';
+import { store } from '../store.js';
 
 export default {
     template: `
@@ -17,21 +18,23 @@ export default {
             </form>
             <p>
                 {{ isLogin ? 'Need an account?' : 'Already have an account?' }}
-                <a href="#" @click.prevent="isLogin = !isLogin">
+                <a href="#" @click.prevent="toggleMode">
                     {{ isLogin ? 'Register' : 'Login' }}
                 </a>
             </p>
             <p v-if="error" class="error">{{ error }}</p>
         </div>
     `,
-    props: ['mode'],
     setup(props, { emit }) {
-        const isLogin = ref(props.mode === 'login');
-
-        // Update local state when prop changes
-        watch(() => props.mode, (newMode) => {
-            isLogin.value = newMode === 'login';
+        // Use computed writable or sync manually
+        const isLogin = computed({
+            get: () => store.state.loginMode === 'login',
+            set: (val) => store.setLoginMode(val ? 'login' : 'register')
         });
+
+        const toggleMode = () => {
+            store.setLoginMode(isLogin.value ? 'register' : 'login');
+        };
 
         const username = ref('');
         const password = ref('');
@@ -52,8 +55,8 @@ export default {
                     if (isLogin.value) {
                         emit('login', data.user);
                     } else {
-                        // Auto login or ask to login
-                        isLogin.value = true;
+                        // Switch to login mode after successful register
+                        store.setLoginMode('login');
                         error.value = 'Registration successful. Please login.';
                     }
                 } else {
@@ -64,6 +67,6 @@ export default {
             }
         };
 
-        return { isLogin, username, password, error, handleSubmit };
+        return { isLogin, toggleMode, username, password, error, handleSubmit };
     }
 };

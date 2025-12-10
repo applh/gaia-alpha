@@ -1,7 +1,20 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
-## [v0.14.0] - 2025-12-10
+## [v0.16.0] - 2025-12-10
+### Added
+- **Architecture**: Introduced `store.js`, a custom Vue 3 Data Store for centralized state management (User, Theme, Navigation).
+
+### Refactored
+- **State**: Decoupled global logic from `site.js` into modular Store actions.
+- **Components**: Updated `CMS.js`, `Login.js`, and `UserSettings.js` to consume global state directly from the Store, removing prop drilling.
+- **Cleanup**: Simplifed `site.js` by removing local state management and extensive prop passing.
+
+## [v0.15.1] - 2025-12-10
+### Docs
+- **Architecture**: Added "Vue App Architecture" section to `docs/architecture.md`.
+
+## [v0.15.0] - 2025-12-10
 ### Added
 - **Feature**: Completely redesigned Template Builder. 
 - **UX**: New Split-View interface with Toolbox, Structure Tree, and Live Preview.

@@ -161,8 +161,8 @@ The frontend is a lightweight, bundle-free Vue 3 application that relies on nati
 
 #### 1. Entry Point (`www/js/site.js`)
 - **Mounting**: The app is mounted to the `#app` DOM element.
-- **Global State**: It initializes global state using `reactive()` for user data, active views, and settings.
-- **Components**: It globally registers core components (like `DraggableItem`) when necessary, but prefers local registration.
+- **Global State**: Global state (User, Theme, Navigation) is decoupled into `www/js/store.js`.
+- **Components**: Core logic connects to the Store, keeping the entry point clean.
 
 #### 2. Component Structure (`www/js/components/`)
 - **Single File Components (SFC)**: Written as JS objects exporting a `template` string and `setup()` function.
@@ -170,12 +170,13 @@ The frontend is a lightweight, bundle-free Vue 3 application that relies on nati
 - **Recursive Components**: Used for complex structures like the `TemplateBuilder` tree and `TodoList` items.
 
 #### 3. State Management
-- **Reactivity**: We use Vue's Composition API (`ref`, `reactive`, `computed`) for all state logic.
-- **Cross-Component State**: Shared state is handled via `provide` and `inject` (Dependency Injection) rather than a heavy store library like Vuex or Pinia. This keeps the dependency graph simple and explicit.
+- **Store Pattern**: We use a custom, lightweight Store (`www/js/store.js`) built on Vue's `reactive()` API.
+- **Centralized Logic**: Business logic for Auth, Theme, and Navigation resides in the Store actions (`setUser`, `setTheme`).
+- **Access**: Components import `store` directly, eliminating the need for complex prop drilling.
 
 #### 4. Routing
-- **View-Based Routing**: The app uses a simple state-based router (`activeView` ref).
-- **Navigation**: Switching views just updates this state, triggering the async load of the corresponding component.
+- **View-Based Routing**: The app uses a simple state-based router managed by `store.state.currentView`.
+- **Navigation**: Switching views updates the store state, triggering the async load of the corresponding component.
 
 #### 5. Theming
 - **CSS Variables**: All coloring uses variables defined in `www/css/site.css` (e.g., `var(--bg-color)`, `var(--text-primary)`).

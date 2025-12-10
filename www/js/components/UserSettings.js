@@ -1,12 +1,15 @@
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
+import { store } from '../store.js';
 
 const UserSettings = {
     name: 'UserSettings',
 
     setup() {
+        // Todo Palette Logic (remain local request logic for now, or move to store if generic)
         const defaultPalette = ['#FF6B6B', '#4ECDC4', '#FFE66D', '#1A535C', '#F7FFF7'];
         const palette = ref(JSON.parse(localStorage.getItem('todo_palette')) || defaultPalette);
         const newColor = ref('#000000');
+        const saving = ref(false);
 
         const savePalette = async () => {
             localStorage.setItem('todo_palette', JSON.stringify(palette.value));
@@ -36,29 +39,15 @@ const UserSettings = {
             savePalette();
         };
 
-        const theme = ref(localStorage.getItem('theme') || 'dark');
-        const saving = ref(false);
+        // Theme & Layout delegated to Store
+        const theme = computed(() => store.state.theme);
+        const setTheme = (newTheme) => {
+            store.setTheme(newTheme);
+        };
 
-        const setTheme = async (newTheme) => {
-            if (theme.value === newTheme) return;
-            theme.value = newTheme;
-
-            document.body.classList.toggle('light-theme', newTheme === 'light');
-            localStorage.setItem('theme', newTheme);
-
-            // Persist to API
-            saving.value = true;
-            try {
-                await fetch('/api/settings', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ key: 'theme', value: newTheme })
-                });
-            } catch (e) {
-                console.error("Failed to save theme", e);
-            } finally {
-                saving.value = false;
-            }
+        const layout = computed(() => store.state.layout);
+        const setLayout = (newLayout) => {
+            store.setLayout(newLayout);
         };
 
         const defaultDuration = ref(localStorage.getItem('defaultDuration') || '1');
@@ -81,44 +70,17 @@ const UserSettings = {
             }
         };
 
-        const layout = ref(localStorage.getItem('layout') || 'top');
-        const setLayout = async (mode) => {
-            if (layout.value === mode) return;
-            layout.value = mode;
-
-            if (mode === 'side') {
-                document.body.classList.add('layout-side');
-            } else {
-                document.body.classList.remove('layout-side');
-            }
-            localStorage.setItem('layout', mode);
-
-            // Persist to API
-            saving.value = true;
-            try {
-                await fetch('/api/settings', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ key: 'layout', value: mode })
-                });
-            } catch (e) {
-                console.error("Failed to save layout", e);
-            } finally {
-                saving.value = false;
-            }
-        };
-
         return {
             theme,
             setTheme,
+            layout,
+            setLayout,
             defaultDuration,
             setDuration,
             palette,
             newColor,
             addColor,
             removeColor,
-            layout,
-            setLayout,
             saving
         };
     },

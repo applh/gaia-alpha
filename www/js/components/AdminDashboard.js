@@ -25,6 +25,11 @@ export default {
                     <div class="stat-icon">📄</div>
                 </div>
                 <div class="stat-card">
+                    <h3>Total Templates</h3>
+                    <div class="stat-number">{{ stats.templates }}</div>
+                    <div class="stat-icon">🧩</div>
+                </div>
+                <div class="stat-card">
                     <h3>Total Images</h3>
                     <div class="stat-number">{{ stats.images }}</div>
                     <div class="stat-icon">🖼️</div>

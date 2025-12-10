@@ -27,11 +27,13 @@ class AdminController extends BaseController
         $pdo = $this->db->getPdo();
         $formsCount = $pdo->query("SELECT COUNT(*) FROM forms")->fetchColumn();
         $subsCount = $pdo->query("SELECT COUNT(*) FROM form_submissions")->fetchColumn();
+        $templatesCount = $pdo->query("SELECT COUNT(*) FROM cms_templates")->fetchColumn();
 
         $this->jsonResponse([
             'users' => $userModel->count(),
             'todos' => $todoModel->count(),
             'pages' => $pageModel->count('page'),
+            'templates' => $templatesCount,
             'images' => $pageModel->count('image'),
             'forms' => $formsCount,
             'submissions' => $subsCount,

@@ -3,6 +3,7 @@
 namespace GaiaAlpha\Controller;
 
 use GaiaAlpha\Model\Page;
+use GaiaAlpha\Model\Template;
 
 class CmsController extends BaseController
 {
@@ -163,5 +164,54 @@ class CmsController extends BaseController
         \GaiaAlpha\Router::add('PATCH', '/api/cms/pages/(\d+)', [$this, 'update']);
         \GaiaAlpha\Router::add('DELETE', '/api/cms/pages/(\d+)', [$this, 'delete']);
         \GaiaAlpha\Router::add('POST', '/api/cms/upload', [$this, 'upload']);
+
+        // Template Routes
+        \GaiaAlpha\Router::add('GET', '/api/cms/templates', [$this, 'getTemplates']);
+        \GaiaAlpha\Router::add('POST', '/api/cms/templates', [$this, 'createTemplate']);
+        \GaiaAlpha\Router::add('PATCH', '/api/cms/templates/(\d+)', [$this, 'updateTemplate']);
+        \GaiaAlpha\Router::add('DELETE', '/api/cms/templates/(\d+)', [$this, 'deleteTemplate']);
+    }
+
+    public function getTemplates()
+    {
+        $this->requireAuth();
+        $templateModel = new Template($this->db);
+        $this->jsonResponse($templateModel->findAllByUserId($_SESSION['user_id']));
+    }
+
+    public function createTemplate()
+    {
+        $this->requireAuth();
+        $data = $this->getJsonInput();
+
+        if (empty($data['title']) || empty($data['slug'])) {
+            $this->jsonResponse(['error' => 'Missing title or slug'], 400);
+        }
+
+        $templateModel = new Template($this->db);
+        try {
+            $id = $templateModel->create($_SESSION['user_id'], $data);
+            $this->jsonResponse(['success' => true, 'id' => $id]);
+        } catch (\PDOException $e) {
+            $this->jsonResponse(['error' => 'Slug already exists'], 400);
+        }
+    }
+
+    public function updateTemplate($id)
+    {
+        $this->requireAuth();
+        $data = $this->getJsonInput();
+        $templateModel = new Template($this->db);
+
+        $templateModel->update($id, $_SESSION['user_id'], $data);
+        $this->jsonResponse(['success' => true]);
+    }
+
+    public function deleteTemplate($id)
+    {
+        $this->requireAuth();
+        $templateModel = new Template($this->db);
+        $templateModel->delete($id, $_SESSION['user_id']);
+        $this->jsonResponse(['success' => true]);
     }
 }

@@ -17,7 +17,7 @@ class Page extends BaseModel
         // Let's assume public pages are always cat='page' for now or just all pages?
         // Requirement says "member cms will only list rows with cat 'page'". Public pages probably implies 'page' type content.
         $stmt = $this->db->query("
-            SELECT id, title, slug, content, image, created_at, user_id 
+            SELECT id, title, slug, content, image, created_at, user_id, template_slug
             FROM cms_pages 
             WHERE cat = 'page'
             ORDER BY created_at DESC 
@@ -29,7 +29,7 @@ class Page extends BaseModel
     public function findBySlug(string $slug)
     {
         $stmt = $this->db->prepare("
-            SELECT id, title, slug, content, image, created_at, user_id 
+            SELECT id, title, slug, content, image, created_at, user_id, template_slug
             FROM cms_pages 
             WHERE slug = ? AND cat = 'page'
         ");
@@ -39,7 +39,7 @@ class Page extends BaseModel
 
     public function create(int $userId, array $data)
     {
-        $stmt = $this->db->prepare("INSERT INTO cms_pages (user_id, title, slug, content, image, cat, tag, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
+        $stmt = $this->db->prepare("INSERT INTO cms_pages (user_id, title, slug, content, image, cat, tag, template_slug, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
         $stmt->execute([
             $userId,
             $data['title'],
@@ -47,7 +47,8 @@ class Page extends BaseModel
             $data['content'] ?? '',
             $data['image'] ?? null,
             $data['cat'] ?? 'page',
-            $data['tag'] ?? null
+            $data['tag'] ?? null,
+            $data['template_slug'] ?? null
         ]);
         return $this->db->lastInsertId();
     }
@@ -76,6 +77,10 @@ class Page extends BaseModel
         if (isset($data['tag'])) {
             $fields[] = "tag = ?";
             $values[] = $data['tag'];
+        }
+        if (isset($data['template_slug'])) {
+            $fields[] = "template_slug = ?";
+            $values[] = $data['template_slug'];
         }
 
         if (empty($fields)) {

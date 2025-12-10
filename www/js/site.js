@@ -27,6 +27,7 @@ const App = {
                             <button @click="setView('todos')" :class="{ active: currentView === 'todos' }">✅ My Todos</button>
                             <button @click="setView('users')" :class="{ active: currentView === 'users' }">👥 Users</button>
                             <button @click="setView('cms')" :class="{ active: currentView === 'cms' }">📝 CMS</button>
+                            <button @click="setView('cms-templates')" :class="{ active: currentView === 'cms-templates' }">🧩 Templates</button>
                             <button @click="setView('forms')" :class="{ active: currentView === 'forms' }">📋 Forms</button>
                             <button @click="setView('database')" :class="{ active: currentView === 'database' }">🗄️ Database</button>
                             <button @click="setView('map')" :class="{ active: currentView === 'map' }">🗺️ Map</button>
@@ -65,7 +66,7 @@ const App = {
                 </div>
                 <div v-else>
                     <keep-alive>
-                        <component :is="currentComponent" />
+                        <component :is="currentComponent" :active-view="currentView" />
                     </keep-alive>
                 </div>
             </main>
@@ -86,6 +87,7 @@ const App = {
                 case 'dashboard': return isAdmin.value ? AdminDashboard : TodoList;
                 case 'users': return isAdmin.value ? UsersAdmin : TodoList;
                 case 'cms': return CMS;
+                case 'cms-templates': return CMS;
                 case 'forms': return FormsAdmin;
                 case 'database': return isAdmin.value ? DatabaseManager : TodoList;
                 case 'map': return MapPanel;

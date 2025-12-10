@@ -8,6 +8,16 @@ All notable changes to this project will be documented in this file.
 - **UX**: Precise Drag-and-Drop system allowing "Before", "After", and "Inside" placement for nested structures.
 - **UI**: High-contrast, theme-aware styling for builder components.
 
+## [v0.15.0] - 2025-12-10
+### Added
+- **Features**: CMS Templates Backend. Added `Template` model and database migration for storing reusable content templates.
+- **UI**: Map Panel Markers Table. Added a sortable table view to list all map markers.
+- **Admin**: Dashboard Statistics. Added live counters for Templates, Markers, and Pages in the Admin Dashboard.
+
+### Changed
+- **Refactor**: `CmsController` now handles template CRUD operations alongside pages.
+- **UI**: Improved `MapPanel` with combined Map + Table layout.
+
 ## [v0.13.0] - 2025-12-10
 ### Added
 - **CLI**: Added `user` command group (list, create, delete, update-password).

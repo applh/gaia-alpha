@@ -1,7 +1,10 @@
 
 import { ref, onMounted, nextTick } from 'vue';
+import { useSorting } from '../composables/useSorting.js';
+import SortTh from './SortTh.js';
 
 export default {
+    components: { SortTh },
     template: `
     <div class="map-page" style="height: calc(100vh - 80px); display: flex; flex-direction: column;">
             
@@ -20,23 +23,25 @@ export default {
                 <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
                     <thead>
                         <tr style="border-bottom: 2px solid #eee; text-align: left;">
-                            <th style="padding: 10px;">ID</th>
-                            <th style="padding: 10px;">Label</th>
-                            <th style="padding: 10px;">Position</th>
+                            <SortTh name="id" :current-sort="sortColumn" :sort-dir="sortDirection" @sort="sortBy" style="padding: 10px;">ID</SortTh>
+                            <SortTh name="label" :current-sort="sortColumn" :sort-dir="sortDirection" @sort="sortBy" style="padding: 10px;">Label</SortTh>
+                            <SortTh name="lat" :current-sort="sortColumn" :sort-dir="sortDirection" @sort="sortBy" style="padding: 10px;">Latitude</SortTh>
+                            <SortTh name="lng" :current-sort="sortColumn" :sort-dir="sortDirection" @sort="sortBy" style="padding: 10px;">Longitude</SortTh>
                             <th style="padding: 10px;">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="marker in markers" :key="marker.id" style="border-bottom: 1px solid #eee;">
+                        <tr v-for="marker in sortedMarkers" :key="marker.id" style="border-bottom: 1px solid #eee;">
                             <td style="padding: 10px;">{{ marker.id }}</td>
                             <td style="padding: 10px;">{{ marker.label }}</td>
-                            <td style="padding: 10px;">{{ marker.lat.toFixed(4) }}, {{ marker.lng.toFixed(4) }}</td>
+                            <td style="padding: 10px;">{{ marker.lat.toFixed(4) }}</td>
+                            <td style="padding: 10px;">{{ marker.lng.toFixed(4) }}</td>
                             <td style="padding: 10px;">
                                 <button @click="centerOnMarker(marker)" style="padding: 5px 10px; cursor: pointer;">View</button>
                             </td>
                         </tr>
                         <tr v-if="markers.length === 0">
-                            <td colspan="4" style="padding: 20px; text-align: center; color: #666;">No markers yet. Click on the map to add one.</td>
+                            <td colspan="5" style="padding: 20px; text-align: center; color: #666;">No markers yet. Click on the map to add one.</td>
                         </tr>
                     </tbody>
                 </table >
@@ -59,6 +64,7 @@ export default {
         const map = ref(null);
         const globe = ref(null);
         const markers = ref([]);
+        const { sortColumn, sortDirection, sortBy, sortedData: sortedMarkers } = useSorting(markers, 'id', 'desc');
         const showModal = ref(false);
         const newMarkerLabel = ref('');
         const newMarkerPos = ref(null);
@@ -182,10 +188,14 @@ export default {
             // In a real app we'd track marker layers to remove them.
             // For this simple version, we assume loadMarkers is called once.
 
+            const featureGroup = L.featureGroup();
+
             markers.value.forEach(m => {
                 const marker = L.marker([m.lat, m.lng], { draggable: true })
                     .addTo(map.value)
                     .bindPopup(m.label);
+
+                featureGroup.addLayer(marker);
 
                 marker.on('dragend', (e) => {
                     const latlng = e.target.getLatLng();
@@ -200,6 +210,10 @@ export default {
                     if (globe.value) globe.value.pointsData(markers.value);
                 });
             });
+
+            if (markers.value.length > 0) {
+                map.value.fitBounds(featureGroup.getBounds().pad(0.1));
+            }
         };
 
         const updateMarkerPosition = async (id, lat, lng) => {
@@ -305,7 +319,10 @@ export default {
             });
         });
 
-        return { showModal, newMarkerLabel, saveMarker, closeModal, labelInput, markers, centerOnMarker, viewMode, setViewMode };
+        return {
+            showModal, newMarkerLabel, saveMarker, closeModal, labelInput, markers, centerOnMarker, viewMode, setViewMode,
+            sortColumn, sortDirection, sortBy, sortedMarkers
+        };
     }
 };
 

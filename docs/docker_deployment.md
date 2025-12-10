@@ -30,6 +30,16 @@ docker build -t gaia-simple .
 docker run -p 8000:8000 -v $(pwd)/my-data:/app/my-data gaia-simple
 ```
 
+### Development Mode (Live Sync)
+To reflect code changes immediately without rebuilding the image, mount your local directory to the container's application root (`/app`).
+
+```bash
+docker run -p 8000:8000 \
+    -v $(pwd):/app \
+    gaia-simple
+```
+*Note: This mounts your current directory over `/app` in the container, so any changes you make locally are instantly visible.*
+
 
 ## 2. Nginx + PHP-FPM (Production-Ready Code)
 For better performance and stability, use Nginx as a reverse proxy in front of PHP-FPM.

@@ -1,19 +1,22 @@
-import { ref, reactive, onMounted, computed } from 'vue';
+import { ref, reactive, onMounted, computed, watch } from 'vue';
 import SortTh from './SortTh.js';
+import TemplateBuilder from './TemplateBuilder.js';
 import { useSorting } from '../composables/useSorting.js';
 
 export default {
-    components: { SortTh },
+    components: { SortTh, TemplateBuilder },
     template: `
         <div class="admin-page">
             <div class="admin-header">
                 <h2 class="page-title">Content Management</h2>
                 <div class="header-actions">
-                    <select v-model="filterCat" @change="fetchPages" style="width: auto; padding: 4px 8px; margin-right: 10px;">
-                        <option value="page">Pages</option>
-                        <option value="image">Images</option>
-                    </select>
+                    <div class="nav-tabs">
+                        <button @click="filterCat = 'page'; fetchPages()" :class="{ active: filterCat === 'page' }">Pages</button>
+                        <button @click="filterCat = 'template'; fetchPages()" :class="{ active: filterCat === 'template' }">Templates</button>
+                        <button @click="filterCat = 'image'; fetchPages()" :class="{ active: filterCat === 'image' }">Images</button>
+                    </div>
                     <button v-if="!showForm && filterCat === 'page'" @click="openCreate" class="btn-primary">Create Page</button>
+                    <button v-if="!showForm && filterCat === 'template'" @click="openCreate" class="btn-primary">Create Template</button>
                     <button v-if="!showForm && filterCat === 'image'" @click="$refs.headerUpload.click()" class="btn-secondary">Upload Image</button>
                     <input type="file" ref="headerUpload" @change="uploadHeaderImage" style="display: none" accept="image/*">
                 </div>
@@ -29,7 +32,7 @@ export default {
                         <tr>
                             <th>Image</th>
                             <SortTh name="title" :label="filterCat === 'image' ? 'Filename' : 'Title'" :current-sort="sortColumn" :sort-dir="sortDirection" @sort="sortBy" />
-                            <SortTh v-if="filterCat === 'page'" name="slug" label="Slug" :current-sort="sortColumn" :sort-dir="sortDirection" @sort="sortBy" />
+                            <SortTh v-if="filterCat === 'page' || filterCat === 'template'" name="slug" label="Slug" :current-sort="sortColumn" :sort-dir="sortDirection" @sort="sortBy" />
                             <SortTh name="created_at" label="Created" :current-sort="sortColumn" :sort-dir="sortDirection" @sort="sortBy" />
                             <th>Actions</th>
                         </tr>
@@ -44,9 +47,10 @@ export default {
                             <td v-if="filterCat === 'page'">
                                 <a :href="'/page/' + page.slug" target="_blank">{{ page.slug }}</a>
                             </td>
+                            <td v-else-if="filterCat === 'template'">{{ page.slug }}</td>
                             <td>{{ formatDate(page.created_at) }}</td>
                             <td class="actions">
-                                <button v-if="filterCat === 'page'" @click="editPage(page)" class="btn-small">Edit</button>
+                                <button v-if="filterCat === 'page' || filterCat === 'template'" @click="editPage(page)" class="btn-small">Edit</button>
                                 <button @click="deletePage(page.id)" class="btn-small btn-danger">Delete</button>
                             </td>
                         </tr>
@@ -55,9 +59,9 @@ export default {
                 <p v-else class="empty-state">No {{ filterCat }}s found.</p>
             </div>
 
-            <!-- Form View (Only for Pages) -->
+            <!-- Form View -->
             <div v-if="showForm" class="cms-form">
-                <h3>{{ form.id ? 'Edit Page' : 'New Page' }}</h3>
+                <h3>{{ form.id ? 'Edit ' + (filterCat === 'template' ? 'Template' : 'Page') : 'New ' + (filterCat === 'template' ? 'Template' : 'Page') }}</h3>
                 <form @submit.prevent="savePage">
                     <div class="form-group">
                         <label>Title</label>
@@ -67,8 +71,18 @@ export default {
                         <label>Slug</label>
                         <input v-model="form.slug" required placeholder="page-slug">
                     </div>
-                    <div class="form-group">
-                        <label>Featured Image</label>
+                    
+                    <!-- Page Specific Fields -->
+                    <template v-if="filterCat === 'page'">
+                        <div class="form-group">
+                            <label>Template</label>
+                            <select v-model="form.template_slug">
+                                <option value="">Default (No Template)</option>
+                                <option v-for="t in allTemplates" :key="t.slug" :value="t.slug">{{ t.title }}</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Featured Image</label>
                         <div class="featured-image-control">
                             <div v-if="form.image" class="image-preview">
                                 <img :src="form.image" alt="Featured">
@@ -88,7 +102,16 @@ export default {
                              <button type="button" @click="triggerUpload" class="btn-small">Insert Image in Content</button>
                         </div>
                         <textarea v-model="form.content" rows="10" placeholder="Page content (HTML allowed)"></textarea>
-                    </div>
+                        </div>
+                    </template>
+
+                    <!-- Template Specific Fields -->
+                    <template v-if="filterCat === 'template'">
+                        <div class="form-group">
+                            <label>Structure Builder</label>
+                            <TemplateBuilder v-model="form.content" />
+                        </div>
+                    </template>
                     <div class="form-actions">
                         <button type="submit">{{ form.id ? 'Update' : 'Create' }}</button>
                         <button type="button" @click="cancelForm" class="btn-secondary">Cancel</button>
@@ -98,8 +121,10 @@ export default {
         </div>
     </div>
     `,
-    setup() {
+    props: ['activeView'],
+    setup(props) {
         const pages = ref([]);
+        const allTemplates = ref([]);
         const loading = ref(true);
         const showForm = ref(false);
         const fileInput = ref(null);
@@ -109,19 +134,39 @@ export default {
             title: (row) => row.title || row.filename
         });
 
+
+
         const form = reactive({
             id: null,
             title: '',
             slug: '',
             image: '',
             content: '',
-            cat: 'page'
+            cat: 'page',
+            template_slug: ''
         });
+
+        const fetchTemplatesList = async () => {
+            try {
+                const res = await fetch('/api/cms/templates');
+                if (res.ok) {
+                    allTemplates.value = await res.json();
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        };
 
         const fetchPages = async () => {
             loading.value = true;
             try {
-                const res = await fetch(`/api/cms/pages?cat=${filterCat.value}`);
+                let url;
+                if (filterCat.value === 'template') {
+                    url = '/api/cms/templates';
+                } else {
+                    url = `/api/cms/pages?cat=${filterCat.value}`;
+                }
+                const res = await fetch(url);
                 if (res.ok) {
                     pages.value = await res.json();
                 }
@@ -130,14 +175,21 @@ export default {
             }
         };
 
-        const openCreate = () => {
-            Object.assign(form, { id: null, title: '', slug: '', image: '', content: '', cat: 'page' });
+        const openCreate = async () => {
+            Object.assign(form, { id: null, title: '', slug: '', image: '', content: '', cat: 'page', template_slug: '' });
+            if (filterCat.value === 'page') {
+                await fetchTemplatesList();
+            }
             showForm.value = true;
         };
 
-        const editPage = (page) => {
+        const editPage = async (page) => {
             Object.assign(form, page);
+            if (!form.template_slug) form.template_slug = '';
             showForm.value = true;
+            if (filterCat.value === 'page') {
+                await fetchTemplatesList();
+            }
         };
 
         const generateSlug = () => {
@@ -226,7 +278,13 @@ export default {
         };
 
         const savePage = async () => {
-            const url = form.id ? `/api/cms/pages/${form.id}` : '/api/cms/pages';
+            let url;
+            if (filterCat.value === 'template') {
+                url = form.id ? `/api/cms/templates/${form.id}` : '/api/cms/templates';
+            } else {
+                url = form.id ? `/api/cms/pages/${form.id}` : '/api/cms/pages';
+            }
+
             const method = form.id ? 'PATCH' : 'POST';
 
             const res = await fetch(url, {
@@ -245,7 +303,13 @@ export default {
         };
 
         const deletePage = async (id) => {
-            const res = await fetch(`/api/cms/pages/${id}`, { method: 'DELETE' });
+            let url;
+            if (filterCat.value === 'template') {
+                url = `/api/cms/templates/${id}`;
+            } else {
+                url = `/api/cms/pages/${id}`;
+            }
+            const res = await fetch(url, { method: 'DELETE' });
             if (res.ok) {
                 fetchPages();
             }
@@ -260,10 +324,23 @@ export default {
             return new Date(dateStr).toLocaleDateString();
         };
 
+        // Watch activeView prop to switch tabs if needed
+        watch(() => props.activeView, (val) => {
+            if (val === 'cms-templates') {
+                filterCat.value = 'template';
+                fetchPages();
+                showForm.value = false;
+            } else if (val === 'cms') {
+                filterCat.value = 'page';
+                fetchPages();
+                showForm.value = false;
+            }
+        }, { immediate: true });
+
         onMounted(fetchPages);
 
         return {
-            pages, loading, showForm, form, fileInput, headerUpload, filterCat,
+            pages, allTemplates, loading, showForm, form, fileInput, headerUpload, filterCat,
             openCreate, editPage, savePage, deletePage, cancelForm, generateSlug,
             formatDate, triggerUpload, uploadImage, uploadFeatured, uploadHeaderImage, fetchPages,
             sortBy, sortColumn, sortDirection, sortedPages

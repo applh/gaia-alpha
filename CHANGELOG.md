@@ -1,6 +1,13 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+## [v0.14.0] - 2025-12-10
+### Added
+- **Feature**: Completely redesigned Template Builder. 
+- **UX**: New Split-View interface with Toolbox, Structure Tree, and Live Preview.
+- **UX**: Precise Drag-and-Drop system allowing "Before", "After", and "Inside" placement for nested structures.
+- **UI**: High-contrast, theme-aware styling for builder components.
+
 ## [v0.13.0] - 2025-12-10
 ### Added
 - **CLI**: Added `user` command group (list, create, delete, update-password).

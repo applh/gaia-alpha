@@ -1538,3 +1538,113 @@ input[type="checkbox"]:checked::before {
     border-top: none;
     border-radius: 0 0 var(--radius-sm) var(--radius-sm);
 }
+
+/* Tree Builder Drag Indicators */
+.tree-item-wrapper {
+    position: relative;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.tree-item-wrapper.selected > .tree-node-content {
+    background: var(--accent-color) !important;
+    border-color: var(--accent-color) !important;
+    color: white !important;
+}
+
+.tree-item-wrapper.drop-before {
+    border-top: 2px solid var(--accent-color);
+}
+
+.tree-item-wrapper.drop-after {
+    border-bottom: 2px solid var(--accent-color);
+}
+
+.tree-item-wrapper.drop-inside > .tree-node-content {
+    background: rgba(108, 92, 231, 0.2) !important;
+    border: 1px dashed var(--accent-color) !important;
+}
+
+.root-node.drop-active {
+    background: rgba(108, 92, 231, 0.1) !important;
+    border: 1px dashed var(--accent-color) !important;
+}
+
+/* Toolbox Items */
+.toolbox-item {
+    padding: 8px 12px;
+    margin-bottom: 8px;
+    border-radius: 4px;
+    cursor: grab;
+    transition: all 0.2s ease;
+    font-weight: 500;
+    
+    /* Default (Dark Mode) */
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+}
+
+.toolbox-item:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateY(-1px);
+}
+
+/* Light Mode Overrides */
+.light-theme .toolbox-item {
+    background: #ffffff;
+    border: 1px solid #e1e4e8;
+    color: var(--text-primary);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.light-theme .toolbox-item:hover {
+    background: #f8f9fa;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    transform: translateY(-1px);
+}
+
+/* Preview Pane Resets */
+.preview-pane header,
+.preview-pane main,
+.preview-pane footer {
+    /* Reset global app styles */
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    backdrop-filter: none;
+    border-radius: 0;
+    margin: 0;
+    padding: 0;
+    min-height: auto;
+    display: block; /* Force block behavior unless overridden */
+    position: static;
+}
+
+/* Visualization for Preview Blocks */
+.preview-block {
+    outline: 1px dashed #ccc; /* Helper to see boundaries */
+    min-height: 50px;
+    position: relative;
+}
+
+.header-block {
+    background: #f8f9fa; /* Light grey for header area */
+    border-bottom: 1px solid #e1e4e8;
+    padding: 20px;
+    margin-bottom: 0;
+}
+
+.main-block {
+    background: #ffffff;
+    padding: 20px;
+    flex: 1; /* If using flex column layout */
+    min-height: 200px;
+}
+
+.footer-block {
+    background: #f1f3f5;
+    border-top: 1px solid #e1e4e8;
+    padding: 20px;
+    margin-top: auto;
+}

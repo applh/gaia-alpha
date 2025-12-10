@@ -64,36 +64,18 @@ class Router
 
     public static function handle()
     {
-        $rootDir = Env::get('root_dir');
         $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
         $method = $_SERVER['REQUEST_METHOD'];
 
+        $handled = self::dispatch($method, $uri);
 
-        // API & Media Routing
-        if (strpos($uri, '/api/') === 0 || strpos($uri, '/media/') === 0) {
-            $handled = self::dispatch($method, $uri);
-            if (!$handled) {
-                http_response_code(404);
-                if (strpos($uri, '/api/') === 0) {
-                    echo json_encode(['error' => 'API Endpoint Not Found']);
-                } else {
-                    echo "File not found";
-                }
+        if (!$handled) {
+            http_response_code(404);
+            if (strpos($uri, '/api/') === 0) {
+                echo json_encode(['error' => 'API Endpoint Not Found']);
+            } else {
+                echo "File not found";
             }
-            return;
-        }
-
-        // Frontend Routing
-        if ($uri === '/app' || strpos($uri, '/app/') === 0) {
-            include $rootDir . '/templates/app.php';
-        } elseif (preg_match('#^/f/([\w-]+)/?$#', $uri, $matches)) {
-            $slug = $matches[1];
-            include $rootDir . '/templates/public_form.php';
-        } elseif (preg_match('#^/page/([\w-]+)/?$#', $uri, $matches)) {
-            $slug = $matches[1];
-            include $rootDir . '/templates/single_page.php';
-        } else {
-            include $rootDir . '/templates/public_home.php';
         }
     }
 }

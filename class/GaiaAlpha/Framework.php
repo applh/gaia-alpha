@@ -29,6 +29,23 @@ class Framework
         Env::set('controllers', $controllers);
     }
 
+    public static function sortControllers()
+    {
+        $controllers = Env::get('controllers');
+
+        uasort($controllers, function ($a, $b) {
+            $rankA = method_exists($a, 'getRank') ? $a->getRank() : 10;
+            $rankB = method_exists($b, 'getRank') ? $b->getRank() : 10;
+
+            if ($rankA === $rankB) {
+                return 0;
+            }
+            return ($rankA < $rankB) ? -1 : 1;
+        });
+
+        Env::set('controllers', $controllers);
+    }
+
     public static function registerRoutes()
     {
         $controllers = Env::get('controllers');

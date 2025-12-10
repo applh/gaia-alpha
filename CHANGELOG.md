@@ -1,6 +1,16 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+## [v0.20.0] - 2025-12-11
+### Added
+- **Architecture**: Implemented Controller Ranking System (`getRank()`) to deterministically order route registration. 
+- **Architecture**: Added `Framework::sortControllers()` task to `App` lifecycle.
+- **Docs**: Added "Routing Strategy" section to `docs/architecture.md`.
+
+### Refactored
+- **Routing**: Moved frontend routing logic from `Router.php` to `ViewController`.
+- **Routing**: `ViewController` now extends `BaseController` and runs with Rank 100 (lowest priority) to ensure catch-all routes don't mask API routes.
+
 ## [v0.19.0] - 2025-12-10
 ### Refactored
 - **Database**: Migrated all models (`User`, `Page`, `Template`, `Todo`, `MapMarker`, `DataStore`) to use static database access via `DbController::getPdo()`.

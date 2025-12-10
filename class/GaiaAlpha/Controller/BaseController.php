@@ -52,4 +52,9 @@ abstract class BaseController
     {
         // Override in subclasses
     }
+
+    public function getRank()
+    {
+        return 10;
+    }
 }

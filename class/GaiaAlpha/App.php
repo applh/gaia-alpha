@@ -21,6 +21,7 @@ class App
         Env::set('controllers', []);
         Env::set('framework_tasks', [
             "step10" => "GaiaAlpha\Framework::loadControllers",
+            "step12" => "GaiaAlpha\Framework::sortControllers",
             "step15" => "GaiaAlpha\Framework::registerRoutes",
             "step20" => "GaiaAlpha\Router::handle",
         ]);

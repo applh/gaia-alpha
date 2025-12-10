@@ -77,6 +77,27 @@ define('GAIA_DB_DSN', 'sqlite:' . GAIA_DB_PATH);
    - **Media Requests**: `/media/{userId}/{filename}` -> `MediaController`.
    - **Page Requests**: Default -> Renders templates (Vue App host).
 
+## Routing Strategy
+The framework employs a two-tiered strategy to manage route priority and prevent conflicts between API endpoints and frontend "catch-all" routes.
+
+### 1. Controller Ranking
+Controllers are loaded dynamically by `Framework`. To ensure specific API controllers take precedence over generic frontend controllers (like `ViewController`), a ranking system is used:
+- **`BaseController::getRank()`**: Returns an integer priority (Default: `10`).
+- **`Framework::sortControllers()`**: Sorts controllers by rank (ascending) before registering routes.
+
+**Example**:
+- `DbController` (Rank 10): Registers `/api/admin/...` first.
+- `ViewController` (Rank 100): Registers catch-all `.*` routes last.
+
+### 2. Route Definition Order
+Within a single controller, routes are matched in the order they are defined.
+**Best Practice**: Define specific paths *before* wildcard patterns.
+```php
+// Correct
+Router::get('/api/users/me', ...);
+Router::get('/api/users/(\d+)', ...);
+```
+
 ## Media Handling
 The `Media` class provides on-demand image processing with caching.
 

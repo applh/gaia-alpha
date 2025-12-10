@@ -97,7 +97,7 @@ const actions = {
             await fetch('/api/user/settings', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ [key]: value })
+                body: JSON.stringify({ key, value })
             });
         } catch (e) {
             console.error(`Failed to save ${key}`, e);

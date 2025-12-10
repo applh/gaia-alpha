@@ -16,8 +16,7 @@ class AuthController extends BaseController
     public function login()
     {
         $data = $this->getJsonInput();
-        $userModel = new User($this->db);
-        $user = $userModel->findByUsername($data['username'] ?? '');
+        $user = User::findByUsername($data['username'] ?? '');
 
         if ($user && password_verify($data['password'] ?? '', $user['password_hash'])) {
             $_SESSION['user_id'] = $user['id'];
@@ -43,9 +42,8 @@ class AuthController extends BaseController
             $this->jsonResponse(['error' => 'Missing credentials'], 400);
         }
 
-        $userModel = new User($this->db);
         try {
-            $userModel->create($data['username'], $data['password']);
+            User::create($data['username'], $data['password']);
             $this->jsonResponse(['success' => true]);
         } catch (\PDOException $e) {
             $this->jsonResponse(['error' => 'Username already exists'], 400);

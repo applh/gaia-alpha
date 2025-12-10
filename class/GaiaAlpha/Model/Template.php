@@ -2,35 +2,37 @@
 
 namespace GaiaAlpha\Model;
 
-class Template extends BaseModel
+class Template
 {
-    public function findAllByUserId(int $userId)
+
+
+    public static function findAllByUserId(int $userId)
     {
-        $stmt = $this->db->prepare("SELECT * FROM cms_templates WHERE user_id = ? ORDER BY created_at DESC");
+        $stmt = \GaiaAlpha\Controller\DbController::getPdo()->prepare("SELECT * FROM cms_templates WHERE user_id = ? ORDER BY created_at DESC");
         $stmt->execute([$userId]);
         return $stmt->fetchAll();
     }
 
-    public function findBySlug(string $slug)
+    public static function findBySlug(string $slug)
     {
-        $stmt = $this->db->prepare("SELECT * FROM cms_templates WHERE slug = ?");
+        $stmt = \GaiaAlpha\Controller\DbController::getPdo()->prepare("SELECT * FROM cms_templates WHERE slug = ?");
         $stmt->execute([$slug]);
         return $stmt->fetch();
     }
 
-    public function create(int $userId, array $data)
+    public static function create(int $userId, array $data)
     {
-        $stmt = $this->db->prepare("INSERT INTO cms_templates (user_id, title, slug, content, created_at, updated_at) VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
+        $stmt = \GaiaAlpha\Controller\DbController::getPdo()->prepare("INSERT INTO cms_templates (user_id, title, slug, content, created_at, updated_at) VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
         $stmt->execute([
             $userId,
             $data['title'],
             $data['slug'],
             $data['content'] ?? ''
         ]);
-        return $this->db->lastInsertId();
+        return \GaiaAlpha\Controller\DbController::getPdo()->lastInsertId();
     }
 
-    public function update(int $id, int $userId, array $data)
+    public static function update(int $id, int $userId, array $data)
     {
         $fields = [];
         $values = [];
@@ -53,13 +55,13 @@ class Template extends BaseModel
         $values[] = $id;
         $values[] = $userId;
 
-        $stmt = $this->db->prepare($sql);
+        $stmt = \GaiaAlpha\Controller\DbController::getPdo()->prepare($sql);
         return $stmt->execute($values);
     }
 
-    public function delete(int $id, int $userId)
+    public static function delete(int $id, int $userId)
     {
-        $stmt = $this->db->prepare("DELETE FROM cms_templates WHERE id = ? AND user_id = ?");
+        $stmt = \GaiaAlpha\Controller\DbController::getPdo()->prepare("DELETE FROM cms_templates WHERE id = ? AND user_id = ?");
         return $stmt->execute([$id, $userId]);
     }
 }

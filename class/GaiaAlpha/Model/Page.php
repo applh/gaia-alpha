@@ -2,21 +2,20 @@
 
 namespace GaiaAlpha\Model;
 
-class Page extends BaseModel
+class Page
 {
-    public function findAllByUserId(int $userId, string $cat = 'page')
+
+
+    public static function findAllByUserId(int $userId, string $cat = 'page')
     {
-        $stmt = $this->db->prepare("SELECT * FROM cms_pages WHERE user_id = ? AND cat = ? ORDER BY created_at DESC");
+        $stmt = \GaiaAlpha\Controller\DbController::getPdo()->prepare("SELECT * FROM cms_pages WHERE user_id = ? AND cat = ? ORDER BY created_at DESC");
         $stmt->execute([$userId, $cat]);
         return $stmt->fetchAll();
     }
 
-    public function getLatestPublic(int $limit = 10)
+    public static function getLatestPublic(int $limit = 10)
     {
-        // Only public pages should be cat='page' arguably, or maybe 'public' doesnt matter?
-        // Let's assume public pages are always cat='page' for now or just all pages?
-        // Requirement says "member cms will only list rows with cat 'page'". Public pages probably implies 'page' type content.
-        $stmt = $this->db->query("
+        $stmt = \GaiaAlpha\Controller\DbController::getPdo()->query("
             SELECT id, title, slug, content, image, created_at, user_id, template_slug
             FROM cms_pages 
             WHERE cat = 'page'
@@ -26,9 +25,9 @@ class Page extends BaseModel
         return $stmt->fetchAll();
     }
 
-    public function findBySlug(string $slug)
+    public static function findBySlug(string $slug)
     {
-        $stmt = $this->db->prepare("
+        $stmt = \GaiaAlpha\Controller\DbController::getPdo()->prepare("
             SELECT id, title, slug, content, image, created_at, user_id, template_slug
             FROM cms_pages 
             WHERE slug = ? AND cat = 'page'
@@ -37,9 +36,9 @@ class Page extends BaseModel
         return $stmt->fetch();
     }
 
-    public function create(int $userId, array $data)
+    public static function create(int $userId, array $data)
     {
-        $stmt = $this->db->prepare("INSERT INTO cms_pages (user_id, title, slug, content, image, cat, tag, template_slug, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
+        $stmt = \GaiaAlpha\Controller\DbController::getPdo()->prepare("INSERT INTO cms_pages (user_id, title, slug, content, image, cat, tag, template_slug, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
         $stmt->execute([
             $userId,
             $data['title'],
@@ -50,10 +49,10 @@ class Page extends BaseModel
             $data['tag'] ?? null,
             $data['template_slug'] ?? null
         ]);
-        return $this->db->lastInsertId();
+        return \GaiaAlpha\Controller\DbController::getPdo()->lastInsertId();
     }
 
-    public function update(int $id, int $userId, array $data)
+    public static function update(int $id, int $userId, array $data)
     {
         $fields = [];
         $values = [];
@@ -92,30 +91,30 @@ class Page extends BaseModel
         $values[] = $id;
         $values[] = $userId;
 
-        $stmt = $this->db->prepare($sql);
+        $stmt = \GaiaAlpha\Controller\DbController::getPdo()->prepare($sql);
         return $stmt->execute($values);
     }
 
-    public function delete(int $id, int $userId)
+    public static function delete(int $id, int $userId)
     {
-        $stmt = $this->db->prepare("DELETE FROM cms_pages WHERE id = ? AND user_id = ?");
+        $stmt = \GaiaAlpha\Controller\DbController::getPdo()->prepare("DELETE FROM cms_pages WHERE id = ? AND user_id = ?");
         return $stmt->execute([$id, $userId]);
     }
 
-    public function findAllCats(int $userId)
+    public static function findAllCats(int $userId)
     {
-        $stmt = $this->db->prepare("SELECT DISTINCT cat FROM cms_pages WHERE user_id = ?");
+        $stmt = \GaiaAlpha\Controller\DbController::getPdo()->prepare("SELECT DISTINCT cat FROM cms_pages WHERE user_id = ?");
         $stmt->execute([$userId]);
         return $stmt->fetchAll(\PDO::FETCH_COLUMN);
     }
 
-    public function count(?string $cat = null)
+    public static function count(?string $cat = null)
     {
         if ($cat) {
-            $stmt = $this->db->prepare("SELECT count(*) FROM cms_pages WHERE cat = ?");
+            $stmt = \GaiaAlpha\Controller\DbController::getPdo()->prepare("SELECT count(*) FROM cms_pages WHERE cat = ?");
             $stmt->execute([$cat]);
             return $stmt->fetchColumn();
         }
-        return $this->db->query("SELECT count(*) FROM cms_pages")->fetchColumn();
+        return \GaiaAlpha\Controller\DbController::getPdo()->query("SELECT count(*) FROM cms_pages")->fetchColumn();
     }
 }

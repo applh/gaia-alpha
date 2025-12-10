@@ -1,11 +1,12 @@
 import { ref, reactive, onMounted, computed, watch } from 'vue';
 import SortTh from './SortTh.js';
 import TemplateBuilder from './TemplateBuilder.js';
+import MenuBuilder from './MenuBuilder.js';
 import { useSorting } from '../composables/useSorting.js';
 import { store } from '../store.js';
 
 export default {
-    components: { SortTh, TemplateBuilder },
+    components: { SortTh, TemplateBuilder, MenuBuilder },
     template: `
         <div class="admin-page">
             <div class="admin-header">
@@ -15,6 +16,7 @@ export default {
                         <button @click="filterCat = 'page'; fetchPages()" :class="{ active: filterCat === 'page' }">Pages</button>
                         <button @click="filterCat = 'template'; fetchPages()" :class="{ active: filterCat === 'template' }">Templates</button>
                         <button @click="filterCat = 'image'; fetchPages()" :class="{ active: filterCat === 'image' }">Images</button>
+                        <button @click="filterCat = 'menu'" :class="{ active: filterCat === 'menu' }">Menus</button>
                     </div>
                     <button v-if="!showForm && filterCat === 'page'" @click="openCreate" class="btn-primary">Create Page</button>
                     <button v-if="!showForm && filterCat === 'template'" @click="openCreate" class="btn-primary">Create Template</button>
@@ -23,7 +25,11 @@ export default {
                 </div>
             </div>
             
-            <div class="admin-card">
+            <div class="admin-card" v-if="filterCat === 'menu'">
+                <MenuBuilder />
+            </div>
+
+            <div class="admin-card" v-else>
 
             <!-- List View -->
             <div v-if="!showForm" class="cms-list">
@@ -158,6 +164,7 @@ export default {
         };
 
         const fetchPages = async () => {
+            if (filterCat.value === 'menu') return;
             loading.value = true;
             try {
                 let url;

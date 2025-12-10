@@ -9,13 +9,12 @@ class TodoController extends BaseController
     public function index()
     {
         $this->requireAuth();
-        $todoModel = new Todo($this->db);
 
         // Check if filtering by label
         if (isset($_GET['label'])) {
-            $todos = $todoModel->findByLabel($_SESSION['user_id'], $_GET['label']);
+            $todos = Todo::findByLabel($_SESSION['user_id'], $_GET['label']);
         } else {
-            $todos = $todoModel->findAllByUserId($_SESSION['user_id']);
+            $todos = Todo::findAllByUserId($_SESSION['user_id']);
         }
 
         $this->jsonResponse($todos);
@@ -30,8 +29,7 @@ class TodoController extends BaseController
             $this->jsonResponse(['error' => 'Title required'], 400);
         }
 
-        $todoModel = new Todo($this->db);
-        $id = $todoModel->create(
+        $id = Todo::create(
             $_SESSION['user_id'],
             $data['title'],
             $data['parent_id'] ?? null,
@@ -41,7 +39,7 @@ class TodoController extends BaseController
             $data['color'] ?? null
         );
 
-        $newTodo = $todoModel->find($id, $_SESSION['user_id']);
+        $newTodo = Todo::find($id, $_SESSION['user_id']);
         $this->jsonResponse($newTodo);
     }
 
@@ -49,25 +47,21 @@ class TodoController extends BaseController
     {
         $this->requireAuth();
         $data = $this->getJsonInput();
-        $todoModel = new Todo($this->db);
-
-        $todoModel->update($id, $_SESSION['user_id'], $data);
+        Todo::update($id, $_SESSION['user_id'], $data);
         $this->jsonResponse(['success' => true]);
     }
 
     public function delete($id)
     {
         $this->requireAuth();
-        $todoModel = new Todo($this->db);
-        $todoModel->delete($id, $_SESSION['user_id']);
+        Todo::delete($id, $_SESSION['user_id']);
         $this->jsonResponse(['success' => true]);
     }
 
     public function getChildren($id)
     {
         $this->requireAuth();
-        $todoModel = new Todo($this->db);
-        $children = $todoModel->findChildren($id, $_SESSION['user_id']);
+        $children = Todo::findChildren($id, $_SESSION['user_id']);
         $this->jsonResponse($children);
     }
 
@@ -80,8 +74,7 @@ class TodoController extends BaseController
             $this->jsonResponse(['error' => 'Missing required fields'], 400);
         }
 
-        $todoModel = new Todo($this->db);
-        $success = $todoModel->updatePosition(
+        $success = Todo::updatePosition(
             $data['id'],
             $_SESSION['user_id'],
             $data['parent_id'] ?? null,

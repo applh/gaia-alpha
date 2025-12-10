@@ -8,15 +8,11 @@ use GaiaAlpha\Controller\DbController;
 
 class SettingsController
 {
-    private Database $db;
-
-    public function __construct()
-    {
-        $this->db = DbController::connect();
-    }
-
     private function requireAuth()
     {
+        if (session_status() == PHP_SESSION_NONE) {
+            session_start();
+        }
         if (!isset($_SESSION['user_id'])) {
             http_response_code(401);
             echo json_encode(['error' => 'Unauthorized']);
@@ -35,10 +31,9 @@ class SettingsController
     public function index()
     {
         $this->requireAuth();
-        $model = new DataStore($this->db);
 
         // We currently only store user preferences under type 'user_pref'
-        $settings = $model->getAll($_SESSION['user_id'], 'user_pref');
+        $settings = DataStore::getAll($_SESSION['user_id'], 'user_pref');
 
         $this->jsonResponse(['settings' => $settings]);
     }
@@ -52,8 +47,7 @@ class SettingsController
             $this->jsonResponse(['error' => 'Missing key or value'], 400);
         }
 
-        $model = new DataStore($this->db);
-        $success = $model->set($_SESSION['user_id'], 'user_pref', $data['key'], $data['value']);
+        $success = DataStore::set($_SESSION['user_id'], 'user_pref', $data['key'], $data['value']);
 
         if ($success) {
             $this->jsonResponse(['success' => true]);
@@ -64,7 +58,11 @@ class SettingsController
 
     public function registerRoutes()
     {
-        \GaiaAlpha\Router::add('GET', '/api/settings', [$this, 'index']);
-        \GaiaAlpha\Router::add('POST', '/api/settings', [$this, 'update']);
+        // Support both new and old endpoints for compatibility
+        \GaiaAlpha\Router::add('GET', '/api/user/settings', [$this, 'index']);
+        \GaiaAlpha\Router::add('POST', '/api/user/settings', [$this, 'update']);
+
+
     }
+
 }

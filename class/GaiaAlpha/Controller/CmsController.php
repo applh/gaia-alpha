@@ -11,8 +11,7 @@ class CmsController extends BaseController
     {
         $this->requireAuth();
         $cat = isset($_GET['cat']) ? $_GET['cat'] : 'page';
-        $pageModel = new Page($this->db);
-        $this->jsonResponse($pageModel->findAllByUserId($_SESSION['user_id'], $cat));
+        $this->jsonResponse(Page::findAllByUserId($_SESSION['user_id'], $cat));
     }
 
     public function create()
@@ -29,9 +28,8 @@ class CmsController extends BaseController
             $data['cat'] = 'page';
         }
 
-        $pageModel = new Page($this->db);
         try {
-            $id = $pageModel->create($_SESSION['user_id'], $data);
+            $id = Page::create($_SESSION['user_id'], $data);
             $this->jsonResponse(['success' => true, 'id' => $id]);
         } catch (\PDOException $e) {
             $this->jsonResponse(['error' => 'Slug already exists'], 400);
@@ -42,17 +40,14 @@ class CmsController extends BaseController
     {
         $this->requireAuth();
         $data = $this->getJsonInput();
-        $pageModel = new Page($this->db);
-
-        $pageModel->update($id, $_SESSION['user_id'], $data);
+        Page::update($id, $_SESSION['user_id'], $data);
         $this->jsonResponse(['success' => true]);
     }
 
     public function delete($id)
     {
         $this->requireAuth();
-        $pageModel = new Page($this->db);
-        $pageModel->delete($id, $_SESSION['user_id']);
+        Page::delete($id, $_SESSION['user_id']);
         $this->jsonResponse(['success' => true]);
     }
 
@@ -124,11 +119,10 @@ class CmsController extends BaseController
 
         // Auto-create a CMS page entry for this image locally
         // cat="image", title=filename, slug=uniqid, image=url
-        $pageModel = new Page($this->db);
         $imageSlug = 'img-' . pathinfo($filename, PATHINFO_FILENAME);
         // Ensure slug uniqueness simple logic or just try/catch
         try {
-            $pageModel->create($_SESSION['user_id'], [
+            Page::create($_SESSION['user_id'], [
                 'title' => $file['name'],
                 'slug' => $imageSlug,
                 'cat' => 'image',
@@ -141,7 +135,7 @@ class CmsController extends BaseController
             // For now, let's just ignore if insertion fails, but we should probably try to succeed.
             // But main purpose is tracking.
             try {
-                $pageModel->create($_SESSION['user_id'], [
+                Page::create($_SESSION['user_id'], [
                     'title' => $file['name'],
                     'slug' => $imageSlug . '-' . rand(1000, 9999),
                     'cat' => 'image',
@@ -175,8 +169,7 @@ class CmsController extends BaseController
     public function getTemplates()
     {
         $this->requireAuth();
-        $templateModel = new Template($this->db);
-        $this->jsonResponse($templateModel->findAllByUserId($_SESSION['user_id']));
+        $this->jsonResponse(Template::findAllByUserId($_SESSION['user_id']));
     }
 
     public function createTemplate()
@@ -188,9 +181,8 @@ class CmsController extends BaseController
             $this->jsonResponse(['error' => 'Missing title or slug'], 400);
         }
 
-        $templateModel = new Template($this->db);
         try {
-            $id = $templateModel->create($_SESSION['user_id'], $data);
+            $id = Template::create($_SESSION['user_id'], $data);
             $this->jsonResponse(['success' => true, 'id' => $id]);
         } catch (\PDOException $e) {
             $this->jsonResponse(['error' => 'Slug already exists'], 400);
@@ -201,17 +193,15 @@ class CmsController extends BaseController
     {
         $this->requireAuth();
         $data = $this->getJsonInput();
-        $templateModel = new Template($this->db);
-
-        $templateModel->update($id, $_SESSION['user_id'], $data);
+        Template::update($id, $_SESSION['user_id'], $data);
         $this->jsonResponse(['success' => true]);
     }
 
     public function deleteTemplate($id)
     {
         $this->requireAuth();
-        $templateModel = new Template($this->db);
-        $templateModel->delete($id, $_SESSION['user_id']);
+        Template::delete($id, $_SESSION['user_id']);
         $this->jsonResponse(['success' => true]);
     }
+
 }

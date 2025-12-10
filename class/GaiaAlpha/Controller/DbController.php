@@ -18,6 +18,11 @@ class DbController extends BaseController
         return $db;
     }
 
+    public static function getPdo()
+    {
+        return self::connect()->getPdo();
+    }
+
     public static function getTables(): array
     {
         $db = self::connect();

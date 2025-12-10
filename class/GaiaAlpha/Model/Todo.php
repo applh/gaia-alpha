@@ -2,41 +2,43 @@
 
 namespace GaiaAlpha\Model;
 
-class Todo extends BaseModel
+class Todo
 {
-    public function findAllByUserId(int $userId)
+
+
+    public static function findAllByUserId(int $userId)
     {
         // Sort by position ASC, then ID ASC for consistent ordering
-        $stmt = $this->db->prepare("SELECT * FROM todos WHERE user_id = ? ORDER BY parent_id IS NULL DESC, parent_id ASC, position ASC, id ASC");
+        $stmt = \GaiaAlpha\Controller\DbController::getPdo()->prepare("SELECT * FROM todos WHERE user_id = ? ORDER BY parent_id IS NULL DESC, parent_id ASC, position ASC, id ASC");
         $stmt->execute([$userId]);
         return $stmt->fetchAll();
     }
 
-    public function findByLabel(int $userId, string $label)
+    public static function findByLabel(int $userId, string $label)
     {
-        $stmt = $this->db->prepare("SELECT * FROM todos WHERE user_id = ? AND labels LIKE ? ORDER BY position ASC, id ASC");
+        $stmt = \GaiaAlpha\Controller\DbController::getPdo()->prepare("SELECT * FROM todos WHERE user_id = ? AND labels LIKE ? ORDER BY position ASC, id ASC");
         $stmt->execute([$userId, "%$label%"]);
         return $stmt->fetchAll();
     }
 
-    public function findChildren(int $parentId, int $userId)
+    public static function findChildren(int $parentId, int $userId)
     {
-        $stmt = $this->db->prepare("SELECT * FROM todos WHERE parent_id = ? AND user_id = ? ORDER BY position ASC, id ASC");
+        $stmt = \GaiaAlpha\Controller\DbController::getPdo()->prepare("SELECT * FROM todos WHERE parent_id = ? AND user_id = ? ORDER BY position ASC, id ASC");
         $stmt->execute([$parentId, $userId]);
         return $stmt->fetchAll();
     }
 
-    public function find(int $id, int $userId)
+    public static function find(int $id, int $userId)
     {
-        $stmt = $this->db->prepare("SELECT * FROM todos WHERE id = ? AND user_id = ?");
+        $stmt = \GaiaAlpha\Controller\DbController::getPdo()->prepare("SELECT * FROM todos WHERE id = ? AND user_id = ?");
         $stmt->execute([$id, $userId]);
         return $stmt->fetch();
     }
 
-    public function create(int $userId, string $title, ?int $parentId = null, ?string $labels = null, ?string $startDate = null, ?string $endDate = null, ?string $color = null)
+    public static function create(int $userId, string $title, ?int $parentId = null, ?string $labels = null, ?string $startDate = null, ?string $endDate = null, ?string $color = null)
     {
         // Calculate next position
-        $pdo = $this->db;
+        $pdo = \GaiaAlpha\Controller\DbController::getPdo();
         $sql = "SELECT MAX(position) FROM todos WHERE user_id = ? AND parent_id " . ($parentId === null ? "IS NULL" : "= ?");
         $params = [$userId];
         if ($parentId !== null)
@@ -47,18 +49,18 @@ class Todo extends BaseModel
         $maxPos = $stmt->fetchColumn();
         $position = ($maxPos !== false && $maxPos !== null) ? $maxPos + 1024 : 1024; // Use large gaps for easier reordering
 
-        $stmt = $this->db->prepare("INSERT INTO todos (user_id, title, parent_id, labels, start_date, end_date, color, position, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
+        $stmt = $pdo->prepare("INSERT INTO todos (user_id, title, parent_id, labels, start_date, end_date, color, position, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
         $stmt->execute([$userId, $title, $parentId, $labels, $startDate, $endDate, $color, $position]);
-        return $this->db->lastInsertId();
+        return $pdo->lastInsertId();
     }
 
-    public function updatePosition(int $id, int $userId, ?int $parentId, float $position)
+    public static function updatePosition(int $id, int $userId, ?int $parentId, float $position)
     {
-        $stmt = $this->db->prepare("UPDATE todos SET parent_id = ?, position = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ? AND user_id = ?");
+        $stmt = \GaiaAlpha\Controller\DbController::getPdo()->prepare("UPDATE todos SET parent_id = ?, position = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ? AND user_id = ?");
         return $stmt->execute([$parentId, $position, $id, $userId]);
     }
 
-    public function update(int $id, int $userId, array $data)
+    public static function update(int $id, int $userId, array $data)
     {
         $fields = [];
         $values = [];
@@ -107,23 +109,26 @@ class Todo extends BaseModel
         $values[] = $userId;
 
         $sql = "UPDATE todos SET " . implode(', ', $fields) . " WHERE id = ? AND user_id = ?";
-        $stmt = $this->db->prepare($sql);
+        $stmt = \GaiaAlpha\Controller\DbController::getPdo()->prepare($sql);
         return $stmt->execute($values);
     }
 
-    public function delete(int $id, int $userId)
+    public static function delete(int $id, int $userId)
     {
+        $pdo = \GaiaAlpha\Controller\DbController::getPdo();
         // First, unlink children (set their parent_id to NULL)
-        $stmt = $this->db->prepare("UPDATE todos SET parent_id = NULL WHERE parent_id = ? AND user_id = ?");
+        $stmt = $pdo->prepare("UPDATE todos SET parent_id = NULL WHERE parent_id = ? AND user_id = ?");
         $stmt->execute([$id, $userId]);
 
         // Then delete the todo
-        $stmt = $this->db->prepare("DELETE FROM todos WHERE id = ? AND user_id = ?");
+        $stmt = $pdo->prepare("DELETE FROM todos WHERE id = ? AND user_id = ?");
         return $stmt->execute([$id, $userId]);
     }
 
-    public function count()
+    public static function count()
     {
-        return $this->db->query("SELECT count(*) FROM todos")->fetchColumn();
+        return \GaiaAlpha\Controller\DbController::getPdo()->query("SELECT count(*) FROM todos")->fetchColumn();
     }
 }
+
+

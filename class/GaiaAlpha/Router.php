@@ -11,10 +11,31 @@ class Router
     public static function add(string $method, string $path, callable $handler)
     {
         self::$routes[] = [
-            'method' => $method,
+            'method' => strtoupper($method),
             'path' => $path,
             'handler' => $handler
         ];
+    }
+
+    public static function get(string $path, callable $handler)
+    {
+        self::add('GET', $path, $handler);
+    }
+    public static function post(string $path, callable $handler)
+    {
+        self::add('POST', $path, $handler);
+    }
+    public static function put(string $path, callable $handler)
+    {
+        self::add('PUT', $path, $handler);
+    }
+    public static function patch(string $path, callable $handler)
+    {
+        self::add('PATCH', $path, $handler);
+    }
+    public static function delete(string $path, callable $handler)
+    {
+        self::add('DELETE', $path, $handler);
     }
 
 
@@ -33,7 +54,8 @@ class Router
 
             if (preg_match($pattern, $uri, $matches)) {
                 array_shift($matches); // Remove full match
-                return call_user_func_array($route['handler'], $matches);
+                call_user_func_array($route['handler'], $matches);
+                return true;
             }
         }
 

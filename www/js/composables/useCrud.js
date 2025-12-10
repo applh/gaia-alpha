@@ -9,7 +9,7 @@ export function useCrud(baseUrl, idField = 'id') {
         loading.value = true;
         error.value = null;
         try {
-            const res = await fetch(\`\${baseUrl}\${queryParams}\`);
+            const res = await fetch(`${baseUrl}${queryParams}`);
             if (res.ok) {
                 const data = await res.json();
                 // Handle wrapped responses (e.g. { users: [...] } or just [...])
@@ -21,7 +21,7 @@ export function useCrud(baseUrl, idField = 'id') {
                 } else if (data.data && Array.isArray(data.data)) {
                     items.value = data.data; // Pagination structure
                 } else if (Object.keys(data).length === 1 && Array.isArray(Object.values(data)[0])) {
-                     items.value = Object.values(data)[0]; // { users: [...] }
+                    items.value = Object.values(data)[0]; // { users: [...] }
                 } else {
                     items.value = data; // Fallback
                 }
@@ -60,7 +60,7 @@ export function useCrud(baseUrl, idField = 'id') {
     const updateItem = async (id, payload) => {
         error.value = null;
         try {
-            const res = await fetch(\`\${baseUrl}/\${id}\`, {
+            const res = await fetch(`${baseUrl}/${id}`, {
                 method: 'PATCH', // or PUT
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
@@ -82,7 +82,7 @@ export function useCrud(baseUrl, idField = 'id') {
         if (!confirm('Are you sure you want to delete this item?')) return;
         error.value = null;
         try {
-            const res = await fetch(\`\${baseUrl}/\${id}\`, { method: 'DELETE' });
+            const res = await fetch(`${baseUrl}/${id}`, { method: 'DELETE' });
             if (res.ok) {
                 await fetchItems();
             } else {

@@ -347,7 +347,7 @@ export default {
         const fetchSettings = async () => {
             // Try to get setting from API if not in local storage or to refresh
             try {
-                const res = await fetch('/api/settings');
+                const res = await fetch('/api/user/settings');
                 if (res.ok) {
                     const data = await res.json();
                     if (data.settings && data.settings.default_todo_duration) {

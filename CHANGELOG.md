@@ -1,6 +1,17 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+## [v0.19.0] - 2025-12-10
+### Refactored
+- **Database**: Migrated all models (`User`, `Page`, `Template`, `Todo`, `MapMarker`, `DataStore`) to use static database access via `DbController::getPdo()`.
+- **Database**: Removed `DatabaseTrait` and the `Trait` directory.
+- **Routing**: Updated `Router::dispatch` to correctly handle controllers returning void.
+- **API**: Standardized `SettingsController` to support both `/api/settings` and `/api/user/settings` before deprecating the legacy one.
+
+### Fixed
+- **Menu API**: Fixed 404 error on `GET /api/menus` by using correct regex `(\d+)` for route parameters instead of `{id}`.
+- **Settings API**: Fixed 400 error by correcting the payload structure in `store.js` to match backend expectations.
+
 ## [v0.17.0] - 2025-12-10
 ### Added
 - **Components**: Added `Modal.js`, a reusable Vue component for standard dialogs.

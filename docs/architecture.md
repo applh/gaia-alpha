@@ -16,11 +16,13 @@ gaia-alpha/
 ├── class/              # Private PHP Classes (Autoloaded)
 │   ├── autoload.php    # Autoloader Service
 │   └── GaiaAlpha/      # Namespace: GaiaAlpha
-│       ├── App.php     # Core Application Logic
+│       ├── App.php     # Core Application Logic (Static)
+│       ├── Framework.php # Controller & Route Logic
+│       ├── Env.php     # Configuration & Registry
 │       ├── Router.php  # Request Routing
 │       ├── Database.php# Database Wrapper
 │       ├── Media.php   # Image Processing API
-│       ├── Cli.php     # CLI Tool Logic
+│       ├── Cli.php     # CLI Tool Logic (Static)
 │       ├── Controller/ # Request Controllers (Auth, Cms, etc.)
 │       └── Model/      # Data Models (User, Page, etc.)
 │
@@ -28,6 +30,7 @@ gaia-alpha/
 │
 ├── my-data/            # PRIVATE Data (GitIgnored)
 │   ├── database.sqlite # SQLite Database
+│   ├── api-config.json # API Builder Configuration
 │   ├── uploads/        # Raw User Uploads
 │   └── cache/          # Processed Image Cache
 │
@@ -39,7 +42,7 @@ gaia-alpha/
 > The `my-data/` directory MUST be blocked from public access. The `www/` directory is the only path that should be exposed by the web server.
 
 ## Configuration System
-Gaia Alpha supports local environment configuration via `my-config.php` (git-ignored).
+Gaia Alpha uses the `Env` class for centralized configuration. Local environment settings are defined in `my-config.php` (git-ignored).
 
 ### Configuration Constants
 - `GAIA_DATA_PATH`: Path to data directory (default: `./my-data`)
@@ -58,14 +61,21 @@ define('GAIA_DB_DSN', 'sqlite:' . GAIA_DB_PATH);
 
 ## Application Lifecycle
 1. **Request**: All requests to non-static files are routed to `www/index.php`.
-2. **Bootstrap**: `index.php` initializes the autoloader, which loads `my-config.php` if present.
-3. **App Initialization**: `GaiaAlpha\App` is instantiated.
-   - Connects to database using `GAIA_DB_DSN`.
-   - Initializes `Media` handler with `GAIA_DATA_PATH`.
-4. **Routing (`App->run()`)**:
-   - **API Requests**: `/api/...` -> Router dispatches to Controllers
-   - **Media Requests**: `/media/{userId}/{filename}` -> `Media->handleRequest()`
-   - **Page Requests**: Default -> Renders templates (Vue App host)
+2. **Bootstrap**: 
+   - `index.php` loads `autoload.php`.
+   - Calls `App::web_setup(__DIR__)`:
+     - Sets up `Env` variables (`root_dir`,Paths).
+     - Loads `my-config.php`.
+     - Defines framework tasks.
+3. **Execution (`App::run()`)**:
+   - Iterates through defined tasks:
+     - `Framework::loadControllers`: Dynamically instantiates controllers.
+     - `Framework::registerRoutes`: Collects routes from all controllers.
+     - `Router::handle`: Dispatches the request to the matching handler.
+4. **Routing**:
+   - **API Requests**: `/api/...` -> Mapped Controller Method.
+   - **Media Requests**: `/media/{userId}/{filename}` -> `MediaController`.
+   - **Page Requests**: Default -> Renders templates (Vue App host).
 
 ## Media Handling
 The `Media` class provides on-demand image processing with caching.

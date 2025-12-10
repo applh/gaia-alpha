@@ -1,6 +1,13 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+## [v0.12.0] - 2025-12-10
+### Added
+- **Feature**: Marker Updates. Users can drag existing markers to update their position.
+
+### Improved
+- **Infrastructure**: Switched from CDN to local Leaflet assets for better reliability and offline support.
+
 ## [v0.11.0] - 2025-12-10
 ### Added
 - **Feature**: Map Markers. Users can view a map and add persistent markers.

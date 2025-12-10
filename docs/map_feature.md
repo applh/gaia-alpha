@@ -6,6 +6,7 @@ The Map feature allows users to view a collaborative map and add markers to it. 
 ## Features
 - **Interactive Map**: Users can view a map centered on a default location.
 - **Marker Creation**: Users can click anywhere on the map to add a labeled marker.
+- **Marker Updates**: Users can drag existing markers to update their position.
 - **Persistence**: Markers are saved to the backend and persist across sessions.
 - **Lazy Loading**: The Leaflet library (CSS and JS) is only loaded when the user navigates to the Map section, ensuring fast initial page loads for the rest of the application.
 
@@ -13,8 +14,8 @@ The Map feature allows users to view a collaborative map and add markers to it. 
 
 ### Frontend
 - **Component**: `www/js/components/MapPanel.js`
-- **Library**: [Leaflet.js](https://leafletjs.com/) (v1.9.4) loaded via ESM from `esm.sh`.
-- **Loading Strategy**: CSS is injected dynamically, and the Leaflet module is imported using `import()` in the `initMap` function.
+- **Library**: [Leaflet.js](https://leafletjs.com/) (v1.9.4) hosted locally in `www/js/vendor/leaflet/`.
+- **Loading Strategy**: CSS and JS are lazy-loaded on demand when the Map panel is initialized.
 
 ### Backend
 - **Controller**: `GaiaAlpha\Controller\MapController`

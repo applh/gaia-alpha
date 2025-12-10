@@ -33,4 +33,17 @@ class MapMarker
         $stmt->execute([':user_id' => $userId]);
         return $stmt->fetchAll();
     }
+
+    public function updatePosition($id, $userId, $lat, $lng)
+    {
+        $pdo = $this->db->getPdo();
+        $sql = "UPDATE map_markers SET lat = :lat, lng = :lng WHERE id = :id AND user_id = :user_id";
+        $stmt = $pdo->prepare($sql);
+        return $stmt->execute([
+            ':lat' => $lat,
+            ':lng' => $lng,
+            ':id' => $id,
+            ':user_id' => $userId
+        ]);
+    }
 }

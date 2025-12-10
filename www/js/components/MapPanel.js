@@ -34,14 +34,21 @@ export default {
                 const link = document.createElement('link');
                 link.id = 'leaflet-css';
                 link.rel = 'stylesheet';
-                link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+                link.href = '/js/vendor/leaflet/leaflet.css';
                 document.head.appendChild(link);
             }
 
-            // Lazy load Leaflet ESM
-            // We use esm.sh for convenient ESM access to npm packages
-            const L_module = await import('https://esm.sh/leaflet@1.9.4');
-            const L = L_module.default || L_module;
+            // Lazy load Leaflet JS (UMD)
+            if (!window.L) {
+                await new Promise((resolve, reject) => {
+                    const script = document.createElement('script');
+                    script.src = '/js/vendor/leaflet/leaflet.js';
+                    script.onload = resolve;
+                    script.onerror = reject;
+                    document.head.appendChild(script);
+                });
+            }
+            const L = window.L;
 
             // Default to some location (e.g., London) or user's location if possible
             map.value = L.map('leaflet-map').setView([51.505, -0.09], 13);
@@ -85,10 +92,32 @@ export default {
             // For this simple version, we assume loadMarkers is called once.
 
             markers.value.forEach(m => {
-                L.marker([m.lat, m.lng])
+                const marker = L.marker([m.lat, m.lng], { draggable: true })
                     .addTo(map.value)
                     .bindPopup(m.label);
+
+                marker.on('dragend', (e) => {
+                    const latlng = e.target.getLatLng();
+                    updateMarkerPosition(m.id, latlng.lat, latlng.lng);
+                });
             });
+        };
+
+        const updateMarkerPosition = async (id, lat, lng) => {
+            try {
+                const res = await fetch(`/api/markers/${id}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ lat, lng })
+                });
+
+                if (!res.ok) {
+                    console.error('Failed to update marker position');
+                    // Optionally revert position here
+                }
+            } catch (e) {
+                console.error('Error updating marker', e);
+            }
         };
 
         const saveMarker = async () => {
@@ -110,14 +139,19 @@ export default {
                 if (res.ok) {
                     const result = await res.json();
 
-                    // Ensure L is available
-                    const L_module = await import('https://esm.sh/leaflet@1.9.4');
-                    const L = L_module.default || L_module;
+                    // Ensure L is available (should be loaded by now)
+                    const L = window.L;
 
-                    L.marker([payload.lat, payload.lng])
-                        .addTo(map.value)
-                        .bindPopup(payload.label)
-                        .openPopup();
+                    if (L) {
+                        L.marker([payload.lat, payload.lng], { draggable: true })
+                            .addTo(map.value)
+                            .bindPopup(payload.label)
+                            .openPopup()
+                            .on('dragend', (e) => {
+                                // Assuming new marker ID is returned in result.id
+                                updateMarkerPosition(result.id, e.target.getLatLng().lat, e.target.getLatLng().lng);
+                            });
+                    }
 
                     closeModal();
                 } else {

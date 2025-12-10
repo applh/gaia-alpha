@@ -156,7 +156,27 @@ Gaia Alpha uses a "Bundle-Free" architecture optimized for modern browsers (ES M
     - **Maintainability**: Styles are centralized and use CSS Variables for consistent theming.
 - **Scaling**: If the file grows significantly (> 100KB), we may reconsider component-scoped CSS or a lightweight build tool.
 
-### JavaScript Strategy
-- **Vue 3 ES Modules**: Uses `vue.esm-browser.js` directly via import map or direct import.
-- **Async Components**: `defineAsyncComponent` allows lazy-loading components (e.g., `AdminDashboard`) only when the user requests that view.
-- **No Bundler**: We avoid Webpack/Vite complexity. HTTP/2+ handles multiple small file requests efficiently, and caching strategies are simplified.
+### Vue App Architecture
+The frontend is a lightweight, bundle-free Vue 3 application that relies on native ES Modules.
+
+#### 1. Entry Point (`www/js/site.js`)
+- **Mounting**: The app is mounted to the `#app` DOM element.
+- **Global State**: It initializes global state using `reactive()` for user data, active views, and settings.
+- **Components**: It globally registers core components (like `DraggableItem`) when necessary, but prefers local registration.
+
+#### 2. Component Structure (`www/js/components/`)
+- **Single File Components (SFC)**: Written as JS objects exporting a `template` string and `setup()` function.
+- **Async Loading**: Heavy components (e.g., `AdminDashboard`, `MapPanel`) are loaded via `defineAsyncComponent`. This ensures the initial page load remains fast (< 100KB) by only fetching code when the user navigates to a specific view.
+- **Recursive Components**: Used for complex structures like the `TemplateBuilder` tree and `TodoList` items.
+
+#### 3. State Management
+- **Reactivity**: We use Vue's Composition API (`ref`, `reactive`, `computed`) for all state logic.
+- **Cross-Component State**: Shared state is handled via `provide` and `inject` (Dependency Injection) rather than a heavy store library like Vuex or Pinia. This keeps the dependency graph simple and explicit.
+
+#### 4. Routing
+- **View-Based Routing**: The app uses a simple state-based router (`activeView` ref).
+- **Navigation**: Switching views just updates this state, triggering the async load of the corresponding component.
+
+#### 5. Theming
+- **CSS Variables**: All coloring uses variables defined in `www/css/site.css` (e.g., `var(--bg-color)`, `var(--text-primary)`).
+- **Dark/Light Mode**: The app supports dynamic theme switching by toggling a `.light-theme` class on the `<body>` tag, which redefines these variables.

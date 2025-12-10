@@ -9,14 +9,13 @@ class ApiBuilderController extends BaseController
 {
     public function registerRoutes()
     {
-        $this->requireAdmin();
-
         Router::add('GET', '/api/admin/api-builder/tables', [$this, 'handleListTables']);
         Router::add('POST', '/api/admin/api-builder/config', [$this, 'handleSaveConfig']);
     }
 
     public function handleListTables()
     {
+        $this->requireAdmin();
         $tables = DbController::getTables();
         $config = $this->loadConfig();
 
@@ -38,6 +37,7 @@ class ApiBuilderController extends BaseController
 
     public function handleSaveConfig()
     {
+        $this->requireAdmin();
         $data = $this->getJsonInput();
         if (!isset($data['name']) || !isset($data['config'])) {
             http_response_code(400);

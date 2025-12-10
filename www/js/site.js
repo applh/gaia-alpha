@@ -9,6 +9,7 @@ const DatabaseManager = defineAsyncComponent(() => import('./components/Database
 const UserSettings = defineAsyncComponent(() => import('./components/UserSettings.js'));
 const FormsAdmin = defineAsyncComponent(() => import('./components/FormsAdmin.js'));
 const ApiManager = defineAsyncComponent(() => import('./components/ApiManager.js'));
+const MapPanel = defineAsyncComponent(() => import('./components/MapPanel.js'));
 
 const App = {
     components: { Login },
@@ -28,6 +29,7 @@ const App = {
                             <button @click="setView('cms')" :class="{ active: currentView === 'cms' }">📝 CMS</button>
                             <button @click="setView('forms')" :class="{ active: currentView === 'forms' }">📋 Forms</button>
                             <button @click="setView('database')" :class="{ active: currentView === 'database' }">🗄️ Database</button>
+                            <button @click="setView('map')" :class="{ active: currentView === 'map' }">🗺️ Map</button>
                             <button @click="setView('api-builder')" :class="{ active: currentView === 'api-builder' }">⚡ API Builder</button>
                         </template>
 
@@ -36,6 +38,7 @@ const App = {
                             <button @click="setView('todos')" :class="{ active: currentView === 'todos' }">✅ My Todos</button>
                             <button @click="setView('cms')" :class="{ active: currentView === 'cms' }">📝 CMS</button>
                             <button @click="setView('forms')" :class="{ active: currentView === 'forms' }">📋 Forms</button>
+                            <button @click="setView('map')" :class="{ active: currentView === 'map' }">🗺️ Map</button>
                         </template>
                         
                         <button @click="setView('settings')" :class="{ active: currentView === 'settings' }" style="opacity: 0.8;">⚙️ Settings</button>
@@ -85,6 +88,7 @@ const App = {
                 case 'cms': return CMS;
                 case 'forms': return FormsAdmin;
                 case 'database': return isAdmin.value ? DatabaseManager : TodoList;
+                case 'map': return MapPanel;
                 case 'api-builder': return isAdmin.value ? ApiManager : TodoList;
                 case 'settings': return UserSettings;
                 case 'todos': default: return TodoList;

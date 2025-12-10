@@ -1,6 +1,18 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+## [v0.11.0] - 2025-12-10
+### Added
+- **Feature**: Map Markers. Users can view a map and add persistent markers.
+- **Docs**: Added `docs/map_feature.md` and updated architectural documentation.
+
+### Fixed
+- **Bug**: Resolved 401 Unauthorized error preventing app load by adjusting `ApiBuilderController` middleware.
+- **Bug**: Fixed `MapMarker` model crash by switching to direct PDO usage.
+
+### Improved
+- **Performance**: Leaflet.js is now lazy-loaded only when the Map panel is accessed.
+
 ## [v0.10.0] - 2025-12-10
 ### Added
 - **Feature**: Admin API Builder. Enabling dynamic REST API generation for any database table via Admin Dashboard.

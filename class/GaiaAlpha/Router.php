@@ -46,6 +46,7 @@ class Router
         $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
         $method = $_SERVER['REQUEST_METHOD'];
 
+
         // API & Media Routing
         if (strpos($uri, '/api/') === 0 || strpos($uri, '/media/') === 0) {
             $handled = self::dispatch($method, $uri);

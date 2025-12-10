@@ -161,3 +161,14 @@ define('GAIA_DB_DSN', "mysql:host=$host;dbname=$db;charset=utf8mb4");
 // For MySQL with user/pass, you typically need to pass user/pass to the PDO constructor.
 // *Architecture Note*: If using this mode, ensure you update GaiaAlpha\Controller\DbController::connect() or GaiaAlpha\Database to handle user/password auth if required by the DSN driver.
 ```
+
+## 4. Performance Comparison
+
+| Feature | Simple PHP | Nginx + PHP-FPM | Enterprise (Split DB) |
+| :--- | :---: | :---: | :---: |
+| **Setup Complexity** | Low | Medium | High |
+| **Static Asset Speed** | Slow (Served by PHP) | Fast (Served by Nginx) | Fast (Served by Nginx) |
+| **Concurrency** | Low (Single-threaded) | High (Multithreaded FPM) | High + Scalable DB |
+| **Resource Usage** | Low | Medium | High (Multiple containers) |
+| **Scalability** | None | Vertical (CPU/RAM) | Horizontal (Separate DB node) |
+| **Best Use Case** | Local Dev / Testing | Production (Small/Medium) | Production (High Traffic) |

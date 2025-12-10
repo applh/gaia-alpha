@@ -22,6 +22,7 @@ Gaia Alpha is a lightweight, self-contained web application framework demonstrat
 For detailed information, please refer to:
 - [System Architecture](docs/architecture.md): Lifecycle, directory structure, and database schema.
 - [API Documentation](docs/api.md): Media API and JSON endpoints.
+- [Docker Deployment](docs/docker_deployment.md): Guides for containerized hosting (Simple, FPM, Database).
 - [Security Comparison](docs/security_comparison.md): Analysis of security features.
 
 ### Backend (PHP)

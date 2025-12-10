@@ -1,6 +1,10 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+## [v0.20.1] - 2025-12-11
+### Docs
+- **Architecture**: Significantly updated `Database Schema` section in `docs/architecture.md` to include all tables (`cms_templates`, `forms`, `map_markers`, `menus`) and recent column additions.
+
 ## [v0.20.0] - 2025-12-11
 ### Added
 - **Architecture**: Implemented Controller Ranking System (`getRank()`) to deterministically order route registration. 

@@ -156,6 +156,82 @@ The application uses SQLite.
 | `user_id` | INTEGER | Owner |
 | `title` | TEXT | Content |
 | `completed` | INTEGER | 0/1 |
+| `parent_id` | INTEGER | Self-reference |
+| `labels` | TEXT | Comma-separated |
+| `position` | REAL | Sorting order |
+| `start_date`| DATETIME | |
+| `end_date`  | DATETIME | |
+| `color` | TEXT | Hex code |
+| `created_at` | DATETIME | |
+
+### `cms_pages`
+| Column | Type | Description |
+| :--- | :--- | :--- |
+| `id` | INTEGER | Primary Key |
+| `user_id` | INTEGER | Owner |
+| `title` | TEXT | |
+| `slug` | TEXT | Unique URL slug |
+| `content` | TEXT | Markdown/HTML |
+| `cat` | TEXT | 'page' or custom |
+| `template_slug`| TEXT | Reference to `cms_templates` |
+| `created_at` | DATETIME | |
+
+### `cms_templates`
+| Column | Type | Description |
+| :--- | :--- | :--- |
+| `id` | INTEGER | Primary Key |
+| `user_id` | INTEGER | Owner |
+| `title` | TEXT | |
+| `slug` | TEXT | Unique |
+| `content` | TEXT | Template structure (JSON) |
+| `created_at` | DATETIME | |
+
+### `forms`
+| Column | Type | Description |
+| :--- | :--- | :--- |
+| `id` | INTEGER | Primary Key |
+| `user_id` | INTEGER | Owner |
+| `title` | TEXT | |
+| `slug` | TEXT | Unique |
+| `schema` | TEXT | JSON array of fields |
+| `submit_label` | TEXT | Custom button text |
+| `created_at` | DATETIME | |
+
+### `form_submissions`
+| Column | Type | Description |
+| :--- | :--- | :--- |
+| `id` | INTEGER | Primary Key |
+| `form_id` | INTEGER | Reference to `forms` |
+| `data` | TEXT | JSON object of submission |
+| `submitted_at` | DATETIME | |
+
+### `map_markers`
+| Column | Type | Description |
+| :--- | :--- | :--- |
+| `id` | INTEGER | Primary Key |
+| `user_id` | INTEGER | Owner |
+| `label` | TEXT | |
+| `lat` | REAL | Latitude |
+| `lng` | REAL | Longitude |
+| `created_at` | DATETIME | |
+
+### `menus`
+| Column | Type | Description |
+| :--- | :--- | :--- |
+| `id` | INTEGER | Primary Key |
+| `title` | TEXT | |
+| `location` | TEXT | 'header', 'footer', etc. |
+| `items` | TEXT | JSON tree of links |
+| `created_at` | DATETIME | |
+
+### `data_store`
+| Column | Type | Description |
+| :--- | :--- | :--- |
+| `id` | INTEGER | Primary Key |
+| `user_id` | INTEGER | Owner |
+| `type` | TEXT | Category (e.g., 'settings') |
+| `key` | TEXT | |
+| `value` | TEXT | |
 | `created_at` | DATETIME | |
 
 ## Security Model

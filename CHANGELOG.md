@@ -1,6 +1,13 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+## [v0.10.0] - 2025-12-10
+### Added
+- **Feature**: Admin API Builder. Enabling dynamic REST API generation for any database table via Admin Dashboard.
+- **Admin**: New "API Builder" panel in Admin Dashboard.
+- **Architecture**: `DynamicApiController` generic CRUD implementation with pagination and filtering.
+- **Config**: `api-config.json` support via `ApiBuilderController`.
+
 ## [v0.9.0] - 2025-12-10
 
 ### Changed

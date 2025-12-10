@@ -74,6 +74,7 @@ Gaia Alpha supports Role-Based Access Control (RBAC):
 - **Dashboard**: View system stats (total users, total todos).
 - **User Management**: View list of registered users and their levels.
 - **Database Manager**: Execute SQL queries, browse tables, and perform CRUD operations on any table.
+- **API Builder**: Instantly expose any database table as a REST API with configurable authentication and methods.
 - **Login/Register Toggle**: Header buttons allow switching between Login and Register modes when logged out.
 
 ## Database

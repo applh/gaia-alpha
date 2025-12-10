@@ -1,6 +1,11 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+## [v0.20.2] - 2025-12-11
+### Docs
+- **Architecture**: Added comprehensive **Routes Map** and **Route Prefix Strategy** analysis to `docs/architecture.md`.
+- **Architecture**: Documented reserved namepsaces strategy for conflict prevention.
+
 ## [v0.20.1] - 2025-12-11
 ### Docs
 - **Architecture**: Significantly updated `Database Schema` section in `docs/architecture.md` to include all tables (`cms_templates`, `forms`, `map_markers`, `menus`) and recent column additions.

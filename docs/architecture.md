@@ -98,6 +98,30 @@ Router::get('/api/users/me', ...);
 Router::get('/api/users/(\d+)', ...);
 ```
 
+### 3. Reserved Namespaces
+The `ViewController` (Rank 100) handles catch-all routing (`.*`). To prevent specific namespaces from falling back to the homepage (e.g., a 404 on an API route showing the home template), the global catch-all regex **explicitly excludes** the following prefixes:
+- `/api/`
+- `/media/`
+
+**Any new top-level reserved namespace (e.g., `/hooks`) must be added to this exclusion list in `ViewController::registerRoutes`.**
+
+## Routes Map
+
+| Controller | Use Case | Prefix | Key Routes |
+| :--- | :--- | :--- | :--- |
+| **Admin** | System Management | `/api/admin` | `/users`, `/db`, `/stats` |
+| **ApiBuilder** | Dynamic APIs | `/api/admin` | `/api-builder` |
+| **Auth** | Authentication | `/api` | `/login`, `/register`, `/logout`, `/user` |
+| **CMS** | Content Management | `/api/cms` | `/pages`, `/templates`, `/upload` |
+| **Dynamic** | Generated CRUD | `/api/v1` | `/{table}` |
+| **Form** | Form Builder | `/api/forms` | `/forms`, `/public/form` |
+| **Map** | Maps & Markers | `/api` | `/markers` |
+| **Media** | File Serving | `/media` | `/{userId}/{filename}` |
+| **Menu** | Navigation | `/api` | `/menus` |
+| **Settings** | User Preferences | `/api/user` | `/settings` |
+| **Todo** | Tasks | `/api` | `/todos` |
+| **View** | Frontend Display | `/` | `/app`, `/f/`, `/page/`, `Home` |
+
 ## Media Handling
 The `Media` class provides on-demand image processing with caching.
 

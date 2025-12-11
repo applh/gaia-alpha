@@ -42,5 +42,10 @@ php cli.php user:create "$ADMIN_USER" "$ADMIN_PASS" "$ADMIN_LEVEL" || true
 mkdir -p /var/www/html/my-data
 chown -R www-data:www-data /var/www/html
 
+# Setup Cron
+echo "* * * * * php /var/www/html/cli.php schedule:run >> /var/www/html/cron.log 2>&1" > /etc/crontabs/www-data
+# Start cron in background
+crond -b -l 2
+
 # Run the command passed to docker run (usually php-fpm)
 exec "$@"

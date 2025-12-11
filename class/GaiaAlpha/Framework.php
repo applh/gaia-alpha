@@ -4,6 +4,28 @@ namespace GaiaAlpha;
 
 class Framework
 {
+    public static function loadPlugins()
+    {
+        $rootDir = Env::get('root_dir');
+        $pathData = Env::get('path_data');
+        $pluginsDir = $pathData . '/plugins';
+
+        if (!is_dir($pluginsDir)) {
+            return;
+        }
+
+        foreach (glob($pluginsDir . '/*/index.php') as $plugin) {
+            include_once $plugin;
+        }
+
+        Hook::run('plugins_loaded');
+    }
+
+    public static function appBoot()
+    {
+        Hook::run('app_boot');
+    }
+
     public static function loadControllers()
     {
         $rootDir = Env::get('root_dir');
@@ -22,6 +44,10 @@ class Framework
                 if (method_exists($controller, 'init')) {
                     $controller->init();
                 }
+
+                // Hook for controller initialization
+                Hook::run('controller_init', $controller, $key);
+
                 $controllers[$key] = $controller;
             }
         }

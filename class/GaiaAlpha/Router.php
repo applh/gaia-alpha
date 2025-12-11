@@ -42,6 +42,9 @@ class Router
 
     public static function dispatch(string $method, string $uri)
     {
+        // Hook before dispatch
+        Hook::run('router_dispatch_before', $method, $uri);
+
         // Simple exact match or regex
         foreach (self::$routes as $route) {
             if ($route['method'] !== $method) {
@@ -54,6 +57,10 @@ class Router
 
             if (preg_match($pattern, $uri, $matches)) {
                 array_shift($matches); // Remove full match
+
+                // Hook when route is matched
+                Hook::run('router_matched', $route, $matches);
+
                 call_user_func_array($route['handler'], $matches);
                 return true;
             }
@@ -70,6 +77,9 @@ class Router
         $handled = self::dispatch($method, $uri);
 
         if (!$handled) {
+            // Hook for 404
+            Hook::run('router_404', $uri);
+
             http_response_code(404);
             if (strpos($uri, '/api/') === 0) {
                 echo json_encode(['error' => 'API Endpoint Not Found']);

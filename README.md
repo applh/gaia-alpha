@@ -24,6 +24,7 @@ For detailed information, please refer to:
 - [API Documentation](docs/api.md): Media API and JSON endpoints.
 - [Docker Deployment](docs/docker_deployment.md): Guides for containerized hosting (Simple, FPM, Database).
 - [Security Comparison](docs/security_comparison.md): Analysis of security features.
+- [Plugin System](docs/plugins.md): How to extend the framework with plugins and hooks.
 
 ### Backend (PHP)
 - **Server**: Built-in PHP server (`php -S`).

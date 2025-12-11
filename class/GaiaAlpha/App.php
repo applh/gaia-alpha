@@ -20,10 +20,12 @@ class App
         Env::set('root_dir', $rootDir);
         Env::set('controllers', []);
         Env::set('framework_tasks', [
-            "step10" => "GaiaAlpha\Framework::loadControllers",
-            "step12" => "GaiaAlpha\Framework::sortControllers",
-            "step15" => "GaiaAlpha\Framework::registerRoutes",
-            "step20" => "GaiaAlpha\Router::handle",
+            "step05" => "GaiaAlpha\\Framework::loadPlugins",
+            "step06" => "GaiaAlpha\\Framework::appBoot",
+            "step10" => "GaiaAlpha\\Framework::loadControllers",
+            "step12" => "GaiaAlpha\\Framework::sortControllers",
+            "step15" => "GaiaAlpha\\Framework::registerRoutes",
+            "step20" => "GaiaAlpha\\Router::handle",
         ]);
 
         // load my-config.php
@@ -44,7 +46,9 @@ class App
 
         Env::set('root_dir', $rootDir);
         Env::set('framework_tasks', [
-            "step10" => "GaiaAlpha\Cli::run"
+            "step05" => "GaiaAlpha\\Framework::loadPlugins",
+            "step06" => "GaiaAlpha\\Framework::appBoot",
+            "step10" => "GaiaAlpha\\Cli::run"
         ]);
 
         if (file_exists($rootDir . '/my-config.php')) {

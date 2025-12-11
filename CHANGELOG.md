@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 ## [v0.21.0] - 2025-12-11
 ### Added
 - **CLI**: Added `db:export` and `db:import` commands to backup and restore the full SQLite database.
-- **CLI**: Added `media:process` command to resize, rotate, flip, filter, and convert images (WebP, JPG, PNG).
+- **CLI**: Added `media:process` and `media:batch-process` for advanced image manipulation (resize, rotate, filter, convert).
 - **Docs**: Updated `README.md` with new CLI command usage.
 
 ## [v0.20.3] - 2025-12-11

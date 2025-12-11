@@ -63,4 +63,55 @@ class MediaCommands
         self::getMedia()->processImage($input, $output, $width, $height, $quality, $fit, $rotate, $flip, $filter);
         echo "Image processed and saved to $output\n";
     }
+
+    public static function handleBatchProcess(): void
+    {
+        global $argv;
+
+        if (count($argv) < 4) {
+            echo "Usage: php cli.php media:batch-process <input_dir> <output_dir> [w] [h] [q] [fit] [rot] [flip] [filter] [ext]\n";
+            exit(1);
+        }
+
+        $inputDir = $argv[2];
+        $outputDir = $argv[3];
+        $width = isset($argv[4]) ? (int) $argv[4] : 0;
+        $height = isset($argv[5]) ? (int) $argv[5] : 0;
+        $quality = isset($argv[6]) ? (int) $argv[6] : 80;
+        $fit = isset($argv[7]) ? $argv[7] : 'contain';
+        $rotate = isset($argv[8]) ? (int) $argv[8] : 0;
+        $flip = isset($argv[9]) ? $argv[9] : '';
+        $filter = isset($argv[10]) ? $argv[10] : '';
+        $ext = isset($argv[11]) ? $argv[11] : 'webp';
+
+        if (!is_dir($inputDir)) {
+            echo "Error: Input directory not found: $inputDir\n";
+            exit(1);
+        }
+
+        if (!is_dir($outputDir)) {
+            if (!mkdir($outputDir, 0755, true)) {
+                echo "Error: Failed to create output directory: $outputDir\n";
+                exit(1);
+            }
+        }
+
+        $files = glob($inputDir . '/*.{jpg,jpeg,png,webp}', GLOB_BRACE);
+        if (empty($files)) {
+            echo "No images found in $inputDir\n";
+            return;
+        }
+
+        $count = 0;
+        foreach ($files as $file) {
+            $filename = pathinfo($file, PATHINFO_FILENAME);
+            $outFile = $outputDir . '/' . $filename . '.' . $ext;
+
+            echo "Processing: " . basename($file) . " -> " . basename($outFile) . "\n";
+            self::getMedia()->processImage($file, $outFile, $width, $height, $quality, $fit, $rotate, $flip, $filter);
+            $count++;
+        }
+
+        echo "Batch processing complete. Processed $count images.\n";
+    }
 }

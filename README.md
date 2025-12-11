@@ -110,6 +110,7 @@ Gaia Alpha includes a command-line tool (`cli.php`) for database and file manage
 - `media:stats`: Show storage stats for uploads and cache.
 - `media:clear-cache`: Clear all cached images.
 - `media:process <in> <out> [w] [h] [q] [fit] [rot] [flip] [filter]`: Resize/Transform/Filter image.
+- `media:batch-process <in_dir> <out_dir> [w] [h] [q] [fit] [rot] [flip] [filter] [ext]`: Batch process images.
 
 ### File Management Commands
 - `file:write <path> <content>`: Write content to a file in my-data.

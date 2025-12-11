@@ -61,7 +61,8 @@ class Router
                 // Hook when route is matched
                 Hook::run('router_matched', $route, $matches);
 
-                call_user_func_array($route['handler'], $matches);
+                $result = call_user_func_array($route['handler'], $matches);
+                Hook::run('router_dispatch_after', $route, $matches);
                 return true;
             }
         }

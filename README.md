@@ -122,6 +122,13 @@ Gaia Alpha includes a command-line tool (`cli.php`) for database and file manage
 - `media:watermark <in> <out> <watermark> [pos] [pad]`: Overlay watermark.
 - `media:compress <in> <out> [crf]`: Compress video.
 
+### Benchmark Commands
+- `bench:all`: Run all performance benchmarks.
+- `bench:boot`: Measure framework boot time.
+- `bench:router`: Measure router matching performance.
+- `bench:db`: Measure database query performance.
+- `bench:template`: Measure template rendering performance.
+
 ### File Management Commands
 - `file:write <path> <content>`: Write content to a file in my-data.
 - `file:read <path>`: Read content from a file in my-data.

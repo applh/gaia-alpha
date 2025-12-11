@@ -8,6 +8,10 @@ class App
 {
     public static function run()
     {
+        register_shutdown_function(function () {
+            Hook::run('app_terminate');
+        });
+
         foreach (Env::get('framework_tasks') as $step => $task) {
             if (is_callable($task)) {
                 $task();
@@ -17,6 +21,7 @@ class App
 
     public static function web_setup(string $rootDir)
     {
+        Hook::run('app_init');
         Env::set('root_dir', $rootDir);
         Env::set('controllers', []);
         Env::set('framework_tasks', [
@@ -44,6 +49,7 @@ class App
             die("This script must be run from the command line.\n");
         }
 
+        Hook::run('app_init');
         Env::set('root_dir', $rootDir);
         Env::set('framework_tasks', [
             "step05" => "GaiaAlpha\\Framework::loadPlugins",

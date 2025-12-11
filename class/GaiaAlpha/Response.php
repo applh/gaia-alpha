@@ -20,7 +20,11 @@ class Response
             'status' => &$status
         ];
 
+        // Hook to modify data and status before JSON encoding
         Hook::run('response_json_before', $context);
+
+        // Notify that we are about to send response
+        Hook::run('response_send_before', $data, $status);
 
         http_response_code($status);
         header('Content-Type: application/json');

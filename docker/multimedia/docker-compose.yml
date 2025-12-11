@@ -1,0 +1,18 @@
+services:
+  web:
+    image: nginx:alpine
+    ports:
+      - "8080:80"
+    volumes:
+      - ../../www:/var/www/html/www
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - php
+
+  php:
+    build: .
+    volumes:
+      - ../../:/var/www/html
+    environment:
+      # Use a dedicated data path or the default
+      - GAIA_DB_PATH=/var/www/html/my-data/gaia.sqlite

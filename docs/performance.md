@@ -34,6 +34,26 @@ Below are typical results on a development machine (Apple M1 Pro, PHP 8.2):
 
 *Note: Real-world application performance will vary based on complexity, database size, and server hardware.*
 
+## Comparative Performance
+
+To help understand how Gaia Alpha fits into the ecosystem, here is a comparison of typical performance characteristics against common alternatives.
+
+| Framework / CMS | Type | Typical Boot Time (CLI) | Request Overhead | Use Case |
+| :--- | :--- | :--- | :--- | :--- |
+| **Gaia Alpha** | **Hybrid Framework** | **~50-60 ms** | **Low** | **Apps & Tools** |
+| Laravel / Symfony | Full-Stack Framework | ~80-150 ms | Moderate | Enterprise Apps |
+| WordPress | CMS | ~200+ ms | High | Content Sites |
+| Slim / Lumen | Micro-Framework | ~20-40 ms | Very Low | Microservices |
+
+*Note: Gaia Alpha prioritizes a balance between developer experience (Vue.js, Auto-wiring) and raw performance. Values are approximate references for PHP 8.2.*
+
+### When to use Gaia Alpha?
+
+- **Use Gaia Alpha** when you need a fast, standalone application with a modern UI and zero infrastructure configuration.
+- **Use Laravel/Symfony** when you need extensive ecosystem libraries, complex ORM features, or enterprise support.
+- **Use WordPress** when your primary goal is content management and publishing.
+
+
 ## Profiling Hooks
 
 For detailed analysis of your application's lifecycle, Gaia Alpha provides several hooks that trigger at key moments. You can attach listeners to these hooks to measure execution time.

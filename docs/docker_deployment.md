@@ -162,7 +162,65 @@ define('GAIA_DB_DSN', "mysql:host=$host;dbname=$db;charset=utf8mb4");
 // *Architecture Note*: If using this mode, ensure you update GaiaAlpha\Controller\DbController::connect() or GaiaAlpha\Database to handle user/password auth if required by the DSN driver.
 ```
 
-## 4. Performance Comparison
+
+## 4. Multimedia Processing Server (Feature-Rich)
+This setup includes all necessary tools for Gaia Alpha's advanced features, including `ffmpeg` for video processing and `qrencode` for QR code generation.
+
+### Directory Structure
+We have provided a ready-to-use configuration in `docker/multimedia`.
+
+```
+docker/
+  multimedia/
+    Dockerfile          # PHP + FFMpeg + Qrencode + GD
+    docker-compose.yml  # Nginx + Custom PHP Build
+    nginx.conf          # Nginx Config with higher upload limits
+```
+
+### `docker/multimedia/Dockerfile`
+This image extends `php:8.2-fpm-alpine` and adds:
+- **System**: `ffmpeg`, `qrencode`, `imagemagick`, `sqlite`, `git`
+- **PHP extensions**: `gd`, `imagick`, `intl`, `mbstring`, `zip`, `exif`, `bcmath`
+- **Configuration**: Increased memory limit (512M) and upload size (100M)
+
+### How to Run
+Navigate to the `docker/multimedia` directory and run:
+
+```bash
+cd docker/multimedia
+docker-compose up --build -d
+```
+
+The application will be available at `http://localhost:8080`.
+
+
+## 5. Instant Deployment (Auto-Clone)
+This setup automatically clones the repository from GitHub when the container starts. This is ideal for quick deployments on fresh servers without manually transferring code.
+
+### Directory Structure
+`docker/deployment/` contains the setup.
+
+### Usage
+1. **Configure**: Edit `docker/deployment/docker-compose.yml` to set your `REPO_URL` (defaults to main Gaia Alpha repo).
+2. **Run**:
+   ```bash
+   cd docker/deployment
+   docker compose up -d --build
+   ```
+3. **Wait**: The container will clone the repo on first launch. It may take a few seconds before the site is available at `http://localhost:8090`.
+
+### Resetting the Environment
+To completely reset the environment (including the database and codebase) and verify the auto-setup process:
+
+```bash
+docker compose down -v
+docker compose up -d --build
+```
+*Warning: This destroys all data in the volumes.*
+
+## 6. Performance Comparison
+
+
 
 | Feature | Simple PHP | Nginx + PHP-FPM | Enterprise (Split DB) |
 | :--- | :---: | :---: | :---: |

@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 ### Added
 - **Core**: Added automatic class autoloading for plugins. Classes in `my-data/plugins/{Plugin}/class/` are mapped to `{Plugin}` namespace.
 - **Docs**: Updated `docs/plugins.md` with autoloading guide.
+- **Docs**: Added comparative performance analysis to `docs/performance.md`.
 
 ### Refactored
 - **Core**: Moved plugin autoloader logic to `App::registerAutoloaders` for dynamic initialization.

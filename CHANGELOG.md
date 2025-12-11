@@ -1,6 +1,10 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+## [v0.20.3] - 2025-12-11
+### Fixed
+- **AdminController**: Refactored to remove legacy model instantiation and use `DbController::getPdo()` directly, fixing deprecation warnings and aligning with static architecture.
+
 ## [v0.20.2] - 2025-12-11
 ### Docs
 - **Architecture**: Added comprehensive **Routes Map** and **Route Prefix Strategy** analysis to `docs/architecture.md`.

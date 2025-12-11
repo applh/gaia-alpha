@@ -11,30 +11,26 @@ class AdminController extends BaseController
     public function index()
     {
         $this->requireAdmin();
-        $userModel = new User($this->db);
-        $this->jsonResponse($userModel->findAll());
+        $this->jsonResponse(User::findAll());
     }
 
     public function stats()
     {
         $this->requireAdmin();
-        $userModel = new User($this->db);
-        $todoModel = new Todo($this->db);
-        $pageModel = new Page($this->db);
 
         // Raw queries for forms as we don't have a model method for "count all" easily accessible without refactor
         // Actually FormController has no model usage, it uses raw SQL. So we do same here.
-        $pdo = $this->db->getPdo();
+        $pdo = DbController::getPdo();
         $formsCount = $pdo->query("SELECT COUNT(*) FROM forms")->fetchColumn();
         $subsCount = $pdo->query("SELECT COUNT(*) FROM form_submissions")->fetchColumn();
         $templatesCount = $pdo->query("SELECT COUNT(*) FROM cms_templates")->fetchColumn();
 
         $this->jsonResponse([
-            'users' => $userModel->count(),
-            'todos' => $todoModel->count(),
-            'pages' => $pageModel->count('page'),
+            'users' => User::count(),
+            'todos' => Todo::count(),
+            'pages' => Page::count('page'),
             'templates' => $templatesCount,
-            'images' => $pageModel->count('image'),
+            'images' => Page::count('image'),
             'forms' => $formsCount,
             'submissions' => $subsCount,
             'datastore' => $pdo->query("SELECT COUNT(*) FROM data_store")->fetchColumn()
@@ -50,9 +46,8 @@ class AdminController extends BaseController
             $this->jsonResponse(['error' => 'Missing username or password'], 400);
         }
 
-        $userModel = new User($this->db);
         try {
-            $id = $userModel->create($data['username'], $data['password'], $data['level'] ?? 10);
+            $id = User::create($data['username'], $data['password'], $data['level'] ?? 10);
             $this->jsonResponse(['success' => true, 'id' => $id]);
         } catch (\PDOException $e) {
             $this->jsonResponse(['error' => 'Username already exists'], 400);
@@ -63,9 +58,7 @@ class AdminController extends BaseController
     {
         $this->requireAdmin();
         $data = $this->getJsonInput();
-        $userModel = new User($this->db);
-
-        $userModel->update($id, $data);
+        User::update($id, $data);
         $this->jsonResponse(['success' => true]);
     }
 
@@ -76,8 +69,7 @@ class AdminController extends BaseController
             $this->jsonResponse(['error' => 'Cannot delete yourself'], 400);
         }
 
-        $userModel = new User($this->db);
-        $userModel->delete($id);
+        User::delete($id);
         $this->jsonResponse(['success' => true]);
     }
 
@@ -86,7 +78,7 @@ class AdminController extends BaseController
     public function getTables()
     {
         $this->requireAdmin();
-        $pdo = $this->db->getPdo();
+        $pdo = DbController::getPdo();
 
         // Get all tables from SQLite
         $stmt = $pdo->query("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name");
@@ -105,7 +97,7 @@ class AdminController extends BaseController
             return;
         }
 
-        $pdo = $this->db->getPdo();
+        $pdo = DbController::getPdo();
 
         // Get table schema
         $schemaStmt = $pdo->query("PRAGMA table_info($tableName)");
@@ -134,7 +126,7 @@ class AdminController extends BaseController
         }
 
         $query = trim($data['query']);
-        $pdo = $this->db->getPdo();
+        $pdo = DbController::getPdo();
 
         try {
             // Determine if it's a SELECT query or a modification query
@@ -174,7 +166,7 @@ class AdminController extends BaseController
         }
 
         $data = $this->getJsonInput();
-        $pdo = $this->db->getPdo();
+        $pdo = DbController::getPdo();
 
         try {
             $columns = array_keys($data);
@@ -209,7 +201,7 @@ class AdminController extends BaseController
         }
 
         $data = $this->getJsonInput();
-        $pdo = $this->db->getPdo();
+        $pdo = DbController::getPdo();
 
         try {
             $setParts = [];
@@ -245,7 +237,7 @@ class AdminController extends BaseController
             return;
         }
 
-        $pdo = $this->db->getPdo();
+        $pdo = DbController::getPdo();
 
         try {
             $stmt = $pdo->prepare("DELETE FROM $tableName WHERE id = ?");

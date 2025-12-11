@@ -4,6 +4,7 @@ CREATE TABLE IF NOT EXISTS cms_pages (
     title TEXT NOT NULL,
     slug TEXT NOT NULL,
     content TEXT,
+    image TEXT,
     created_at DATETIME,
     updated_at DATETIME,
     cat TEXT DEFAULT 'page',

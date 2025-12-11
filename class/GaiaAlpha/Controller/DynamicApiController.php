@@ -6,6 +6,7 @@ use GaiaAlpha\Env;
 use GaiaAlpha\Router;
 use GaiaAlpha\Database;
 use GaiaAlpha\Response;
+use GaiaAlpha\Request;
 use \PDO;
 
 class DynamicApiController extends BaseController
@@ -91,13 +92,13 @@ class DynamicApiController extends BaseController
         $pdo = $db->getPdo();
 
         // Basic Pagination
-        $page = isset($_GET['page']) ? (int) $_GET['page'] : 1;
-        $limit = isset($_GET['limit']) ? (int) $_GET['limit'] : 20;
+        $page = Request::queryInt('page', 1);
+        $limit = Request::queryInt('limit', 20);
         $offset = ($page - 1) * $limit;
 
         // Basic Sorting
-        $sort = $_GET['sort'] ?? 'id';
-        $order = strtolower($_GET['order'] ?? 'asc') === 'desc' ? 'DESC' : 'ASC';
+        $sort = Request::query('sort', 'id');
+        $order = strtolower(Request::query('order', 'asc')) === 'desc' ? 'DESC' : 'ASC';
 
         // Sanitize sort column to prevent injection
         $sort = preg_replace('/[^a-zA-Z0-9_]/', '', $sort);

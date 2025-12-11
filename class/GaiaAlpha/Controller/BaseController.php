@@ -4,6 +4,7 @@ namespace GaiaAlpha\Controller;
 
 use GaiaAlpha\Database;
 use GaiaAlpha\Response;
+use GaiaAlpha\Request;
 
 use GaiaAlpha\Controller\DbController;
 
@@ -23,7 +24,7 @@ abstract class BaseController
 
     protected function getJsonInput()
     {
-        return json_decode(file_get_contents('php://input'), true) ?? [];
+        return Request::input();
     }
 
     protected function requireAuth()

@@ -100,6 +100,6 @@ class Framework
 
     public static function decodeBody()
     {
-        return json_decode(file_get_contents('php://input'), true) ?? [];
+        return Request::input();
     }
 }

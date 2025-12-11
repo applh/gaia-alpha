@@ -1,6 +1,11 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+## [v0.22.1] - 2025-12-11
+### Added
+- **Core**: Introduced `Request` class for centralized input (`$_GET`, `$_POST`, `php://input`) handling.
+- **Refactor**: `DynamicApiController` and `Framework` now use `Request` class for better testability and type safety.
+
 ## [v0.22.0] - 2025-12-11
 ### Added
 - **Core**: Added `Response` class for centralized JSON output handling.

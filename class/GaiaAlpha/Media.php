@@ -38,7 +38,7 @@ class Media
         exit;
     }
 
-    public function processImage(string $src, string $dst, int $w, int $h, int $q, string $fit): void
+    public function processImage(string $src, string $dst, int $w, int $h, int $q, string $fit, int $rotate = 0, string $flip = '', string $filter = ''): void
     {
         $info = getimagesize($src);
         if (!$info)
@@ -64,6 +64,33 @@ class Media
 
         if (!$image)
             return;
+
+        // Rotation
+        if ($rotate != 0) {
+            $rotated = imagerotate($image, -$rotate, 0);
+            if ($rotated !== false) {
+                // imagedestroy($image); // Deprecated in PHP 8.5
+                $image = $rotated;
+            }
+        }
+
+        // Flip
+        if (!empty($flip)) {
+            $mode = match ($flip) {
+                'h', 'horizontal' => IMG_FLIP_HORIZONTAL,
+                'v', 'vertical' => IMG_FLIP_VERTICAL,
+                'b', 'both' => IMG_FLIP_BOTH,
+                default => null
+            };
+
+            if ($mode !== null) {
+                imageflip($image, $mode);
+            }
+        }
+
+        // Update dimensions after transform
+        $srcW = imagesx($image);
+        $srcH = imagesy($image);
 
         // Calculate dimensions
         $dstW = $srcW;
@@ -117,7 +144,65 @@ class Media
 
         imagecopyresampled($output, $image, 0, 0, $srcX, $srcY, $dstW, $dstH, $srcW, $srcH);
 
-        imagewebp($output, $dst, $q);
+        // Apply filters
+        if (!empty($filter)) {
+            $parts = explode(':', $filter);
+            $filterName = $parts[0];
+            $arg1 = $parts[1] ?? null;
+
+            switch ($filterName) {
+                case 'grayscale':
+                    imagefilter($output, IMG_FILTER_GRAYSCALE);
+                    break;
+                case 'negate':
+                    imagefilter($output, IMG_FILTER_NEGATE);
+                    break;
+                case 'edgedetect':
+                    imagefilter($output, IMG_FILTER_EDGEDETECT);
+                    break;
+                case 'brightness':
+                    if ($arg1 !== null) {
+                        imagefilter($output, IMG_FILTER_BRIGHTNESS, (int) $arg1);
+                    }
+                    break;
+                case 'contrast':
+                    if ($arg1 !== null) {
+                        imagefilter($output, IMG_FILTER_CONTRAST, (int) $arg1);
+                    }
+                    break;
+                case 'pixelate':
+                    if ($arg1 !== null) {
+                        imagefilter($output, IMG_FILTER_PIXELATE, (int) $arg1, true);
+                    }
+                    break;
+            }
+        }
+
+        // Determine output format based on extension
+        $ext = strtolower(pathinfo($dst, PATHINFO_EXTENSION));
+
+        switch ($ext) {
+            case 'jpg':
+            case 'jpeg':
+                // For JPEG, handle transparency by filling with white
+                $bg = imagecreatetruecolor($dstW, $dstH);
+                $white = imagecolorallocate($bg, 255, 255, 255);
+                imagefilledrectangle($bg, 0, 0, $dstW, $dstH, $white);
+                imagecopy($bg, $output, 0, 0, 0, 0, $dstW, $dstH);
+                imagejpeg($bg, $dst, $q);
+                // imagedestroy($bg); // Deprecated in PHP 8.5
+                break;
+            case 'png':
+                // PNG quality is 0-9. Convert 0-100 to 0-9 roughly (invert)
+                // 100 quality -> 0 compression. 0 quality -> 9 compression.
+                $pngQuality = (int) (9 - round(($q / 100) * 9));
+                imagepng($output, $dst, $pngQuality);
+                break;
+            case 'webp':
+            default:
+                imagewebp($output, $dst, $q);
+                break;
+        }
 
         // Cleanup
         // imagedestroy($image); // Removed as it caused issues in PHP 8.5

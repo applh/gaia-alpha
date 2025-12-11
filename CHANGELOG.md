@@ -1,6 +1,15 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+## [v0.23.0] - 2025-12-11
+### Added
+- **Core**: Added automatic class autoloading for plugins. Classes in `my-data/plugins/{Plugin}/class/` are mapped to `{Plugin}` namespace.
+- **Docs**: Updated `docs/plugins.md` with autoloading guide.
+
+### Refactored
+- **Core**: Moved plugin autoloader logic to `App::registerAutoloaders` for dynamic initialization.
+- **Core**: Removed redundant configuration loading from `autoload.php`.
+
 ## [v0.22.1] - 2025-12-11
 ### Added
 - **Core**: Introduced `Request` class for centralized input (`$_GET`, `$_POST`, `php://input`) handling.

@@ -17,6 +17,42 @@ my-data/plugins/
 
 The framework automatically loads all `index.php` files found in immediate subdirectories of `my-data/plugins` during the application boot process (both Web and CLI).
 
+## Class Autoloading
+
+You can include classes in your plugin by placing them in a `class/` subdirectory. The framework uses a standard naming convention to autoload these classes.
+
+**Convention:** `PluginName\ClassName` -> `my-data/plugins/PluginName/class/ClassName.php`
+
+**Example:**
+
+Directory Structure:
+```
+my-data/plugins/
+└── MyAwesomePlugin/
+    ├── index.php
+    └── class/
+        └── Utils/
+            └── Helper.php
+```
+
+File `class/Utils/Helper.php`:
+```php
+namespace MyAwesomePlugin\Utils;
+
+class Helper {
+    public static function sayHello() {
+        return "Hello!";
+    }
+}
+```
+
+Usage in `index.php`:
+```php
+use MyAwesomePlugin\Utils\Helper;
+
+echo Helper::sayHello();
+```
+
 ## Hooks
 
 The framework provides a `Hook` system that allows plugins to execute code at specific points in the application lifecycle.

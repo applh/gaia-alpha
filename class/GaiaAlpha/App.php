@@ -41,6 +41,8 @@ class App
 
         $dataPath = defined('GAIA_DATA_PATH') ? GAIA_DATA_PATH : $rootDir . '/my-data';
         Env::set('path_data', $dataPath);
+
+        self::registerAutoloaders();
     }
 
     public static function cli_setup(string $rootDir)
@@ -63,6 +65,34 @@ class App
 
         $dataPath = defined('GAIA_DATA_PATH') ? GAIA_DATA_PATH : $rootDir . '/my-data';
         Env::set('path_data', $dataPath);
+
+        self::registerAutoloaders();
+    }
+
+    public static function registerAutoloaders()
+    {
+        spl_autoload_register(function ($class) {
+            // Top-level namespace is the plugin name
+            $parts = explode('\\', $class);
+            $pluginName = array_shift($parts);
+
+            if (empty($parts)) {
+                return;
+            }
+
+            // New path: data_path/plugins/{PluginName}/class/{RestOfClass}.php
+            $dataPath = Env::get('path_data');
+            // If path_data is not set, we cannot resolve plugins
+            if (!$dataPath) {
+                return;
+            }
+
+            $file = $dataPath . '/plugins/' . $pluginName . '/class/' . implode('/', $parts) . '.php';
+
+            if (file_exists($file)) {
+                include $file;
+            }
+        });
     }
 
 

@@ -103,6 +103,8 @@ Gaia Alpha includes a command-line tool (`cli.php`) for database and file manage
 - `table:update <table> <id> <json_data>`: Update a row.
 - `table:delete <table> <id>`: Delete a row.
 - `sql <query>`: Execute a raw SQL query.
+- `db:export [file]`: Export the database schema and data to SQL.
+- `db:import <file>`: Import an SQL file into the database.
 
 ### Media Commands
 - `media:stats`: Show storage stats for uploads and cache.
@@ -123,6 +125,8 @@ Gaia Alpha includes a command-line tool (`cli.php`) for database and file manage
 # Database operations
 php cli.php table:list users
 php cli.php sql "SELECT count(*) FROM todos"
+php cli.php db:export backup.sql
+php cli.php db:import backup.sql
 
 # Media management
 php cli.php media:stats

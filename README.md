@@ -111,6 +111,16 @@ Gaia Alpha includes a command-line tool (`cli.php`) for database and file manage
 - `media:clear-cache`: Clear all cached images.
 - `media:process <in> <out> [w] [h] [q] [fit] [rot] [flip] [filter]`: Resize/Transform/Filter image.
 - `media:batch-process <in_dir> <out_dir> [w] [h] [q] [fit] [rot] [flip] [filter] [ext]`: Batch process images.
+- `media:info <in> [--raw]`: Display media metadata.
+- `media:to-hls <in> <out_dir> [seg_dur] [playlist]`: Convert video to HLS stream.
+- `media:fast-start <in> <out>`: Optimize video for web streaming.
+- `media:extract-frame <in> <out> [time]`: Extract a single frame.
+- `media:extract-frames <in> <out_dir> <start> <end> <count>`: Extract equidistant frames.
+- `media:extract-audio <in> <out> [start] [dur]`: Extract audio track.
+- `media:extract-video <in> <out> [start] [dur]`: Extract video segment.
+- `media:gif <in> <out> [start] [dur] [width]`: Create high-quality GIF.
+- `media:watermark <in> <out> <watermark> [pos] [pad]`: Overlay watermark.
+- `media:compress <in> <out> [crf]`: Compress video.
 
 ### File Management Commands
 - `file:write <path> <content>`: Write content to a file in my-data.

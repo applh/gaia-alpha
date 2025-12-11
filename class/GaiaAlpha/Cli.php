@@ -3,6 +3,7 @@
 namespace GaiaAlpha;
 
 use Exception;
+use GaiaAlpha\Hook;
 use GaiaAlpha\Env;
 use GaiaAlpha\Controller\DbController;
 use GaiaAlpha\Cli\TableCommands;
@@ -16,6 +17,8 @@ class Cli
     public static function run(): void
     {
         global $argv;
+
+        Hook::run('cli_init');
 
         // dependencies are now initialized by the commands themselves
 
@@ -57,9 +60,14 @@ class Cli
                 exit(1);
             }
 
+            Hook::run('cli_command_before', $command, $className, $action);
+
             call_user_func([$className, $action]);
 
+            Hook::run('cli_command_after', $command);
+
         } catch (Exception $e) {
+            Hook::run('cli_exception', $e);
             echo "Error: " . $e->getMessage() . "\n";
             exit(1);
         }

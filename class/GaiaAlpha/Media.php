@@ -209,6 +209,74 @@ class Media
         // imagedestroy($output);
     }
 
+    public function makeTransparent(string $src, string $dst, array $color, int $fuzz = 0): void
+    {
+        $info = getimagesize($src);
+        if (!$info)
+            return;
+
+        $mime = $info['mime'];
+        switch ($mime) {
+            case 'image/jpeg':
+                $image = imagecreatefromjpeg($src);
+                break;
+            case 'image/png':
+                $image = imagecreatefrompng($src);
+                break;
+            case 'image/webp':
+                $image = imagecreatefromwebp($src);
+                break;
+            default:
+                return;
+        }
+
+        if (!$image)
+            return;
+
+        // Convert to truecolor
+        $w = imagesx($image);
+        $h = imagesy($image);
+        $output = imagecreatetruecolor($w, $h);
+
+        // Preserve existing transparency
+        imagealphablending($output, false);
+        imagesavealpha($output, true);
+
+        // Copy source
+        imagecopy($output, $image, 0, 0, 0, 0, $w, $h);
+
+        $targetR = $color[0];
+        $targetG = $color[1];
+        $targetB = $color[2];
+
+        for ($y = 0; $y < $h; ++$y) {
+            for ($x = 0; $x < $w; ++$x) {
+                $rgb = imagecolorat($output, $x, $y);
+                $r = ($rgb >> 16) & 0xFF;
+                $g = ($rgb >> 8) & 0xFF;
+                $b = $rgb & 0xFF;
+
+                $diff = sqrt(pow($r - $targetR, 2) + pow($g - $targetG, 2) + pow($b - $targetB, 2));
+
+                if ($diff <= $fuzz) {
+                    $alpha = 127; // Full transparency
+                    $newColor = imagecolorallocatealpha($output, $r, $g, $b, $alpha);
+                    imagesetpixel($output, $x, $y, $newColor);
+                }
+            }
+        }
+
+        $ext = strtolower(pathinfo($dst, PATHINFO_EXTENSION));
+        if ($ext === 'png') {
+            imagepng($output, $dst);
+        } else {
+            imagewebp($output, $dst);
+        }
+
+        // imagedestroy($image); // Deprecated in PHP 8.5
+        // imagedestroy($output); 
+    }
+
     public function getStats(): array
     {
         $uploadStats = $this->getDirStats($this->uploadsDir);

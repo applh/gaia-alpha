@@ -12,6 +12,12 @@ All notable changes to this project will be documented in this file.
 - **Hooks**: Added `response_json_before` hook to modify API responses globally.
 - **Refactor**: Updated all controllers to use `Response::json` for consistent output and simplified testing.
 
+## [v0.22.2] - 2025-12-11
+### Added
+- **CLI**: Added full suite of Video manipulation tools: `media:info`, `media:to-hls`, `media:fast-start`, `media:compress`.
+- **CLI**: Added media extraction tools: `media:extract-frame`, `media:extract-frames`, `media:extract-audio`, `media:extract-video`.
+- **CLI**: Added creative tools: `media:gif` (high quality palette generation), `media:watermark` (video overlay).
+
 ## [v0.21.0] - 2025-12-11
 ### Added
 - **CLI**: Added `db:export` and `db:import` commands to backup and restore the full SQLite database.

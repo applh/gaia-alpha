@@ -1,175 +1,89 @@
-# GAIA: GeoDynamic Artificial Intelligence Applications
+# Gaia Alpha
 
-Gaia Alpha is a lightweight, self-contained web application framework demonstrating a PHP backend with a Vue.js frontend, using SQLite for data persistence.
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![PHP Version](https://img.shields.io/badge/php-%3E%3D8.0-777bb4.svg?logo=php)
+![Vue Version](https://img.shields.io/badge/vue-3.x-4FC08D.svg?logo=vue.js)
+![Status](https://img.shields.io/badge/status-active-success.svg)
 
+**Gaia Alpha** is a lightweight, self-contained web application framework that bridges the gap between simple PHP scripts and complex modern web apps. It features a robust PHP backend, a reactive Vue.js frontend, and zero-configuration SQLite persistence.
 
-## Repository Information
+> "Simplicity is the ultimate sophistication." - Leonardo da Vinci
 
-- **GitHub Repo**: [https://github.com/applh/gaia-alpha](https://github.com/applh/gaia-alpha)
-- **SSH Key**: A custom SSH key has been generated for this repository.
-  - **Key File**: `~/.ssh/id_ed25519_github`
-  - **Usage**: To push/pull without password, ensure your local git config uses this key:
-    ```bash
-    git config core.sshCommand "ssh -i ~/.ssh/id_ed25519_github -o IdentitiesOnly=yes"
-    ```
-  - **Generation Command**:
-    ```bash
-    ssh-keygen -t ed25519 -C "gaia-alpha-dev" -f ~/.ssh/id_ed25519_github -N ""
-    ```
+---
 
-## Architecture
+## 🚀 Quick Start
 
-For detailed information, please refer to:
-- [System Architecture](docs/architecture.md): Lifecycle, directory structure, and database schema.
-- [API Documentation](docs/api.md): Media API and JSON endpoints.
-- [Docker Deployment](docs/docker_deployment.md): Guides for containerized hosting (Simple, FPM, Database).
-- [Security Comparison](docs/security_comparison.md): Analysis of security features.
-- [Plugin System](docs/plugins.md): How to extend the framework with plugins and hooks.
+1. **Clone & Enter**
+   ```bash
+   git clone https://github.com/applh/gaia-alpha.git
+   cd gaia-alpha
+   ```
 
-### Backend (PHP)
-- **Server**: Built-in PHP server (`php -S`).
-- **Database**: SQLite (`my-data/database.sqlite`).
-- **Media**: Secure image processing via `GaiaAlpha\Media`.
-
-### Frontend (Vue.js)
-- **Framework**: Vue 3 (ES Module build).
-- **Entry**: `www/index.php` serves the initial HTML.
-
-## User Manual
-
-### Installation & Run
-1. Ensure you have PHP 8.0+ installed.
-2. Clone the repository.
-3. Start the local server:
+2. **Run Server**
    ```bash
    php -S localhost:8000 -t www
    ```
-4. Open [http://localhost:8000](http://localhost:8000) in your browser.
 
-### Usage
-1. **Register**: On the home page, toggle to "Register" mode. Enter a username and password.
-2. **Login**: Use your credentials to log in.
-3. **Manage Todos**:
-   - **Add**: Type a task in the input box. Optionally add labels (comma-separated) and select a parent todo.
-   - **Complete**: Click on a todo item to toggle its completed status (strikethrough).
-   - **Edit**: Click the edit button (✎) to modify title, labels, or parent relationship.
-   - **Delete**: Click the delete button (×) to remove a todo.
-   - **Filter**: Click label buttons to filter todos by label.
-   - **Hierarchy**: Child todos are indented and marked with ↳ symbol.
-   - **Reorder**: Drag and drop todos to change their order or move them into other todos.
-4. **Logout**: Click the "Logout" button in the header.
+3. **Explore**
+   Open [http://localhost:8000](http://localhost:8000) to see the framework in action.
 
-### Todo Features
-- **Hierarchical Tasks**: Create parent-child relationships with infinite nesting depth
-- **Drag and Drop**: Reorder items or change parents via simple drag interactions
-- **Labels**: Tag todos with multiple labels for easy categorization
-- **Label Filtering**: Quick filter by clicking any label
-- **Inline Editing**: Edit todos without leaving the page
+---
 
+## 📖 Documentation
 
-### User Levels & Roles
-Gaia Alpha supports Role-Based Access Control (RBAC):
-- **Member (Level 10)**: Default role. Access to personal Todo List and CMS.
-- **Admin (Level 100)**: Access to Admin Dashboard, User Management, and personal Todos.
+Everything you need to know about using and extending Gaia Alpha.
 
-#### Admin Features
-- **Dashboard**: View system stats (total users, total todos).
-- **User Management**: View list of registered users and their levels.
-- **Database Manager**: Execute SQL queries, browse tables, and perform CRUD operations on any table.
-- **API Builder**: Instantly expose any database table as a REST API with configurable authentication and methods.
-- **Login/Register Toggle**: Header buttons allow switching between Login and Register modes when logged out.
+- **[Documentation Hub](docs/index.md)**: The central entry point for all docs.
+- **[System Architecture](docs/architecture.md)**: Deep dive into the core.
+- **[API Reference](docs/api.md)**: Endpoints and data structures.
+- **[Performance](docs/performance.md)**: Benchmarks and profiling.
+- **[Plugin System](docs/plugins.md)**: Extending the framework.
 
-## Database
+---
 
-### Schema Management
-- **Schema Files**: SQL table definitions in `templates/sql/` (e.g., `001_users.sql`, `002_todos.sql`)
-- **Migrations**: Database migrations in `templates/sql/migrations/`
-- **Auto-Discovery**: Tables are automatically created from numbered SQL files
+## ✨ Key Features
 
-### Tables
-- **users**: User accounts with role-based access control
-- **todos**: Task management
-- **cms_pages**: Content management system
-- **data_store**: Generic key-value storage with type classification
+- **Zero-Config Database**: Auto-migrating SQLite setup.
+- **Reactive UI**: Vue 3 frontend without a build step (ES Modules).
+- **CLI Power**: Comprehensive command-line tools for DB, Media, and Files.
+- **Media Engine**: Advanced image and video processing on the fly.
+- **Role-Based Access**: Built-in authentication and permission system.
 
-## CLI Tool
-Gaia Alpha includes a command-line tool (`cli.php`) for database and file management.
+---
 
-**Usage:** `php cli.php <command> [arguments]`
+## 🤝 Community & Contributing
 
-### Database Commands
-- `table:list <table>`: List all rows in a table.
-- `table:insert <table> <json_data>`: Insert a row.
-- `table:update <table> <id> <json_data>`: Update a row.
-- `table:delete <table> <id>`: Delete a row.
-- `sql <query>`: Execute a raw SQL query.
-- `db:export [file]`: Export the database schema and data to SQL.
-- `db:import <file>`: Import an SQL file into the database.
+We welcome contributions from everyone! Here's how you can help:
 
-### Media Commands
-- `media:stats`: Show storage stats for uploads and cache.
-- `media:clear-cache`: Clear all cached images.
-- `media:process <in> <out> [w] [h] [q] [fit] [rot] [flip] [filter]`: Resize/Transform/Filter image.
-- `media:batch-process <in_dir> <out_dir> [w] [h] [q] [fit] [rot] [flip] [filter] [ext]`: Batch process images.
-- `media:info <in> [--raw]`: Display media metadata.
-- `media:to-hls <in> <out_dir> [seg_dur] [playlist]`: Convert video to HLS stream.
-- `media:fast-start <in> <out>`: Optimize video for web streaming.
-- `media:extract-frame <in> <out> [time]`: Extract a single frame.
-- `media:extract-frames <in> <out_dir> <start> <end> <count>`: Extract equidistant frames.
-- `media:extract-audio <in> <out> [start] [dur]`: Extract audio track.
-- `media:extract-video <in> <out> [start] [dur]`: Extract video segment.
-- `media:gif <in> <out> [start] [dur] [width]`: Create high-quality GIF.
-- `media:watermark <in> <out> <watermark> [pos] [pad]`: Overlay watermark.
-- `media:compress <in> <out> [crf]`: Compress video.
+- **[Contributing Guide](CONTRIBUTING.md)**: How to submit PRs and report bugs.
+- **[Code of Conduct](CODE_OF_CONDUCT.md)**: Our pledge for a welcoming community.
 
-### Benchmark Commands
-- `bench:all`: Run all performance benchmarks.
-- `bench:boot`: Measure framework boot time.
-- `bench:router`: Measure router matching performance.
-- `bench:db`: Measure database query performance.
-- `bench:template`: Measure template rendering performance.
-
-### File Management Commands
-- `file:write <path> <content>`: Write content to a file in my-data.
-- `file:read <path>`: Read content from a file in my-data.
-- `file:list [path]`: List files in my-data (or subdirectory).
-- `file:delete <path>`: Delete a file in my-data.
-- `file:move <source> <destination>`: Move/rename a file in my-data.
-
-### General
-- `help`: Show usage instructions.
-
-**Examples:**
+### Performance Benchmarking
+We care about speed. Proof it yourself:
 ```bash
-# Database operations
-php cli.php table:list users
-php cli.php sql "SELECT count(*) FROM todos"
-php cli.php db:export backup.sql
-php cli.php db:import backup.sql
-
-# Media management
-php cli.php media:stats
-php cli.php media:process input.jpg output.webp 800 600
-
-# File management
-php cli.php file:list
-php cli.php file:read PROJECT_INFO.md
-php cli.php file:write notes.txt "My notes"
+php cli.php bench:all
 ```
 
-## Vue 3 Version Sizes
+---
 
-| Version | Description | Minified | Compiler | Size (approx) |
-| :--- | :--- | :---: | :---: | :---: |
-| `vue.esm-browser.js` | Full build (for browser) | No | Yes | ~528 KB |
-| `vue.esm-browser.prod.js` | Full build (production) | Yes | Yes | ~162 KB |
-| `vue.runtime.esm-browser.js` | Runtime-only | No | No | ~364 KB |
-| `vue.runtime.esm-browser.prod.js` | Runtime-only (production) | Yes | No | ~103 KB |
+## 🛠 CLI Overview
 
-Source: [Valid Vue 3 Versions](https://app.unpkg.com/vue@3.5.25/files/dist)
+Gaia Alpha comes with a powerful CLI tool `cli.php`.
 
-## AI Tools
+```bash
+php cli.php <command> [args]
+```
 
-Antigravity tools to help AI to manage code.
-* CLI
+**Common Commands:**
+- `table:list users`: View database rows.
+- `media:process`: Optimize images.
+- `bench:all`: Run performance checks.
+- `help`: See all available commands.
 
+For a full list of commands, see the [CLI Documentation](docs/shell_commands.md) or run `php cli.php help`.
+
+---
+
+## 📜 License
+
+This project is open-sourced software licensed under the [MIT license](LICENSE).

@@ -1,8 +1,10 @@
 import { ref, computed } from 'vue';
 import { store } from '../store.js';
+import Icon from './Icon.js';
 
 const UserSettings = {
     name: 'UserSettings',
+    components: { LucideIcon: Icon },
 
     setup() {
         // Todo Palette Logic (remain local request logic for now, or move to store if generic)
@@ -40,6 +42,7 @@ const UserSettings = {
         };
 
         // Theme & Layout delegated to Store
+        const user = computed(() => store.state.user);
         const theme = computed(() => store.state.theme);
         const setTheme = (newTheme) => {
             store.setTheme(newTheme);
@@ -71,6 +74,7 @@ const UserSettings = {
         };
 
         return {
+            user,
             theme,
             setTheme,
             layout,
@@ -90,6 +94,22 @@ const UserSettings = {
                 <h2 class="page-title">User Settings</h2>
             </div>
             
+            <div class="admin-card" v-if="user">
+                <h3>Profile</h3>
+                <div class="form-group">
+                    <label>Username</label>
+                    <div style="font-size: 1.1rem; padding: 5px 0;">{{ user.username }}</div>
+                </div>
+                <div class="form-group">
+                    <label>Access Level</label>
+                    <div style="font-size: 1.1rem; padding: 5px 0;">
+                        <span style="background: var(--accent-color); color: white; padding: 4px 12px; border-radius: 12px; font-size: 0.9rem;">
+                            Level {{ user.level }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+            
             <div class="admin-card">
                 <h3>Preferences</h3>
                 
@@ -102,7 +122,7 @@ const UserSettings = {
                             :disabled="saving"
                             class="theme-btn"
                         >
-                            🌙 Dark Mode
+                            <LucideIcon name="moon" size="18" style="display:inline-block; vertical-align:middle; margin-right:8px;"></LucideIcon> Dark Mode
                         </button>
                         <button 
                             @click="setTheme('light')" 
@@ -110,7 +130,7 @@ const UserSettings = {
                             :disabled="saving"
                             class="theme-btn"
                         >
-                            ☀️ Light Mode
+                            <LucideIcon name="sun" size="18" style="display:inline-block; vertical-align:middle; margin-right:8px;"></LucideIcon> Light Mode
                         </button>
                     </div>
                 </div>
@@ -123,7 +143,7 @@ const UserSettings = {
                             :disabled="saving"
                             class="theme-btn"
                         >
-                            ⬆️ Top Bar
+                            <LucideIcon name="arrow-up" size="18" style="display:inline-block; vertical-align:middle; margin-right:8px;"></LucideIcon> Top Bar
                         </button>
                         <button 
                             @click="setLayout('side')" 
@@ -131,7 +151,7 @@ const UserSettings = {
                             :disabled="saving"
                             class="theme-btn"
                         >
-                            ⬅️ Sidebar
+                            <LucideIcon name="arrow-left" size="18" style="display:inline-block; vertical-align:middle; margin-right:8px;"></LucideIcon> Sidebar
                         </button>
                     </div>
                 </div>

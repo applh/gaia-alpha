@@ -1,12 +1,21 @@
+import Icon from './Icon.js';
+
 export default {
     name: 'ApiManager',
+    components: { LucideIcon: Icon },
     template: `
-        <div class="api-manager">
-            <div class="header-actions">
-                <h1>API Builder</h1>
-                <button @click="saveConfig" class="btn btn-primary" :disabled="loading">
-                    {{ loading ? 'Saving...' : 'Save Changes' }}
-                </button>
+        <div class="api-manager admin-page">
+            <div class="admin-header">
+                <div style="display:flex; align-items:center; gap:20px;">
+                    <h2 class="page-title">
+                        <LucideIcon name="zap" size="32" style="display:inline-block; vertical-align:middle; margin-right:12px;"></LucideIcon>
+                        API Builder
+                    </h2>
+                    <button @click="saveConfig" class="btn btn-primary" :disabled="loading">
+                        <LucideIcon name="save" size="18" style="display:inline-block; vertical-align:middle; margin-right:6px;"></LucideIcon> 
+                        {{ loading ? 'Saving...' : 'Save Changes' }}
+                    </button>
+                </div>
             </div>
 
             <div v-if="error" class="alert alert-error">{{ error }}</div>

@@ -13,7 +13,7 @@ Commands:
   file:list [path]                    List files in my-data (or subdirectory)
   file:delete <path>                  Delete a file in my-data
   file:move <source> <destination>    Move/rename a file in my-data
-  vendor:update                       Update vendor libraries (Leaflet, Vue, Globe.gl)
+  vendor:update                       Update vendor libraries (Leaflet, Vue, Globe.gl, Lucide)
   user:list                           List all users
   user:create <user> <pass> [level]   Create a new user
   user:update-password <user> <pass>  Update a user's password

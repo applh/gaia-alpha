@@ -13,7 +13,7 @@ const ApiManager = defineAsyncComponent(() => import('./components/ApiManager.js
 const MapPanel = defineAsyncComponent(() => import('./components/MapPanel.js'));
 
 const App = {
-    components: { Login },
+    components: { Login, LucideIcon: defineAsyncComponent(() => import('./components/Icon.js')) },
     template: `
         <div class="app-container">
             <header>
@@ -24,39 +24,96 @@ const App = {
                     <nav v-if="store.state.user" style="display: flex; align-items: center; gap: 10px;">
                         <!-- Admin Menu -->
                         <template v-if="isAdmin">
-                            <button @click="store.setView('dashboard')" :class="{ active: store.state.currentView === 'dashboard' }">📊 Dashboard</button>
-                            <button @click="store.setView('todos')" :class="{ active: store.state.currentView === 'todos' }">✅ My Todos</button>
-                            <button @click="store.setView('users')" :class="{ active: store.state.currentView === 'users' }">👥 Users</button>
-                            <button @click="store.setView('cms')" :class="{ active: store.state.currentView === 'cms' }">📝 CMS</button>
-                            <button @click="store.setView('cms-templates')" :class="{ active: store.state.currentView === 'cms-templates' }">🧩 Templates</button>
-                            <button @click="store.setView('forms')" :class="{ active: store.state.currentView === 'forms' }">📋 Forms</button>
-                            <button @click="store.setView('database')" :class="{ active: store.state.currentView === 'database' }">🗄️ Database</button>
-                            <button @click="store.setView('map')" :class="{ active: store.state.currentView === 'map' }">🗺️ Map</button>
-                            <button @click="store.setView('api-builder')" :class="{ active: store.state.currentView === 'api-builder' }">⚡ API Builder</button>
+                            <button @click="store.setView('dashboard')" :class="{ active: store.state.currentView === 'dashboard' }">
+                                <span class="nav-icon"><LucideIcon name="layout-dashboard" size="20"></LucideIcon></span> 
+                                <span class="nav-label">Dashboard</span>
+                            </button>
+                            <button @click="store.setView('todos')" :class="{ active: store.state.currentView === 'todos' }">
+                                <span class="nav-icon"><LucideIcon name="check-square" size="20"></LucideIcon></span>
+                                <span class="nav-label">My Todos</span>
+                            </button>
+                            <button @click="store.setView('users')" :class="{ active: store.state.currentView === 'users' }">
+                                <span class="nav-icon"><LucideIcon name="users" size="20"></LucideIcon></span>
+                                <span class="nav-label">Users</span>
+                            </button>
+                            <button @click="store.setView('cms')" :class="{ active: store.state.currentView === 'cms' }">
+                                <span class="nav-icon"><LucideIcon name="file-text" size="20"></LucideIcon></span>
+                                <span class="nav-label">CMS</span>
+                            </button>
+                            <button @click="store.setView('cms-templates')" :class="{ active: store.state.currentView === 'cms-templates' }">
+                                <span class="nav-icon"><LucideIcon name="layout-template" size="20"></LucideIcon></span>
+                                <span class="nav-label">Templates</span>
+                            </button>
+                            <button @click="store.setView('forms')" :class="{ active: store.state.currentView === 'forms' }">
+                                <span class="nav-icon"><LucideIcon name="clipboard-list" size="20"></LucideIcon></span>
+                                <span class="nav-label">Forms</span>
+                            </button>
+                            <button @click="store.setView('database')" :class="{ active: store.state.currentView === 'database' }">
+                                <span class="nav-icon"><LucideIcon name="database" size="20"></LucideIcon></span>
+                                <span class="nav-label">Database</span>
+                            </button>
+                            <button @click="store.setView('map')" :class="{ active: store.state.currentView === 'map' }">
+                                <span class="nav-icon"><LucideIcon name="map" size="20"></LucideIcon></span>
+                                <span class="nav-label">Map</span>
+                            </button>
+                            <button @click="store.setView('api-builder')" :class="{ active: store.state.currentView === 'api-builder' }">
+                                <span class="nav-icon"><LucideIcon name="zap" size="20"></LucideIcon></span>
+                                <span class="nav-label">API Builder</span>
+                            </button>
                         </template>
 
                         <!-- Member Menu -->
                         <template v-else>
-                            <button @click="store.setView('todos')" :class="{ active: store.state.currentView === 'todos' }">✅ My Todos</button>
-                            <button @click="store.setView('cms')" :class="{ active: store.state.currentView === 'cms' }">📝 CMS</button>
-                            <button @click="store.setView('forms')" :class="{ active: store.state.currentView === 'forms' }">📋 Forms</button>
-                            <button @click="store.setView('map')" :class="{ active: store.state.currentView === 'map' }">🗺️ Map</button>
+                            <button @click="store.setView('todos')" :class="{ active: store.state.currentView === 'todos' }">
+                                <span class="nav-icon"><LucideIcon name="check-square" size="20"></LucideIcon></span>
+                                <span class="nav-label">My Todos</span>
+                            </button>
+                            <button @click="store.setView('cms')" :class="{ active: store.state.currentView === 'cms' }">
+                                <span class="nav-icon"><LucideIcon name="file-text" size="20"></LucideIcon></span>
+                                <span class="nav-label">CMS</span>
+                            </button>
+                            <button @click="store.setView('forms')" :class="{ active: store.state.currentView === 'forms' }">
+                                <span class="nav-icon"><LucideIcon name="clipboard-list" size="20"></LucideIcon></span>
+                                <span class="nav-label">Forms</span>
+                            </button>
+                            <button @click="store.setView('map')" :class="{ active: store.state.currentView === 'map' }">
+                                <span class="nav-icon"><LucideIcon name="map" size="20"></LucideIcon></span>
+                                <span class="nav-label">Map</span>
+                            </button>
                         </template>
                         
-                        <button @click="store.setView('settings')" :class="{ active: store.state.currentView === 'settings' }" style="opacity: 0.8;">⚙️ Settings</button>
-                        
-                        <button @click="store.toggleTheme()" class="theme-toggle" :title="'Toggle Theme (' + store.state.theme + ')'">
-                            {{ store.state.theme === 'dark' ? '☀️' : '🌙' }}
+                        <button @click="store.setView('settings')" :class="{ active: store.state.currentView === 'settings' }" style="opacity: 0.8;">
+                            <span class="nav-icon"><LucideIcon name="settings" size="20"></LucideIcon></span>
+                            <span class="nav-label">Settings</span>
                         </button>
                         
-                        <button @click="store.logout()" class="logout-btn" :title="'Logout (' + store.state.user.username + ')'">🚪</button>
+                        <div class="user-controls">
+                            <div class="user-info-item">
+                                <span class="nav-icon"><LucideIcon name="user" size="20"></LucideIcon></span>
+                                <span class="nav-label">{{ store.state.user.username }}</span>
+                            </div>
+                            <div class="button-group">
+                                <button @click="store.toggleTheme()" class="theme-toggle" :title="'Toggle Theme (' + store.state.theme + ')'">
+                                     <LucideIcon :name="store.state.theme === 'dark' ? 'sun' : 'moon'" size="20"></LucideIcon>
+                                </button>
+                                <button @click="store.logout()" class="logout-btn" :title="'Logout (' + store.state.user.username + ')'">
+                                    <LucideIcon name="log-out" size="20"></LucideIcon>
+                                </button>
+                            </div>
+                        </div>
                     </nav>
                     <nav v-else style="display: flex; align-items: center; gap: 10px;">
                         <button @click="store.toggleTheme()" class="theme-toggle" :title="'Toggle Theme (' + store.state.theme + ')'">
-                            {{ store.state.theme === 'dark' ? '☀️' : '🌙' }}
+                            <LucideIcon :name="store.state.theme === 'dark' ? 'sun' : 'moon'" size="20"></LucideIcon>
                         </button>
-                        <button @click="store.setLoginMode('login')" :class="{ active: store.state.loginMode === 'login' }">🔑 Login</button>
-                        <button @click="store.setLoginMode('register')" :class="{ active: store.state.loginMode === 'register' }">✨ Register</button>
+                        <button @click="store.setLoginMode('login')" :class="{ active: store.state.loginMode === 'login' }">
+                            <span class="nav-icon"><LucideIcon name="log-in" size="20"></LucideIcon></span>
+                            <span class="nav-label">Login</span>
+                        </button>
+                        <button @click="store.setLoginMode('register')" :class="{ active: store.state.loginMode === 'register' }">
+                            <span class="nav-icon"><LucideIcon name="user-plus" size="20"></LucideIcon></span>
+                            <span class="nav-label">Register</span>
+                        </button>
                     </nav>
                 </div>
             </header>

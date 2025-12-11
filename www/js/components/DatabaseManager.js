@@ -124,7 +124,7 @@ export default {
                                     </td>
                                 </tr>
                                 <tr v-if="sortedData.length === 0">
-                                    <td :colspan="tableData.schema.length + 1" class="text-center">No records found</td>
+                                    <td :colspan="(tableData.schema ? tableData.schema.length : 0) + 1" class="text-center">No records found</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -214,16 +214,29 @@ export default {
         };
 
         const loadTableData = async () => {
-            if (!selectedTable.value) return;
+            if (!selectedTable.value) {
+                tableData.value = null;
+                return;
+            }
             try {
                 const res = await fetch(`/api/admin/db/table/${selectedTable.value}`);
-                const data = await res.json();
-                tableData.value = data;
-                // Reset Sort
-                sortColumn.value = null;
-                sortDirection.value = 'asc';
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data && data.schema) {
+                        tableData.value = data;
+                        // Reset Sort
+                        sortColumn.value = null;
+                        sortDirection.value = 'asc';
+                    } else {
+                        throw new Error("Invalid table data received");
+                    }
+                } else {
+                    tableData.value = null; // Clear on error
+                    console.error('Failed to load table data: ' + res.status);
+                }
             } catch (e) {
                 console.error('Failed to load table data', e);
+                tableData.value = null;
             }
         };
 

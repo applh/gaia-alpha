@@ -35,6 +35,7 @@ Everything you need to know about using and extending Gaia Alpha.
 
 - **[Documentation Hub](docs/index.md)**: The central entry point for all docs.
 - **[System Architecture](docs/architecture.md)**: Deep dive into the core.
+- **[Design System](docs/design_system.md)**: UI architecture, CSS hierarchy, and layout patterns.
 - **[API Reference](docs/api.md)**: Endpoints and data structures.
 - **[Performance](docs/performance.md)**: Benchmarks and profiling.
 - **[Plugin System](docs/plugins.md)**: Extending the framework.

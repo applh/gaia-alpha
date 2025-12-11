@@ -16,6 +16,7 @@ export function useSorting(dataRef, defaultCol = 'id', defaultDir = 'asc', custo
 
     const sortedData = computed(() => {
         if (!dataRef.value) return [];
+        if (!sortColumn.value) return dataRef.value;
 
         return [...dataRef.value].sort((a, b) => {
             let valA, valB;

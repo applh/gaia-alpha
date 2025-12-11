@@ -14,6 +14,7 @@
     </script>
     <link rel="stylesheet" href="/css/site.css">
     <script type="module" src="/js/site.js?v=2"></script>
+    <script src="/js/vendor/lucide.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 

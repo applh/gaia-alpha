@@ -27,6 +27,7 @@ class VendorCommands
             'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png' => $imagesDir . '/marker-shadow.png',
             'https://unpkg.com/vue@3.3.4/dist/vue.esm-browser.js' => $rootDir . '/www/js/vendor/vue.esm-browser.js',
             'https://unpkg.com/globe.gl@2.28.0/dist/globe.gl.min.js' => $rootDir . '/www/js/vendor/globe.gl.js',
+            'https://unpkg.com/lucide@latest/dist/umd/lucide.min.js' => $rootDir . '/www/js/vendor/lucide.min.js',
         ];
 
         foreach ($files as $url => $path) {

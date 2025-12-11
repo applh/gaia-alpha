@@ -2,27 +2,39 @@ import { ref, reactive, onMounted, computed, watch } from 'vue';
 import SortTh from './SortTh.js';
 import TemplateBuilder from './TemplateBuilder.js';
 import MenuBuilder from './MenuBuilder.js';
+import Icon from './Icon.js';
 import { useSorting } from '../composables/useSorting.js';
 import { store } from '../store.js';
 
 export default {
-    components: { SortTh, TemplateBuilder, MenuBuilder },
+    components: { SortTh, TemplateBuilder, MenuBuilder, LucideIcon: Icon },
     template: `
         <div class="admin-page">
             <div class="admin-header">
-                <h2 class="page-title">Content Management</h2>
-                <div class="header-actions">
-                    <div class="nav-tabs">
-                        <button @click="filterCat = 'page'; fetchPages()" :class="{ active: filterCat === 'page' }">Pages</button>
-                        <button @click="filterCat = 'template'; fetchPages()" :class="{ active: filterCat === 'template' }">Templates</button>
-                        <button @click="filterCat = 'image'; fetchPages()" :class="{ active: filterCat === 'image' }">Images</button>
-                        <button @click="filterCat = 'menu'" :class="{ active: filterCat === 'menu' }">Menus</button>
+                <div style="display:flex; align-items:center; gap:20px;">
+                    <h2 class="page-title">
+                        <LucideIcon :name="pageIcon" size="32" style="display:inline-block; vertical-align:middle; margin-right:6px;"></LucideIcon>
+                        {{ pageTitle }}
+                    </h2>
+                    <div class="primary-actions" style="display:flex; gap:10px;">
+                         <button v-if="!showForm && filterCat === 'page'" @click="openCreate" class="btn-primary">
+                            <LucideIcon name="plus" size="18" style="vertical-align:middle; margin-right:4px;"></LucideIcon> Create
+                         </button>
+                         <button v-if="!showForm && filterCat === 'template'" @click="openCreate" class="btn-primary">
+                            <LucideIcon name="plus" size="18" style="vertical-align:middle; margin-right:4px;"></LucideIcon> Create
+                         </button>
+                         <button v-if="!showForm && filterCat === 'image'" @click="$refs.headerUpload.click()" class="btn-secondary">
+                            <LucideIcon name="upload" size="18" style="vertical-align:middle; margin-right:4px;"></LucideIcon> Upload
+                         </button>
                     </div>
-                    <button v-if="!showForm && filterCat === 'page'" @click="openCreate" class="btn-primary">Create Page</button>
-                    <button v-if="!showForm && filterCat === 'template'" @click="openCreate" class="btn-primary">Create Template</button>
-                    <button v-if="!showForm && filterCat === 'image'" @click="$refs.headerUpload.click()" class="btn-secondary">Upload Image</button>
-                    <input type="file" ref="headerUpload" @change="uploadHeaderImage" style="display: none" accept="image/*">
                 </div>
+                <div class="nav-tabs">
+                    <button @click="filterCat = 'page'; fetchPages()" :class="{ active: filterCat === 'page' }">Pages</button>
+                    <button @click="filterCat = 'template'; fetchPages()" :class="{ active: filterCat === 'template' }">Templates</button>
+                    <button @click="filterCat = 'image'; fetchPages()" :class="{ active: filterCat === 'image' }">Images</button>
+                    <button @click="filterCat = 'menu'" :class="{ active: filterCat === 'menu' }">Menus</button>
+                </div>
+                <input type="file" ref="headerUpload" @change="uploadHeaderImage" style="display: none" accept="image/*">
             </div>
             
             <div class="admin-card" v-if="filterCat === 'menu'">
@@ -138,6 +150,24 @@ export default {
         const filterCat = ref('page');
         const { sortColumn, sortDirection, sortBy, sortedData: sortedPages } = useSorting(pages, 'created_at', 'desc', {
             title: (row) => row.title || row.filename
+        });
+
+        const pageTitle = computed(() => {
+            switch (filterCat.value) {
+                case 'template': return 'Templates';
+                case 'image': return 'Media Library';
+                case 'menu': return 'Menu Builder';
+                default: return 'Content Management';
+            }
+        });
+
+        const pageIcon = computed(() => {
+            switch (filterCat.value) {
+                case 'template': return 'layout-template';
+                case 'image': return 'image';
+                case 'menu': return 'list';
+                default: return 'file-text';
+            }
         });
 
 
@@ -350,7 +380,7 @@ export default {
             pages, allTemplates, loading, showForm, form, fileInput, headerUpload, filterCat,
             openCreate, editPage, savePage, deletePage, cancelForm, generateSlug,
             formatDate, triggerUpload, uploadImage, uploadFeatured, uploadHeaderImage, fetchPages,
-            sortBy, sortColumn, sortDirection, sortedPages
+            sortBy, sortColumn, sortDirection, sortedPages, pageTitle, pageIcon
         };
     }
 };

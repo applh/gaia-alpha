@@ -1,19 +1,32 @@
 :root {
-    /* Colors */
-    --bg-color: #0f1115;
-    --card-bg: rgba(30, 34, 45, 0.7);
-    --text-primary: #ffffff;
-    --text-secondary: #a0aaec;
-    --accent-color: #6c5ce7;
-    --accent-hover: #5b4cc4;
-    --danger-color: #ff6b6b;
-    --success-color: #00b894;
-    --border-color: rgba(255, 255, 255, 0.1);
+    /* Colors - Zinc/Slate Palette */
+    --bg-color: #09090b;
+    --card-bg: rgba(24, 24, 27, 0.6);
+    --text-primary: #fafafa;
+    --text-secondary: #a1a1aa;
+    --text-muted: #52525b;
+
+    /* Accents - Indigo/Violet */
+    --accent-color: #6366f1;
+    --accent-hover: #4f46e5;
+    --accent-light: rgba(99, 102, 241, 0.1);
+
+    /* Semantic */
+    --danger-color: #ef4444;
+    --success-color: #10b981;
+    --warning-color: #f59e0b;
+    --info-color: #3b82f6;
+
+    /* Borders & Separators */
+    --border-color: rgba(255, 255, 255, 0.08);
+    --border-hover: rgba(255, 255, 255, 0.15);
 
     /* Spacing */
-    --radius-sm: 8px;
+    --radius-sm: 6px;
     --radius-md: 12px;
-    --radius-lg: 20px;
+    --radius-lg: 16px;
+    --radius-xl: 24px;
+
     --space-xs: 4px;
     --space-sm: 8px;
     --space-md: 16px;
@@ -21,19 +34,27 @@
     --space-xl: 48px;
 
     /* Effects */
-    --shadow-sm: 0 4px 6px rgba(0, 0, 0, 0.1);
-    --shadow-md: 0 8px 30px rgba(0, 0, 0, 0.3);
-    --glass-blur: blur(20px);
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.15);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.15);
+    --shadow-glow: 0 0 20px rgba(99, 102, 241, 0.15);
+
+    --glass-blur: blur(12px);
+    --glass-bg: rgba(24, 24, 27, 0.7);
+    --glass-border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .light-theme {
-    --bg-color: #f5f6fa;
-    --card-bg: rgba(255, 255, 255, 0.85);
-    --text-primary: #2d3436;
-    --text-secondary: #636e72;
-    --border-color: rgba(0, 0, 0, 0.1);
-    --shadow-sm: 0 4px 6px rgba(0, 0, 0, 0.05);
-    --shadow-md: 0 8px 30px rgba(0, 0, 0, 0.1);
+    /* Zinc Light */
+    --bg-color: #f4f4f5;
+    --card-bg: rgba(255, 255, 255, 0.9);
+    --text-primary: #18181b;
+    --text-secondary: #71717a;
+    --text-muted: #d4d4d8;
+    --border-color: rgba(0, 0, 0, 0.08);
+    --border-hover: rgba(0, 0, 0, 0.15);
+    --glass-bg: rgba(255, 255, 255, 0.8);
+    --glass-border: 1px solid rgba(0, 0, 0, 0.06);
 }
 
 * {
@@ -43,14 +64,18 @@
 }
 
 body {
-    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-weight: 300;
     background-color: var(--bg-color);
     color: var(--text-primary);
     line-height: 1.6;
     min-height: 100vh;
     background-image:
-        radial-gradient(circle at 10% 20%, rgba(108, 92, 231, 0.1) 0%, transparent 20%),
-        radial-gradient(circle at 90% 80%, rgba(0, 184, 148, 0.05) 0%, transparent 20%);
+        radial-gradient(circle at 15% 50%, rgba(99, 102, 241, 0.08) 0%, transparent 25%),
+        radial-gradient(circle at 85% 30%, rgba(16, 185, 129, 0.05) 0%, transparent 25%);
+    background-attachment: fixed;
+    letter-spacing: 0.01em;
+    -webkit-font-smoothing: antialiased;
 }
 
 /* Layout */
@@ -60,26 +85,27 @@ body {
     padding: var(--space-md);
 }
 
+/* Refined Header */
 header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: var(--space-md) var(--space-lg);
-    background: var(--card-bg);
+    background: var(--glass-bg);
     backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
     border-radius: var(--radius-lg);
     margin-bottom: var(--space-lg);
-    border: 1px solid var(--border-color);
+    border: var(--glass-border);
     box-shadow: var(--shadow-sm);
+    transition: all 0.3s ease;
 }
 
 h1 {
-    font-size: 1.5rem;
-    font-weight: 700;
-    background: linear-gradient(135deg, #fff 0%, #a0aaec 100%);
-    background-clip: text;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    font-size: 1.25rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--text-primary);
 }
 
 /* Standardized Admin Layout */
@@ -87,67 +113,67 @@ h1 {
     width: 100%;
     max-width: 100%;
     padding: 0 var(--space-md);
-    animation: fadeIn 0.4s ease-out;
+    animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .admin-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: var(--space-lg);
+    margin-bottom: var(--space-xl);
     padding-bottom: var(--space-md);
     border-bottom: 1px solid var(--border-color);
 }
 
 .page-title {
-    font-size: 2rem;
-    font-weight: 700;
+    font-size: 1.75rem;
+    font-weight: 600;
+    letter-spacing: -0.03em;
     margin: 0;
-    background: linear-gradient(135deg, #fff 0%, #a0aaec 100%);
-    background-clip: text;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
 }
 
 .admin-card {
-    background: var(--card-bg);
+    background: var(--glass-bg);
     backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
     border-radius: var(--radius-lg);
-    padding: var(--space-lg);
-    border: 1px solid var(--border-color);
-    box-shadow: var(--shadow-md);
+    padding: var(--space-xl);
+    border: var(--glass-border);
+    box-shadow: var(--shadow-sm);
     margin-bottom: var(--space-lg);
-    transition: transform 0.3s ease;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
-/* Legacy container aliases (to be deprecated or mapped) */
-.auth-container,
-.todo-container,
-.users-admin,
-.cms-container,
-.database-manager {
-    /* Extending .admin-card behavior via common properties if needed, 
-       but we will migrate to .admin-page + .admin-card structure. */
+.admin-card:hover {
+    border-color: var(--border-hover);
+    box-shadow: var(--shadow-md);
 }
+
+/* Legacy container aliases removed or handled elsewhere */
 
 /* Specific component overrides handled by standard classes now */
 
 .auth-container {
     max-width: 400px;
-    margin-top: 10vh;
+    margin-top: 15vh;
 }
 
 /* Forms */
 .form-group {
-    margin-bottom: var(--space-md);
+    margin-bottom: var(--space-lg);
 }
 
 label {
     display: block;
-    margin-bottom: var(--space-xs);
+    margin-bottom: var(--space-sm);
     color: var(--text-secondary);
-    font-size: 0.9rem;
+    font-size: 0.875rem;
     font-weight: 500;
+    letter-spacing: 0.01em;
 }
 
 input,
@@ -223,6 +249,27 @@ button.danger:hover {
 }
 
 /* Header UI */
+nav button {
+    font-weight: 100 !important;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 8px 16px;
+    height: auto;
+}
+
+.nav-icon {
+    font-size: 1.4rem;
+    line-height: 1;
+}
+
+.nav-label {
+    font-size: 0.8rem;
+    line-height: 1.2;
+}
+
 .user-info {
     display: flex;
     gap: var(--space-md);
@@ -318,6 +365,24 @@ td {
     color: var(--accent-color);
     margin-right: var(--space-sm);
     font-weight: bold;
+}
+
+.user-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.user-info-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    /* Default gap */
+}
+
+.button-group {
+    display: flex;
+    gap: 10px;
 }
 
 .todo-content {
@@ -546,10 +611,82 @@ body.layout-side nav {
 }
 
 body.layout-side nav button {
+    flex-direction: row;
+    align-items: center;
     justify-content: flex-start;
     padding: var(--space-md);
     width: 100%;
     text-align: left;
+    gap: 15px;
+    /* Separate icon from label */
+}
+
+body.layout-side .nav-icon {
+    font-size: 1.2rem;
+    margin-right: 0;
+    /* Handled by gap */
+}
+
+body.layout-side .nav-label {
+    font-size: 0.95rem;
+}
+
+/* CSS Cleaned up: Removed duplicate .user-controls rule that was setting flex-direction: column */
+
+body.layout-side .user-controls {
+    margin-top: auto;
+    width: 100%;
+    padding: var(--space-md);
+    border-top: 1px solid var(--border-color);
+    flex-wrap: nowrap;
+    /* No wrapping needed with dedicated structure */
+    flex-direction: column;
+    /* Stack Username (top) and Button Group (bottom) */
+    align-items: flex-start;
+    gap: 10px;
+}
+
+body.layout-side .user-info-item {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    gap: 15px;
+    /* Harmonized with nav items */
+}
+
+body.layout-side .user-info-item .nav-icon {
+    font-size: 1.2rem;
+    line-height: 1;
+}
+
+body.layout-side .user-info-item .nav-label {
+    font-size: 0.95rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+body.layout-side .user-controls span {
+    display: block;
+    width: 100%;
+    font-size: 0.95rem;
+    margin-bottom: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+body.layout-side .button-group {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    width: 100%;
+}
+
+body.layout-side .button-group button {
+    width: auto;
+    margin: 0;
+    flex: 0 0 auto;
 }
 
 body.layout-side main {
@@ -734,7 +871,7 @@ body.layout-side main {
 .database-manager h2 {
     font-size: 2rem;
     margin-bottom: var(--space-lg);
-    background: linear-gradient(135deg, #fff 0%, #a0aaec 100%);
+    background: linear-gradient(135deg, var(--text-primary) 0%, var(--text-secondary) 100%);
     background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -756,7 +893,7 @@ body.layout-side main {
 h1 {
     font-size: 1.5rem;
     font-weight: 700;
-    background: linear-gradient(135deg, #fff 0%, #a0aaec 100%);
+    background: linear-gradient(135deg, var(--text-primary) 0%, var(--text-secondary) 100%);
     background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -1035,7 +1172,7 @@ h1 {
     color: var(--text-primary);
     line-height: 1.2;
     z-index: 1;
-    background: linear-gradient(135deg, #fff 0%, #a0aaec 100%);
+    background: linear-gradient(135deg, var(--text-primary) 0%, var(--text-secondary) 100%);
     background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -1068,6 +1205,7 @@ h1 {
         font-size: 1.5rem;
     }
 }
+
 /* Form Builder */
 .builder-layout {
     display: grid;
@@ -1107,7 +1245,7 @@ h1 {
 .canvas {
     min-height: 500px;
     border: 2px dashed var(--border-color);
-    background: rgba(0,0,0,0.1);
+    background: rgba(0, 0, 0, 0.1);
 }
 
 .field-item {
@@ -1148,11 +1286,11 @@ h1 {
     .builder-layout {
         grid-template-columns: 1fr;
     }
-    
+
     .toolbox {
         order: 2;
     }
-    
+
     .properties {
         order: 3;
     }
@@ -1160,13 +1298,14 @@ h1 {
 
 /* Improved Form Contrast & Checkboxes */
 
-input[type="text"], 
-input[type="email"], 
-input[type="number"], 
-input[type="password"], 
-textarea, 
+input[type="text"],
+input[type="email"],
+input[type="number"],
+input[type="password"],
+textarea,
 select {
-    background: rgba(15, 17, 21, 0.4); /* Darker background for inputs */
+    background: rgba(15, 17, 21, 0.4);
+    /* Darker background for inputs */
     border: 1px solid var(--border-color);
     color: var(--text-primary);
     padding: var(--space-sm) var(--space-md);
@@ -1174,7 +1313,9 @@ select {
     transition: border-color 0.2s, background 0.2s;
 }
 
-input:focus, textarea:focus, select:focus {
+input:focus,
+textarea:focus,
+select:focus {
     border-color: var(--accent-color);
     outline: none;
     background: rgba(15, 17, 21, 0.6);
@@ -1185,7 +1326,8 @@ input[type="checkbox"] {
     -webkit-appearance: none;
     appearance: none;
     background-color: rgba(15, 17, 21, 0.4);
-    margin-right: 8px; /* Spacing */
+    margin-right: 8px;
+    /* Spacing */
     font: inherit;
     color: var(--text-primary);
     width: 1.15em;
@@ -1222,7 +1364,7 @@ input[type="checkbox"]:checked::before {
     display: flex;
     flex-direction: column;
     height: 100%;
-    background: rgba(0,0,0,0.2);
+    background: rgba(0, 0, 0, 0.2);
     border-radius: var(--radius-md);
     padding: var(--space-md);
 }
@@ -1247,7 +1389,7 @@ input[type="checkbox"]:checked::before {
 }
 
 .calendar-day-header {
-    background: rgba(0,0,0,0.3);
+    background: rgba(0, 0, 0, 0.3);
     padding: var(--space-sm);
     text-align: center;
     font-weight: bold;
@@ -1264,7 +1406,7 @@ input[type="checkbox"]:checked::before {
 }
 
 .calendar-cell.other-month {
-    background: rgba(0,0,0,0.4);
+    background: rgba(0, 0, 0, 0.4);
     opacity: 0.5;
 }
 
@@ -1301,7 +1443,7 @@ input[type="checkbox"]:checked::before {
     display: flex;
     flex-direction: column;
     /* overflow-x: auto; */
-    background: rgba(0,0,0,0.2);
+    background: rgba(0, 0, 0, 0.2);
     border-radius: var(--radius-md);
     padding: var(--space-md);
 }
@@ -1325,7 +1467,7 @@ input[type="checkbox"]:checked::before {
 .gantt-header-row {
     display: flex;
     border-bottom: 1px solid var(--border-color);
-    background: rgba(0,0,0,0.3);
+    background: rgba(0, 0, 0, 0.3);
 }
 
 .gantt-col-label {
@@ -1356,15 +1498,17 @@ input[type="checkbox"]:checked::before {
 
 .gantt-row {
     display: flex;
-    border-bottom: 1px solid rgba(255,255,255,0.05);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .gantt-timeline-row {
     flex: 1;
     position: relative;
-    border-right: 1px solid var(--border-color); /* Just end border */
-    background-image: linear-gradient(to right, transparent 95%, rgba(255,255,255,0.05) 95%);
-    background-size: calc(100% / 14) 100%; /* Approximate grid lines */
+    border-right: 1px solid var(--border-color);
+    /* Just end border */
+    background-image: linear-gradient(to right, transparent 95%, rgba(255, 255, 255, 0.05) 95%);
+    background-size: calc(100% / 14) 100%;
+    /* Approximate grid lines */
 }
 
 .gantt-bar {
@@ -1393,7 +1537,7 @@ input[type="checkbox"]:checked::before {
     height: 30px;
     border-radius: 4px;
     position: relative;
-    border: 1px solid rgba(255,255,255,0.2);
+    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .remove-swatch {
@@ -1426,7 +1570,7 @@ input[type="checkbox"]:checked::before {
     border-radius: var(--radius-sm);
     padding: 10px;
     width: 220px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
     z-index: 1000;
 }
 
@@ -1546,7 +1690,7 @@ input[type="checkbox"]:checked::before {
     transition: all 0.2s ease;
 }
 
-.tree-item-wrapper.selected > .tree-node-content {
+.tree-item-wrapper.selected>.tree-node-content {
     background: var(--accent-color) !important;
     border-color: var(--accent-color) !important;
     color: white !important;
@@ -1560,7 +1704,7 @@ input[type="checkbox"]:checked::before {
     border-bottom: 2px solid var(--accent-color);
 }
 
-.tree-item-wrapper.drop-inside > .tree-node-content {
+.tree-item-wrapper.drop-inside>.tree-node-content {
     background: rgba(108, 92, 231, 0.2) !important;
     border: 1px dashed var(--accent-color) !important;
 }
@@ -1578,7 +1722,7 @@ input[type="checkbox"]:checked::before {
     cursor: grab;
     transition: all 0.2s ease;
     font-weight: 500;
-    
+
     /* Default (Dark Mode) */
     background: rgba(255, 255, 255, 0.08);
     border: 1px solid rgba(255, 255, 255, 0.1);
@@ -1595,12 +1739,12 @@ input[type="checkbox"]:checked::before {
     background: #ffffff;
     border: 1px solid #e1e4e8;
     color: var(--text-primary);
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .light-theme .toolbox-item:hover {
     background: #f8f9fa;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     transform: translateY(-1px);
 }
 
@@ -1617,19 +1761,22 @@ input[type="checkbox"]:checked::before {
     margin: 0;
     padding: 0;
     min-height: auto;
-    display: block; /* Force block behavior unless overridden */
+    display: block;
+    /* Force block behavior unless overridden */
     position: static;
 }
 
 /* Visualization for Preview Blocks */
 .preview-block {
-    outline: 1px dashed #ccc; /* Helper to see boundaries */
+    outline: 1px dashed #ccc;
+    /* Helper to see boundaries */
     min-height: 50px;
     position: relative;
 }
 
 .header-block {
-    background: #f8f9fa; /* Light grey for header area */
+    background: #f8f9fa;
+    /* Light grey for header area */
     border-bottom: 1px solid #e1e4e8;
     padding: 20px;
     margin-bottom: 0;
@@ -1638,7 +1785,8 @@ input[type="checkbox"]:checked::before {
 .main-block {
     background: #ffffff;
     padding: 20px;
-    flex: 1; /* If using flex column layout */
+    flex: 1;
+    /* If using flex column layout */
     min-height: 200px;
 }
 
@@ -1647,4 +1795,59 @@ input[type="checkbox"]:checked::before {
     border-top: 1px solid #e1e4e8;
     padding: 20px;
     margin-top: auto;
+}
+/* API Manager Styles */
+.api-manager .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: var(--space-lg);
+    margin-top: var(--space-lg);
+}
+
+.api-manager .card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    transition: all 0.2s ease;
+}
+
+.api-manager .card:hover {
+    border-color: var(--border-hover);
+    box-shadow: var(--shadow-md);
+}
+
+.api-manager .card-header {
+    padding: var(--space-md);
+    background: rgba(255, 255, 255, 0.03);
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.api-manager .card-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.api-manager .card-body {
+    padding: var(--space-md);
+}
+
+.api-manager .card.disabled {
+    opacity: 0.6;
+    border-style: dashed;
+}
+
+.api-manager .api-preview {
+    margin-top: var(--space-md);
+    padding: var(--space-sm);
+    background: rgba(0,0,0,0.3);
+    border-radius: var(--radius-sm);
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    overflow-x: auto;
 }

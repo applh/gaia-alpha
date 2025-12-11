@@ -32,7 +32,11 @@ const actions = {
     setTheme(newTheme) {
         state.theme = newTheme;
         localStorage.setItem('theme', newTheme);
-        document.body.className = newTheme === 'light' ? 'light-theme' : '';
+        if (newTheme === 'light') {
+            document.body.classList.add('light-theme');
+        } else {
+            document.body.classList.remove('light-theme');
+        }
         this.savePreference('theme', newTheme);
     },
 

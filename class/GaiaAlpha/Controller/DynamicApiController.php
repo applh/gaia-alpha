@@ -5,6 +5,7 @@ namespace GaiaAlpha\Controller;
 use GaiaAlpha\Env;
 use GaiaAlpha\Router;
 use GaiaAlpha\Database;
+use GaiaAlpha\Response;
 use \PDO;
 
 class DynamicApiController extends BaseController
@@ -130,8 +131,7 @@ class DynamicApiController extends BaseController
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if (!$row) {
-            http_response_code(404);
-            echo json_encode(['error' => 'Not Found']);
+            Response::json(['error' => 'Not Found'], 404);
             return;
         }
 
@@ -144,8 +144,7 @@ class DynamicApiController extends BaseController
         $data = $this->getJsonInput();
 
         if (empty($data)) {
-            http_response_code(400);
-            echo json_encode(['error' => 'No data provided']);
+            Response::json(['error' => 'No data provided'], 400);
             return;
         }
 
@@ -161,11 +160,9 @@ class DynamicApiController extends BaseController
             $stmt->execute(array_values($data));
             $id = $pdo->lastInsertId();
 
-            http_response_code(201);
-            $this->jsonResponse(['id' => $id, 'message' => 'Created successfully']);
+            Response::json(['id' => $id, 'message' => 'Created successfully'], 201);
         } catch (\Exception $e) {
-            http_response_code(500);
-            echo json_encode(['error' => $e->getMessage()]);
+            Response::json(['error' => $e->getMessage()], 500);
         }
     }
 
@@ -175,8 +172,7 @@ class DynamicApiController extends BaseController
         $data = $this->getJsonInput();
 
         if (empty($data)) {
-            http_response_code(400);
-            echo json_encode(['error' => 'No data provided']);
+            Response::json(['error' => 'No data provided'], 400);
             return;
         }
 
@@ -198,8 +194,7 @@ class DynamicApiController extends BaseController
             $stmt->execute($values);
             $this->jsonResponse(['message' => 'Updated successfully']);
         } catch (\Exception $e) {
-            http_response_code(500);
-            echo json_encode(['error' => $e->getMessage()]);
+            Response::json(['error' => $e->getMessage()], 500);
         }
     }
 

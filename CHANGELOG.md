@@ -1,6 +1,12 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+## [v0.22.0] - 2025-12-11
+### Added
+- **Core**: Added `Response` class for centralized JSON output handling.
+- **Hooks**: Added `response_json_before` hook to modify API responses globally.
+- **Refactor**: Updated all controllers to use `Response::json` for consistent output and simplified testing.
+
 ## [v0.21.0] - 2025-12-11
 ### Added
 - **CLI**: Added `db:export` and `db:import` commands to backup and restore the full SQLite database.

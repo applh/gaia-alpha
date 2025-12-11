@@ -3,6 +3,7 @@ namespace GaiaAlpha\Controller;
 
 use GaiaAlpha\Framework;
 use GaiaAlpha\Router;
+use GaiaAlpha\Response;
 use GaiaAlpha\Model\Menu;
 
 class MenuController
@@ -22,7 +23,7 @@ class MenuController
         if (!Framework::checkAuth(100))
             return; // Admin only
         $menus = Menu::all();
-        Framework::json($menus);
+        Response::json($menus);
     }
 
     public function get($id)
@@ -31,10 +32,10 @@ class MenuController
             return;
         $menu = Menu::find($id);
         if (!$menu) {
-            Framework::json(['error' => 'Not found'], 404);
+            Response::json(['error' => 'Not found'], 404);
             return;
         }
-        Framework::json($menu);
+        Response::json($menu);
     }
 
     public function create()
@@ -44,7 +45,7 @@ class MenuController
         $data = Framework::decodeBody();
 
         if (empty($data['title'])) {
-            Framework::json(['error' => 'Title is required'], 400);
+            Response::json(['error' => 'Title is required'], 400);
             return;
         }
 
@@ -54,7 +55,7 @@ class MenuController
         }
 
         $id = Menu::create($data);
-        Framework::json(['id' => $id, 'message' => 'Menu created'], 201);
+        Response::json(['id' => $id, 'message' => 'Menu created'], 201);
     }
 
     public function update($id)
@@ -63,7 +64,7 @@ class MenuController
             return;
         $menu = Menu::find($id);
         if (!$menu) {
-            Framework::json(['error' => 'Not found'], 404);
+            Response::json(['error' => 'Not found'], 404);
             return;
         }
 
@@ -75,7 +76,7 @@ class MenuController
         }
 
         Menu::update($id, $data);
-        Framework::json(['message' => 'Menu updated']);
+        Response::json(['message' => 'Menu updated']);
     }
 
     public function delete($id)
@@ -83,6 +84,6 @@ class MenuController
         if (!Framework::checkAuth(100))
             return;
         Menu::delete($id);
-        Framework::json(['message' => 'Menu deleted']);
+        Response::json(['message' => 'Menu deleted']);
     }
 }

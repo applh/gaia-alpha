@@ -3,6 +3,7 @@
 namespace GaiaAlpha\Controller;
 
 use GaiaAlpha\Database;
+use GaiaAlpha\Response;
 use GaiaAlpha\Model\DataStore;
 use GaiaAlpha\Controller\DbController;
 
@@ -22,10 +23,7 @@ class SettingsController
 
     private function jsonResponse($data, $code = 200)
     {
-        http_response_code($code);
-        header('Content-Type: application/json');
-        echo json_encode($data);
-        exit;
+        Response::json($data, $code);
     }
 
     public function index()

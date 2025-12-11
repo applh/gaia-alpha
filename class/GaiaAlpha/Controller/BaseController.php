@@ -3,6 +3,7 @@
 namespace GaiaAlpha\Controller;
 
 use GaiaAlpha\Database;
+use GaiaAlpha\Response;
 
 use GaiaAlpha\Controller\DbController;
 
@@ -17,10 +18,7 @@ abstract class BaseController
 
     protected function jsonResponse($data, int $status = 200)
     {
-        http_response_code($status);
-        header('Content-Type: application/json');
-        echo json_encode($data);
-        exit;
+        Response::json($data, $status);
     }
 
     protected function getJsonInput()

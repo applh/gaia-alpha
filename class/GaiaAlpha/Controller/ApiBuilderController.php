@@ -4,6 +4,8 @@ namespace GaiaAlpha\Controller;
 
 use GaiaAlpha\Env;
 use GaiaAlpha\Router;
+use GaiaAlpha\Response;
+use GaiaAlpha\Controller\DbController;
 
 class ApiBuilderController extends BaseController
 {
@@ -40,8 +42,7 @@ class ApiBuilderController extends BaseController
         $this->requireAdmin();
         $data = $this->getJsonInput();
         if (!isset($data['name']) || !isset($data['config'])) {
-            http_response_code(400);
-            echo json_encode(['error' => 'Invalid input']);
+            Response::json(['error' => 'Invalid input'], 400);
             return;
         }
 
@@ -51,8 +52,7 @@ class ApiBuilderController extends BaseController
         // Validate table exists to be safe
         $tables = DbController::getTables();
         if (!in_array($tableName, $tables)) {
-            http_response_code(404);
-            echo json_encode(['error' => 'Table not found']);
+            Response::json(['error' => 'Table not found'], 404);
             return;
         }
 

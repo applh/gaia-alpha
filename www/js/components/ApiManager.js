@@ -4,7 +4,7 @@ export default {
     name: 'ApiManager',
     components: { LucideIcon: Icon },
     template: `
-        <div class="api-manager admin-page">
+        <div class="admin-page">
             <div class="admin-header">
                 <div style="display:flex; align-items:center; gap:20px;">
                     <h2 class="page-title">
@@ -21,8 +21,8 @@ export default {
             <div v-if="error" class="alert alert-error">{{ error }}</div>
             <div v-if="success" class="alert alert-success">{{ success }}</div>
 
-            <div class="card-grid">
-                <div v-for="table in tables" :key="table.name" class="card" :class="{ 'disabled': !table.config.enabled }">
+            <div class="admin-grid">
+                <div v-for="table in tables" :key="table.name" class="admin-card" :class="{ 'disabled': !table.config.enabled }">
                     <div class="card-header">
                         <h3>{{ table.name }}</h3>
                         <label class="switch">
@@ -41,15 +41,15 @@ export default {
                         </div>
                         <div class="form-group">
                             <label>Allowed Methods</label>
-                            <div class="checkbox-group">
-                                <label><input type="checkbox" value="GET" v-model="table.config.methods"> READ (GET)</label>
-                                <label><input type="checkbox" value="POST" v-model="table.config.methods"> CREATE (POST)</label>
-                                <label><input type="checkbox" value="PUT" v-model="table.config.methods"> UPDATE (PUT)</label>
-                                <label><input type="checkbox" value="DELETE" v-model="table.config.methods"> DELETE (DELETE)</label>
+                            <div class="checkbox-group" style="display: flex; flex-direction: column; gap: 8px;">
+                                <label style="display: flex; align-items: center; gap: 8px; font-weight: normal; margin: 0;"><input type="checkbox" value="GET" v-model="table.config.methods" style="width: auto;"> READ (GET)</label>
+                                <label style="display: flex; align-items: center; gap: 8px; font-weight: normal; margin: 0;"><input type="checkbox" value="POST" v-model="table.config.methods" style="width: auto;"> CREATE (POST)</label>
+                                <label style="display: flex; align-items: center; gap: 8px; font-weight: normal; margin: 0;"><input type="checkbox" value="PUT" v-model="table.config.methods" style="width: auto;"> UPDATE (PUT)</label>
+                                <label style="display: flex; align-items: center; gap: 8px; font-weight: normal; margin: 0;"><input type="checkbox" value="DELETE" v-model="table.config.methods" style="width: auto;"> DELETE (DELETE)</label>
                             </div>
                         </div>
-                        <div class="api-preview">
-                            <small>Endpoint: <code>/api/v1/{{ table.name }}</code></small>
+                        <div class="api-preview" style="margin-top: 16px; padding: 8px; background: rgba(0,0,0,0.2); border-radius: 4px; font-family: monospace; font-size: 0.85rem;">
+                            Endpoint: <span style="color: var(--accent-color);">/api/v1/{{ table.name }}</span>
                         </div>
                     </div>
                 </div>

@@ -1,3 +1,6 @@
+/* =========================================
+   1. TOKENS & VARIABLES
+   ========================================= */
 :root {
     /* Colors - Zinc/Slate Palette */
     --bg-color: #09090b;
@@ -57,6 +60,9 @@
     --glass-border: 1px solid rgba(0, 0, 0, 0.06);
 }
 
+/* =========================================
+   2. RESET & BASE
+   ========================================= */
 * {
     box-sizing: border-box;
     margin: 0;
@@ -78,7 +84,9 @@ body {
     -webkit-font-smoothing: antialiased;
 }
 
-/* Layout */
+/* =========================================
+   3. LAYOUT
+   ========================================= */
 #app {
     max-width: 100%;
     margin: 0;
@@ -136,6 +144,15 @@ h1 {
     gap: var(--space-sm);
 }
 
+.admin-grid,
+.card-grid {
+    /* Alias card-grid for compatibility */
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: var(--space-lg);
+    margin-top: var(--space-lg);
+}
+
 .admin-card {
     background: var(--glass-bg);
     backdrop-filter: var(--glass-blur);
@@ -153,13 +170,19 @@ h1 {
     box-shadow: var(--shadow-md);
 }
 
-/* Legacy container aliases removed or handled elsewhere */
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: var(--space-md);
+    margin-bottom: var(--space-md);
+    border-bottom: 1px solid var(--border-color);
+}
 
-/* Specific component overrides handled by standard classes now */
-
-.auth-container {
-    max-width: 400px;
-    margin-top: 15vh;
+.card-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
 }
 
 /* Forms */
@@ -199,51 +222,33 @@ textarea:focus,
 select:focus {
     outline: none;
     border-color: var(--accent-color);
-    box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.2);
+    box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
 }
 
 /* Buttons */
-button {
-    background: var(--accent-color);
-    color: white;
-    border: none;
-    padding: var(--space-sm) var(--space-lg);
+button,
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 16px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-color);
     border-radius: var(--radius-sm);
-    font-size: 0.95rem;
-    font-weight: 600;
+    color: var(--text-primary);
     cursor: pointer;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    gap: 6px;
+    line-height: 1.2;
 }
 
-button:hover {
-    background: var(--accent-hover);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(108, 92, 231, 0.3);
-}
-
-button:active {
-    transform: translateY(0);
-}
-
-button.danger {
-    background: rgba(255, 107, 107, 0.1);
-    color: var(--danger-color);
-}
-
-button.danger:hover {
-    background: var(--danger-color);
-    color: white;
-    box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
-}
-
-.theme-btn {
+button:hover,
+.btn:hover {
     background: rgba(255, 255, 255, 0.1);
-    color: var(--text-secondary);
-}
-
-.theme-btn.active {
-    background: var(--accent-color);
-    color: white;
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-1px);
     box-shadow: 0 0 10px rgba(108, 92, 231, 0.4);
     transform: scale(1.05);
 }
@@ -287,6 +292,58 @@ nav button {
     box-shadow: none;
 }
 
+/* Toggle Switch */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    height: 24px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255, 255, 255, 0.1);
+    transition: .4s;
+    border-radius: 24px;
+    border: 1px solid var(--border-color);
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 16px;
+    width: 16px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked+.slider {
+    background-color: var(--accent-color);
+    border-color: var(--accent-color);
+}
+
+input:focus+.slider {
+    box-shadow: 0 0 1px var(--accent-color);
+}
+
+input:checked+.slider:before {
+    transform: translateX(16px);
+}
+
 /* Navigation Tabs */
 .nav-tabs {
     display: flex;
@@ -327,7 +384,80 @@ td {
     border-bottom: 1px solid rgba(255, 255, 255, 0.03);
 }
 
-/* Todo List */
+/* =========================================
+   5. UTILITIES & FEATURE SPECIFIC
+   ========================================= */
+
+/* Alignment & Spacing */
+.text-right {
+    text-align: right;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.w-full {
+    width: 100%;
+}
+
+.mt-sm {
+    margin-top: var(--space-sm);
+}
+
+.mt-md {
+    margin-top: var(--space-md);
+}
+
+.mt-lg {
+    margin-top: var(--space-lg);
+}
+
+/* Text Styles */
+.text-link {
+    color: var(--accent-color);
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.text-link:hover {
+    text-decoration: underline;
+}
+
+.text-muted {
+    color: var(--text-muted);
+}
+
+.text-small {
+    font-size: 0.85rem;
+}
+
+/* Flex Utilities */
+.flex {
+    display: flex;
+}
+
+.flex-column {
+    flex-direction: column;
+}
+
+.items-center {
+    align-items: center;
+}
+
+.justify-between {
+    justify-content: space-between;
+}
+
+.gap-sm {
+    gap: var(--space-sm);
+}
+
+.gap-md {
+    gap: var(--space-md);
+}
+
+/* Component Specific: Todo List */
 .todo-list {
     list-style: none;
     padding: 0;
@@ -2178,41 +2308,8 @@ input[type="checkbox"]:checked::before {
     stroke: var(--success-color) !important;
 }
 
-/* Utility Classes for Tables */
-.actions-group {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-}
-
-.text-link {
-    color: var(--accent-color);
-    text-decoration: none;
-    font-weight: 500;
-}
-
-.text-link:hover {
-    text-decoration: underline;
-    color: var(--accent-hover);
-}
-
-.btn-icon {
-    padding: 6px !important;
-    display: inline-flex !important;
-    align-items: center;
-    justify-content: center;
-    line-height: 1;
-    min-width: 32px;
-    /* Ensure square-ish */
-}
-
 /* User Settings Utilities */
-.admin-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: var(--space-lg);
-}
-
+/* User Settings Utilities */
 .static-value {
     font-size: 1.1rem;
     padding: 8px 0;
@@ -2251,4 +2348,50 @@ input[type="checkbox"]:checked::before {
     background: transparent;
     border-radius: var(--radius-sm);
     cursor: pointer;
+}
+
+/* Map Panel Layout */
+.map-layout {
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    gap: var(--space-lg);
+    height: calc(100vh - 180px);
+    /* Adjust for header/padding */
+    width: 100%;
+    margin-top: var(--space-md);
+}
+
+.map-viewport {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    position: relative;
+    border: var(--glass-border);
+    height: 100%;
+    width: 100%;
+}
+
+.map-sidebar {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    margin-top: 0 !important;
+    /* Override admin-card margin if needed */
+    margin-bottom: 0 !important;
+    height: 100%;
+}
+
+@media (max-width: 1024px) {
+    .map-layout {
+        grid-template-columns: 1fr;
+        height: auto;
+    }
+
+    .map-viewport {
+        height: 500px;
+    }
+
+    .map-sidebar {
+        height: 500px;
+    }
 }

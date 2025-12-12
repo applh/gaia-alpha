@@ -188,57 +188,57 @@ export default {
             <div v-if="viewMode === 'list'">
             
             <!-- Add new todo -->
-            <div class="add-todo-container">
-                <div class="add-todo-row">
+            <!-- Add new todo -->
+            <div class="add-todo-container" style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; padding: 20px; background: var(--glass-bg); border: var(--glass-border); border-radius: var(--radius-lg);">
+                <div class="add-todo-row" style="display: flex; gap: 12px;">
                     <input 
                         v-model="newTodo" 
                         @keyup.enter="addTodo" 
                         placeholder="Add new todo..."
-                        class="todo-input-main"
+                        style="flex: 1;"
                     >
-                    <button @click="addTodo" class="btn-primary">
+                    <button @click="addTodo" class="btn btn-primary">
                         <LucideIcon name="plus" size="18" style="margin-right: 4px; vertical-align: middle;" />
                         Add
                     </button>
                 </div>
                 
-                <div class="add-todo-controls">
-                    <div class="control-group">
-                        <LucideIcon name="tag" size="14" class="control-icon" />
+                <div class="add-todo-controls" style="display: flex; gap: 12px; flex-wrap: wrap;">
+                    <div class="control-group" style="flex: 1; min-width: 200px; display: flex; align-items: center; gap: 8px;">
+                        <LucideIcon name="tag" size="16" class="text-secondary" />
                         <input 
                             v-model="newLabels" 
                             placeholder="Labels (comma-separated)"
-                            class="control-input"
                         >
                     </div>
 
-                    <div class="control-group">
-                         <LucideIcon name="calendar" size="14" class="control-icon" />
-                         <input type="date" v-model="newStartDate" title="Start Date" class="control-input-date">
-                         <span class="date-separator">-</span>
-                         <input type="date" v-model="newEndDate" title="End Date" class="control-input-date">
+                    <div class="control-group" style="display: flex; align-items: center; gap: 8px;">
+                         <LucideIcon name="calendar" size="16" class="text-secondary" />
+                         <input type="date" v-model="newStartDate" title="Start Date" style="width: auto;">
+                         <span class="text-secondary">-</span>
+                         <input type="date" v-model="newEndDate" title="End Date" style="width: auto;">
                     </div>
 
-                    <div class="control-group">
+                    <div class="control-group" style="display: flex; align-items: center; gap: 8px;">
                          <div class="color-select-wrapper" style="position: relative;">
                             <div 
                                 class="color-indicator" 
-                                :style="{ backgroundColor: newColor || '#transparent', border: newColor ? '1px solid ' + newColor : '1px solid #ccc' }"
+                                :style="{ width: '36px', height: '36px', borderRadius: '8px', cursor: 'pointer', backgroundColor: newColor || 'transparent', border: newColor ? '1px solid ' + newColor : '1px solid var(--border-color)' }"
                                 @click="showColorPicker = !showColorPicker"
                                 title="Select Color"
                             ></div>
-                            <div v-if="showColorPicker" class="color-picker-popover">
+                            <div v-if="showColorPicker" class="color-picker-popover" style="position: absolute; top: 100%; left: 0; z-index: 100; margin-top: 8px;">
                                  <ColorPicker v-model="newColor" :palette="palette" />
-                                 <div class="picker-footer">
-                                    <button @click="showColorPicker = false" class="btn-small">Close</button>
+                                 <div class="picker-footer" style="margin-top: 8px; text-align: right;">
+                                    <button @click="showColorPicker = false" class="btn btn-sm btn-secondary">Close</button>
                                  </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="control-group">
-                         <LucideIcon name="git-merge" size="14" class="control-icon" />
-                        <select v-model="newParentId" class="control-select">
+                    <div class="control-group" style="flex: 1; min-width: 200px; display: flex; align-items: center; gap: 8px;">
+                         <LucideIcon name="git-merge" size="16" class="text-secondary" />
+                        <select v-model="newParentId">
                             <option :value="null">No parent</option>
                             <option v-for="todo in todos" :key="todo.id" :value="todo.id">
                                 {{ todo.title }}

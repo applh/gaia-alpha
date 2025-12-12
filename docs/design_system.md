@@ -1,97 +1,139 @@
-# Design System & UI Architecture
+# Gaia Alpha Design System
 
-## Overview
+ This document outlines the core design principles, CSS architecture, and standard page templates used in the Gaia Alpha administration panel.
 
-The Gaia Alpha design system is built on a foundation of "Elegant Modernity." It emphasizes refined typography, a sophisticated "Zinc/Slate" color palette, and subtle glassmorphism effects to create a premium, content-first experience.
+ ## 1. CSS Architecture (`site.css`)
 
-## Core Design Principles
+ The CSS is organized into 5 layers:
 
-1.  **Elegance & Minimalism**: Use whitespace effectively, avoid clutter, and stick to a restrained color palette.
-2.  **Visual Hierarchy**: Use typography (weight, size, color) to guide the eye. Primary actions are bold and vibrant; secondary actions are subtle.
-3.  **Glassmorphism**: Use translucent backgrounds (`backdrop-filter: blur`) for panels and headers to create depth and context.
-4.  **Consistency**: Reusable components (`Icon`, `SortTh`, `Card`) and standardized CSS variables ensure a unified look.
+ 1.  **Tokens & Variables**: Colors, spacing, typography, radiance, and glassmorphism effects.
+ 2.  **Reset & Base**: Global defaults and dark mode structure.
+ 3.  **Layout**: Core layout classes (`.admin-page`, `.admin-grid`, `.admin-header`).
+ 4.  **Components**: Reusable UI elements (`.btn`, `.card`, `.table`, `.input`, `.switch`).
+ 5.  **Utilities**: Helper classes for alignment and spacing.
 
-## CSS Architecture (`www/css/site.css`)
+ ### Key Tokens
 
-The CSS is organized hierarchically to maintain scalability and order.
+ | Category | Variable | usage |
+ | :--- | :--- | :--- |
+ | **Colors** | `--bg-primary` | Main background (gradient/dark) |
+ | | `--card-bg` | Component background (glassmorphic) |
+ | | `--accent-color` | Primary action color (Purple/Blue) |
+ | | `--text-primary` | Main text color |
+ | **Effects** | `--glass-bg` | Semi-transparent background for items |
+ | | `--glass-blur` | `backdrop-filter: blur(12px)` |
 
-### 1. Variables (`:root`)
-We use CSS variables for all themeable values.
-*   **Colors**: `bg-color`, `card-bg`, `text-primary`, `border-color`.
-*   **Accents**: `accent-color` (Indigo/Violet), `success-color` (Emerald), `danger-color` (Red).
-*   **Spacing**: `space-xs` to `space-xl`.
-*   **Radius**: `radius-sm` to `radius-xl`.
-*   **Effects**: shadows, glass-blur.
+ ## 2. Standard Components
 
-### 2. Global Resets & Typography
-*   **Font**: 'Outfit', sans-serif.
-*   **Body**: Dark mode by default (`zinc-950`), fixed background gradient for subtle texture.
+ ### Buttons
+ Use standard classes for all buttons:
+ -   `btn`: Base class
+ -   `btn-primary`: Main call to action
+ -   `btn-secondary`: Alternative actions / Neutral
+ -   `btn-danger`: Destructive actions
+ -   `btn-small`: Compact buttons for tables/toolbars
+ -   `btn-icon`: Circular buttons for icons
 
-### 3. Layout Primitives
-*   `#app`: Main container.
-*   `.app-container`: Flex structures for sidebar/topbar layouts.
-*   `.admin-page`: Standard padding and fade-in animation for admin views.
+ ### Cards
+ -   `.admin-card`: Standard container for content blocks. Automatically applies glassmorphism, padding, and borders.
 
-### 4. Components
-*   **Headers (`.admin-header`)**:
-    *   **Layout**: `justify-content: space-between`.
-    *   **Left Zone**: Page Title + Primary Actions (Buttons).
-    *   **Right Zone**: Navigation Tabs / Menus.
-*   **Cards (`.admin-card`, `.card`)**:
-    *   **Style**: Glass background, subtle border, shadow on hover.
-    *   **API Builder Specific**: `.api-manager .card` uses distinct borders and margins for readability in grid layouts.
-*   **Buttons**: `primary`, `secondary`, `danger`, `ghost`.
-*   **Tables**: Clean, bordered rows, hover effects.
+ ## 3. Page Templates
 
-## Layout Patterns
+ We use consistent layouts ("templates") for all admin pages. When creating a new page, choose the appropriate pattern.
 
-### Admin Panels
-The standard admin panel structure is:
+ ### A. Standard List View
+ Used for managing sets of resources (Users, Forms, APIs).
 
-```html
-<div class="admin-page">
-    <div class="admin-header">
-        <!-- LEFT: Context & Actions -->
-        <div class="header-left-group">
-            <h2 class="page-title"><Icon /> Title</h2>
-            <div class="primary-actions">
-                <button class="btn-primary">Action</button>
-            </div>
-        </div>
+ **Structure:**
+ 1.  **container**: `.admin-page`
+ 2.  **header**: `.admin-header`
+     *   Left: `.page-title` (Grouped with Icon)
+     *   Right: Primary Action Button (e.g., "Add New")
+ 3.  **content**: `.admin-card` -> `table`
+     *   Use `SortTh` components for headers.
+     *   Use `.btn-small` for row actions.
 
-        <!-- RIGHT: Navigation -->
-        <div class="nav-tabs">
-            <button>Tab 1</button>
-            <button>Tab 2</button>
-        </div>
-    </div>
+ **Example (`UsersAdmin.js`):**
+ ```html
+ <div class="admin-page">
+     <div class="admin-header">
+         <h2 class="page-title">Users</h2>
+         <button class="btn btn-primary">Add User</button>
+     </div>
+     <div class="admin-card">
+         <table>...</table>
+     </div>
+ </div>
+ ```
 
-    <!-- Content -->
-    <div class="admin-card">...</div>
-</div>
-```
+ ### B. Form / Settings View
+ Used for configuration or editing single resources.
 
-### Grid Layouts
-For collections (like API endpoints), we use variable-width grids:
-```css
-.card-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: var(--space-lg);
-}
-```
+ **Structure:**
+ 1.  **container**: `.admin-page`
+ 2.  **grid**: `.admin-grid` (Responsive Grid)
+ 3.  **cards**: `.admin-card` per section
+     *   Header: `.card-header` (Optional title/action)
+     *   Body: `.form-group` (Inputs)
 
-## Iconography
+ **Example (`UserSettings.js`):**
+ ```html
+ <div class="admin-page">
+     <div class="admin-header">...</div>
+     <div class="admin-grid">
+         <div class="admin-card">
+             <h3>Profile</h3>
+             <div class="form-group">...</div>
+         </div>
+     </div>
+ </div>
+ ```
 
-*   **Library**: [Lucide Icons](https://lucide.dev/).
-*   **Implementation**:
-    *   **Local Source**: `www/js/vendor/lucide.min.js`.
-    *   **Component**: `<LucideIcon name="icon-name" size="24" />` (Vue component wrapper).
-*   **Usage**: All UI icons (navigation, actions, stats) must use Lucide for consistency. Emojis are deprecated for UI elements.
+ ### C. Split View (Map / Specialist)
+ Used when a large viewport is needed alongside controls.
 
-## Vendor Management
+ **Structure:**
+ 1.  **container**: `.admin-page.map-page`
+ 2.  **header**: `.admin-header` (Grouped Title & Controls)
+ 3.  **layout**: `.map-layout` (CSS Grid)
+     *   Left: `.map-viewport` (Main visualization)
+     *   Right: `.map-sidebar` (Controls/List)
 
-Vendor libraries are managed via CLI to ensure stability and offline capability.
-*   **Command**: `php cli.php vendor:update`
-*   **Path**: `www/js/vendor/`
-*   **Config**: `class/GaiaAlpha/Cli/VendorCommands.php`
+ **Example (`MapPanel.js`):**
+ ```html
+ <div class="admin-page map-page">
+     <div class="admin-header">...</div>
+     <div class="map-layout">
+         <div class="map-viewport">...</div>
+         <div class="map-sidebar admin-card">...</div>
+     </div>
+ </div>
+ ```
+
+ ### D. Dashboard View
+ Used for high-level overview and stats.
+
+ **Structure:**
+ 1.  **container**: `.admin-page`
+ 2.  **grid**: `.stats-grid`
+     *   Items: `.stat-card` (Big numbers, icons)
+
+ ## 4. Header Standardization
+ All headers must follow this flexbox pattern to ensure alignment:
+
+ ```html
+ <div class="admin-header">
+     <div style="display:flex; align-items:center; gap:20px;">
+         <h2 class="page-title" style="display: flex; align-items: center;">
+             <span style="display: inline-flex; margin-right: 12px;">
+                 <LucideIcon ... />
+             </span>
+             Title
+         </h2>
+         <div class="button-group">
+            <!-- Header Level Controls -->
+         </div>
+     </div>
+     <!-- Right Aligned Actions (Optional) -->
+ </div>
+ ```

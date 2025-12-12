@@ -50,15 +50,15 @@ const App = {
                             </button>
                             <button @click="store.setView('database')" :class="{ active: store.state.currentView === 'database' }">
                                 <span class="nav-icon"><LucideIcon name="database" size="20"></LucideIcon></span>
-                                <span class="nav-label">Database</span>
+                                <span class="nav-label">Databases</span>
                             </button>
                             <button @click="store.setView('map')" :class="{ active: store.state.currentView === 'map' }">
                                 <span class="nav-icon"><LucideIcon name="map" size="20"></LucideIcon></span>
-                                <span class="nav-label">Map</span>
+                                <span class="nav-label">Maps</span>
                             </button>
                             <button @click="store.setView('api-builder')" :class="{ active: store.state.currentView === 'api-builder' }">
                                 <span class="nav-icon"><LucideIcon name="zap" size="20"></LucideIcon></span>
-                                <span class="nav-label">API Builder</span>
+                                <span class="nav-label">APIs</span>
                             </button>
                         </template>
 
@@ -78,7 +78,7 @@ const App = {
                             </button>
                             <button @click="store.setView('map')" :class="{ active: store.state.currentView === 'map' }">
                                 <span class="nav-icon"><LucideIcon name="map" size="20"></LucideIcon></span>
-                                <span class="nav-label">Map</span>
+                                <span class="nav-label">Maps</span>
                             </button>
                         </template>
                         

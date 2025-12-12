@@ -2,63 +2,89 @@
 import { ref, onMounted, nextTick } from 'vue';
 import { useSorting } from '../composables/useSorting.js';
 import SortTh from './SortTh.js';
+import Icon from './Icon.js';
 
 export default {
-    components: { SortTh },
+    components: { SortTh, LucideIcon: Icon },
     template: `
-    <div class="map-page" style="height: calc(100vh - 80px); display: flex; flex-direction: column;">
+    <div class="admin-page map-page" style="height: calc(100vh - 80px); display: flex; flex-direction: column;">
             
-            <div style="padding: 10px; background: #f0f0f0; display: flex; justify-content: flex-end; gap: 10px;">
-                <button @click="setViewMode('2d')" :class="{ active: viewMode === '2d' }" style="padding: 5px 15px; cursor: pointer;">2D Map</button>
-                <button @click="setViewMode('3d')" :class="{ active: viewMode === '3d' }" style="padding: 5px 15px; cursor: pointer;">3D Globe</button>
-            </div >
-
-            <div style="flex: 1; min-height: 50%; width: 100%; position: relative;">
-                <div v-show="viewMode === '2d'" id="leaflet-map" style="width: 100%; height: 100%; z-index: 1;"></div>
-                <div v-show="viewMode === '3d'" id="globe-container" style="width: 100%; height: 100%; z-index: 1; background: #000;"></div>
+            <div class="admin-header">
+                <div style="display:flex; align-items:center; gap:20px;">
+                    <h2 class="page-title" style="display: flex; align-items: center;">
+                        <span style="display: inline-flex; margin-right: 12px;">
+                            <LucideIcon name="map" size="32"></LucideIcon>
+                        </span>
+                        Maps
+                    </h2>
+                    <div class="button-group">
+                        <button @click="setViewMode('2d')" class="btn" :class="{ 'btn-primary': viewMode === '2d', 'btn-secondary': viewMode !== '2d' }">2D Map</button>
+                        <button @click="setViewMode('3d')" class="btn" :class="{ 'btn-primary': viewMode === '3d', 'btn-secondary': viewMode !== '3d' }">3D Globe</button>
+                    </div>
+                </div>
             </div>
-            
-            <div class="markers-table-container" style="flex: 1; overflow-y: auto; padding: 20px; background: #fff; color: #333;">
-                <h3>Markers</h3>
-                <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
-                    <thead>
-                        <tr style="border-bottom: 2px solid #eee; text-align: left;">
-                            <SortTh name="id" :current-sort="sortColumn" :sort-dir="sortDirection" @sort="sortBy" style="padding: 10px;">ID</SortTh>
-                            <SortTh name="label" :current-sort="sortColumn" :sort-dir="sortDirection" @sort="sortBy" style="padding: 10px;">Label</SortTh>
-                            <SortTh name="lat" :current-sort="sortColumn" :sort-dir="sortDirection" @sort="sortBy" style="padding: 10px;">Latitude</SortTh>
-                            <SortTh name="lng" :current-sort="sortColumn" :sort-dir="sortDirection" @sort="sortBy" style="padding: 10px;">Longitude</SortTh>
-                            <th style="padding: 10px;">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="marker in sortedMarkers" :key="marker.id" style="border-bottom: 1px solid #eee;">
-                            <td style="padding: 10px;">{{ marker.id }}</td>
-                            <td style="padding: 10px;">{{ marker.label }}</td>
-                            <td style="padding: 10px;">{{ marker.lat.toFixed(4) }}</td>
-                            <td style="padding: 10px;">{{ marker.lng.toFixed(4) }}</td>
-                            <td style="padding: 10px;">
-                                <button @click="centerOnMarker(marker)" style="padding: 5px 10px; cursor: pointer;">View</button>
-                            </td>
-                        </tr>
-                        <tr v-if="markers.length === 0">
-                            <td colspan="5" style="padding: 20px; text-align: center; color: #666;">No markers yet. Click on the map to add one.</td>
-                        </tr>
-                    </tbody>
-                </table >
-            </div >
+
+            <div class="map-layout">
+                <div class="map-viewport" ref="mapContainer">
+                    <div v-show="viewMode === '2d'" id="leaflet-map" style="width: 100%; height: 100%; z-index: 1;"></div>
+                    <div v-show="viewMode === '3d'" id="globe-container" style="width: 100%; height: 100%; z-index: 1; background: #000;"></div>
+                </div>
+                
+                <div class="map-sidebar admin-card">
+                    <div class="card-header">
+                        <h3>Markers</h3>
+                        <div class="text-small text-muted" v-if="markers.length">{{ markers.length }} markers</div>
+                    </div>
+                    
+                    <div class="table-container" style="flex: 1; overflow-y: auto;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <SortTh name="id" :current-sort="sortColumn" :sort-dir="sortDirection" @sort="sortBy">ID</SortTh>
+                                    <SortTh name="label" :current-sort="sortColumn" :sort-dir="sortDirection" @sort="sortBy">Label</SortTh>
+                                    <SortTh name="lat" :current-sort="sortColumn" :sort-dir="sortDirection" @sort="sortBy">Lat</SortTh>
+                                    <SortTh name="lng" :current-sort="sortColumn" :sort-dir="sortDirection" @sort="sortBy">Lng</SortTh>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="marker in sortedMarkers" :key="marker.id">
+                                    <td>{{ marker.id }}</td>
+                                    <td>{{ marker.label }}</td>
+                                    <td>{{ marker.lat.toFixed(2) }}</td>
+                                    <td>{{ marker.lng.toFixed(2) }}</td>
+                                    <td class="text-right">
+                                        <button @click="centerOnMarker(marker)" class="btn btn-sm btn-secondary btn-icon" title="View">
+                                            <LucideIcon name="eye" size="14" />
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr v-if="markers.length === 0">
+                                    <td colspan="5" class="text-center text-muted" style="padding: 32px;">
+                                        No markers yet. Click map to add.
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
 
             <!-- Modal for new marker -->
-    <div v-if="showModal" class="modal-overlay" style="z-index: 1000;">
-        <div class="modal">
-            <h3>New Marker</h3>
-            <input v-model="newMarkerLabel" placeholder="Enter label" @keyup.enter="saveMarker" ref="labelInput" />
-            <div style="margin-top: 10px; display: flex; justify-content: flex-end; gap: 10px;">
-                <button @click="closeModal">Cancel</button>
-            <button @click="saveMarker" class="primary">Save</button>
+            <div v-if="showModal" class="modal-overlay" style="z-index: 1000;">
+                <div class="modal-content">
+                    <h3>New Marker</h3>
+                    <div class="form-group">
+                        <label>Label</label>
+                        <input v-model="newMarkerLabel" placeholder="Enter label" @keyup.enter="saveMarker" ref="labelInput" />
+                    </div>
+                    <div class="form-actions" style="display: flex; justify-content: flex-end; gap: 10px;">
+                        <button @click="closeModal" class="btn btn-secondary">Cancel</button>
+                        <button @click="saveMarker" class="btn btn-primary">Save</button>
+                    </div>
+                </div>
+            </div>
     </div>
-                </div >
-            </div >
-        </div >
     `,
     setup() {
         const map = ref(null);
@@ -73,6 +99,8 @@ export default {
         const globeInitialized = ref(false);
 
         const initMap = async () => {
+            if (map.value) return;
+
             // Lazy load CSS
             if (!document.getElementById('leaflet-css')) {
                 const link = document.createElement('link');
@@ -107,6 +135,8 @@ export default {
             loadMarkers(L);
         };
 
+        const mapContainer = ref(null);
+
         const initGlobe = async () => {
             if (globeInitialized.value) return;
 
@@ -123,8 +153,11 @@ export default {
 
             const Globe = window.Globe;
             const container = document.getElementById('globe-container');
+            const { clientWidth: width, clientHeight: height } = mapContainer.value;
 
             globe.value = Globe()(container)
+                .width(width)
+                .height(height)
                 .globeImageUrl('https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
                 .bumpImageUrl('https://unpkg.com/three-globe/example/img/earth-topology.png')
                 .backgroundImageUrl('https://unpkg.com/three-globe/example/img/night-sky.png')
@@ -141,6 +174,20 @@ export default {
             globe.value.controls().autoRotateSpeed = 0.5;
 
             globeInitialized.value = true;
+
+            // Handle Resize
+            window.addEventListener('resize', handleResize);
+        };
+
+        const handleResize = () => {
+            if (globe.value && mapContainer.value) {
+                const { clientWidth: width, clientHeight: height } = mapContainer.value;
+                globe.value.width(width);
+                globe.value.height(height);
+            }
+            if (map.value) {
+                map.value.invalidateSize();
+            }
         };
 
         const setViewMode = (mode) => {
@@ -148,6 +195,7 @@ export default {
             if (mode === '3d') {
                 nextTick(() => {
                     initGlobe();
+                    handleResize(); // Ensure size is correct upon switching
                 });
             } else {
                 // Resize map when coming back to view
@@ -321,7 +369,7 @@ export default {
 
         return {
             showModal, newMarkerLabel, saveMarker, closeModal, labelInput, markers, centerOnMarker, viewMode, setViewMode,
-            sortColumn, sortDirection, sortBy, sortedMarkers
+            sortColumn, sortDirection, sortBy, sortedMarkers, mapContainer
         };
     }
 };

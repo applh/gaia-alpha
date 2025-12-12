@@ -22,42 +22,55 @@ export default {
     },
     template: `
         <i :data-lucide="name" 
-           :width="size" 
-           :height="size" 
-           :stroke="color" 
-           :stroke-width="strokeWidth"
-           ref="iconRef">
+           ref="iconRef"
+           class="lucide-icon-placeholder"
+           :style="{
+               display: 'inline-flex', 
+               width: size + 'px', 
+               height: size + 'px',
+               stroke: color,
+               'stroke-width': strokeWidth
+           }">
         </i>
     `,
     setup(props) {
         const iconRef = ref(null);
 
-        const createIcon = () => {
-            if (window.lucide) {
+        const render = () => {
+            if (!iconRef.value || !window.lucide || !window.lucide.createIcons) {
+                // If ref is missing, element isn't ready. Retry shortly.
+                // If lucide is missing, wait for it.
+                // But don't retry indefinitely if unmounted (handled by component destruction naturally)
+                setTimeout(render, 50);
+                return;
+            }
+
+            // Safety: Ensure parentNode exists before using it as root
+            const rootEl = iconRef.value.parentNode;
+            if (rootEl) {
                 window.lucide.createIcons({
+                    root: rootEl,
+                    nameAttr: 'data-lucide',
                     attrs: {
                         width: props.size,
                         height: props.size,
                         stroke: props.color,
                         'stroke-width': props.strokeWidth
-                    },
-                    nameAttr: 'data-lucide'
+                    }
                 });
             }
         };
 
         onMounted(() => {
-            createIcon();
+            // Initial render attempt
+            render();
+            // Backup retry for async loading or slow hydration
+            setTimeout(render, 300);
         });
 
-        watch(() => props.name, () => {
-            // In a real implementation we might need to be more reactive, 
-            // but lucide.createIcons scans the DOM. 
-            // For simple usage, re-running might be needed or just trusting the scanner.
-            // Lucide's createIcons is idempotent but scans everything. 
-            // A better approach for specific elements is lucide.icons[name].toSvg() but that returns string.
-            // For now, let's stick to the simple createIcons call which is the recommended easy way.
-            setTimeout(createIcon, 0);
+        watch(() => [props.name, props.color, props.size, props.strokeWidth], () => {
+            // Vue re-renders the element, wait a tick for ref to update then re-scan
+            setTimeout(render, 0);
         });
 
         return { iconRef };

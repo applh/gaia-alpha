@@ -3,9 +3,12 @@ import CalendarView from './CalendarView.js';
 import GanttView from './GanttView.js';
 import ColorPicker from './ColorPicker.js';
 
+import Icon from './Icon.js';
+
 // Recursive Todo Item Component
 const TodoItem = {
     name: 'TodoItem',
+    components: { LucideIcon: Icon },
     props: {
         todo: Object,
         allTodos: Array,
@@ -109,7 +112,7 @@ const TodoItem = {
             @drop="onDropHandler"
         >
             <div 
-                class="todo-item" 
+                class="todo-item-card" 
                 :class="{ 
                     completed: todo.completed,
                     'drag-over-top': isDragOver && dragPlacement === 'before',
@@ -118,25 +121,41 @@ const TodoItem = {
                 }"
                 :style="{ borderLeft: todo.color ? '4px solid ' + todo.color : '' }"
             >
-                <div class="todo-content" :style="{ paddingLeft: (level * 20) + 'px' }">
-                    <span v-if="level > 0" class="child-indicator">↳</span>
-                    <span @click="toggleTodo(todo)" class="todo-title">
+                <!-- Zone 1: Main Content -->
+                <div class="todo-main" :style="{ paddingLeft: (level * 24) + 'px' }">
+                     <span v-if="level > 0" class="child-indicator">
+                        <LucideIcon name="corner-down-right" size="14" />
+                     </span>
+                     
+                     <div @click.stop="toggleTodo(todo)" class="todo-checkbox" :class="{ checked: todo.completed }">
+                        <LucideIcon :name="todo.completed ? 'check-circle' : 'circle'" size="18" :color="todo.completed ? 'var(--success-color)' : 'var(--text-muted)'" />
+                     </div>
+                     
+                     <span class="todo-title">
                         {{ todo.title }}
-                    </span>
+                     </span>
+                </div>
+
+                <!-- Zone 2: Meta Data -->
+                <div class="todo-meta">
                     <span v-if="todo.labels" class="todo-labels">
                         <span v-for="label in parseLabels(todo.labels)" :key="label" class="label-tag">
+                            <LucideIcon name="tag" size="10" />
                             {{ label }}
                         </span>
                     </span>
                     <span v-if="todo.start_date || todo.end_date" class="todo-dates">
-                        <span v-if="todo.start_date" class="date-tag" title="Start Date">{{ todo.start_date }}</span>
-                        <span v-if="todo.start_date && todo.end_date"> - </span>
-                        <span v-if="todo.end_date" class="date-tag" title="End Date">{{ todo.end_date }}</span>
+                        <LucideIcon name="calendar" size="12" />
+                        <span v-if="todo.start_date">{{ todo.start_date }}</span>
+                        <span v-if="todo.start_date && todo.end_date">→</span>
+                        <span v-if="todo.end_date">{{ todo.end_date }}</span>
                     </span>
                 </div>
-                <div class="todo-actions">
-                    <button @click="showEditForm(todo)" class="btn-small" title="Edit">✎</button>
-                    <button @click="deleteTodo(todo.id)" class="delete-btn" title="Delete">×</button>
+
+                <!-- Zone 3: Tools -->
+                <div class="todo-tools">
+                    <button @click="showEditForm(todo)" class="btn-small" title="Edit">Edit</button>
+                    <button @click="deleteTodo(todo.id)" class="btn-small danger" title="Delete">Delete</button>
                 </div>
             </div>
         </li>
@@ -152,7 +171,7 @@ const TodoItem = {
 };
 
 export default {
-    components: { TodoItem, CalendarView, GanttView, ColorPicker },
+    components: { TodoItem, CalendarView, GanttView, ColorPicker, LucideIcon: Icon },
     template: `
         <div class="admin-page">
             <div class="admin-header">
@@ -168,6 +187,67 @@ export default {
             
             <div v-if="viewMode === 'list'">
             
+            <!-- Add new todo -->
+            <div class="add-todo-container">
+                <div class="add-todo-row">
+                    <input 
+                        v-model="newTodo" 
+                        @keyup.enter="addTodo" 
+                        placeholder="Add new todo..."
+                        class="todo-input-main"
+                    >
+                    <button @click="addTodo" class="btn-primary">
+                        <LucideIcon name="plus" size="18" style="margin-right: 4px; vertical-align: middle;" />
+                        Add
+                    </button>
+                </div>
+                
+                <div class="add-todo-controls">
+                    <div class="control-group">
+                        <LucideIcon name="tag" size="14" class="control-icon" />
+                        <input 
+                            v-model="newLabels" 
+                            placeholder="Labels (comma-separated)"
+                            class="control-input"
+                        >
+                    </div>
+
+                    <div class="control-group">
+                         <LucideIcon name="calendar" size="14" class="control-icon" />
+                         <input type="date" v-model="newStartDate" title="Start Date" class="control-input-date">
+                         <span class="date-separator">-</span>
+                         <input type="date" v-model="newEndDate" title="End Date" class="control-input-date">
+                    </div>
+
+                    <div class="control-group">
+                         <div class="color-select-wrapper" style="position: relative;">
+                            <div 
+                                class="color-indicator" 
+                                :style="{ backgroundColor: newColor || '#transparent', border: newColor ? '1px solid ' + newColor : '1px solid #ccc' }"
+                                @click="showColorPicker = !showColorPicker"
+                                title="Select Color"
+                            ></div>
+                            <div v-if="showColorPicker" class="color-picker-popover">
+                                 <ColorPicker v-model="newColor" :palette="palette" />
+                                 <div class="picker-footer">
+                                    <button @click="showColorPicker = false" class="btn-small">Close</button>
+                                 </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="control-group">
+                         <LucideIcon name="git-merge" size="14" class="control-icon" />
+                        <select v-model="newParentId" class="control-select">
+                            <option :value="null">No parent</option>
+                            <option v-for="todo in todos" :key="todo.id" :value="todo.id">
+                                {{ todo.title }}
+                            </option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
             <!-- Filter by label -->
             <div class="todo-filters" v-if="allLabels.length > 0">
                 <label>Filter by label:</label>
@@ -183,48 +263,6 @@ export default {
                     :class="{ active: selectedLabel === label }"
                     class="label-filter"
                 >{{ label }}</button>
-            </div>
-            
-            <!-- Add new todo -->
-            <div class="add-todo">
-                <input 
-                    v-model="newTodo" 
-                    @keyup.enter="addTodo" 
-                    placeholder="Add new todo..."
-                    class="todo-input"
-                >
-                <input 
-                    v-model="newLabels" 
-                    placeholder="Labels (comma-separated)"
-                    class="labels-input"
-                >
-                <div class="date-inputs">
-                    <input type="date" v-model="newStartDate" title="Start Date">
-                    <input type="date" v-model="newEndDate" title="End Date">
-                </div>
-                
-                <div class="color-select-wrapper" style="position: relative;">
-                    <div 
-                        class="color-indicator" 
-                        :style="{ backgroundColor: newColor || '#transparent', border: newColor ? '1px solid ' + newColor : '1px solid #ccc' }"
-                        @click="showColorPicker = !showColorPicker"
-                        title="Select Color"
-                    ></div>
-                    <div v-if="showColorPicker" class="color-picker-popover">
-                         <ColorPicker v-model="newColor" :palette="palette" />
-                         <div class="picker-footer">
-                            <button @click="showColorPicker = false" class="btn-small">Close</button>
-                         </div>
-                    </div>
-                </div>
-
-                <select v-model="newParentId" class="parent-select">
-                    <option :value="null">No parent</option>
-                    <option v-for="todo in todos" :key="todo.id" :value="todo.id">
-                        {{ todo.title }} (ID: {{ todo.id }})
-                    </option>
-                </select>
-                <button @click="addTodo">Add</button>
             </div>
             
             <!-- Todo list with hierarchy -->

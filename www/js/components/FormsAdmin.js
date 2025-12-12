@@ -2,45 +2,58 @@
 import { ref, onMounted } from 'vue';
 import FormBuilder from './FormBuilder.js';
 import FormSubmissions from './FormSubmissions.js';
+import SortTh from './SortTh.js';
+import { useSorting } from '../composables/useSorting.js';
 
 export default {
-    components: { FormBuilder, FormSubmissions },
+    components: { FormBuilder, FormSubmissions, SortTh },
     template: `
         <div>
             <!-- List View -->
             <div v-if="view === 'list'" class="admin-page">
                 <div class="admin-header">
                     <h2 class="page-title">My Forms</h2>
-                    <button @click="openBuilder(null)">+ Create New Form</button>
+                    <button class="btn-primary" @click="openBuilder(null)">+ Create New Form</button>
                 </div>
                 
                 <div class="admin-card">
                     <table v-if="forms.length">
                         <thead>
                             <tr>
-                                <th>Title</th>
-                                <th>Public Link</th>
-                                <th>Created</th>
+                                <SortTh label="ID" name="id" :currentSort="sortColumn" :sortDir="sortDirection" @sort="sortBy" />
+                                <SortTh label="Title" name="title" :currentSort="sortColumn" :sortDir="sortDirection" @sort="sortBy" />
+                                <SortTh label="Public Link" name="slug" :currentSort="sortColumn" :sortDir="sortDirection" @sort="sortBy" />
+                                <SortTh label="Created" name="created_at" :currentSort="sortColumn" :sortDir="sortDirection" @sort="sortBy" />
                                 <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="form in forms" :key="form.id">
-                                <td>{{ form.title }}</td>
+                            <tr v-for="form in sortedForms" :key="form.id">
+                                <td>#{{ form.id }}</td>
+                                <td><strong>{{ form.title }}</strong></td>
                                 <td>
-                                    <a :href="getPublicLink(form.slug)" target="_blank">{{ form.slug }}</a>
-                                    <button class="btn-small" @click="copyLink(form.slug)">📋</button>
+                                    <div style="display: flex; gap: 8px; align-items: center;">
+                                        <a :href="getPublicLink(form.slug)" target="_blank" class="text-link">/f/{{ form.slug }}</a>
+                                        <button class="btn-small btn-icon" @click="copyLink(form.slug)" title="Copy Link">
+                                            <i data-lucide="copy" style="width: 14px; height: 14px;"></i>
+                                        </button>
+                                    </div>
                                 </td>
                                 <td>{{ new Date(form.created_at).toLocaleDateString() }}</td>
                                 <td>
-                                    <button @click="openBuilder(form.id)">Edit</button>
-                                    <button @click="openSubmissions(form.id)">Submissions</button>
-                                    <button @click="deleteForm(form.id)" class="danger">Delete</button>
+                                    <div class="actions-group">
+                                        <button class="btn-small" @click="openBuilder(form.id)">Edit</button>
+                                        <button class="btn-small" @click="openSubmissions(form.id)">Submissions</button>
+                                        <button class="btn-small danger" @click="deleteForm(form.id)">Delete</button>
+                                    </div>
                                 </td>
                             </tr>
                         </tbody>
                     </table>
-                    <p v-else>No forms created yet.</p>
+                    <div v-else class="empty-state">
+                        <p>No forms created yet.</p>
+                        <button class="btn-primary" @click="openBuilder(null)">Create your first form</button>
+                    </div>
                 </div>
             </div>
 
@@ -64,10 +77,16 @@ export default {
         const activeId = ref(null);
         const forms = ref([]);
 
+        const { sortColumn, sortDirection, sortBy, sortedData: sortedForms } = useSorting(forms, 'created_at', 'desc');
+
         const fetchForms = async () => {
-            const res = await fetch('/api/forms');
-            if (res.ok) {
-                forms.value = await res.json();
+            try {
+                const res = await fetch('/api/forms');
+                if (res.ok) {
+                    forms.value = await res.json();
+                }
+            } catch (e) {
+                console.error("Failed to fetch forms", e);
             }
         };
 
@@ -88,9 +107,13 @@ export default {
         };
 
         const deleteForm = async (id) => {
-            // if (!confirm('Are you sure? This will delete all submissions too.')) return;
-            await fetch(`/api/forms/${id}`, { method: 'DELETE' });
-            fetchForms();
+            if (!confirm('Are you sure? This will delete all submissions too.')) return;
+            try {
+                await fetch(`/api/forms/${id}`, { method: 'DELETE' });
+                fetchForms();
+            } catch (e) {
+                console.error("Failed to delete form", e);
+            }
         };
 
         const getPublicLink = (slug) => {
@@ -99,11 +122,17 @@ export default {
 
         const copyLink = (slug) => {
             navigator.clipboard.writeText(getPublicLink(slug));
-            alert('Link copied!');
+            // Feedback could be added here
         };
 
-        onMounted(fetchForms);
+        onMounted(() => {
+            fetchForms();
+        });
 
-        return { view, activeId, forms, openBuilder, openSubmissions, closeSubView, deleteForm, getPublicLink, copyLink };
+        return {
+            view, activeId, forms, sortedForms,
+            sortColumn, sortDirection, sortBy,
+            openBuilder, openSubmissions, closeSubView, deleteForm, getPublicLink, copyLink
+        };
     }
 };

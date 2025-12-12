@@ -432,20 +432,28 @@ td {
 
 /* Drag and Drop Styles */
 .todo-item-wrapper.dragging {
-    opacity: 0.5;
+    opacity: 0.4;
+    transform: scale(0.98);
 }
 
-.todo-item.drag-over-top {
+.todo-item-card.drag-over-top {
     border-top: 2px solid var(--accent-color);
+    margin-top: 4px;
+    /* Create space */
+    background: rgba(99, 102, 241, 0.1);
 }
 
-.todo-item.drag-over-bottom {
+.todo-item-card.drag-over-bottom {
     border-bottom: 2px solid var(--accent-color);
+    margin-bottom: 4px;
+    /* Create space */
+    background: rgba(99, 102, 241, 0.1);
 }
 
-.todo-item.drag-over-inside {
-    background: rgba(108, 92, 231, 0.2);
-    border: 1px dashed var(--accent-color);
+.todo-item-card.drag-over-inside {
+    background: rgba(99, 102, 241, 0.2) !important;
+    border: 2px dashed var(--accent-color);
+    box-shadow: inset 0 0 20px rgba(99, 102, 241, 0.2);
 }
 
 /* Add Todo Form */
@@ -651,7 +659,9 @@ body.layout-side .user-info-item {
     align-items: center;
     width: 100%;
     gap: 15px;
-    /* Harmonized with nav items */
+    padding-bottom: var(--space-md);
+    margin-bottom: var(--space-md);
+    border-bottom: 1px solid var(--border-color);
 }
 
 body.layout-side .user-info-item .nav-icon {
@@ -660,7 +670,9 @@ body.layout-side .user-info-item .nav-icon {
 }
 
 body.layout-side .user-info-item .nav-label {
-    font-size: 0.95rem;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--text-primary);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -1796,6 +1808,7 @@ input[type="checkbox"]:checked::before {
     padding: 20px;
     margin-top: auto;
 }
+
 /* API Manager Styles */
 .api-manager .card-grid {
     display: grid;
@@ -1845,9 +1858,397 @@ input[type="checkbox"]:checked::before {
 .api-manager .api-preview {
     margin-top: var(--space-md);
     padding: var(--space-sm);
-    background: rgba(0,0,0,0.3);
+    background: rgba(0, 0, 0, 0.3);
     border-radius: var(--radius-sm);
     font-size: 0.85rem;
     color: var(--text-muted);
     overflow-x: auto;
+}
+
+/* Todo List Refined Styles */
+.add-todo-container {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: var(--space-md);
+    margin-bottom: var(--space-lg);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+.add-todo-row {
+    display: flex;
+    gap: var(--space-md);
+}
+
+.todo-input-main {
+    flex: 1;
+    font-size: 1.1rem;
+    padding: var(--space-sm) var(--space-md);
+    border: 1px solid var(--border-color);
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+}
+
+.add-todo-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-md);
+    align-items: center;
+}
+
+.control-group {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    background: rgba(255, 255, 255, 0.03);
+    padding: 4px 8px;
+    border-radius: var(--radius-sm);
+    border: 1px solid transparent;
+}
+
+.control-group:hover {
+    border-color: var(--border-color);
+}
+
+.control-icon {
+    color: var(--text-muted);
+}
+
+.control-input {
+    background: transparent;
+    border: none;
+    padding: 4px;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    min-width: 120px;
+}
+
+.control-input:focus {
+    outline: none;
+    color: var(--text-primary);
+}
+
+.control-input-date {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-family: inherit;
+    font-size: 0.9rem;
+}
+
+.control-select {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+
+.date-separator {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+}
+
+/* Button with Icon overrides */
+.todo-actions button {
+    padding: 4px 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Todo Actions Fix */
+.todo-actions button {
+    width: 28px;
+    height: 28px;
+    padding: 0 !important;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 0;
+}
+
+.todo-actions .delete-btn {
+    font-size: 0;
+    /* Hide text if any, though we replaced with icon */
+    background: rgba(255, 107, 107, 0.1);
+}
+
+.todo-actions .btn-small {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-secondary);
+}
+
+.todo-actions .btn-small:hover {
+    background: var(--accent-color);
+    color: white;
+}
+
+/* Todo Label Refinements */
+.label-tag {
+    background: rgba(108, 92, 231, 0.15);
+    color: var(--text-primary);
+    border: 1px solid rgba(108, 92, 231, 0.3);
+    padding: 4px 10px;
+    /* More padding */
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    line-height: 1;
+    gap: 4px;
+    /* Space between icon and text */
+}
+
+.label-tag svg {
+    opacity: 0.7;
+}
+
+/* Ensure Actions Alignment */
+.todo-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+/* Todo Row Layout Fixes */
+.todo-content {
+    /* Ensure content doesn't overflow */
+    min-width: 0;
+}
+
+.todo-title {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-right: var(--space-md);
+}
+
+.todo-dates {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 2px 8px;
+    border-radius: 4px;
+}
+
+.date-tag {
+    font-family: monospace;
+}
+
+/* =========================================
+   Redesigned Todo Item (Flex/Grid Layout)
+   ========================================= */
+
+.todo-item-wrapper {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.todo-item-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    background: rgba(255, 255, 255, 0.025);
+    border: 1px solid transparent;
+    /* Prepare for hover */
+    margin-bottom: 2px;
+    border-radius: var(--radius-sm);
+    transition: all 0.2s ease;
+    min-height: 48px;
+}
+
+.todo-item-card:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.05);
+}
+
+.todo-item-card.completed .todo-title {
+    opacity: 0.5;
+    text-decoration: line-through;
+    color: var(--text-secondary);
+}
+
+.todo-item-card.completed .todo-meta {
+    opacity: 0.5;
+}
+
+/* Zone 1: Main Content */
+.todo-main {
+    flex: 1;
+    /* Take available space */
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+    /* Allow truncation */
+}
+
+.child-indicator {
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    opacity: 0.5;
+}
+
+.todo-checkbox {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--text-muted);
+    transition: color 0.2s;
+}
+
+.todo-checkbox:hover {
+    color: var(--text-primary);
+}
+
+.todo-checkbox.checked {
+    color: var(--success-color);
+}
+
+.todo-title {
+    font-size: 0.95rem;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: default;
+}
+
+/* Zone 2: Meta Data */
+.todo-meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 0 16px;
+}
+
+.todo-labels {
+    display: flex;
+    gap: 6px;
+}
+
+.todo-dates {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    background: rgba(0, 0, 0, 0.2);
+    padding: 2px 8px;
+    border-radius: 4px;
+}
+
+/* Zone 3: Tools */
+.todo-tools {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    /* Always visible to match Users panel */
+}
+
+/* Remove custom tool-btn styles, using standard .btn-small and .danger instead */
+
+/* Todo Button Enhancements */
+.tool-btn {
+    opacity: 0.8;
+    background: rgba(255, 255, 255, 0.05);
+    /* Slight background by default */
+}
+
+/* Checkbox specific fix */
+.todo-checkbox svg {
+    transition: all 0.2s;
+}
+
+.todo-checkbox.checked svg {
+    stroke: var(--success-color) !important;
+}
+
+/* Utility Classes for Tables */
+.actions-group {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.text-link {
+    color: var(--accent-color);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.text-link:hover {
+    text-decoration: underline;
+    color: var(--accent-hover);
+}
+
+.btn-icon {
+    padding: 6px !important;
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    min-width: 32px;
+    /* Ensure square-ish */
+}
+
+/* User Settings Utilities */
+.admin-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: var(--space-lg);
+}
+
+.static-value {
+    font-size: 1.1rem;
+    padding: 8px 0;
+    color: var(--text-primary);
+}
+
+.badge-level {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-secondary);
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.badge-level.admin {
+    background: var(--accent-color);
+    color: white;
+}
+
+.btn-icon-left {
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 8px;
+}
+
+.input-short {
+    width: 120px !important;
+}
+
+.color-input {
+    width: 40px;
+    height: 40px;
+    padding: 2px;
+    border: 1px solid var(--border-color);
+    background: transparent;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
 }

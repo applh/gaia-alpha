@@ -10,63 +10,72 @@ export default {
         <div class="admin-page">
             <div class="admin-header">
                 <h2 class="page-title">User Management</h2>
-                <button @click="openCreateModal">Add User</button>
+                <button class="btn-primary" @click="openCreateModal">Add User</button>
             </div>
             
             <div class="admin-card">
-            <div v-if="loading" class="loading">Loading...</div>
-            <table v-else-if="users.length">
-                <thead>
-                    <tr>
-                        <SortTh name="id" label="ID" :current-sort="sortColumn" :sort-dir="sortDirection" @sort="sortBy" />
-                        <SortTh name="username" label="Username" :current-sort="sortColumn" :sort-dir="sortDirection" @sort="sortBy" />
-                        <SortTh name="level" label="Level" :current-sort="sortColumn" :sort-dir="sortDirection" @sort="sortBy" />
-                        <SortTh name="created_at" label="Created" :current-sort="sortColumn" :sort-dir="sortDirection" @sort="sortBy" />
-                        <SortTh name="updated_at" label="Updated" :current-sort="sortColumn" :sort-dir="sortDirection" @sort="sortBy" />
-                        <SortTh name="role" label="Role" :current-sort="sortColumn" :sort-dir="sortDirection" @sort="sortBy" />
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="user in sortedUsers" :key="user.id">
-                        <td>{{ user.id }}</td>
-                        <td>{{ user.username }}</td>
-                        <td>{{ user.level }}</td>
-                        <td>{{ new Date(user.created_at).toLocaleString() }}</td>
-                        <td>{{ new Date(user.updated_at).toLocaleString() }}</td>
-                        <td>{{ user.level >= 100 ? 'Admin' : 'Member' }}</td>
-                        <td>
-                            <button @click="openEditModal(user)">Edit</button>
-                            <button @click="deleteItem(user.id)" class="danger">Delete</button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-            <p v-else>No users found.</p>
+                <div v-if="loading" class="loading">Loading...</div>
+                <table v-else-if="users.length">
+                    <thead>
+                        <tr>
+                            <SortTh name="id" label="ID" :currentSort="sortColumn" :sortDir="sortDirection" @sort="sortBy" />
+                            <SortTh name="username" label="Username" :currentSort="sortColumn" :sortDir="sortDirection" @sort="sortBy" />
+                            <SortTh name="level" label="Level" :currentSort="sortColumn" :sortDir="sortDirection" @sort="sortBy" />
+                            <SortTh name="created_at" label="Created" :currentSort="sortColumn" :sortDir="sortDirection" @sort="sortBy" />
+                            <SortTh name="updated_at" label="Updated" :currentSort="sortColumn" :sortDir="sortDirection" @sort="sortBy" />
+                            <SortTh name="role" label="Role" :currentSort="sortColumn" :sortDir="sortDirection" @sort="sortBy" />
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="user in sortedUsers" :key="user.id">
+                            <td>#{{ user.id }}</td>
+                            <td><strong>{{ user.username }}</strong></td>
+                            <td>{{ user.level }}</td>
+                            <td>{{ new Date(user.created_at).toLocaleString() }}</td>
+                            <td>{{ new Date(user.updated_at).toLocaleString() }}</td>
+                            <td>
+                                <span class="label-tag" :style="{ background: user.level >= 100 ? 'var(--accent-color)' : 'rgba(255,255,255,0.1)', color: user.level >= 100 ? 'white' : 'var(--text-secondary)' }">
+                                    {{ user.level >= 100 ? 'Admin' : 'Member' }}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="actions-group">
+                                    <button class="btn-small" @click="openEditModal(user)">Edit</button>
+                                    <button class="btn-small danger" @click="deleteItem(user.id)">Delete</button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div v-else class="empty-state">
+                    <p>No users found.</p>
+                    <button class="btn-primary" @click="openCreateModal">Add your first user</button>
+                </div>
 
-            <Modal :show="showModal" :title="editMode ? 'Edit User' : 'Create User'" @close="showModal = false">
-                <form @submit.prevent="saveUser">
-                    <div class="form-group" v-if="!editMode">
-                        <label>Username:</label>
-                        <input v-model="form.username" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Password {{ editMode ? '(leave blank to keep)' : '' }}:</label>
-                        <input v-model="form.password" type="password" :required="!editMode">
-                    </div>
-                    <div class="form-group">
-                        <label>Level:</label>
-                        <input v-model.number="form.level" type="number" required>
-                    </div>
-                    <div class="form-actions">
-                        <button type="submit">{{ editMode ? 'Update' : 'Create' }}</button>
-                        <button type="button" @click="showModal = false" class="btn-secondary">Cancel</button>
-                    </div>
-                    <p v-if="error" class="error">{{ error }}</p>
-                </form>
-            </Modal>
+                <Modal :show="showModal" :title="editMode ? 'Edit User' : 'Create User'" @close="showModal = false">
+                    <form @submit.prevent="saveUser">
+                        <div class="form-group" v-if="!editMode">
+                            <label>Username:</label>
+                            <input v-model="form.username" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Password {{ editMode ? '(leave blank to keep)' : '' }}:</label>
+                            <input v-model="form.password" type="password" :required="!editMode">
+                        </div>
+                        <div class="form-group">
+                            <label>Level:</label>
+                            <input v-model.number="form.level" type="number" required>
+                        </div>
+                        <div class="form-actions">
+                            <button class="btn-primary" type="submit">{{ editMode ? 'Update' : 'Create' }}</button>
+                            <button type="button" @click="showModal = false" class="btn-secondary">Cancel</button>
+                        </div>
+                        <p v-if="error" class="error">{{ error }}</p>
+                    </form>
+                </Modal>
+            </div>
         </div>
-    </div>
     `,
     setup() {
         // Integrate useCrud

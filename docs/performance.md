@@ -2,6 +2,8 @@
 
 Gaia Alpha includes built-in tools to measure and monitor the performance of your application. This includes a suite of benchmarks for the CLI and hooks for profiling request lifecycles.
 
+For a historical log of performance metrics, see [Performance History](performance_history.md).
+
 ## Benchmarking Tools
 
 You can run performance benchmarks directly from the command line.

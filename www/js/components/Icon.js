@@ -21,44 +21,42 @@ export default {
         }
     },
     template: `
-        <i :data-lucide="name" 
-           ref="iconRef"
-           class="lucide-icon-placeholder"
-           :style="{
-               display: 'inline-flex', 
-               width: size + 'px', 
-               height: size + 'px',
-               stroke: color,
-               'stroke-width': strokeWidth
-           }">
-        </i>
+        <span ref="iconRef" 
+              class="icon-wrapper"
+              :style="{
+                  display: 'inline-flex', 
+                  width: size + 'px', 
+                  height: size + 'px',
+                  color: color
+              }">
+            <i :data-lucide="name"
+               :width="size"
+               :height="size"
+               :stroke="color"
+               :stroke-width="strokeWidth">
+            </i>
+        </span>
     `,
     setup(props) {
         const iconRef = ref(null);
 
         const render = () => {
             if (!iconRef.value || !window.lucide || !window.lucide.createIcons) {
-                // If ref is missing, element isn't ready. Retry shortly.
-                // If lucide is missing, wait for it.
-                // But don't retry indefinitely if unmounted (handled by component destruction naturally)
                 setTimeout(render, 50);
                 return;
             }
 
-            // Safety: Ensure parentNode exists before using it as root
-            const rootEl = iconRef.value.parentNode;
-            if (rootEl) {
-                window.lucide.createIcons({
-                    root: rootEl,
-                    nameAttr: 'data-lucide',
-                    attrs: {
-                        width: props.size,
-                        height: props.size,
-                        stroke: props.color,
-                        'stroke-width': props.strokeWidth
-                    }
-                });
-            }
+            // Use the wrapper as the root for Lucide to scan
+            window.lucide.createIcons({
+                root: iconRef.value,
+                nameAttr: 'data-lucide',
+                attrs: {
+                    width: props.size,
+                    height: props.size,
+                    stroke: props.color,
+                    'stroke-width': props.strokeWidth
+                }
+            });
         };
 
         onMounted(() => {

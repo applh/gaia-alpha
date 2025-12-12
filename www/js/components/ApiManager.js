@@ -21,8 +21,13 @@ export default {
             <div v-if="error" class="alert alert-error">{{ error }}</div>
             <div v-if="success" class="alert alert-success">{{ success }}</div>
 
-            <div class="admin-grid">
-                <div v-for="table in tables" :key="table.name" class="admin-card" :class="{ 'disabled': !table.config.enabled }">
+            <!-- Active APIs Section -->
+            <h3 style="margin-bottom: 15px; border-bottom: 2px solid var(--accent-color); padding-bottom: 10px;">Active APIs</h3>
+            <div class="admin-grid" style="margin-bottom: 40px;">
+                <div v-if="activeApis.length === 0" style="grid-column: 1 / -1; padding: 20px; background: rgba(0,0,0,0.1); border-radius: 8px; text-align: center; color: #888;">
+                    No active APIs found. Enable some below.
+                </div>
+                <div v-for="table in activeApis" :key="table.name" class="admin-card">
                     <div class="card-header">
                         <h3>{{ table.name }}</h3>
                         <label class="switch">
@@ -30,7 +35,7 @@ export default {
                             <span class="slider round"></span>
                         </label>
                     </div>
-                    <div class="card-body" v-if="table.config.enabled">
+                    <div class="card-body">
                         <div class="form-group">
                             <label>Access Level</label>
                             <select v-model="table.config.auth_level">
@@ -54,6 +59,30 @@ export default {
                     </div>
                 </div>
             </div>
+
+            <!-- Inactive APIs Section -->
+            <h3 style="margin-bottom: 15px; border-bottom: 2px solid #555; padding-bottom: 10px; color: #aaa;">Inactive APIs</h3>
+            <div class="admin-grid">
+                 <div v-if="inactiveApis.length === 0" style="grid-column: 1 / -1; padding: 20px; background: rgba(0,0,0,0.1); border-radius: 8px; text-align: center; color: #888;">
+                    All available tables have active APIs.
+                </div>
+                <div v-for="table in inactiveApis" :key="table.name" class="admin-card disabled" style="opacity: 0.7;">
+                    <div class="card-header">
+                        <h3>{{ table.name }}</h3>
+                        <label class="switch">
+                            <input type="checkbox" v-model="table.config.enabled">
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                    <!-- Simplified body for inactive items, or same body but hidden/collapsed? -->
+                    <!-- Keeping it visible so user can configure before enabling -->
+                     <div class="card-body">
+                         <p style="font-size: 0.9em; color: #888; font-style: italic;">
+                            Enable this API to configure access and methods.
+                         </p>
+                    </div>
+                </div>
+            </div>
         </div>
     `,
     data() {
@@ -62,6 +91,14 @@ export default {
             loading: false,
             error: null,
             success: null
+        }
+    },
+    computed: {
+        activeApis() {
+            return this.tables.filter(t => t.config.enabled);
+        },
+        inactiveApis() {
+            return this.tables.filter(t => !t.config.enabled);
         }
     },
     mounted() {

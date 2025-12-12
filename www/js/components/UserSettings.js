@@ -1,4 +1,4 @@
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { store } from '../store.js';
 import Icon from './Icon.js';
 
@@ -54,11 +54,18 @@ const UserSettings = {
         };
 
         const defaultDuration = ref(localStorage.getItem('defaultDuration') || '1');
-        const setDuration = async (val) => {
-            if (defaultDuration.value === val) return;
-            defaultDuration.value = val;
-            localStorage.setItem('defaultDuration', val);
 
+        // Debounce utility
+        const debounce = (fn, delay) => {
+            let timeoutId;
+            return (...args) => {
+                clearTimeout(timeoutId);
+                timeoutId = setTimeout(() => fn(...args), delay);
+            };
+        };
+
+        const saveDuration = async (val) => {
+            localStorage.setItem('defaultDuration', val);
             saving.value = true;
             try {
                 await fetch('/api/user/settings', {
@@ -73,6 +80,12 @@ const UserSettings = {
             }
         };
 
+        const debouncedSaveDuration = debounce(saveDuration, 500);
+
+        watch(defaultDuration, (newVal) => {
+            debouncedSaveDuration(newVal);
+        });
+
         return {
             user,
             theme,
@@ -80,7 +93,6 @@ const UserSettings = {
             layout,
             setLayout,
             defaultDuration,
-            setDuration,
             palette,
             newColor,
             addColor,
@@ -122,18 +134,22 @@ const UserSettings = {
                             <button 
                                 @click="setTheme('dark')" 
                                 :class="{ active: theme === 'dark' }"
+                                :style="theme === 'dark' ? { border: '2px solid var(--accent-color)', background: 'rgba(var(--accent-color-rgb), 0.1)' } : {}"
                                 :disabled="saving"
                                 class="theme-btn"
                             >
                                 <LucideIcon name="moon" size="18" class="btn-icon-left" /> Dark Mode
+                                <LucideIcon v-if="theme === 'dark'" name="check" size="16" style="margin-left:auto;" />
                             </button>
                             <button 
                                 @click="setTheme('light')" 
                                 :class="{ active: theme === 'light' }"
+                                :style="theme === 'light' ? { border: '2px solid var(--accent-color)', background: 'rgba(var(--accent-color-rgb), 0.1)' } : {}"
                                 :disabled="saving"
                                 class="theme-btn"
                             >
                                 <LucideIcon name="sun" size="18" class="btn-icon-left" /> Light Mode
+                                <LucideIcon v-if="theme === 'light'" name="check" size="16" style="margin-left:auto;" />
                             </button>
                         </div>
                     </div>
@@ -144,18 +160,22 @@ const UserSettings = {
                             <button 
                                 @click="setLayout('side')" 
                                 :class="{ active: layout === 'side' }"
+                                :style="layout === 'side' ? { border: '2px solid var(--accent-color)', background: 'rgba(var(--accent-color-rgb), 0.1)' } : {}"
                                 :disabled="saving"
                                 class="theme-btn"
                             >
                                 <LucideIcon name="arrow-left" size="18" class="btn-icon-left" /> Sidebar
+                                <LucideIcon v-if="layout === 'side'" name="check" size="16" style="margin-left:auto;" />
                             </button>
                             <button 
                                 @click="setLayout('top')" 
+                                :style="layout === 'top' ? { border: '2px solid var(--accent-color)', background: 'rgba(var(--accent-color-rgb), 0.1)' } : {}"
                                 :class="{ active: layout === 'top' }"
                                 :disabled="saving"
                                 class="theme-btn"
                             >
                                 <LucideIcon name="arrow-up" size="18" class="btn-icon-left" /> Top Bar
+                                <LucideIcon v-if="layout === 'top'" name="check" size="16" style="margin-left:auto;" />
                             </button>
                         </div>
                     </div>
@@ -164,8 +184,7 @@ const UserSettings = {
                         <label>Default Todo Duration (days)</label>
                         <input 
                             type="number" 
-                            :value="defaultDuration" 
-                            @change="setDuration($event.target.value)" 
+                            v-model="defaultDuration"
                             min="1"
                             class="input-short"
                         >

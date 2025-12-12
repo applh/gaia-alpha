@@ -19,7 +19,7 @@ export default {
                     rows="6"
                     class="sql-input"
                 ></textarea>
-                <div class="executor-actions">
+                <div class="executor-actions" style="display: flex; align-items: center; gap: 15px;">
                     <button @click="executeQuery" class="btn-primary">Execute Query</button>
                     <span class="hint">Use SELECT, INSERT, UPDATE, DELETE</span>
                 </div>

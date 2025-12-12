@@ -18,4 +18,8 @@ Commands:
   user:create <user> <pass> [level]   Create a new user
   user:update-password <user> <pass>  Update a user's password
   user:delete <user>                  Delete a user
+  db:export [file]                    Export database to SQL (or specific file)
+  db:import <file>                    Import database from SQL file
+  db:save                             Snapshot database to my-data/backups/
+  save:all                            Save DB snapshot then zip my-data folder
   help                                Show this help message

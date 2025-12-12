@@ -1,6 +1,12 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+## [v0.24.0] - 2025-12-12
+### Added
+- **CLI**: Added `db:save` command to snapshot the database into `my-data/backups/`.
+- **CLI**: Added `save:all` command to snapshot the database and zip the entire `my-data` folder to `backups/`.
+- **CLI**: Documented `db:export` and `db:import` in help text.
+
 ## [v0.23.0] - 2025-12-11
 ### Added
 - **Core**: Added automatic class autoloading for plugins. Classes in `my-data/plugins/{Plugin}/class/` are mapped to `{Plugin}` namespace.

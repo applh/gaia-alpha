@@ -7,11 +7,8 @@ use GaiaAlpha\Env;
 
 class DbCommands
 {
-    public static function handleExport(): void
+    private static function runExport(string $outputFile): void
     {
-        global $argv;
-        $outputFile = $argv[2] ?? null;
-
         if (!defined('GAIA_DB_PATH')) {
             echo "Error: GAIA_DB_PATH is not defined.\n";
             exit(1);
@@ -24,10 +21,7 @@ class DbCommands
         }
 
         $cmd = "sqlite3 " . escapeshellarg($dbPath) . " .dump";
-
-        if ($outputFile) {
-            $cmd .= " > " . escapeshellarg($outputFile);
-        }
+        $cmd .= " > " . escapeshellarg($outputFile);
 
         passthru($cmd, $returnVar);
 
@@ -36,9 +30,33 @@ class DbCommands
             exit(1);
         }
 
-        if ($outputFile) {
-            echo "Database exported to $outputFile\n";
+        echo "Database exported to $outputFile\n";
+    }
+
+    public static function handleExport(): void
+    {
+        global $argv;
+        $outputFile = $argv[2] ?? null;
+
+        if (!$outputFile) {
+            echo "Usage: php cli.php db:export <file.sql>\n";
+            exit(1);
         }
+
+        self::runExport($outputFile);
+    }
+
+    public static function handleSave(): void
+    {
+        $backupDir = Env::get('root_dir') . '/my-data/backups';
+        if (!file_exists($backupDir)) {
+            mkdir($backupDir, 0755, true);
+        }
+
+        $timestamp = date('Y-m-d_H-i-s');
+        $outputFile = $backupDir . '/db_' . $timestamp . '.sql';
+
+        self::runExport($outputFile);
     }
 
     public static function handleImport(): void

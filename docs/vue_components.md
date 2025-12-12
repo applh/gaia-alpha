@@ -14,6 +14,7 @@ The navigation menu is data-driven and currently organized into the following gr
 
 -   **Dashboard**: Admin overview.
 -   **Projects**: (Formerly "My Todos") Personal task management.
+-   **Chat**: Internal user-to-user messaging.
 -   **Content**:
     -   *CMS*: Page management.
     -   *Templates*: Layout templates.
@@ -65,3 +66,8 @@ No-code API endpoint creator.
 User lifecycle management.
 -   **Roles**: Assign admin levels (0-100).
 -   **Crud**: Create, update, delete users.
+
+### `ChatPanel.js`
+Real-time messaging system.
+-   **Features**: User list with unread badges, split-view interface, polling-based updates.
+-   **API**: Communicates with `ChatController` for message persistence.

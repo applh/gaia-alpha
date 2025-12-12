@@ -12,6 +12,7 @@ const FormsAdmin = defineAsyncComponent(() => import('./components/FormsAdmin.js
 const ApiManager = defineAsyncComponent(() => import('./components/ApiManager.js'));
 const MapPanel = defineAsyncComponent(() => import('./components/MapPanel.js'));
 const ConsolePanel = defineAsyncComponent(() => import('./components/ConsolePanel.js'));
+const ChatPanel = defineAsyncComponent(() => import('./components/ChatPanel.js'));
 
 const App = {
     components: { Login, LucideIcon: defineAsyncComponent(() => import('./components/Icon.js')) },
@@ -122,6 +123,7 @@ const App = {
         const menuItems = [
             { label: 'Dashboard', view: 'dashboard', icon: 'layout-dashboard', adminOnly: true },
             { label: 'Projects', view: 'todos', icon: 'check-square' },
+            { label: 'Chat', view: 'chat', icon: 'message-square' },
             {
                 label: 'Content', icon: 'folder', id: 'grp-content', children: [
                     { label: 'CMS', view: 'cms', icon: 'file-text' },
@@ -179,6 +181,7 @@ const App = {
                 case 'map': return MapPanel;
                 case 'api-builder': return isAdmin.value ? ApiManager : TodoList;
                 case 'console': return isAdmin.value ? ConsolePanel : TodoList;
+                case 'chat': return ChatPanel;
                 case 'settings': return UserSettings;
                 case 'todos': default: return TodoList;
             }

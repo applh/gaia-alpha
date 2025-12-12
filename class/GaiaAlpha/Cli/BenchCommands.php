@@ -28,7 +28,9 @@ class BenchCommands
 
         for ($i = 0; $i < $iterations; $i++) {
             // Benchmark the CLI boot overhead by running a no-op command
-            exec('php cli.php help > /dev/null');
+            $cliPath = Env::get('root_dir') . '/cli.php';
+            $cmd = 'php ' . escapeshellarg($cliPath) . ' help > /dev/null';
+            exec($cmd);
         }
 
         $end = microtime(true);

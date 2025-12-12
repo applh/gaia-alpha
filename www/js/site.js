@@ -11,6 +11,7 @@ const UserSettings = defineAsyncComponent(() => import('./components/UserSetting
 const FormsAdmin = defineAsyncComponent(() => import('./components/FormsAdmin.js'));
 const ApiManager = defineAsyncComponent(() => import('./components/ApiManager.js'));
 const MapPanel = defineAsyncComponent(() => import('./components/MapPanel.js'));
+const ConsolePanel = defineAsyncComponent(() => import('./components/ConsolePanel.js'));
 
 const App = {
     components: { Login, LucideIcon: defineAsyncComponent(() => import('./components/Icon.js')) },
@@ -59,6 +60,10 @@ const App = {
                             <button @click="store.setView('api-builder')" :class="{ active: store.state.currentView === 'api-builder' }">
                                 <span class="nav-icon"><LucideIcon name="zap" size="20"></LucideIcon></span>
                                 <span class="nav-label">APIs</span>
+                            </button>
+                            <button @click="store.setView('console')" :class="{ active: store.state.currentView === 'console' }">
+                                <span class="nav-icon"><LucideIcon name="terminal" size="20"></LucideIcon></span>
+                                <span class="nav-label">Console</span>
                             </button>
                         </template>
 
@@ -144,6 +149,7 @@ const App = {
                 case 'database': return isAdmin.value ? DatabaseManager : TodoList;
                 case 'map': return MapPanel;
                 case 'api-builder': return isAdmin.value ? ApiManager : TodoList;
+                case 'console': return isAdmin.value ? ConsolePanel : TodoList;
                 case 'settings': return UserSettings;
                 case 'todos': default: return TodoList;
             }

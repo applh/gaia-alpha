@@ -36,17 +36,22 @@ class Cli
                 return;
             }
 
-            $parts = explode(':', $command);
-            if (count($parts) !== 2) {
-                echo "Unknown command format: $command\n";
-                self::showHelp();
-                exit(1);
+            if ($command === 'sql') {
+                $className = TableCommands::class;
+                $action = 'handleSql';
+            } else {
+                $parts = explode(':', $command);
+                if (count($parts) !== 2) {
+                    echo "Unknown command format: $command\n";
+                    self::showHelp();
+                    exit(1);
+                }
+
+                $group = ucfirst($parts[0]);
+                $action = 'handle' . str_replace('-', '', ucwords($parts[1], '-'));
+
+                $className = "GaiaAlpha\\Cli\\{$group}Commands";
             }
-
-            $group = ucfirst($parts[0]);
-            $action = 'handle' . str_replace('-', '', ucwords($parts[1], '-'));
-
-            $className = "GaiaAlpha\\Cli\\{$group}Commands";
 
             if (!class_exists($className)) {
                 echo "Unknown command group: {$parts[0]}\n";

@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file.
 - **CLI**: Added `save:all` command to snapshot the database and zip the entire `my-data` folder to `backups/`.
 - **CLI**: Documented `db:export` and `db:import` in help text.
 - **Hooks**: Added `app_task_before` and `app_task_after` generic hooks, and dynamic hooks based on step ID (e.g., `app_task_before_{step}`) and task name (e.g., `app_task_before_GaiaAlpha_Framework_loadPlugins`).
+- **Feature**: Added Admin Webshell (Console) to dashboard for executing CLI commands.
 
 ## [v0.23.0] - 2025-12-11
 ### Added

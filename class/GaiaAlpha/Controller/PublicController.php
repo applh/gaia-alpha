@@ -3,12 +3,15 @@
 namespace GaiaAlpha\Controller;
 
 use GaiaAlpha\Model\Page;
+use GaiaAlpha\Hook;
 
 class PublicController extends BaseController
 {
     public function index()
     {
-        $this->jsonResponse(Page::getLatestPublic());
+        $pages = Page::getLatestPublic();
+        $pages = Hook::filter('public_pages_index', $pages);
+        $this->jsonResponse($pages);
     }
 
     public function show($slug)
@@ -17,8 +20,10 @@ class PublicController extends BaseController
 
         if (!$page) {
             $this->jsonResponse(['error' => 'Page not found'], 404);
+            return;
         }
 
+        $page = Hook::filter('public_page_show', $page, $slug);
         $this->jsonResponse($page);
     }
 
@@ -48,7 +53,18 @@ class PublicController extends BaseController
                 .col { flex: 1; min-width: 0; }
                 img { max-width: 100%; height: auto; }
             </style>";
+
+            // Allow plugins to inject styles/scripts
+            ob_start();
+            Hook::run('public_page_render_head', $page);
+            $html .= ob_get_clean();
+
             $html .= "</head><body>";
+
+            // Header Hook
+            ob_start();
+            Hook::run('public_page_render_header', $page);
+            $html .= ob_get_clean();
 
             if (isset($structure['header'])) {
                 $html .= "<header class='site-header'>";
@@ -70,6 +86,11 @@ class PublicController extends BaseController
                     $html .= $this->renderNode($node);
                 $html .= "</footer>";
             }
+
+            // Footer Hook
+            ob_start();
+            Hook::run('public_page_render_footer', $page);
+            $html .= ob_get_clean();
 
             $html .= "</body></html>";
             echo $html;
@@ -139,6 +160,9 @@ class PublicController extends BaseController
             default:
                 break;
         }
+
+        // Allow plugins to modify rendered node
+        $html = Hook::filter('public_page_render_node', $html, $node);
 
         return $html;
     }

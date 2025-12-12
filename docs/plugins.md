@@ -79,14 +79,45 @@ Hook::run('my_custom_event', $data);
 
 ### Available Hooks
 
+#### Application Lifecycle
 | Hook Name | Arguments | Description |
 |-----------|-----------|-------------|
+| `app_init` | None | Fired at the very beginning of the application (Web & CLI). |
 | `plugins_loaded` | None | Fired immediately after all plugins have been loaded. |
-| `app_boot` | None | Fired after plugins are loaded but before controllers are initialized. |
-| `controller_init` | `$controller`, `$key` | Fired when a controller is instantiated and initialized. |
+| `app_boot` | None | Fired after plugins are loaded but before controllers/tasks are run. |
+| `app_terminate` | None | Fired when the application shuts down. |
+
+#### Tasks (Boot & Run loop)
+| Hook Name | Arguments | Description |
+|-----------|-----------|-------------|
+| `app_task_before` | `$step`, `$task` | Fired before any framework task/step. |
+| `app_task_after` | `$step`, `$task` | Fired after any framework task/step. |
+| `app_task_before_{step}` | `$task` | Fired before a specific step (e.g., `app_task_before_step10`). |
+| `app_task_after_{step}` | `$task` | Fired after a specific step. |
+
+#### Response
+| Hook Name | Arguments | Description |
+|-----------|-----------|-------------|
+| `response_json_before` | `$context` | Fired before JSON encoding. `$context` is `['data' => &$data, 'status' => &$status]`. |
+| `response_send_before` | `$data`, `$status` | Fired just before sending the response headers and body. |
+
+#### Routing & Controllers
+| Hook Name | Arguments | Description |
+|-----------|-----------|-------------|
 | `router_dispatch_before` | `$method`, `$uri` | Fired before the router attempts to match a route. |
-| `router_matched` | `$route`, `$matches` | Fired when a route is successfully matched, before the handler is called. |
-| `router_404` | `$uri` | Fired when no route matches the request. |
+| `router_matched` | `$route`, `$matches` | Fired when a route is successfully matched. |
+| `router_404` | `$uri` | Fired when no route matches. |
+| `controller_init` | `$controller`, `$key` | Fired in `Framework::loadControllers`. |
+
+#### Public Pages
+| Hook Name | Arguments | Description |
+|-----------|-----------|-------------|
+| `public_pages_index` | `$pages` (Filter) | Filter the list of public pages returned by index. |
+| `public_page_show` | `$page`, `$slug` (Filter) | Filter the page data returned by show. |
+| `public_page_render_head` | `$page` | Action hook inside the `<head>` tag of public page render. |
+| `public_page_render_header` | `$page` | Action hook before the `<header>` element. |
+| `public_page_render_footer` | `$page` | Action hook after the `<footer>` element. |
+| `public_page_render_node` | `$html`, `$node` (Filter) | Filter the HTML output of a content node. |
 
 ### CLI Support
 

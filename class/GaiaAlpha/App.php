@@ -14,7 +14,36 @@ class App
 
         foreach (Env::get('framework_tasks') as $step => $task) {
             if (is_callable($task)) {
+                $taskName = '';
+                if (is_string($task)) {
+                    $taskName = $task;
+                } elseif (is_array($task)) {
+                    $class = is_object($task[0]) ? get_class($task[0]) : $task[0];
+                    $taskName = $class . '::' . $task[1];
+                }
+
+                // Sanitize task name for hook
+                $hookSuffix = str_replace(['\\', '::'], '_', $taskName);
+
+                // Generic hook
+                Hook::run('app_task_before', $step, $task);
+                // Step-based hook
+                Hook::run("app_task_before_{$step}", $task);
+                // Name-based hook
+                if ($hookSuffix) {
+                    Hook::run("app_task_before_{$hookSuffix}", $step);
+                }
+
                 $task();
+
+                // Name-based hook
+                if ($hookSuffix) {
+                    Hook::run("app_task_after_{$hookSuffix}", $step);
+                }
+                // Step-based hook
+                Hook::run("app_task_after_{$step}", $task);
+                // Generic hook
+                Hook::run('app_task_after', $step, $task);
             }
         }
     }

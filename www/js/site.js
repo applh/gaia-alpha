@@ -1,4 +1,4 @@
-import { createApp, defineAsyncComponent, onMounted, computed } from 'vue';
+import { createApp, defineAsyncComponent, onMounted, computed, ref } from 'vue';
 import { store } from './store.js';
 
 const Login = defineAsyncComponent(() => import('./components/Login.js'));
@@ -23,69 +23,44 @@ const App = {
                 </a>
                 <div style="display: flex; align-items: center; gap: 10px;">
                     <nav v-if="store.state.user" style="display: flex; align-items: center; gap: 10px;">
-                        <!-- Admin Menu -->
-                        <template v-if="isAdmin">
-                            <button @click="store.setView('dashboard')" :class="{ active: store.state.currentView === 'dashboard' }">
-                                <span class="nav-icon"><LucideIcon name="layout-dashboard" size="20"></LucideIcon></span> 
-                                <span class="nav-label">Dashboard</span>
+                        
+                        <!-- Dynamic Menu Generation -->
+                        <template v-for="item in menuTree" :key="item.id || item.view">
+                            
+                            <!-- Single Item -->
+                            <button v-if="!item.children" 
+                                @click="store.setView(item.view)" 
+                                :class="{ active: store.state.currentView === item.view }">
+                                <span class="nav-icon"><LucideIcon :name="item.icon" size="20"></LucideIcon></span>
+                                <span class="nav-label">{{ item.label }}</span>
                             </button>
-                            <button @click="store.setView('todos')" :class="{ active: store.state.currentView === 'todos' }">
-                                <span class="nav-icon"><LucideIcon name="check-square" size="20"></LucideIcon></span>
-                                <span class="nav-label">My Todos</span>
-                            </button>
-                            <button @click="store.setView('users')" :class="{ active: store.state.currentView === 'users' }">
-                                <span class="nav-icon"><LucideIcon name="users" size="20"></LucideIcon></span>
-                                <span class="nav-label">Users</span>
-                            </button>
-                            <button @click="store.setView('cms')" :class="{ active: store.state.currentView === 'cms' }">
-                                <span class="nav-icon"><LucideIcon name="file-text" size="20"></LucideIcon></span>
-                                <span class="nav-label">CMS</span>
-                            </button>
-                            <button @click="store.setView('cms-templates')" :class="{ active: store.state.currentView === 'cms-templates' }">
-                                <span class="nav-icon"><LucideIcon name="layout-template" size="20"></LucideIcon></span>
-                                <span class="nav-label">Templates</span>
-                            </button>
-                            <button @click="store.setView('forms')" :class="{ active: store.state.currentView === 'forms' }">
-                                <span class="nav-icon"><LucideIcon name="clipboard-list" size="20"></LucideIcon></span>
-                                <span class="nav-label">Forms</span>
-                            </button>
-                            <button @click="store.setView('database')" :class="{ active: store.state.currentView === 'database' }">
-                                <span class="nav-icon"><LucideIcon name="database" size="20"></LucideIcon></span>
-                                <span class="nav-label">Databases</span>
-                            </button>
-                            <button @click="store.setView('map')" :class="{ active: store.state.currentView === 'map' }">
-                                <span class="nav-icon"><LucideIcon name="map" size="20"></LucideIcon></span>
-                                <span class="nav-label">Maps</span>
-                            </button>
-                            <button @click="store.setView('api-builder')" :class="{ active: store.state.currentView === 'api-builder' }">
-                                <span class="nav-icon"><LucideIcon name="zap" size="20"></LucideIcon></span>
-                                <span class="nav-label">APIs</span>
-                            </button>
-                            <button @click="store.setView('console')" :class="{ active: store.state.currentView === 'console' }">
-                                <span class="nav-icon"><LucideIcon name="terminal" size="20"></LucideIcon></span>
-                                <span class="nav-label">Console</span>
-                            </button>
+
+                            <!-- Dropdown Group -->
+                            <div v-else class="nav-group" 
+                                :class="{ 'open': activeDropdown === item.id, 'active': isGroupActive(item) }"
+                                @mouseenter="!isMobile && (activeDropdown = item.id)"
+                                @mouseleave="!isMobile && (activeDropdown = null)"
+                                @click="isMobile && toggleDropdown(item.id)">
+                                
+                                <button class="nav-group-trigger" :class="{ 'group-active': isGroupActive(item) }">
+                                    <span class="nav-icon"><LucideIcon :name="item.icon" size="20"></LucideIcon></span>
+                                    <span class="nav-label">{{ item.label }}</span>
+                                    <span class="chevron"><LucideIcon name="chevron-down" size="14"></LucideIcon></span>
+                                </button>
+                                
+                                <div class="nav-dropdown-menu">
+                                    <button v-for="child in item.children" 
+                                        :key="child.view"
+                                        @click.stop="store.setView(child.view); activeDropdown = null"
+                                        :class="{ active: store.state.currentView === child.view }">
+                                        <span class="nav-icon"><LucideIcon :name="child.icon" size="18"></LucideIcon></span>
+                                        <span class="nav-label">{{ child.label }}</span>
+                                    </button>
+                                </div>
+                            </div>
+
                         </template>
 
-                        <!-- Member Menu -->
-                        <template v-else>
-                            <button @click="store.setView('todos')" :class="{ active: store.state.currentView === 'todos' }">
-                                <span class="nav-icon"><LucideIcon name="check-square" size="20"></LucideIcon></span>
-                                <span class="nav-label">My Todos</span>
-                            </button>
-                            <button @click="store.setView('cms')" :class="{ active: store.state.currentView === 'cms' }">
-                                <span class="nav-icon"><LucideIcon name="file-text" size="20"></LucideIcon></span>
-                                <span class="nav-label">CMS</span>
-                            </button>
-                            <button @click="store.setView('forms')" :class="{ active: store.state.currentView === 'forms' }">
-                                <span class="nav-icon"><LucideIcon name="clipboard-list" size="20"></LucideIcon></span>
-                                <span class="nav-label">Forms</span>
-                            </button>
-                            <button @click="store.setView('map')" :class="{ active: store.state.currentView === 'map' }">
-                                <span class="nav-icon"><LucideIcon name="map" size="20"></LucideIcon></span>
-                                <span class="nav-label">Maps</span>
-                            </button>
-                        </template>
                         
                         <button @click="store.setView('settings')" :class="{ active: store.state.currentView === 'settings' }" style="opacity: 0.8;">
                             <span class="nav-icon"><LucideIcon name="settings" size="20"></LucideIcon></span>
@@ -137,6 +112,60 @@ const App = {
     `,
     setup() {
         const isAdmin = store.getters.isAdmin;
+        const activeDropdown = ref(null);
+        const isMobile = ref(window.innerWidth <= 768);
+
+        window.addEventListener('resize', () => {
+            isMobile.value = window.innerWidth <= 768;
+        });
+
+        const menuItems = [
+            { label: 'Dashboard', view: 'dashboard', icon: 'layout-dashboard', adminOnly: true },
+            { label: 'Projects', view: 'todos', icon: 'check-square' },
+            {
+                label: 'Content', icon: 'folder', id: 'grp-content', children: [
+                    { label: 'CMS', view: 'cms', icon: 'file-text' },
+                    { label: 'Templates', view: 'cms-templates', icon: 'layout-template', adminOnly: true },
+                    { label: 'Forms', view: 'forms', icon: 'clipboard-list' },
+                    { label: 'Maps', view: 'map', icon: 'map' }
+                ]
+            },
+            {
+                label: 'System', icon: 'settings-2', id: 'grp-system', adminOnly: true, children: [
+                    { label: 'Users', view: 'users', icon: 'users' },
+                    { label: 'Databases', view: 'database', icon: 'database' },
+                    { label: 'APIs', view: 'api-builder', icon: 'zap' },
+                    { label: 'Console', view: 'console', icon: 'terminal' }
+                ]
+            }
+        ];
+
+        const menuTree = computed(() => {
+            const admin = isAdmin.value;
+            return menuItems.map(item => {
+                if (item.adminOnly && !admin) return null;
+
+                if (item.children) {
+                    const visibleChildren = item.children.filter(child => !child.adminOnly || admin);
+                    if (visibleChildren.length === 0) return null;
+                    return { ...item, children: visibleChildren };
+                }
+                return item;
+            }).filter(Boolean);
+        });
+
+        const isGroupActive = (item) => {
+            if (!item.children) return false;
+            return item.children.some(child => child.view === store.state.currentView);
+        };
+
+        const toggleDropdown = (id) => {
+            if (activeDropdown.value === id) {
+                activeDropdown.value = null;
+            } else {
+                activeDropdown.value = id;
+            }
+        };
 
         const currentComponent = computed(() => {
             if (!store.state.user) return Login;
@@ -186,7 +215,12 @@ const App = {
             store,
             isAdmin,
             currentComponent,
-            onLogin
+            onLogin,
+            menuTree,
+            activeDropdown,
+            toggleDropdown,
+            isGroupActive,
+            isMobile
         };
     }
 };

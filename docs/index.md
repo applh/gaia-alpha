@@ -12,7 +12,8 @@ Welcome to the official documentation for Gaia Alpha.
 - **[Plugins](plugins.md)**: Extending functionality with hooks.
 - **[Security](security_comparison.md)**: How we keep you safe.
 - **[Console Arch](webshell_architecture.md)**: Webshell internals.
-- **[Media System](api.md#media)**: Handling images and videos.
+-   **[Menu System](vue_components.md)**: Frontend components and navigation.
+-   **[Media System](api.md#media)**: Handling images and videos.
 
 ## Advanced
 - **[Performance & Benchmarking](performance.md)**: Measuring and profiling.

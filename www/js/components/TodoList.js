@@ -175,7 +175,7 @@ export default {
     template: `
         <div class="admin-page">
             <div class="admin-header">
-                <h2 class="page-title">My Todos</h2>
+                <h2 class="page-title">Projects</h2>
                 <div class="nav-tabs">
                     <button @click="viewMode = 'list'" :class="{ active: viewMode === 'list' }">List</button>
                     <button @click="viewMode = 'calendar'" :class="{ active: viewMode === 'calendar' }">Calendar</button>

@@ -49,8 +49,10 @@ Everything you need to know about using and extending Gaia Alpha.
 - **Zero-Config Database**: Auto-migrating SQLite setup.
 - **Reactive UI**: Vue 3 frontend without a build step (ES Modules).
 - **CLI Power**: Comprehensive command-line tools for DB, Media, and Files.
-- **Media Engine**: Advanced image and video processing on the fly.
+- **Video Engine**: Advanced image and video processing on the fly.
 - **Role-Based Access**: Built-in authentication and permission system.
+- **Real-time Chat**: User-to-user messaging system.
+- **Slot-Based Templating**: Powerful visual page builder with reusable layouts.
 
 ---
 

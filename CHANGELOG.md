@@ -1,6 +1,14 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+## [v0.25.0] - 2025-12-12
+### Added
+- **Chat**: Real-time user-to-user messaging system (`ChatPanel.js`, `ChatController`, `messages` table).
+- **Templates**: Slot-Based Templating System.
+    - Added "Properties" panel to `TemplateBuilder` for defining named slots and column counts (1-12).
+    - Added `SlotEditor` for simplified page content editing based on template slots.
+- **CMS**: Public Page Renderer. Pages created via templates are now rendered as HTML at `/page/:slug` (`PublicController`).
+
 ## [v0.24.0] - 2025-12-12
 ### Added
 - **CLI**: Added `db:save` command to snapshot the database into `my-data/backups/`.

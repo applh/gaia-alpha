@@ -206,12 +206,13 @@ const PreviewRenderer = {
         </div>
 
         <!-- Content -->
-        <h1 v-if="element.type === 'h1'">Heading 1</h1>
-        <h2 v-if="element.type === 'h2'">Heading 2</h2>
-        <h3 v-if="element.type === 'h3'">Heading 3</h3>
-        <p v-if="element.type === 'p'">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-        <div v-if="element.type === 'image'" style="width: 100%; height: 150px; background: #eee; display: flex; align-items: center; justify-content: center; color: #888;">
-            Image Preview
+        <h1 v-if="element.type === 'h1'">{{ element.content || 'Heading 1' }}</h1>
+        <h2 v-if="element.type === 'h2'">{{ element.content || 'Heading 2' }}</h2>
+        <h3 v-if="element.type === 'h3'">{{ element.content || 'Heading 3' }}</h3>
+        <p v-if="element.type === 'p'">{{ element.content || 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.' }}</p>
+        <div v-if="element.type === 'image'" style="width: 100%; height: 150px; background: #eee; display: flex; align-items: center; justify-content: center; color: #888; overflow: hidden;">
+             <img v-if="element.src" :src="element.src" style="width:100%; height:100%; object-fit:cover;" />
+             <span v-else>Image Preview</span>
         </div>
     `
 };
@@ -230,7 +231,7 @@ export default {
             <div class="tool-category" style="margin-bottom: 20px;">
                 <label style="font-size: 0.8em; font-weight: bold; color: var(--text-secondary); margin-bottom: 8px; display: block; text-transform: uppercase;">Structure</label>
                 <div class="toolbox-item" draggable="true" @dragstart="onToolDragStart($event, 'section')">Section</div>
-                <div class="toolbox-item" draggable="true" @dragstart="onToolDragStart($event, 'columns')">Columns (2)</div>
+                <div class="toolbox-item" draggable="true" @dragstart="onToolDragStart($event, 'columns')">Columns (1-12)</div>
             </div>
 
             <div class="tool-category">
@@ -239,6 +240,37 @@ export default {
                 <div class="toolbox-item" draggable="true" @dragstart="onToolDragStart($event, 'h2')">Heading 2</div>
                 <div class="toolbox-item" draggable="true" @dragstart="onToolDragStart($event, 'p')">Paragraph</div>
                 <div class="toolbox-item" draggable="true" @dragstart="onToolDragStart($event, 'image')">Image</div>
+            </div>
+
+            <div v-if="selectedItem" class="properties-panel" style="margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border-color);">
+                <h4 style="margin-bottom: 10px; font-size: 0.9em; text-transform: uppercase; color: var(--text-secondary);">Properties</h4>
+                
+                <div v-if="selectedItem.type === 'columns'" class="prop-group">
+                    <label style="display:block; font-size:0.8em; margin-bottom:5px;">Columns (1-12)</label>
+                    <input type="number" min="1" max="12" :value="selectedItem.children.length" @input="updateColumnCount($event.target.value)" style="width:100%; padding:5px; background:rgba(0,0,0,0.2); border:1px solid var(--border-color); color:var(--text-primary); border-radius:4px;">
+                </div>
+
+                <!-- Common Properties: Slot Name -->
+                <div class="prop-group" style="margin-top: 10px;">
+                    <label style="display:block; font-size:0.8em; margin-bottom:5px;">Slot Name (for Page Editor)</label>
+                    <input type="text" v-model="selectedItem.slotName" placeholder="e.g. Main Headline" style="width:100%; padding:5px; background:rgba(0,0,0,0.2); border:1px solid var(--border-color); color:var(--text-primary); border-radius:4px;">
+                </div>
+
+                <!-- Text Content Properties -->
+                <div v-if="['h1','h2','h3','p'].includes(selectedItem.type)" class="prop-group" style="margin-top: 10px;">
+                    <label style="display:block; font-size:0.8em; margin-bottom:5px;">Text Content</label>
+                    <textarea v-model="selectedItem.content" rows="3" style="width:100%; padding:5px; background:rgba(0,0,0,0.2); border:1px solid var(--border-color); color:var(--text-primary); border-radius:4px;"></textarea>
+                </div>
+                
+                <!-- Image Properties -->
+                <div v-if="selectedItem.type === 'image'" class="prop-group" style="margin-top: 10px;">
+                    <label style="display:block; font-size:0.8em; margin-bottom:5px;">Image URL</label>
+                    <input type="text" v-model="selectedItem.src" placeholder="/uploads/..." style="width:100%; padding:5px; background:rgba(0,0,0,0.2); border:1px solid var(--border-color); color:var(--text-primary); border-radius:4px;">
+                </div>
+
+                <div v-if="!['columns', 'h1', 'h2', 'h3', 'p', 'image'].includes(selectedItem.type)" style="font-size:0.8em; color:var(--text-muted); font-style:italic; margin-top:10px;">
+                    No specific properties for {{ selectedItem.type }}
+                </div>
             </div>
 
             <div style="margin-top: auto; padding-top: 10px; border-top: 1px solid var(--border-color);">
@@ -417,6 +449,8 @@ export default {
             if (type === 'columns') {
                 item.children = [{ type: 'column', children: [] }, { type: 'column', children: [] }];
             }
+            if (['h1', 'h2', 'h3'].includes(type)) item.content = 'Heading';
+            if (type === 'p') item.content = 'Lorem ipsum paragraph.';
             return item;
         };
 
@@ -518,6 +552,27 @@ export default {
             }
         };
 
+        // --- Properties Logic ---
+        const selectedItem = computed(() => {
+            if (!selectedPath.value) return null;
+            return getItemAt(selectedPath.value);
+        });
+
+        const updateColumnCount = (newCount) => {
+            if (!selectedItem.value || selectedItem.value.type !== 'columns') return;
+            const current = selectedItem.value.children.length;
+            const target = parseInt(newCount);
+
+            if (target > current) {
+                for (let i = 0; i < target - current; i++) {
+                    selectedItem.value.children.push({ type: 'column', children: [] });
+                }
+            } else if (target < current) {
+                // Remove from end
+                selectedItem.value.children.splice(target);
+            }
+        };
+
         // Provide
         provide('emitAction', handleMove);
         provide('activeDrag', activeDrag);
@@ -533,7 +588,9 @@ export default {
             dragState,
             selectItem,
             selectedPath,
-            removeSelected
+            selectedItem,
+            removeSelected,
+            updateColumnCount
         };
     }
 };

@@ -122,8 +122,12 @@ const App = {
 
         const menuItems = [
             { label: 'Dashboard', view: 'dashboard', icon: 'layout-dashboard', adminOnly: true },
-            { label: 'Projects', view: 'todos', icon: 'check-square' },
-            { label: 'Chat', view: 'chat', icon: 'message-square' },
+            {
+                label: 'Projects', icon: 'check-square', id: 'grp-projects', children: [
+                    { label: 'Tasks', view: 'todos', icon: 'list-todo' },
+                    { label: 'Chat', view: 'chat', icon: 'message-square' },
+                ]
+            },
             {
                 label: 'Content', icon: 'folder', id: 'grp-content', children: [
                     { label: 'CMS', view: 'cms', icon: 'file-text' },

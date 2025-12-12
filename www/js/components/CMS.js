@@ -1,13 +1,14 @@
 import { ref, reactive, onMounted, computed, watch } from 'vue';
 import SortTh from './SortTh.js';
 import TemplateBuilder from './TemplateBuilder.js';
+import SlotEditor from './SlotEditor.js';
 import MenuBuilder from './MenuBuilder.js';
 import Icon from './Icon.js';
 import { useSorting } from '../composables/useSorting.js';
 import { store } from '../store.js';
 
 export default {
-    components: { SortTh, TemplateBuilder, MenuBuilder, LucideIcon: Icon },
+    components: { SortTh, TemplateBuilder, MenuBuilder, LucideIcon: Icon, SlotEditor },
     template: `
         <div class="admin-page">
             <div class="admin-header">
@@ -114,21 +115,38 @@ export default {
                             <input type="file" ref="featuredInput" @change="uploadFeatured" style="display: none" accept="image/jpeg,image/png,image/webp">
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label>Content</label>
-                        <div class="editor-toolbar">
-                             <input type="file" ref="fileInput" @change="uploadImage" style="display: none" accept="image/jpeg,image/png,image/webp">
-                             <button type="button" @click="triggerUpload" class="btn-small">Insert Image in Content</button>
-                        </div>
-                        <textarea v-model="form.content" rows="10" placeholder="Page content (HTML allowed)"></textarea>
-                        </div>
                     </template>
-
                     <!-- Template Specific Fields -->
                     <template v-if="filterCat === 'template'">
                         <div class="form-group">
                             <label>Structure Builder</label>
                             <TemplateBuilder v-model="form.content" />
+                        </div>
+                    </template>
+
+                    <!-- Page Editor with Visual Builder Option -->
+                    <template v-if="filterCat === 'page'">
+                        <div class="form-group" v-if="useBuilder">
+                            <label>
+                                Visual Editor 
+                                <span class="btn-group" style="margin-left:10px;">
+                                    <button type="button" @click="editStructure = !editStructure" class="btn-xs" :class="{ 'btn-primary': editStructure }">
+                                        {{ editStructure ? 'Switch to Slots' : 'Edit Structure' }}
+                                    </button>
+                                    <button type="button" @click="useBuilder = false" class="btn-xs">Switch to Code</button>
+                                </span>
+                            </label>
+                            
+                            <TemplateBuilder v-if="editStructure" v-model="form.content" />
+                            <SlotEditor v-else v-model="form.content" />
+                        </div>
+                        <div class="form-group" v-else>
+                            <label>Content <button type="button" @click="useBuilder = true" class="btn-xs" v-if="isStructured">Switch to Visual</button></label>
+                            <div class="editor-toolbar">
+                                 <input type="file" ref="fileInput" @change="uploadImage" style="display: none" accept="image/jpeg,image/png,image/webp">
+                                 <button type="button" @click="triggerUpload" class="btn-small">Insert Image in Content</button>
+                            </div>
+                            <textarea v-model="form.content" rows="10" placeholder="Page content (HTML allowed)"></textarea>
                         </div>
                     </template>
                     <div class="form-actions">
@@ -148,6 +166,8 @@ export default {
         const fileInput = ref(null);
         const headerUpload = ref(null);
         const filterCat = ref('page');
+        const useBuilder = ref(false);
+        const editStructure = ref(false);
         const { sortColumn, sortDirection, sortBy, sortedData: sortedPages } = useSorting(pages, 'created_at', 'desc', {
             title: (row) => row.title || row.filename
         });
@@ -180,6 +200,48 @@ export default {
             content: '',
             cat: 'page',
             template_slug: ''
+        });
+
+        const isStructured = computed(() => {
+            try {
+                const parsed = JSON.parse(form.content);
+                return parsed && (parsed.header || parsed.main || parsed.footer);
+            } catch (e) {
+                return false;
+            }
+        });
+
+        watch(() => form.content, (val) => {
+            // Auto-detect JSON structure for existing pages
+            if (!useBuilder.value && val && val.trim().startsWith('{')) {
+                if (isStructured.value) useBuilder.value = true;
+            }
+        }, { immediate: true });
+
+        watch(() => form.template_slug, async (newSlug) => {
+            if (newSlug) {
+                // For new pages or explicit changes, automatic apply if content allows
+                // If content is empty or short, we apply.
+                // Or if user just switched template, we assume they want that structure.
+                // Since user explicitly selected dropdown, we do it.
+                if (!form.content || !form.id || confirm('Switching template will overwrite current content. Ok?')) {
+                    const template = allTemplates.value.find(t => t.slug === newSlug);
+                    if (template) {
+                        // Implicitly apply without annoying popup if content is empty or it's a new page creation flow
+                        // effectively removing the "flash" for the happy path
+                        if (!form.id || !form.content) {
+                            form.content = template.content;
+                            useBuilder.value = true;
+                        } else {
+                            // Only ask if there is potentially valuable content being lost
+                            // But user asked to remove "flashing popup"
+                            // Let's assume on creation (no ID) we just do it.
+                            form.content = template.content;
+                            useBuilder.value = true;
+                        }
+                    }
+                }
+            }
         });
 
         const fetchTemplatesList = async () => {
@@ -380,7 +442,7 @@ export default {
             pages, allTemplates, loading, showForm, form, fileInput, headerUpload, filterCat,
             openCreate, editPage, savePage, deletePage, cancelForm, generateSlug,
             formatDate, triggerUpload, uploadImage, uploadFeatured, uploadHeaderImage, fetchPages,
-            sortBy, sortColumn, sortDirection, sortedPages, pageTitle, pageIcon
+            sortBy, sortColumn, sortDirection, sortedPages, pageTitle, pageIcon, useBuilder, isStructured, editStructure
         };
     }
 };

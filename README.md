@@ -5,6 +5,8 @@
 ![Vue Version](https://img.shields.io/badge/vue-3.x-4FC08D.svg?logo=vue.js)
 ![Status](https://img.shields.io/badge/status-active-success.svg)
 
+## About
+
 **Gaia Alpha** is a lightweight, self-contained web application framework that bridges the gap between simple PHP scripts and complex modern web apps. It features a robust PHP backend, a reactive Vue.js frontend, and zero-configuration SQLite persistence.
 
 > "Simplicity is the ultimate sophistication." - Leonardo da Vinci

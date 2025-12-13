@@ -106,6 +106,7 @@ Hook::run('my_custom_event', $data);
 |-----------|-----------|-------------|
 | `router_dispatch_before` | `$method`, `$uri` | Fired before the router attempts to match a route. |
 | `router_matched` | `$route`, `$matches` | Fired when a route is successfully matched. |
+| `router_dispatch_after` | `$route`, `$matches` | Fired after the route handler is executed. |
 | `router_404` | `$uri` | Fired when no route matches. |
 | `controller_init` | `$controller`, `$key` | Fired in `Framework::loadControllers`. |
 

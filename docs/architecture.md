@@ -105,6 +105,24 @@ The `ViewController` (Rank 100) handles catch-all routing (`.*`). To prevent spe
 
 **Any new top-level reserved namespace (e.g., `/hooks`) must be added to this exclusion list in `ViewController::registerRoutes`.**
 
+## Response Handling
+All JSON responses are routed through the `Response` class (`GaiaAlpha\Response`). This centralization allows for consistent formatting and plugin interception.
+
+### Usage
+```php
+use GaiaAlpha\Response;
+
+// Send data and exit
+Response::json(['success' => true], 200);
+```
+
+### Hooks
+The response lifecycle includes hooks to modify output:
+- `response_json_before`: context `['data' => &$data, 'status' => &$status]`
+    - Useful for wrapping responses (e.g., standardizing API envelopes) or injecting global metadata.
+- `response_send_before`: parameters `$data, $status`
+    - Useful for logging or setting final headers.
+
 ## Routes Map
 
 | Controller | Use Case | Prefix | Key Routes |

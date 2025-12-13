@@ -85,7 +85,7 @@
             const slug = window.location.pathname.split('/').pop();
 
             try {
-                const res = await fetch(`/api/public/pages/${slug}`);
+                const res = await fetch(`/@/public/pages/${slug}`);
                 if (!res.ok) throw new Error('Page not found');
 
                 const page = await res.json();

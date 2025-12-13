@@ -105,7 +105,7 @@
         document.addEventListener('DOMContentLoaded', async () => {
             const grid = document.getElementById('pages-grid');
             try {
-                const res = await fetch('/api/public/pages');
+                const res = await fetch('/@/public/pages');
                 const pages = await res.json();
 
                 if (pages.length === 0) {

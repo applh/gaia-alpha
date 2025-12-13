@@ -1,6 +1,10 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+## [v0.26.1] - 2025-12-13
+### Added
+- **CMS**: Integrated `ImageSelector` into `SlotEditor` for easy image selection in templates.
+
 ## [v0.26.0] - 2025-12-13
 ### Added
 - **Media**: Native AVIF support. Automatically prioritizes AVIF conversion if supported by the server, falling back to WebP.

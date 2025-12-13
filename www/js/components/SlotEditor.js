@@ -1,7 +1,11 @@
 import { ref, watch, computed } from 'vue';
+import ImageSelector from './ImageSelector.js';
+import Icon from './Icon.js';
 
 const SlotCard = {
     props: ['node'],
+    components: { LucideIcon: Icon },
+    emits: ['browse'],
     template: `
         <div class="slot-card" style="background: var(--card-bg); border: 1px solid var(--border-color); padding: 15px; border-radius: 8px; margin-bottom: 15px;">
             <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
@@ -20,7 +24,12 @@ const SlotCard = {
                     <div style="width:60px; height:60px; background:#333; border-radius:4px; overflow:hidden; flex-shrink:0;">
                          <img v-if="node.src" :src="node.src" style="width:100%; height:100%; object-fit:cover;" />
                     </div>
-                    <input type="text" v-model="node.src" placeholder="Image URL..." style="flex:1; padding:8px; background:rgba(255,255,255,0.05); border:1px solid var(--border-color); color:var(--text-primary); border-radius:4px;">
+                    <div style="flex:1; display:flex; gap:5px;">
+                        <input type="text" v-model="node.src" placeholder="Image URL..." style="flex:1; padding:8px; background:rgba(255,255,255,0.05); border:1px solid var(--border-color); color:var(--text-primary); border-radius:4px;">
+                        <button type="button" @click="$emit('browse', node)" class="btn-secondary" style="padding:0 10px;" title="Browse Image">
+                            <LucideIcon name="image" size="16" />
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -33,7 +42,7 @@ const SlotCard = {
 };
 
 export default {
-    components: { SlotCard },
+    components: { SlotCard, ImageSelector },
     props: ['modelValue'],
     emits: ['update:modelValue'],
     template: `
@@ -47,7 +56,7 @@ export default {
                     <small>Edit the template structure to add named slots.</small>
                 </div>
 
-                <SlotCard v-for="(slot, idx) in slots" :key="idx" :node="slot" />
+                <SlotCard v-for="(slot, idx) in slots" :key="idx" :node="slot" @browse="openSelector" />
             </div>
 
             <!-- Preview / Help -->
@@ -58,10 +67,29 @@ export default {
                     The preview is available in the main list.
                 </p>
             </div>
+
+            <ImageSelector 
+                :show="showSelector" 
+                @close="showSelector = false"
+                @select="handleSelection"
+            />
         </div>
     `,
     setup(props, { emit }) {
         const structure = ref({ header: [], main: [], footer: [] });
+        const showSelector = ref(false);
+        const activeNode = ref(null);
+
+        const openSelector = (node) => {
+            activeNode.value = node;
+            showSelector.value = true;
+        };
+
+        const handleSelection = (img) => {
+            if (activeNode.value) {
+                activeNode.value.src = img.image;
+            }
+        };
 
         // Parse incoming JSON
         watch(() => props.modelValue, (val) => {
@@ -110,7 +138,7 @@ export default {
         const slots = computed(() => findSlots());
 
         return {
-            slots
+            slots, showSelector, openSelector, handleSelection
         };
     }
 };

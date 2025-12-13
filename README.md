@@ -52,6 +52,7 @@ Everything you need to know about using and extending Gaia Alpha.
 - **Role-Based Access**: Built-in authentication and permission system.
 - **Real-time Chat**: User-to-user messaging system.
 - **Slot-Based Templating**: Powerful visual page builder with reusable layouts.
+- **Smart Asset Pipeline**: On-the-fly minification and caching for CSS and JS assets.
 
 ---
 

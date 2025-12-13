@@ -1,6 +1,22 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+## [v0.27.0] - 2025-12-13
+### Added
+- **Assets**: Smart Asset Pipeline. On-the-fly minification and caching for CSS and JS assets via `/min/` routes.
+- **Assets**: `AssetController` to handle asset serving, caching, and fallback logic (checking `js` folders for CSS).
+- **Assets**: `Asset::url()` helper to generate versioned, minified URLs.
+- **Docs**: Updated `docs/performance.md` and `docs/docker_deployment.md` with Nginx FastCGI caching guide.
+
+### Refactored
+- **Assets**: Moved public assets from `www/` to `resources/` to prevent direct access and enforce the minification pipeline.
+- **Docker**: Optimized Nginx configurations in `docker/deployment` and `docker/multimedia` to cache minified assets.
+
+### Fixed
+- **Assets**: Fixed `Asset::url` to correctly handle query strings (e.g., `?v=2`).
+- **Assets**: Fixed 404 errors for vendor assets by implementing a CSS-in-JS folder fallback and image passthrough.
+- **Map**: Fixed hardcoded asset paths in `MapPanel.js` for Leaflet and Globe.gl.
+
 ## [v0.26.1] - 2025-12-13
 ### Added
 - **CMS**: Integrated `ImageSelector` into `SlotEditor` for easy image selection in templates.

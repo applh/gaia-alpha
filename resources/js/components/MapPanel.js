@@ -106,7 +106,7 @@ export default {
                 const link = document.createElement('link');
                 link.id = 'leaflet-css';
                 link.rel = 'stylesheet';
-                link.href = '/js/vendor/leaflet/leaflet.css';
+                link.href = '/min/css/vendor/leaflet/leaflet.css';
                 document.head.appendChild(link);
             }
 
@@ -114,7 +114,7 @@ export default {
             if (!window.L) {
                 await new Promise((resolve, reject) => {
                     const script = document.createElement('script');
-                    script.src = '/js/vendor/leaflet/leaflet.js';
+                    script.src = '/min/js/vendor/leaflet/leaflet.js';
                     script.onload = resolve;
                     script.onerror = reject;
                     document.head.appendChild(script);
@@ -144,7 +144,7 @@ export default {
             if (!window.Globe) {
                 await new Promise((resolve, reject) => {
                     const script = document.createElement('script');
-                    script.src = '/js/vendor/globe.gl.js';
+                    script.src = '/min/js/vendor/globe.gl.js';
                     script.onload = resolve;
                     script.onerror = reject;
                     document.head.appendChild(script);

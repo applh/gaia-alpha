@@ -61,7 +61,7 @@ class ViewController extends BaseController
         Router::get('/page/([\w-]+)/?', [$this, 'page']);
 
         // Catch-all (Home)
-        // Must NOT match /api/ or /media/ to allow them to 404 properly if not found
-        Router::get('(?!/api/|/media/).*', [$this, 'home']);
+        // Must NOT match /api/, /media/, /js/, /css/ to allow them to 404 properly if not found
+        Router::get('(?!/api/|/media/|/js/|/css/|/images/).*', [$this, 'home']);
     }
 }

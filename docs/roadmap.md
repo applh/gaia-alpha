@@ -27,4 +27,4 @@ This document outlines the future plans and upcoming features for the Gaia Alpha
 
 ## 🚀 Performance
 - **Caching Drivers**: Support for Redis or Memcached in addition to the file-based cache.
-- **Asset Minification**: On-the-fly minification of CSS/JS for production environments.
+- [x] **Asset Minification**: On-the-fly minification of CSS/JS for production environments.

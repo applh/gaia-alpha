@@ -92,3 +92,45 @@ Hook::add('app_terminate', function() use ($start) {
     error_log("Request Duration: {$duration}ms");
 });
 ```
+
+## Nginx Asset Caching
+
+When serving assets via the `AssetController` (e.g. `/min/css/...`), PHP is executed for every request to check cache validity. To achieve performance comparable to static files, you can configure Nginx to cache the output of these PHP requests.
+
+### Configuration Example
+
+Add the following to your Nginx server block:
+
+```nginx
+# Define cache path (in http block)
+fastcgi_cache_path /var/cache/nginx/gaia_assets levels=1:2 keys_zone=gaia_assets:10m inactive=60m;
+
+server {
+    ...
+
+    # Cache Minified Assets
+    location ~ ^/min/(css|js)/ {
+        include fastcgi_params;
+        fastcgi_pass unix:/var/run/php/php8.2-fpm.sock; # Adjust for your PHP socket
+        fastcgi_param SCRIPT_FILENAME $document_root/index.php;
+        
+        # Enable Caching
+        fastcgi_cache gaia_assets;
+        fastcgi_cache_valid 200 60m; # Cache successful responses for 60 minutes
+        fastcgi_cache_use_stale error timeout updating http_500;
+        fastcgi_cache_lock on;
+        
+        # Bypass cache for development
+        # fastcgi_cache_bypass $cookie_nocache;
+        
+        # Add header to debug cache status
+        add_header X-FastCGI-Cache $upstream_cache_status;
+    }
+    
+    ...
+}
+```
+
+### Benefits
+- **Zero PHP Overhead**: Subsequent requests are served directly by Nginx from disk/memory.
+- **Massive Concurrency**: Nginx can handle thousands of static file requests per second with minimal CPU usage compared to PHP.

@@ -1,0 +1,28 @@
+[
+    {
+        "title": "Welcome to Gaia Alpha!",
+        "labels": "demo",
+        "color": "#10b981",
+        "start_date": "now",
+        "end_date": "+2 days"
+    },
+    {
+        "title": "Explore the App Dashboard",
+        "labels": "start",
+        "color": "#3b82f6"
+    },
+    {
+        "title": "Customize your site",
+        "children": [
+            {
+                "title": "Change colors in User Settings"
+            },
+            {
+                "title": "Review documentation"
+            },
+            {
+                "title": "create your first page"
+            }
+        ]
+    }
+]

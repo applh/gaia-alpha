@@ -111,28 +111,50 @@
         <form id="install-form">
             <div class="form-group">
                 <label for="username">Username</label>
-                <input type="text" id="username" name="username" required autofocus autocomplete="off">
+                <input type="text" id="username" name="username" value="admin" required autofocus autocomplete="off">
             </div>
 
             <div class="form-group">
                 <label for="password">Password</label>
-                <input type="password" id="password" name="password" required>
+                <div style="position: relative; display: block; width: 100%;">
+                    <input type="password" id="password" name="password" value="admin" required
+                        style="width: 100%; padding-right: 40px; box-sizing: border-box;">
+                    <button type="button"
+                        onclick="const i = document.getElementById('password'); i.type = i.type === 'password' ? 'text' : 'password';"
+                        style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--gray); padding: 0; display: flex; align-items: center; justify-content: center; width: auto;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                            style="pointer-events: none;">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                            <circle cx="12" cy="12" r="3"></circle>
+                        </svg>
+                    </button>
+                </div>
             </div>
-            
+
             <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid #334155;">
                 <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-                    <input type="checkbox" name="create_app" value="1" checked onchange="document.getElementById('app-slug-group').style.display = this.checked ? 'block' : 'none'" style="width: auto;">
+                    <input type="checkbox" name="create_app" value="1" checked
+                        onchange="document.getElementById('app-slug-group').style.display = this.checked ? 'block' : 'none'"
+                        style="width: auto;">
                     Create App Dashboard Page
                 </label>
-                
+
                 <div id="app-slug-group" class="form-group" style="margin-top: 1rem;">
                     <label for="app_slug">App URI Path</label>
                     <div style="display: flex; align-items: center; gap: 0.5rem;">
                         <span style="color: var(--gray);">/</span>
-                        <input type="text" id="app_slug" name="app_slug" value="app" placeholder="app" pattern="[a-z0-9-_]+" title="Lowercase letters, numbers, and hyphens only">
+                        <input type="text" id="app_slug" name="app_slug" value="app" placeholder="app"
+                            pattern="[a-z0-9-_]+" title="Lowercase letters, numbers, and hyphens only">
                     </div>
-                    <p style="font-size: 0.75rem; color: var(--gray); margin-top: 0.25rem;">The public page where the Vue app will be mounted.</p>
+                    <p style="font-size: 0.75rem; color: var(--gray); margin-top: 0.25rem;">The public page where the
+                        Vue app will be mounted.</p>
                 </div>
+
+                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; margin-top: 1rem;">
+                    <input type="checkbox" name="demo_data" value="1" checked style="width: auto;">
+                    Populate with Demo Data (recommended)
+                </label>
             </div>
 
             <button type="submit" style="margin-top: 1.5rem;">Create Account</button>
@@ -160,10 +182,11 @@
                 });
 
                 if (res.ok) {
-                    window.location.href = '/@/login'; // Redirect to login or auto-login? 
-                    // Usually we want them to login to verify.
-                    // Or we could auto-login. Let's redirect to login for now (or root which checks auth).
-                    window.location.href = '/';
+                    btn.textContent = 'Success! Redirecting...';
+                    btn.style.backgroundColor = '#10b981'; // Green
+                    setTimeout(() => {
+                        window.location.href = '/';
+                    }, 500);
                 } else {
                     const json = await res.json();
                     throw new Error(json.error || 'Installation failed');

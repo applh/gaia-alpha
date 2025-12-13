@@ -1,0 +1,7 @@
+{
+    "title": "Home",
+    "slug": "home",
+    "content": "<div class='hero'><h1>Welcome to Gaia Alpha</h1><p class='lead'>The unified open-source operating system for your digital life.</p><a href='/app' class='btn btn-primary'>Launch App</a></div><div class='features'><h2>Why Choose Us?</h2><p>Speed, Simplicity, and Security.</p></div>",
+    "cat": "page",
+    "template_slug": "single_page"
+}

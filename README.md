@@ -24,8 +24,14 @@
    php -S localhost:8000 -t www
    ```
 
-3. **Explore**
-   Open [http://localhost:8000](http://localhost:8000) to see the framework in action.
+3. **Installation**
+   Open [http://localhost:8000](http://localhost:8000). You will be automatically redirected to the **Installation Screen**. 
+   
+   Here you can:
+   - Create your **Administrator Account**.
+   - Optionally create a starter **App Dashboard** page (at `/app`).
+
+   *The system invokes a zero-config setup that automatically creates the database and required folders.*
 
 ---
 

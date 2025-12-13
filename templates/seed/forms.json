@@ -1,0 +1,107 @@
+[
+    {
+        "title": "Contact Us",
+        "slug": "contact",
+        "description": "Get in touch with our team for any inquiries.",
+        "submit_label": "Send Message",
+        "schema": [
+            {
+                "id": "name",
+                "type": "text",
+                "label": "Full Name",
+                "required": true,
+                "placeholder": "Jane Doe"
+            },
+            {
+                "id": "email",
+                "type": "email",
+                "label": "Email Address",
+                "required": true,
+                "placeholder": "jane@company.com"
+            },
+            {
+                "id": "subject",
+                "type": "select",
+                "label": "Subject",
+                "required": true,
+                "options": [
+                    "General Inquiry",
+                    "Sales",
+                    "Support",
+                    "Partnerships"
+                ]
+            },
+            {
+                "id": "message",
+                "type": "textarea",
+                "label": "Message",
+                "required": true,
+                "rows": 5,
+                "placeholder": "How can we help you?"
+            }
+        ],
+        "submissions": [
+            {
+                "name": "Initial Client",
+                "email": "client@example.com",
+                "subject": "Sales",
+                "message": "We are interested in your enterprise solutions."
+            }
+        ]
+    },
+    {
+        "title": "Request a Quote",
+        "slug": "quote",
+        "description": "Tell us about your project needs.",
+        "submit_label": "Get Quote",
+        "schema": [
+            {
+                "id": "company",
+                "type": "text",
+                "label": "Company Name",
+                "required": true
+            },
+            {
+                "id": "service_type",
+                "type": "select",
+                "label": "Service Needed",
+                "options": [
+                    "Web Development",
+                    "Mobile App",
+                    "IT Consulting",
+                    "Digital Marketing"
+                ]
+            },
+            {
+                "id": "budget",
+                "type": "select",
+                "label": "Estimated Budget",
+                "options": [
+                    "$5k - $10k",
+                    "$10k - $25k",
+                    "$25k - $50k",
+                    "$50k+"
+                ]
+            },
+            {
+                "id": "project_details",
+                "type": "textarea",
+                "label": "Project Overview"
+            }
+        ]
+    },
+    {
+        "title": "Newsletter Signup",
+        "slug": "newsletter",
+        "description": "Subscribe for latest updates.",
+        "submit_label": "Subscribe",
+        "schema": [
+            {
+                "id": "email",
+                "type": "email",
+                "label": "Email Address",
+                "required": true
+            }
+        ]
+    }
+]

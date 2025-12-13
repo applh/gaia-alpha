@@ -1,0 +1,7 @@
+{
+    "title": "Contact Us",
+    "slug": "contact",
+    "content": "<h1>Contact Us</h1><p>We are here to help. Reach out to us via email or phone.</p><h3>Headquarters</h3><p>123 Innovation Drive<br>Tech City, 94000<br>USA</p><h3>Support</h3><p>Email: support@gaia-alpha.com<br>Phone: +1 (555) 123-4567</p>",
+    "cat": "page",
+    "template_slug": "single_page"
+}

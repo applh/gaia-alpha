@@ -79,6 +79,7 @@ class AuthController extends BaseController
     public function registerRoutes()
     {
         \GaiaAlpha\Router::add('POST', '/@/login', [$this, 'login']);
+
         \GaiaAlpha\Router::add('POST', '/@/register', [$this, 'register']);
         \GaiaAlpha\Router::add('POST', '/@/logout', [$this, 'logout']);
         \GaiaAlpha\Router::add('GET', '/@/user', [$this, 'me']);

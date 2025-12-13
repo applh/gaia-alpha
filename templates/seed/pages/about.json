@@ -1,0 +1,7 @@
+{
+    "title": "About Us",
+    "slug": "about",
+    "content": "<h1>About Gaia Alpha</h1><p>Gaia Alpha is a lightweight, modern framework designed for speed and simplicity. This is a demo page to show you how content is rendered.</p><blockquote>Simplicity is the ultimate sophistication.</blockquote>",
+    "cat": "page",
+    "template_slug": "single_page"
+}

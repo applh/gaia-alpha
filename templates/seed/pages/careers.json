@@ -1,0 +1,7 @@
+{
+    "title": "Careers",
+    "slug": "careers",
+    "content": "<h1>Join Our Team</h1><p>We are always looking for talented individuals to help us build the future.</p><h3>Open Positions</h3><ul><li>Senior Frontend Developer</li><li>Backend Engineer (PHP/Node)</li><li>Product Designer</li></ul><p>Send your resume to careers@gaia-alpha.com</p>",
+    "cat": "page",
+    "template_slug": "single_page"
+}

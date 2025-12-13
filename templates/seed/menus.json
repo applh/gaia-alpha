@@ -1,0 +1,54 @@
+[
+    {
+        "title": "Main Menu",
+        "location": "main",
+        "items": [
+            {
+                "text": "Home",
+                "href": "/",
+                "target": "_self"
+            },
+            {
+                "text": "About Us",
+                "href": "/page/about",
+                "target": "_self"
+            },
+            {
+                "text": "Services",
+                "href": "/page/services",
+                "target": "_self"
+            },
+            {
+                "text": "Contact",
+                "href": "/page/contact",
+                "target": "_self"
+            },
+            {
+                "text": "App Dashboard",
+                "href": "/app",
+                "target": "_self"
+            }
+        ]
+    },
+    {
+        "title": "Footer Menu",
+        "location": "footer",
+        "items": [
+            {
+                "text": "Privacy Policy",
+                "href": "/page/privacy",
+                "target": "_self"
+            },
+            {
+                "text": "Terms of Service",
+                "href": "/page/terms",
+                "target": "_self"
+            },
+            {
+                "text": "Careers",
+                "href": "/page/careers",
+                "target": "_self"
+            }
+        ]
+    }
+]

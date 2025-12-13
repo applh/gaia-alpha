@@ -56,6 +56,11 @@ class InstallController extends BaseController
                 ]);
             }
 
+            // Seed Demo Data if requested
+            if (!empty($data['demo_data'])) {
+                \GaiaAlpha\Seeder::run($id);
+            }
+
             // Auto login? For now let client handle redirect.
 
             $this->jsonResponse(['success' => true]);

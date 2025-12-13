@@ -1,28 +1,27 @@
-import { ref, watch, computed } from 'vue';
+import { ref, watch, computed, defineAsyncComponent } from 'vue';
 import { store } from '../store.js';
 
 export default {
+    components: {
+        'password-input': defineAsyncComponent(() => import('./PasswordInput.js'))
+    },
     template: `
-        <div class="auth-container">
-            <h2>{{ isLogin ? 'Login' : 'Register' }}</h2>
-            <form @submit.prevent="handleSubmit">
+        <div class="login-container">
+            <form @submit.prevent="login">
+                <h1>Gaia Alpha</h1>
                 <div class="form-group">
-                    <label>Username:</label>
-                    <input v-model="username" type="text" required>
+                    <label>Username</label>
+                    <input v-model="username" type="text" required autofocus>
                 </div>
                 <div class="form-group">
-                    <label>Password:</label>
-                    <input v-model="password" type="password" required>
+                    <label>Password</label>
+                    <password-input v-model="password" required placeholder="Enter password"></password-input>
                 </div>
-                <button type="submit">{{ isLogin ? 'Login' : 'Register' }}</button>
+                <div class="error" v-if="error">{{ error }}</div>
+                <button type="submit" :disabled="loading">
+                    {{ loading ? 'Logging in...' : 'Login' }}
+                </button>
             </form>
-            <p>
-                {{ isLogin ? 'Need an account?' : 'Already have an account?' }}
-                <a href="#" @click.prevent="toggleMode">
-                    {{ isLogin ? 'Register' : 'Login' }}
-                </a>
-            </p>
-            <p v-if="error" class="error">{{ error }}</p>
         </div>
     `,
     setup(props, { emit }) {
@@ -39,9 +38,11 @@ export default {
         const username = ref('');
         const password = ref('');
         const error = ref('');
+        const loading = ref(false);
 
-        const handleSubmit = async () => {
+        const login = async () => {
             error.value = '';
+            loading.value = true;
             const endpoint = isLogin.value ? '/@/login' : '/@/register';
             try {
                 const response = await fetch(endpoint, {
@@ -64,9 +65,11 @@ export default {
                 }
             } catch (e) {
                 error.value = 'Network error';
+            } finally {
+                loading.value = false;
             }
         };
 
-        return { isLogin, toggleMode, username, password, error, handleSubmit };
+        return { isLogin, toggleMode, username, password, error, loading, login };
     }
 };

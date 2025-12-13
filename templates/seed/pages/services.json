@@ -1,0 +1,7 @@
+{
+    "title": "Our Services",
+    "slug": "services",
+    "content": "<h1>Expert Services for Modern Business</h1><p class='lead'>We deliver high-quality solutions tailored to your enterprise needs.</p><div class='grid-3'><div><h3>Consulting</h3><p>Strategic guidance to help you navigate complex digital landscapes.</p></div><div><h3>Development</h3><p>Custom software built with the latest technologies for maximum performance.</p></div><div><h3>Cloud Solutions</h3><p>Scalable infrastructure management and deployment strategies.</p></div></div>",
+    "cat": "page",
+    "template_slug": "single_page"
+}

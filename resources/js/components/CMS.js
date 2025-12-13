@@ -5,11 +5,12 @@ import SlotEditor from './SlotEditor.js';
 import MenuBuilder from './MenuBuilder.js';
 import Icon from './Icon.js';
 import ImageSelector from './ImageSelector.js';
+import CodeEditor from './CodeEditor.js';
 import { useSorting } from '../composables/useSorting.js';
 import { store } from '../store.js';
 
 export default {
-    components: { SortTh, TemplateBuilder, MenuBuilder, LucideIcon: Icon, SlotEditor, ImageSelector },
+    components: { SortTh, TemplateBuilder, MenuBuilder, LucideIcon: Icon, SlotEditor, ImageSelector, CodeEditor },
     template: `
         <div class="admin-page">
             <div class="admin-header">
@@ -135,13 +136,63 @@ export default {
                                 <TemplateBuilder v-model="form.content" />
                             </div>
 
-                            <div v-else>
-                                <div class="editor-note" style="font-size: 0.8em; color: #666; margin-bottom: 5px;">
-                                    This content will be executed as a PHP file. Use standard PHP/HTML. 
-                                    Variable <code>$page</code> is available. 
-                                    Use <code>$page['content']</code> to output page content.
+                            <div v-else class="code-editor-layout" style="display:flex; height:600px; gap:10px;">
+                                <!-- File Explorer Sidebar -->
+                                <div class="file-explorer" style="width:250px; background:#1e1e1e; color:#ccc; border:1px solid #333; display:flex; flex-direction:column;">
+                                    <div style="padding:10px; border-bottom:1px solid #333; font-weight:bold; font-size:0.9em; text-transform:uppercase;">Files</div>
+                                    <div class="file-list" style="flex:1; overflow-y:auto;">
+                                        <!-- Main File -->
+                                        <div @click="switchFile('main')" 
+                                             :class="{ active: currentFile === 'main' }"
+                                             style="padding:8px 10px; cursor:pointer; border-left:3px solid transparent;"
+                                             :style="currentFile === 'main' ? 'background:#333; border-left-color:var(--primary-color); color:#fff' : ''">
+                                            <LucideIcon name="file" size="14" style="margin-right:5px; vertical-align:middle;"></LucideIcon>
+                                            Main Template
+                                        </div>
+                                        
+                                        <!-- Partials Header -->
+                                        <div style="padding:10px; border-top:1px solid #333; font-size:0.85em; color:#888; display:flex; justify-content:space-between; align-items:center;">
+                                            <span>PARTIALS</span>
+                                            <button type="button" @click="createPartial" class="btn-xs" style="background:#333; border:none; color:#fff;">+</button>
+                                        </div>
+
+                                        <!-- Partial List -->
+                                        <div v-for="partial in partials" :key="partial.id"
+                                             @click="switchFile('partial', partial)"
+                                             :class="{ active: currentFile === 'partial' && currentPartial?.id === partial.id }"
+                                             style="padding:8px 10px 8px 15px; cursor:pointer; font-size:0.9em; border-left:3px solid transparent; display:flex; justify-content:space-between; group"
+                                             :style="(currentFile === 'partial' && currentPartial?.id === partial.id) ? 'background:#333; border-left-color:var(--accent-color); color:#fff' : ''">
+                                            <span>
+                                                <LucideIcon name="puzzle" size="14" style="margin-right:5px; vertical-align:middle;"></LucideIcon>
+                                                {{ partial.name }}
+                                            </span>
+                                            <span v-if="currentFile === 'partial' && currentPartial?.id === partial.id" @click.stop="deletePartial(partial.id)" style="color:#f55;">×</span>
+                                        </div>
+                                    </div>
                                 </div>
-                                <textarea v-model="form.content" rows="20" style="font-family: monospace; white-space: pre; background: #1e1e1e; color: #d4d4d4; padding: 10px;"></textarea>
+
+                                <!-- Editor Area -->
+                                <div class="editor-area" style="flex:1; display:flex; flex-direction:column;">
+                                    <div class="editor-toolbar" style="background:#1e1e1e; padding:5px 10px; border:1px solid #333; border-bottom:none; color:#888; font-size:0.8em; display:flex; justify-content:space-between; align-items:center;">
+                                        <div>
+                                            <span v-if="currentFile === 'main'">Editing: <strong>{{ form.title || 'Main Template' }}</strong></span>
+                                            <span v-else>Editing Partial: <strong>{{ currentPartial.name }}</strong> (Usage: <code>Part::in('{{ currentPartial.name }}')</code>)</span>
+                                        </div>
+                                        <button type="button" @click="showTips = !showTips" style="background:none; border:none; color:#888; cursor:pointer;" title="Toggle Tips">
+                                            <LucideIcon name="info" size="14"></LucideIcon> Tips
+                                        </button>
+                                    </div>
+                                    <div v-if="showTips" style="background:#252526; padding:10px; border:1px solid #333; border-bottom:none; color:#ccc; font-size:0.85em;">
+                                        <strong>Developer Quick Reference:</strong>
+                                        <ul style="margin:5px 0 0 20px; padding:0; color:#aaa;">
+                                            <li><code>$page['content']</code> : Output the page's main content.</li>
+                                            <li><code>$page['title']</code> : Current page title.</li>
+                                            <li><code>Part::in('name')</code> : Include a partial (e.g. header/footer).</li>
+                                            <li><code>Page::find(id)</code> : Fetch a specific page.</li>
+                                        </ul>
+                                    </div>
+                                    <CodeEditor v-model="activeContent" mode="php" theme="monokai" style="flex:1; height:auto;" />
+                                </div>
                             </div>
                         </div>
                     </template>
@@ -197,6 +248,11 @@ export default {
         const useBuilder = ref(false);
         const editStructure = ref(false);
         const templateMode = ref('code'); // 'code' or 'visual'
+        const showTips = ref(false);
+        const currentFile = ref('main'); // 'main' or 'partial'
+        const partials = ref([]);
+        const currentPartial = ref(null);
+
         const { sortColumn, sortDirection, sortBy, sortedData: sortedPages } = useSorting(pages, 'created_at', 'desc', {
             title: (row) => row.title || row.filename
         });
@@ -254,6 +310,36 @@ export default {
         });
         */
 
+
+
+        // Computed Property for Code Editor Binding
+        const activeContent = computed({
+            get: () => {
+                if (currentFile.value === 'main') return form.content;
+                return currentPartial.value ? currentPartial.value.content : '';
+            },
+            set: (val) => {
+                if (currentFile.value === 'main') {
+                    form.content = val;
+                } else if (currentFile.value === 'partial' && currentPartial.value) {
+                    currentPartial.value.content = val;
+                    // Auto-save partial? Or save on blur? 
+                    // Let's implement debounce save or explicit save.
+                    // Ideally we should have a "Save Partial" button or save with main Save.
+                    // For simplicity, let's auto-save to backend on debounce or just keep in memory until...?
+                    // Wait, partials are separate entities in DB. They should probably be saved independently.
+                    // Or we piggyback on savePage? No, activeContent setter updates the local object.
+                }
+            }
+        });
+
+        const fetchPartials = async () => {
+            try {
+                const res = await fetch('/@/cms/partials');
+                if (res.ok) partials.value = await res.json();
+            } catch (e) { console.error(e); }
+        };
+
         const fetchTemplatesList = async () => {
             try {
                 const res = await fetch('/@/cms/templates');
@@ -289,6 +375,10 @@ export default {
             if (filterCat.value === 'page') {
                 await fetchTemplatesList();
             }
+            if (filterCat.value === 'template') {
+                await fetchPartials();
+                currentFile.value = 'main';
+            }
             showForm.value = true;
         };
 
@@ -298,6 +388,8 @@ export default {
 
             // Infer Template Mode
             if (filterCat.value === 'template') {
+                await fetchPartials();
+                currentFile.value = 'main';
                 if (form.content && form.content.trim().startsWith('{')) {
                     templateMode.value = 'visual';
                 } else {
@@ -349,6 +441,29 @@ export default {
         };
 
         const savePage = async () => {
+            // If editing a partial, save IT instead of the main page
+            if (currentFile.value === 'partial' && currentPartial.value) {
+                const p = currentPartial.value;
+                const url = p.id ? `/@/cms/partials/${p.id}` : '/@/cms/partials';
+                const method = p.id ? 'PATCH' : 'POST';
+                const res = await fetch(url, {
+                    method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name: p.name, content: p.content })
+                });
+                if (res.ok) {
+                    if (!p.id) { // New partial
+                        const data = await res.json();
+                        p.id = data.id;
+                    }
+                    alert('Partial Saved!');
+                    fetchPartials(); // Refresh
+                } else {
+                    alert('Failed to save partial');
+                }
+                return;
+            }
+
             let url;
             if (filterCat.value === 'template') {
                 url = form.id ? `/@/cms/templates/${form.id}` : '/@/cms/templates';
@@ -370,6 +485,41 @@ export default {
             } else {
                 const err = await res.json();
                 alert(err.error || 'Failed to save page');
+            }
+        };
+
+        const switchFile = (fileType, partial = null) => {
+            currentFile.value = fileType;
+            if (fileType === 'partial') currentPartial.value = partial;
+            else currentPartial.value = null;
+        };
+
+        const createPartial = async () => {
+            const name = prompt("Enter partial name (e.g. header_v2):");
+            if (!name) return;
+            // Optimistic add to list, then user saves content? 
+            // Better to create record immediately to get ID.
+            const res = await fetch('/@/cms/partials', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, content: '<!-- New Partial -->' })
+            });
+            if (res.ok) {
+                await fetchPartials();
+                // Switch to it
+                const newP = partials.value.find(p => p.name === name);
+                if (newP) switchFile('partial', newP);
+            } else {
+                alert('Error creating partial (name taken?)');
+            }
+        };
+
+        const deletePartial = async (id) => {
+            if (!confirm('Delete this partial?')) return;
+            await fetch(`/@/cms/partials/${id}`, { method: 'DELETE' });
+            await fetchPartials();
+            if (currentFile.value === 'partial' && currentPartial.value?.id === id) {
+                switchFile('main');
             }
         };
 
@@ -416,7 +566,9 @@ export default {
             formatDate, handleImageSelection, openSelector, fetchPages,
             formatDate, handleImageSelection, openSelector, fetchPages,
             sortBy, sortColumn, sortDirection, sortedPages, pageTitle, pageIcon, useBuilder, isStructured, editStructure,
-            templateMode
+            formatDate, handleImageSelection, openSelector, fetchPages,
+            sortBy, sortColumn, sortDirection, sortedPages, pageTitle, pageIcon, useBuilder, isStructured, editStructure,
+            templateMode, currentFile, partials, currentPartial, activeContent, switchFile, createPartial, deletePartial, showTips
         };
     }
 };

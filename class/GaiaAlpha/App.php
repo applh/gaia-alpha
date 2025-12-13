@@ -76,6 +76,8 @@ class App
         Env::set('path_data', $dataPath);
 
         self::registerAutoloaders();
+
+
     }
 
     public static function cli_setup(string $rootDir)
@@ -129,7 +131,32 @@ class App
                 include $file;
             }
         });
+
+        // Automatic Alias Loader for Helpers and Models
+        spl_autoload_register(function ($class) {
+            // Only handle top-level classes (no namespace separator)
+            if (strpos($class, '\\') !== false) {
+                return;
+            }
+
+            // Namespaces to search implicitly
+            $namespaces = [
+                'GaiaAlpha\\Helper\\',
+                'GaiaAlpha\\Model\\',
+                'GaiaAlpha\\Controller\\'
+            ];
+
+            foreach ($namespaces as $ns) {
+                $fullClass = $ns . $class;
+                // class_exists will trigger the standard autoloader for the full class
+                if (class_exists($fullClass)) {
+                    class_alias($fullClass, $class);
+                    return;
+                }
+            }
+        });
     }
+
 
 
 }

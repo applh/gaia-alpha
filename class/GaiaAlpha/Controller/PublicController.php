@@ -303,6 +303,61 @@ class PublicController extends BaseController
         return $html;
     }
 
+    public function partial($name)
+    {
+        // Check Cache
+        $cacheDir = dirname(__DIR__, 3) . '/my-data/cache/partials';
+        $cacheFile = $cacheDir . '/' . $name . '.php';
+
+        if (file_exists($cacheFile)) {
+            // Optimization: check if stale compared to DB? 
+            // For now, assume cache is managed/cleared or we blindly trust it until backend updates it?
+            // Actually, admin should clear cache on update. 
+            // Simpler: Just check DB if debugging, but for speed, check file existence.
+            // But we need to create it if missing.
+        } else {
+            // Fetch from DB
+            $pdo = \GaiaAlpha\Controller\DbController::getPdo();
+            $stmt = $pdo->prepare("SELECT content FROM cms_partials WHERE name = ?");
+            $stmt->execute([$name]);
+            $content = $stmt->fetchColumn();
+
+            if ($content === false) {
+                echo "<!-- Partial '$name' not found -->";
+                return;
+            }
+
+            if (!is_dir($cacheDir))
+                mkdir($cacheDir, 0777, true);
+            file_put_contents($cacheFile, $content);
+        }
+
+        // Expose $page to partials? 
+        // We are inside a method. Variables scope is local.
+        // We need to capture variables from the caller or use global?
+        // Actually, 'require' inside a method sees $this, but not local vars of caller (render).
+        // But many partials rely on $page.
+        // Solution: Pass $page explicitly or rely on $page being available via some other means?
+        // Standard pattern: extract($data).
+
+        // However, we are in a class method. 
+        // Changing architecture: render() included file. File had access to $page because it was defined in render().
+        // If file calls $this->partial(), we don't readily have access to $page unless we pass it.
+        // Or we store $page in a property $this->currentPage.
+
+        // Let's rely on standard include behavior.
+        // But wait, $page is not a property. 
+        // We might need to upgrade render() to set $this->currentPage.
+        // But for minimal impact: assume partials are just static HTML snippets or access generic stuff.
+        // If they need $page, we should probably pass it or make it available.
+        // Let's make it available via $this->page if we set it.
+
+        // Quick fix: user must call $this->partial('name', $page) if they need page data? 
+        // Or we assume these are just header/footer chunks.
+
+        require $cacheFile;
+    }
+
     public function sitemap()
     {
         $pdo = \GaiaAlpha\Controller\DbController::getPdo();

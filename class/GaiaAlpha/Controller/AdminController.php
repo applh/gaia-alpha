@@ -358,6 +358,76 @@ class AdminController extends BaseController
         $this->jsonResponse(['success' => true]);
     }
 
+    // Partial Management
+
+    public function getPartials()
+    {
+        $this->requireAdmin();
+        $pdo = \GaiaAlpha\Controller\DbController::getPdo();
+        $stmt = $pdo->query("SELECT * FROM cms_partials ORDER BY name ASC");
+        $this->jsonResponse($stmt->fetchAll());
+    }
+
+    public function createPartial()
+    {
+        $this->requireAdmin();
+        $data = $this->getJsonInput();
+        if (empty($data['name'])) {
+            $this->jsonResponse(['error' => 'Name is required'], 400);
+            return;
+        }
+
+        $pdo = \GaiaAlpha\Controller\DbController::getPdo();
+        try {
+            $stmt = $pdo->prepare("INSERT INTO cms_partials (user_id, name, content, created_at, updated_at) VALUES (?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
+            $stmt->execute([$_SESSION['user_id'], $data['name'], $data['content'] ?? '']);
+            $this->jsonResponse(['success' => true, 'id' => $pdo->lastInsertId()]);
+        } catch (\PDOException $e) {
+            $this->jsonResponse(['error' => 'Name already exists'], 400);
+        }
+    }
+
+    public function updatePartial($id)
+    {
+        $this->requireAdmin();
+        $data = $this->getJsonInput();
+        $pdo = \GaiaAlpha\Controller\DbController::getPdo();
+
+        $fields = [];
+        $values = [];
+
+        if (isset($data['name'])) {
+            $fields[] = "name = ?";
+            $values[] = $data['name'];
+        }
+        if (isset($data['content'])) {
+            $fields[] = "content = ?";
+            $values[] = $data['content'];
+        }
+
+        if (empty($fields)) {
+            $this->jsonResponse(['success' => true]);
+            return;
+        }
+
+        $fields[] = "updated_at = CURRENT_TIMESTAMP";
+        $values[] = $id;
+
+        $sql = "UPDATE cms_partials SET " . implode(', ', $fields) . " WHERE id = ?";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute($values);
+        $this->jsonResponse(['success' => true]);
+    }
+
+    public function deletePartial($id)
+    {
+        $this->requireAdmin();
+        $pdo = \GaiaAlpha\Controller\DbController::getPdo();
+        $stmt = $pdo->prepare("DELETE FROM cms_partials WHERE id = ?");
+        $stmt->execute([$id]);
+        $this->jsonResponse(['success' => true]);
+    }
+
     public function registerRoutes()
     {
         \GaiaAlpha\Router::add('GET', '/@/admin/users', [$this, 'index']);
@@ -380,5 +450,11 @@ class AdminController extends BaseController
         \GaiaAlpha\Router::add('GET', '/@/cms/templates/(\w+)', [$this, 'getTemplate']); // accept id or file_slug
         \GaiaAlpha\Router::add('PATCH', '/@/cms/templates/(\d+)', [$this, 'updateTemplate']);
         \GaiaAlpha\Router::add('DELETE', '/@/cms/templates/(\d+)', [$this, 'deleteTemplate']);
+
+        // Partial Management
+        \GaiaAlpha\Router::add('GET', '/@/cms/partials', [$this, 'getPartials']);
+        \GaiaAlpha\Router::add('POST', '/@/cms/partials', [$this, 'createPartial']);
+        \GaiaAlpha\Router::add('PATCH', '/@/cms/partials/(\d+)', [$this, 'updatePartial']);
+        \GaiaAlpha\Router::add('DELETE', '/@/cms/partials/(\d+)', [$this, 'deletePartial']);
     }
 }

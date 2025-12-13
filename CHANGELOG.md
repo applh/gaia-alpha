@@ -1,6 +1,21 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+## [v0.28.0] - 2025-12-14
+### Added
+- **Templates**: Enhanced Code Editor with Ace Editor (syntax highlighting, autocomplete).
+- **Templates**: Partials system (`cms_partials` table) for reusable PHP code snippets.
+- **Templates**: File Explorer sidebar in Code Editor for managing Main Template and Partials.
+- **Templates**: Developer Tips panel with quick reference for helpers and variables.
+- **Core**: Automatic class aliasing system - use `Part`, `Page`, `User` without namespaces.
+- **Core**: `Part` helper class with `Part::in('name')` syntax for including partials.
+- **Docs**: Added comprehensive `docs/templating.md` documentation.
+- **CLI**: Added Ace Editor to `vendor:update` command.
+
+### Changed
+- **Templates**: Replaced basic textarea with Ace Editor for PHP code editing.
+- **Templates**: All Ace Editor files now served locally (no CDN dependency).
+
 ## [v0.27.0] - 2025-12-13
 ### Added
 - **Templates**: Full PHP Template Management System. Admins can now Create, Read, Update, and Delete PHP templates via the CMS.

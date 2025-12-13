@@ -22,3 +22,5 @@ Welcome to the official documentation for Gaia Alpha.
 ## Contributing
 - **[Contributing Guide](../CONTRIBUTING.md)**: Join the effort.
 - **[Code of Conduct](../CODE_OF_CONDUCT.md)**: Community standards.
+- **[Roadmap](roadmap.md)**: Future plans and upcoming features.
+

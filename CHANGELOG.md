@@ -1,6 +1,17 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+## [v0.26.0] - 2025-12-13
+### Added
+- **Media**: Native AVIF support. Automatically prioritizes AVIF conversion if supported by the server, falling back to WebP.
+- **Media**: Added Media Cache API (`GET /api/media/cache`, `POST /api/media/cache/clear`) for managing generated image assets.
+- **UI**: New `ImageSelector` Vue component.
+    - Replaces native file inputs with a rich gallery/upload modal.
+    - Supports Drag & Drop.
+    - Optimized with server-side thumbnail generation.
+    - Integrated into CMS Editor (Featured Image, Content, Header).
+- **Docs**: Added `docs/roadmap.md` outlining future development plans.
+
 ## [v0.25.0] - 2025-12-12
 ### Added
 - **Chat**: Real-time user-to-user messaging system (`ChatPanel.js`, `ChatController`, `messages` table).

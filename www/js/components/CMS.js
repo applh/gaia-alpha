@@ -4,11 +4,12 @@ import TemplateBuilder from './TemplateBuilder.js';
 import SlotEditor from './SlotEditor.js';
 import MenuBuilder from './MenuBuilder.js';
 import Icon from './Icon.js';
+import ImageSelector from './ImageSelector.js';
 import { useSorting } from '../composables/useSorting.js';
 import { store } from '../store.js';
 
 export default {
-    components: { SortTh, TemplateBuilder, MenuBuilder, LucideIcon: Icon, SlotEditor },
+    components: { SortTh, TemplateBuilder, MenuBuilder, LucideIcon: Icon, SlotEditor, ImageSelector },
     template: `
         <div class="admin-page">
             <div class="admin-header">
@@ -35,7 +36,9 @@ export default {
                     <button @click="filterCat = 'image'; fetchPages()" :class="{ active: filterCat === 'image' }">Images</button>
                     <button @click="filterCat = 'menu'" :class="{ active: filterCat === 'menu' }">Menus</button>
                 </div>
-                <input type="file" ref="headerUpload" @change="uploadHeaderImage" style="display: none" accept="image/*">
+                <button v-if="!showForm && filterCat === 'page'" @click="openSelector('header')" class="btn-secondary" style="margin-left: 20px;">
+                    <LucideIcon name="image" size="18" style="vertical-align:middle;"></LucideIcon> Header BG
+                </button>
             </div>
             
             <div class="admin-card" v-if="filterCat === 'menu'">
@@ -108,11 +111,10 @@ export default {
                                 <img :src="form.image" alt="Featured">
                                 <button type="button" @click="form.image = ''" class="btn-xs btn-danger remove-btn">×</button>
                             </div>
-                            <div v-else class="upload-placeholder" @click="$refs.featuredInput.click()">
-                                <span>+ Upload Cover Image</span>
+                            <div v-else class="upload-placeholder" @click="openSelector('featured')">
+                                <span>+ Select Cover Image</span>
                             </div>
                             <input type="hidden" v-model="form.image">
-                            <input type="file" ref="featuredInput" @change="uploadFeatured" style="display: none" accept="image/jpeg,image/png,image/webp">
                         </div>
                     </div>
                     </template>
@@ -143,8 +145,7 @@ export default {
                         <div class="form-group" v-else>
                             <label>Content <button type="button" @click="useBuilder = true" class="btn-xs" v-if="isStructured">Switch to Visual</button></label>
                             <div class="editor-toolbar">
-                                 <input type="file" ref="fileInput" @change="uploadImage" style="display: none" accept="image/jpeg,image/png,image/webp">
-                                 <button type="button" @click="triggerUpload" class="btn-small">Insert Image in Content</button>
+                                 <button type="button" @click="openSelector('content')" class="btn-small">Insert Image in Content</button>
                             </div>
                             <textarea v-model="form.content" rows="10" placeholder="Page content (HTML allowed)"></textarea>
                         </div>
@@ -156,6 +157,13 @@ export default {
                 </form>
             </div>
         </div>
+
+        <ImageSelector 
+            :show="showImageSelector" 
+            @close="showImageSelector = false"
+            @select="handleImageSelection"
+        />
+
     </div>
     `,
     setup() {
@@ -163,8 +171,8 @@ export default {
         const allTemplates = ref([]);
         const loading = ref(true);
         const showForm = ref(false);
-        const fileInput = ref(null);
-        const headerUpload = ref(null);
+        const showImageSelector = ref(false);
+        const selectorMode = ref('featured'); // featured, content, header
         const filterCat = ref('page');
         const useBuilder = ref(false);
         const editStructure = ref(false);
@@ -299,81 +307,33 @@ export default {
             }
         };
 
-        const triggerUpload = () => {
-            fileInput.value.click();
+
+
+        const openSelector = (mode) => {
+            selectorMode.value = mode;
+            showImageSelector.value = true;
         };
 
-        const uploadImage = async (event) => {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const formData = new FormData();
-            formData.append('image', file);
-
-            try {
-                const res = await fetch('/api/cms/upload', {
-                    method: 'POST',
-                    body: formData
-                });
-
-                if (res.ok) {
-                    const data = await res.json();
-                    // Append image to content
-                    form.content += `\n<img src="${data.url}" alt="Uploaded Image" style="max-width: 100%; border-radius: 8px;">\n`;
-                } else {
-                    const err = await res.json();
-                    alert(err.error || 'Upload failed');
-                }
-            } catch (e) {
-                console.error(e);
-                alert('Upload failed');
+        const handleImageSelection = async (img) => {
+            if (selectorMode.value === 'featured') {
+                form.image = img.image;
+            } else if (selectorMode.value === 'content') {
+                form.content += `\n<img src="${img.image}" alt="${img.title || 'image'}" style="max-width: 100%; border-radius: 8px;">\n`;
+            } else if (selectorMode.value === 'header') {
+                // For header, we might want to just show it or save it somewhere? 
+                // The original code uploaded it. Here we just log it or maybe assume it's for global settings?
+                // The original code did: fetchPages() after upload. It seems it was just a quick upload tool?
+                // Replicating original behavior: just "select" it (maybe user copies URL?)
+                // Or maybe it was intended to update global site header. 
+                // Based on "uploadHeaderImage" implementation in original (lines 360+), it just uploaded and refreshed list.
+                // It didn't seemingly SAVE it to any config. So it was likely just a "Quick Upload" button.
+                // So if mode is header, we just do nothing special, since upload happens in selector.
+                // But selector emits 'select' after upload is done if we implement it that way.
+                // The ImageSelector handles upload internal to itself. 
+                // So "selecting" an image for "Header BG" when it was likely just a generic upload button seems confused in original.
+                // I'll assume users want to just copy the URL or it was a way to add images to library generally?
+                alert('Image Selected: ' + img.image);
             }
-
-            // Reset input
-            event.target.value = '';
-        };
-
-        const uploadFeatured = async (event) => {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const formData = new FormData();
-            formData.append('image', file);
-
-            try {
-                const res = await fetch('/api/cms/upload', { method: 'POST', body: formData });
-
-                if (res.ok) {
-                    const data = await res.json();
-                    form.image = data.url;
-                } else {
-                    const err = await res.json();
-                    alert(err.error || 'Upload failed');
-                }
-            } catch (e) {
-                console.error(e);
-                alert('Upload failed');
-            }
-            event.target.value = '';
-        };
-
-        const uploadHeaderImage = async (event) => {
-            const file = event.target.files[0];
-            if (!file) return;
-            const formData = new FormData();
-            formData.append('image', file);
-            try {
-                const res = await fetch('/api/cms/upload', { method: 'POST', body: formData });
-                if (res.ok) {
-                    fetchPages(); // Refresh list to see new image
-                } else {
-                    alert('Upload failed');
-                }
-            } catch (e) {
-                console.error(e);
-                alert('Upload failed');
-            }
-            event.target.value = '';
         };
 
         const savePage = async () => {
@@ -439,9 +399,9 @@ export default {
         onMounted(fetchPages);
 
         return {
-            pages, allTemplates, loading, showForm, form, fileInput, headerUpload, filterCat,
+            pages, allTemplates, loading, showForm, showImageSelector, form, filterCat,
             openCreate, editPage, savePage, deletePage, cancelForm, generateSlug,
-            formatDate, triggerUpload, uploadImage, uploadFeatured, uploadHeaderImage, fetchPages,
+            formatDate, handleImageSelection, openSelector, fetchPages,
             sortBy, sortColumn, sortDirection, sortedPages, pageTitle, pageIcon, useBuilder, isStructured, editStructure
         };
     }

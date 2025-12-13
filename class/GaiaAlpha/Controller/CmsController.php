@@ -59,12 +59,12 @@ class CmsController extends BaseController
         }
 
         $file = $_FILES['image'];
-        $allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+        $allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/avif'];
         $finfo = new \finfo(FILEINFO_MIME_TYPE);
         $mime = $finfo->file($file['tmp_name']);
 
         if (!in_array($mime, $allowedTypes)) {
-            $this->jsonResponse(['error' => 'Invalid file type. Allowed: JPG, PNG, WEBP'], 400);
+            $this->jsonResponse(['error' => 'Invalid file type. Allowed: JPG, PNG, WEBP, AVIF'], 400);
         }
 
         $userDir = (defined('GAIA_DATA_PATH') ? GAIA_DATA_PATH : \GaiaAlpha\Env::get('root_dir') . '/my-data') . '/uploads/' . $_SESSION['user_id'];
@@ -72,7 +72,9 @@ class CmsController extends BaseController
             mkdir($userDir, 0755, true);
         }
 
-        $filename = time() . '_' . bin2hex(random_bytes(4)) . '.webp';
+        $useAvif = function_exists('imageavif');
+        $ext = $useAvif ? '.avif' : '.webp';
+        $filename = time() . '_' . bin2hex(random_bytes(4)) . $ext;
 
         switch ($mime) {
             case 'image/jpeg':
@@ -83,6 +85,9 @@ class CmsController extends BaseController
                 break;
             case 'image/webp':
                 $src = imagecreatefromwebp($file['tmp_name']);
+                break;
+            case 'image/avif':
+                $src = imagecreatefromavif($file['tmp_name']);
                 break;
             default:
                 $src = false;
@@ -113,7 +118,12 @@ class CmsController extends BaseController
         }
 
         $outputPath = $userDir . '/' . $filename;
-        imagewebp($src, $outputPath, 80);
+
+        if ($useAvif) {
+            imageavif($src, $outputPath, 80);
+        } else {
+            imagewebp($src, $outputPath, 80);
+        }
 
         $mediaUrl = '/media/' . $_SESSION['user_id'] . '/' . $filename;
 

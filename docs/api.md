@@ -16,7 +16,12 @@ The Media API handles secure image serving, resizing, and caching.
 ### Examples
 - **Original**: `/media/1/image.jpg`
 - **Thumbnail (200px wide)**: `/media/1/image.jpg?w=200`
+- **Thumbnail (200px wide)**: `/media/1/image.jpg?w=200`
 - **Square Crop (150x150)**: `/media/1/image.jpg?w=150&h=150&fit=cover`
+
+### Cache Management
+- `GET /api/media/cache`: Get cache stats (count, size).
+- `POST /api/media/cache/clear`: Clear the media cache.
 
 ---
 

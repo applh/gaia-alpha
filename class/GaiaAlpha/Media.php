@@ -58,6 +58,9 @@ class Media
             case 'image/webp':
                 $image = imagecreatefromwebp($src);
                 break;
+            case 'image/avif':
+                $image = imagecreatefromavif($src);
+                break;
             default:
                 return; // Unsupported
         }
@@ -199,6 +202,11 @@ class Media
                 imagepng($output, $dst, $pngQuality);
                 break;
             case 'webp':
+                imagewebp($output, $dst, $q);
+                break;
+            case 'avif':
+                imageavif($output, $dst, $q);
+                break;
             default:
                 imagewebp($output, $dst, $q);
                 break;
@@ -225,6 +233,9 @@ class Media
                 break;
             case 'image/webp':
                 $image = imagecreatefromwebp($src);
+                break;
+            case 'image/avif':
+                $image = imagecreatefromavif($src);
                 break;
             default:
                 return;

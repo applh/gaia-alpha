@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 ## [v0.27.0] - 2025-12-13
 ### Added
+- **Templates**: Full PHP Template Management System. Admins can now Create, Read, Update, and Delete PHP templates via the CMS.
+- **Templates**: Hybrid Editing Modes. Toggle between "Visual Builder" (No-Code, generates PHP wrapper) and "Code Editor" (Developer, direct PHP) for templates.
+- **Templates**: `cms_templates` persistence. Templates can now be stored in the database, overriding file-based templates if desired.
+- **CMS**: Updated `PublicController` to compile Visual Template JSON into PHP and cache it for high-performance rendering.
+- **CMS**: Updated `CMS.js` with a robust multi-mode editor for templates.
+
+### Added
 - **Assets**: Smart Asset Pipeline. On-the-fly minification and caching for CSS and JS assets via `/min/` routes.
 - **Assets**: `AssetController` to handle asset serving, caching, and fallback logic (checking `js` folders for CSS).
 - **Assets**: `Asset::url()` helper to generate versioned, minified URLs.

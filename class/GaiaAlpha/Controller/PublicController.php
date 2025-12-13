@@ -89,11 +89,151 @@ class PublicController extends BaseController
         $templatePath = dirname(__DIR__, 3) . '/templates/' . $template . '.php';
 
         if (!file_exists($templatePath)) {
-            $templatePath = dirname(__DIR__, 3) . '/templates/single_page.php';
+            // Check Database for Template
+            $dbTemplate = \GaiaAlpha\Model\Template::findBySlug($template);
+
+            if ($dbTemplate) {
+                // Ensure Cache Dir
+                $cacheDir = dirname(__DIR__, 3) . '/my-data/cache/templates';
+                if (!is_dir($cacheDir))
+                    mkdir($cacheDir, 0777, true);
+
+                $cacheFile = $cacheDir . '/' . $template . '.php'; // Use .php extension so it can be required
+
+                // Optimization: fetch updated_at and compare with filemtime
+                if ($this->isJson($dbTemplate['content'])) {
+                    $structure = json_decode($dbTemplate['content'], true);
+                    if (isset($structure['header'])) { // It's a visual template
+                        $compiledFunc = $this->compileVisualTemplate($structure);
+                        file_put_contents($cacheFile, $compiledFunc);
+                    } else {
+                        // Unknown JSON, maybe just raw content?
+                        file_put_contents($cacheFile, $dbTemplate['content']);
+                    }
+                } else {
+                    file_put_contents($cacheFile, $dbTemplate['content']);
+                }
+
+                $templatePath = $cacheFile;
+            } else {
+                // Fallback to single_page
+                $templatePath = dirname(__DIR__, 3) . '/templates/single_page.php';
+            }
         }
 
         // Render Template
         require $templatePath;
+    }
+
+    private function isJson($string)
+    {
+        if (!is_string($string))
+            return false;
+        json_decode($string);
+        return (json_last_error() == JSON_ERROR_NONE);
+    }
+
+    private function compileVisualTemplate($structure)
+    {
+        // Compile JSON Structure to PHP Code
+        $php = "<?php\n";
+        $php .= "// Auto-generated from Visual Builder\n";
+        $php .= "?>\n";
+        $php .= "<!DOCTYPE html>\n<html lang='en'>\n<head>\n";
+        $php .= "    <meta charset='UTF-8'>\n";
+        $php .= "    <meta name='viewport' content='width=device-width, initial-scale=1.0'>\n";
+        $php .= "    <title><?= \$page['title'] ?></title>\n";
+        $php .= "    <link rel='stylesheet' href='/resources/css/site.css'>\n";
+        $php .= "    <link rel='stylesheet' href='/resources/css/fonts.css'>\n";
+        $php .= "    <style>body { margin:0; font-family:var(--font-primary); background:var(--bg-color); color:var(--text-primary); }</style>\n";
+        $php .= "</head>\n<body>\n";
+
+        // Header
+        $php .= "<header class='site-header'>\n";
+        if (!empty($structure['header'])) {
+            foreach ($structure['header'] as $node) {
+                $php .= $this->compileNode($node) . "\n";
+            }
+        }
+        $php .= "</header>\n";
+
+        // Main
+        $php .= "<main class='site-main'>\n";
+        if (!empty($structure['main'])) {
+            foreach ($structure['main'] as $node) {
+                $php .= $this->compileNode($node) . "\n";
+            }
+        }
+        // Inject Page Content
+        $php .= "    <div class='page-content'>\n";
+        $php .= "        <?= \$page['content'] ?>\n";
+        $php .= "    </div>\n";
+        $php .= "</main>\n";
+
+        // Footer
+        $php .= "<footer class='site-footer'>\n";
+        if (!empty($structure['footer'])) {
+            foreach ($structure['footer'] as $node) {
+                $php .= $this->compileNode($node) . "\n";
+            }
+        }
+        $php .= "</footer>\n";
+
+        $php .= "<script src='/resources/js/site.js'></script>\n";
+        $php .= "</body>\n</html>";
+
+        return $php;
+    }
+
+    private function compileNode($node)
+    {
+        if (!isset($node['type']))
+            return '';
+        $type = $node['type'];
+        $children = isset($node['children']) ? $node['children'] : [];
+        $content = isset($node['content']) ? htmlspecialchars($node['content']) : '';
+        $src = isset($node['src']) ? htmlspecialchars($node['src']) : '';
+
+        $html = '';
+        switch ($type) {
+            case 'section':
+                $html .= "<section>";
+                foreach ($children as $child)
+                    $html .= $this->compileNode($child);
+                $html .= "</section>";
+                break;
+            case 'columns':
+                $html .= "<div class='columns' style='display:flex; gap:20px;'>";
+                foreach ($children as $child)
+                    $html .= $this->compileNode($child);
+                $html .= "</div>";
+                break;
+            case 'column':
+                $html .= "<div class='column' style='flex:1;'>";
+                foreach ($children as $child)
+                    $html .= $this->compileNode($child);
+                $html .= "</div>";
+                break;
+            case 'h1':
+                $html .= "<h1>{$content}</h1>";
+                break;
+            case 'h2':
+                $html .= "<h2>{$content}</h2>";
+                break;
+            case 'h3':
+                $html .= "<h3>{$content}</h3>";
+                break;
+            case 'p':
+                $html .= "<p>{$content}</p>";
+                break;
+            case 'image':
+                if ($src)
+                    $html .= "<img src='{$src}' loading='lazy' style='max-width:100%;' />";
+                break;
+            default:
+                break;
+        }
+        return $html;
     }
 
     private function renderNode($node)

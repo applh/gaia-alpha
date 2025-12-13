@@ -118,11 +118,31 @@ export default {
                         </div>
                     </div>
                     </template>
-                    <!-- Template Specific Fields -->
                     <template v-if="filterCat === 'template'">
                         <div class="form-group">
-                            <label>Structure Builder</label>
-                            <TemplateBuilder v-model="form.content" />
+                            <label>
+                                Template Editor 
+                                <span class="btn-group" style="margin-left: 10px;">
+                                    <button type="button" @click="templateMode = 'visual'" class="btn-xs" :class="{ 'btn-primary': templateMode === 'visual' }">Visual Builder</button>
+                                    <button type="button" @click="templateMode = 'code'" class="btn-xs" :class="{ 'btn-primary': templateMode === 'code' }">Code Editor</button>
+                                </span>
+                            </label>
+                            
+                            <div v-if="templateMode === 'visual'">
+                                <div class="editor-note" style="font-size: 0.8em; color: #666; margin-bottom: 5px;">
+                                    Drag and drop components to build the layout. Page content will be injected into the Main section.
+                                </div>
+                                <TemplateBuilder v-model="form.content" />
+                            </div>
+
+                            <div v-else>
+                                <div class="editor-note" style="font-size: 0.8em; color: #666; margin-bottom: 5px;">
+                                    This content will be executed as a PHP file. Use standard PHP/HTML. 
+                                    Variable <code>$page</code> is available. 
+                                    Use <code>$page['content']</code> to output page content.
+                                </div>
+                                <textarea v-model="form.content" rows="20" style="font-family: monospace; white-space: pre; background: #1e1e1e; color: #d4d4d4; padding: 10px;"></textarea>
+                            </div>
                         </div>
                     </template>
 
@@ -176,6 +196,7 @@ export default {
         const filterCat = ref('page');
         const useBuilder = ref(false);
         const editStructure = ref(false);
+        const templateMode = ref('code'); // 'code' or 'visual'
         const { sortColumn, sortDirection, sortBy, sortedData: sortedPages } = useSorting(pages, 'created_at', 'desc', {
             title: (row) => row.title || row.filename
         });
@@ -226,31 +247,12 @@ export default {
             }
         }, { immediate: true });
 
+        // Removed auto-copy logic as Templates are now PHP wrappers, not content blueprints.
+        /* 
         watch(() => form.template_slug, async (newSlug) => {
-            if (newSlug) {
-                // For new pages or explicit changes, automatic apply if content allows
-                // If content is empty or short, we apply.
-                // Or if user just switched template, we assume they want that structure.
-                // Since user explicitly selected dropdown, we do it.
-                if (!form.content || !form.id || confirm('Switching template will overwrite current content. Ok?')) {
-                    const template = allTemplates.value.find(t => t.slug === newSlug);
-                    if (template) {
-                        // Implicitly apply without annoying popup if content is empty or it's a new page creation flow
-                        // effectively removing the "flash" for the happy path
-                        if (!form.id || !form.content) {
-                            form.content = template.content;
-                            useBuilder.value = true;
-                        } else {
-                            // Only ask if there is potentially valuable content being lost
-                            // But user asked to remove "flashing popup"
-                            // Let's assume on creation (no ID) we just do it.
-                            form.content = template.content;
-                            useBuilder.value = true;
-                        }
-                    }
-                }
-            }
+             // ... (removed)
         });
+        */
 
         const fetchTemplatesList = async () => {
             try {
@@ -293,6 +295,16 @@ export default {
         const editPage = async (page) => {
             Object.assign(form, page);
             if (!form.template_slug) form.template_slug = '';
+
+            // Infer Template Mode
+            if (filterCat.value === 'template') {
+                if (form.content && form.content.trim().startsWith('{')) {
+                    templateMode.value = 'visual';
+                } else {
+                    templateMode.value = 'code';
+                }
+            }
+
             showForm.value = true;
             if (filterCat.value === 'page') {
                 await fetchTemplatesList();
@@ -402,7 +414,9 @@ export default {
             pages, allTemplates, loading, showForm, showImageSelector, form, filterCat,
             openCreate, editPage, savePage, deletePage, cancelForm, generateSlug,
             formatDate, handleImageSelection, openSelector, fetchPages,
-            sortBy, sortColumn, sortDirection, sortedPages, pageTitle, pageIcon, useBuilder, isStructured, editStructure
+            formatDate, handleImageSelection, openSelector, fetchPages,
+            sortBy, sortColumn, sortDirection, sortedPages, pageTitle, pageIcon, useBuilder, isStructured, editStructure,
+            templateMode
         };
     }
 };

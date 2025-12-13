@@ -249,6 +249,115 @@ class AdminController extends BaseController
         }
     }
 
+    // Template Management
+
+    public function getTemplates()
+    {
+        $this->requireAdmin();
+        // Get DB Templates
+        $dbTemplates = \GaiaAlpha\Model\Template::findAllByUserId($_SESSION['user_id']); // Assuming filtered by user or all? Model says findAllByUserId
+        // Actually admins should see all? But model enforces user_id check. For now use Session User.
+
+        // Get File Templates
+        $fileTemplates = [];
+        $files = glob(dirname(__DIR__, 3) . '/templates/*.php');
+        foreach ($files as $file) {
+            $slug = basename($file, '.php');
+            // Skip if slug exists in DB (DB overrides file? or separate?)
+            // Let's mark them as type='file'
+            // But wait, checking usage of "template_slug" in PublicController, it prefers FILE.
+            // So if file exists, it's used.
+            // Use File logic for list
+            $fileTemplates[] = [
+                'id' => 'file_' . $slug,
+                'title' => ucfirst(str_replace('_', ' ', $slug)) . ' (File)',
+                'slug' => $slug,
+                'content' => '', // Don't load content for list
+                'type' => 'file',
+                'created_at' => date('Y-m-d H:i:s', filemtime($file))
+            ];
+        }
+
+        // Merge. DB templates might shadow files if we change precedence.
+        // For now, list both.
+        // Transform DB templates to have type='db'
+        $dbTemplsFormatted = array_map(function ($t) {
+            $t['type'] = 'db';
+            return $t;
+        }, $dbTemplates);
+
+        $this->jsonResponse(array_merge($dbTemplsFormatted, $fileTemplates));
+    }
+
+    public function getTemplate($id)
+    {
+        $this->requireAdmin();
+        // If ID starts with file_, it's a file
+        if (strpos($id, 'file_') === 0) {
+            $slug = substr($id, 5);
+            $path = dirname(__DIR__, 3) . '/templates/' . $slug . '.php';
+            if (file_exists($path)) {
+                $this->jsonResponse([
+                    'slug' => $slug,
+                    'title' => ucfirst(str_replace('_', ' ', $slug)),
+                    'content' => file_get_contents($path),
+                    'type' => 'file',
+                    'readonly' => true // Prevent editing files for now for safety
+                ]);
+            } else {
+                $this->jsonResponse(['error' => 'Template file not found'], 404);
+            }
+        } else {
+            // DB Template
+            // Use raw PDO or Template Model? Template Model doesn't have findById, only Slug.
+            // But we can add findById or just use generic DB call.
+            // Let's use simple query as we are in AdminController
+            $pdo = DbController::getPdo();
+            $stmt = $pdo->prepare("SELECT * FROM cms_templates WHERE id = ?");
+            $stmt->execute([$id]);
+            $tmpl = $stmt->fetch();
+            if ($tmpl) {
+                $tmpl['type'] = 'db';
+                $this->jsonResponse($tmpl);
+            } else {
+                $this->jsonResponse(['error' => 'Template not found'], 404);
+            }
+        }
+    }
+
+    public function createTemplate()
+    {
+        $this->requireAdmin();
+        $data = $this->getJsonInput();
+
+        if (empty($data['title']) || empty($data['slug'])) {
+            $this->jsonResponse(['error' => 'Title and slug are required'], 400);
+            return;
+        }
+
+        try {
+            $id = \GaiaAlpha\Model\Template::create($_SESSION['user_id'], $data);
+            $this->jsonResponse(['success' => true, 'id' => $id]);
+        } catch (\PDOException $e) {
+            $this->jsonResponse(['error' => 'Slug already exists'], 400);
+        }
+    }
+
+    public function updateTemplate($id)
+    {
+        $this->requireAdmin();
+        $data = $this->getJsonInput();
+        \GaiaAlpha\Model\Template::update($id, $_SESSION['user_id'], $data);
+        $this->jsonResponse(['success' => true]);
+    }
+
+    public function deleteTemplate($id)
+    {
+        $this->requireAdmin();
+        \GaiaAlpha\Model\Template::delete($id, $_SESSION['user_id']);
+        $this->jsonResponse(['success' => true]);
+    }
+
     public function registerRoutes()
     {
         \GaiaAlpha\Router::add('GET', '/@/admin/users', [$this, 'index']);
@@ -264,5 +373,12 @@ class AdminController extends BaseController
         \GaiaAlpha\Router::add('POST', '/@/admin/db/table/(\w+)', [$this, 'createRecord']);
         \GaiaAlpha\Router::add('PATCH', '/@/admin/db/table/(\w+)/(\d+)', [$this, 'updateRecord']);
         \GaiaAlpha\Router::add('DELETE', '/@/admin/db/table/(\w+)/(\d+)', [$this, 'deleteRecord']);
+
+        // Template Management
+        \GaiaAlpha\Router::add('GET', '/@/cms/templates', [$this, 'getTemplates']);
+        \GaiaAlpha\Router::add('POST', '/@/cms/templates', [$this, 'createTemplate']);
+        \GaiaAlpha\Router::add('GET', '/@/cms/templates/(\w+)', [$this, 'getTemplate']); // accept id or file_slug
+        \GaiaAlpha\Router::add('PATCH', '/@/cms/templates/(\d+)', [$this, 'updateTemplate']);
+        \GaiaAlpha\Router::add('DELETE', '/@/cms/templates/(\d+)', [$this, 'deleteTemplate']);
     }
 }

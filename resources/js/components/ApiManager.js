@@ -54,7 +54,7 @@ export default {
                             </div>
                         </div>
                         <div class="api-preview" style="margin-top: 16px; padding: 8px; background: rgba(0,0,0,0.2); border-radius: 4px; font-family: monospace; font-size: 0.85rem;">
-                            Endpoint: <span style="color: var(--accent-color);">/api/v1/{{ table.name }}</span>
+                            Endpoint: <span style="color: var(--accent-color);">/@/v1/{{ table.name }}</span>
                         </div>
                     </div>
                 </div>
@@ -107,7 +107,7 @@ export default {
     methods: {
         async fetchTables() {
             try {
-                const response = await fetch('/api/admin/api-builder/tables');
+                const response = await fetch('/@/admin/api-builder/tables');
                 if (!response.ok) throw new Error('Failed to fetch tables');
                 this.tables = await response.json();
             } catch (e) {
@@ -130,7 +130,7 @@ export default {
 
                 // Let's Iterate for now, simplest path for MVP.
                 for (const table of this.tables) {
-                    await fetch('/api/admin/api-builder/config', {
+                    await fetch('/@/admin/api-builder/config', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({

@@ -42,7 +42,7 @@ export default {
 
         const handleSubmit = async () => {
             error.value = '';
-            const endpoint = isLogin.value ? '/api/login' : '/api/register';
+            const endpoint = isLogin.value ? '/@/login' : '/@/register';
             try {
                 const response = await fetch(endpoint, {
                     method: 'POST',

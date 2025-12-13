@@ -216,7 +216,7 @@ export default {
 
         const loadMarkers = async (L) => {
             try {
-                const res = await fetch('/api/markers');
+                const res = await fetch('/@/markers');
                 if (res.ok) {
                     const data = await res.json();
                     markers.value = data;
@@ -266,7 +266,7 @@ export default {
 
         const updateMarkerPosition = async (id, lat, lng) => {
             try {
-                const res = await fetch(`/api/markers/${id}`, {
+                const res = await fetch(`/@/markers/${id}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ lat, lng })
@@ -291,7 +291,7 @@ export default {
             };
 
             try {
-                const res = await fetch('/api/markers', {
+                const res = await fetch('/@/markers', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)

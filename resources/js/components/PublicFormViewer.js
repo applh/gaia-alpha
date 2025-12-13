@@ -70,7 +70,7 @@ export default {
 
         const fetchForm = async () => {
             try {
-                const res = await fetch(`/api/public/form/${props.slug}`);
+                const res = await fetch(`/@/public/form/${props.slug}`);
                 if (!res.ok) throw new Error('Form not found');
                 const data = await res.json();
                 form.value = data;
@@ -91,7 +91,7 @@ export default {
         const submitForm = async () => {
             submitting.value = true;
             try {
-                const res = await fetch(`/api/public/form/${props.slug}`, {
+                const res = await fetch(`/@/public/form/${props.slug}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ data: formData })

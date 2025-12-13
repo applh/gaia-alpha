@@ -202,7 +202,7 @@ export default {
                 return;
             }
 
-            const url = form.id ? `/api/forms/${form.id}` : '/api/forms';
+            const url = form.id ? `/@/forms/${form.id}` : '/@/forms';
             const method = form.id ? 'PUT' : 'POST'; // Wait, my controller used PUT for update? Yes.
 
             try {
@@ -226,7 +226,7 @@ export default {
         onMounted(async () => {
             if (props.formId) {
                 // Edit mode
-                const res = await fetch(`/api/forms/${props.formId}`);
+                const res = await fetch(`/@/forms/${props.formId}`);
                 if (res.ok) {
                     const data = await res.json();
                     Object.assign(form, data);

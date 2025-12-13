@@ -79,7 +79,7 @@ export default {
     `,
     setup() {
         // Integrate useCrud
-        const { items: users, loading, error, fetchItems, createItem, updateItem, deleteItem } = useCrud('/api/admin/users');
+        const { items: users, loading, error, fetchItems, createItem, updateItem, deleteItem } = useCrud('/@/admin/users');
 
         // Sorting
         const { sortColumn, sortDirection, sortBy, sortedData: sortedUsers } = useSorting(users, 'id', 'asc', {

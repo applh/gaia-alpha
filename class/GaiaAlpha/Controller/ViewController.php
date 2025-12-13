@@ -44,24 +44,54 @@ class ViewController extends BaseController
 
     public function home()
     {
-        $this->render('public_home.php');
+        // 1. Determine slug
+        $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+        // Remove leading slash
+        $slug = ltrim($uri, '/');
+
+        // Handle root
+        if ($slug === '' || $slug === 'index.php') {
+            // Try to find a page named 'home'
+            $slug = 'home';
+        }
+
+        // 2. Lookup Page
+        // Need to ensure DB connection if not already
+        \GaiaAlpha\Controller\DbController::connect();
+        $page = \GaiaAlpha\Model\Page::findBySlug($slug);
+
+        if ($page) {
+            // 3. Render Template
+            // If template_slug is set, use it. Otherwise default to single_page?
+            // User asked for "set the /app page to use app template"
+            // So we trust the template_slug from DB.
+            $template = $page['template_slug'] ?? 'single_page.php';
+
+            // Ensure .php extension
+            if (substr($template, -4) !== '.php') {
+                $template .= '.php';
+            }
+
+            // Render
+            $this->render($template, ['page' => $page, 'slug' => $slug]);
+        } else {
+            // 4. Fallback
+            if ($slug === 'home') {
+                // If no 'home' page in DB, render default public home
+                $this->render('public_home.php');
+            } else {
+                // 404
+                http_response_code(404);
+                echo "Page not found";
+            }
+        }
     }
 
     public function registerRoutes()
     {
-        // App Route: /app or /app/...
-        // Regex logic: Matches /app or /app/anything. Does NOT match /apple.
-        // Router wraps path in #^...$#
-        Router::get('/app(?:/.*)?', [$this, 'app']);
-
-        // Public Form: /f/{slug}
-        Router::get('/f/([\w-]+)/?', [$this, 'form']);
-
-        // Single Page: /page/{slug}
-        Router::get('/page/([\w-]+)/?', [$this, 'page']);
-
         // Catch-all (Home)
-        // Must NOT match /api/, /media/, /js/, /css/ to allow them to 404 properly if not found
-        Router::get('(?!/api/|/media/|/js/|/css/|/images/).*', [$this, 'home']);
+        // Must NOT match /@/, /media/, /js/, /css/ to allow them to 404 properly if not found
+        // Also excluding /min/ and /assets/ as used in AssetController
+        Router::get('(?!/@/|/media/|/min/|/assets/).*', [$this, 'home']);
     }
 }

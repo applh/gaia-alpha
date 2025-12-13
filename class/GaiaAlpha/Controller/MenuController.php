@@ -11,11 +11,11 @@ class MenuController
 
     public function registerRoutes()
     {
-        Router::get('/api/menus', [$this, 'list']);
-        Router::post('/api/menus', [$this, 'create']);
-        Router::get('/api/menus/(\d+)', [$this, 'get']);
-        Router::patch('/api/menus/(\d+)', [$this, 'update']);
-        Router::delete('/api/menus/(\d+)', [$this, 'delete']);
+        Router::get('/@/menus', [$this, 'list']);
+        Router::post('/@/menus', [$this, 'create']);
+        Router::get('/@/menus/(\d+)', [$this, 'get']);
+        Router::patch('/@/menus/(\d+)', [$this, 'update']);
+        Router::delete('/@/menus/(\d+)', [$this, 'delete']);
     }
 
     public function list()

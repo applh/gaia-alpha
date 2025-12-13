@@ -254,7 +254,7 @@ export default {
 
         const fetchTemplatesList = async () => {
             try {
-                const res = await fetch('/api/cms/templates');
+                const res = await fetch('/@/cms/templates');
                 if (res.ok) {
                     allTemplates.value = await res.json();
                 }
@@ -269,9 +269,9 @@ export default {
             try {
                 let url;
                 if (filterCat.value === 'template') {
-                    url = '/api/cms/templates';
+                    url = '/@/cms/templates';
                 } else {
-                    url = `/api/cms/pages?cat=${filterCat.value}`;
+                    url = `/@/cms/pages?cat=${filterCat.value}`;
                 }
                 const res = await fetch(url);
                 if (res.ok) {
@@ -339,9 +339,9 @@ export default {
         const savePage = async () => {
             let url;
             if (filterCat.value === 'template') {
-                url = form.id ? `/api/cms/templates/${form.id}` : '/api/cms/templates';
+                url = form.id ? `/@/cms/templates/${form.id}` : '/@/cms/templates';
             } else {
-                url = form.id ? `/api/cms/pages/${form.id}` : '/api/cms/pages';
+                url = form.id ? `/@/cms/pages/${form.id}` : '/@/cms/pages';
             }
 
             const method = form.id ? 'PATCH' : 'POST';
@@ -364,9 +364,9 @@ export default {
         const deletePage = async (id) => {
             let url;
             if (filterCat.value === 'template') {
-                url = `/api/cms/templates/${id}`;
+                url = `/@/cms/templates/${id}`;
             } else {
-                url = `/api/cms/pages/${id}`;
+                url = `/@/cms/pages/${id}`;
             }
             const res = await fetch(url, { method: 'DELETE' });
             if (res.ok) {

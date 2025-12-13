@@ -107,7 +107,7 @@ class MediaController extends BaseController
     public function registerRoutes()
     {
         Router::add('GET', '/media/(\d+)/(.+)', [$this, 'serve']);
-        Router::add('GET', '/api/media/cache', [$this, 'stats']);
-        Router::add('POST', '/api/media/cache/clear', [$this, 'clear']);
+        Router::add('GET', '/@/media/cache', [$this, 'stats']);
+        Router::add('POST', '/@/media/cache/clear', [$this, 'clear']);
     }
 }

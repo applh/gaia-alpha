@@ -14,104 +14,112 @@ const getters = {
     isAdmin: computed(() => state.user && state.user.level >= 100)
 };
 
-// 3. Actions (State Mutations & Business Logic)
-const actions = {
-    setUser(user) {
-        state.user = user;
-        if (user) {
-            // Restore user preferences if available
-            if (user.settings?.theme) {
-                this.setTheme(user.settings.theme);
-            }
-            if (user.settings?.layout) {
-                this.setLayout(user.settings.layout);
-            }
+// 3. Standalone Actions (No 'this' issues)
+
+// Helper to persist settings to backend if logged in
+const savePreference = async (key, value) => {
+    if (!state.user) return;
+
+    // Optimistically update local user object
+    if (!state.user.settings) state.user.settings = {};
+    state.user.settings[key] = value;
+
+    try {
+        await fetch('/@/user/settings', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ key, value })
+        });
+    } catch (e) {
+        console.error(`Failed to save ${key}`, e);
+    }
+};
+
+const setTheme = (newTheme) => {
+    state.theme = newTheme;
+    localStorage.setItem('theme', newTheme);
+    if (newTheme === 'light') {
+        document.body.classList.add('light-theme');
+    } else {
+        document.body.classList.remove('light-theme');
+    }
+    savePreference('theme', newTheme);
+};
+
+const setLayout = (newLayout) => {
+    state.layout = newLayout;
+    localStorage.setItem('layout', newLayout);
+    if (newLayout === 'side') {
+        document.body.classList.add('layout-side');
+    } else {
+        document.body.classList.remove('layout-side');
+    }
+    savePreference('layout', newLayout);
+};
+
+const setUser = (user) => {
+    state.user = user;
+    if (user) {
+        // Restore user preferences if available
+        if (user.settings?.theme) {
+            setTheme(user.settings.theme);
         }
-    },
-
-    setTheme(newTheme) {
-        state.theme = newTheme;
-        localStorage.setItem('theme', newTheme);
-        if (newTheme === 'light') {
-            document.body.classList.add('light-theme');
-        } else {
-            document.body.classList.remove('light-theme');
-        }
-        this.savePreference('theme', newTheme);
-    },
-
-    toggleTheme() {
-        const newTheme = state.theme === 'dark' ? 'light' : 'dark';
-        this.setTheme(newTheme);
-    },
-
-    setLayout(newLayout) {
-        state.layout = newLayout;
-        localStorage.setItem('layout', newLayout);
-        if (newLayout === 'side') {
-            document.body.classList.add('layout-side');
-        } else {
-            document.body.classList.remove('layout-side');
-        }
-        this.savePreference('layout', newLayout);
-    },
-
-    setView(view) {
-        state.currentView = view;
-    },
-
-    setLoginMode(mode) {
-        state.loginMode = mode;
-    },
-
-    async checkSession() {
-        try {
-            const res = await fetch('/api/user');
-            if (res.ok) {
-                const data = await res.json();
-                this.setUser(data.user);
-                return true;
-            }
-        } catch (e) {
-            console.error("Session check failed", e);
-        }
-        return false;
-    },
-
-    async logout() {
-        try {
-            await fetch('/api/logout', { method: 'POST' });
-            state.user = null;
-            state.currentView = 'todos'; // Reset view
-            // Optional: reset theme to system default or keep current
-        } catch (e) {
-            console.error("Logout failed", e);
-        }
-    },
-
-    // Helper to persist settings to backend if logged in
-    async savePreference(key, value) {
-        if (!state.user) return;
-
-        // Optimistically update local user object
-        if (!state.user.settings) state.user.settings = {};
-        state.user.settings[key] = value;
-
-        try {
-            await fetch('/api/user/settings', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ key, value })
-            });
-        } catch (e) {
-            console.error(`Failed to save ${key}`, e);
+        if (user.settings?.layout) {
+            setLayout(user.settings.layout);
         }
     }
 };
 
+const toggleTheme = () => {
+    const newTheme = state.theme === 'dark' ? 'light' : 'dark';
+    setTheme(newTheme);
+};
+
+const setView = (view) => {
+    state.currentView = view;
+};
+
+const setLoginMode = (mode) => {
+    state.loginMode = mode;
+};
+
+const checkSession = async () => {
+    try {
+        const res = await fetch('/@/user');
+        if (res.ok) {
+            const data = await res.json();
+            setUser(data.user);
+            return true;
+        }
+    } catch (e) {
+        console.error("Session check failed", e);
+    }
+    return false;
+};
+
+const logout = async () => {
+    try {
+        await fetch('/@/logout', { method: 'POST' });
+        state.user = null;
+        state.currentView = 'todos'; // Reset view
+        // Optional: reset theme to system default or keep current
+    } catch (e) {
+        console.error("Logout failed", e);
+    }
+};
+
 // Export Store Object
+// All methods are bound correctly since they are closures
 export const store = {
     state,
     getters,
-    ...actions
+    setUser,
+    setTheme,
+    toggleTheme,
+    setLayout,
+    setView,
+    setLoginMode,
+    checkSession,
+    logout,
+    savePreference
 };

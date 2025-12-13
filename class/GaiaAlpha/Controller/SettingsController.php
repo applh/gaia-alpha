@@ -57,8 +57,8 @@ class SettingsController
     public function registerRoutes()
     {
         // Support both new and old endpoints for compatibility
-        \GaiaAlpha\Router::add('GET', '/api/user/settings', [$this, 'index']);
-        \GaiaAlpha\Router::add('POST', '/api/user/settings', [$this, 'update']);
+        \GaiaAlpha\Router::add('GET', '/@/user/settings', [$this, 'index']);
+        \GaiaAlpha\Router::add('POST', '/@/user/settings', [$this, 'update']);
 
 
     }

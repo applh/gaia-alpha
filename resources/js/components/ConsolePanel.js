@@ -65,11 +65,11 @@ export default {
 
             // Add to display history
             history.value.push({ type: 'command', content: cmd });
-            
+
             // Add to navigation history
             commandHistory.value.push(cmd);
             historyIndex.value = -1; // Reset nav index
-            
+
             currentCommand.value = '';
             isProcessing.value = true;
             await scrollToBottom();
@@ -82,7 +82,7 @@ export default {
                     return;
                 }
 
-                const res = await fetch('/api/console/run', {
+                const res = await fetch('/@/console/run', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ command: cmd })
@@ -90,7 +90,7 @@ export default {
 
                 if (res.ok) {
                     const data = await res.json();
-                    
+
                     if (data.status === 0) {
                         history.value.push({ type: 'response', content: data.output || '(No output)' });
                     } else {

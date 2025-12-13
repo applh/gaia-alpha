@@ -81,7 +81,7 @@ export default {
 
         const fetchForms = async () => {
             try {
-                const res = await fetch('/api/forms');
+                const res = await fetch('/@/forms');
                 if (res.ok) {
                     forms.value = await res.json();
                 }
@@ -109,7 +109,7 @@ export default {
         const deleteForm = async (id) => {
             if (!confirm('Are you sure? This will delete all submissions too.')) return;
             try {
-                await fetch(`/api/forms/${id}`, { method: 'DELETE' });
+                await fetch(`/@/forms/${id}`, { method: 'DELETE' });
                 fetchForms();
             } catch (e) {
                 console.error("Failed to delete form", e);

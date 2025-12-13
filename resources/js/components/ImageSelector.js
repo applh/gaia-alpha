@@ -210,7 +210,7 @@ export default {
         const fetchImages = async () => {
             loading.value = true;
             try {
-                const res = await fetch('/api/cms/pages?cat=image');
+                const res = await fetch('/@/cms/pages?cat=image');
                 if (res.ok) {
                     images.value = await res.json();
                 }
@@ -247,7 +247,7 @@ export default {
                     const formData = new FormData();
                     formData.append('image', files[i]);
 
-                    const res = await fetch('/api/cms/upload', {
+                    const res = await fetch('/@/cms/upload', {
                         method: 'POST',
                         body: formData
                     });

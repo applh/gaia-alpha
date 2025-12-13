@@ -11,8 +11,8 @@ class ApiBuilderController extends BaseController
 {
     public function registerRoutes()
     {
-        Router::add('GET', '/api/admin/api-builder/tables', [$this, 'handleListTables']);
-        Router::add('POST', '/api/admin/api-builder/config', [$this, 'handleSaveConfig']);
+        Router::add('GET', '/@/admin/api-builder/tables', [$this, 'handleListTables']);
+        Router::add('POST', '/@/admin/api-builder/config', [$this, 'handleSaveConfig']);
     }
 
     public function handleListTables()

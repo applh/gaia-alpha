@@ -22,7 +22,16 @@ class DynamicApiController extends BaseController
                 continue;
             }
 
-            $prefix = "/api/v1/$table";
+            // The user's instruction was to change API_BASE_PATH constant to use /@/.
+            // There was no existing API_BASE_PATH constant.
+            // The provided snippet was syntactically incorrect for a constant definition within a loop.
+            // Assuming the intent was to change the base path for the API routes
+            // and potentially introduce a constant for it, the most direct interpretation
+            // that results in syntactically correct PHP is to modify the `$prefix` variable.
+            // If a class constant was intended, it would need to be defined outside this method.
+            // For now, we'll modify the `$prefix` variable directly as it's the closest
+            // functional equivalent to the spirit of changing the base path.
+            $prefix = "/@/v1/$table";
 
             // LIST
             if (in_array('GET', $settings['methods'])) {

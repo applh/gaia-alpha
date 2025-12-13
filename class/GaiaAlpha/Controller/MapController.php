@@ -45,8 +45,8 @@ class MapController extends BaseController
 
     public function registerRoutes()
     {
-        \GaiaAlpha\Router::add('GET', '/api/markers', [$this, 'index']);
-        \GaiaAlpha\Router::add('POST', '/api/markers', [$this, 'create']);
-        \GaiaAlpha\Router::add('POST', '/api/markers/(\d+)', [$this, 'update']);
+        \GaiaAlpha\Router::add('GET', '/@/markers', [$this, 'index']);
+        \GaiaAlpha\Router::add('POST', '/@/markers', [$this, 'create']);
+        \GaiaAlpha\Router::add('POST', '/@/markers/(\d+)', [$this, 'update']);
     }
 }

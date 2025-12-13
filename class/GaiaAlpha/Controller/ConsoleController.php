@@ -11,7 +11,7 @@ class ConsoleController extends BaseController
 {
     public function registerRoutes()
     {
-        \GaiaAlpha\Router::add('POST', '/api/console/run', [$this, 'run']);
+        \GaiaAlpha\Router::add('POST', '/@/console/run', [$this, 'run']);
     }
 
     public function run()

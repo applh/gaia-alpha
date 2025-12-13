@@ -85,7 +85,7 @@ export default {
         </div>
     `,
     setup() {
-        const { items: menus, fetchItems, createItem, updateItem, deleteItem } = useCrud('/api/menus');
+        const { items: menus, fetchItems, createItem, updateItem, deleteItem } = useCrud('/@/menus');
 
         const editMode = ref(false);
         const form = reactive({

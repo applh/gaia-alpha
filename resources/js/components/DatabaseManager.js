@@ -205,7 +205,7 @@ export default {
 
         const loadTables = async () => {
             try {
-                const res = await fetch('/api/admin/db/tables');
+                const res = await fetch('/@/admin/db/tables');
                 const data = await res.json();
                 tables.value = data.tables;
             } catch (e) {
@@ -219,7 +219,7 @@ export default {
                 return;
             }
             try {
-                const res = await fetch(`/api/admin/db/table/${selectedTable.value}`);
+                const res = await fetch(`/@/admin/db/table/${selectedTable.value}`);
                 if (res.ok) {
                     const data = await res.json();
                     if (data && data.schema) {
@@ -246,7 +246,7 @@ export default {
                 return;
             }
             try {
-                const res = await fetch('/api/admin/db/query', {
+                const res = await fetch('/@/admin/db/query', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ query: sqlQuery.value })
@@ -288,8 +288,8 @@ export default {
         const saveRecord = async () => {
             try {
                 const url = modalMode.value === 'create'
-                    ? `/api/admin/db/table/${selectedTable.value}`
-                    : `/api/admin/db/table/${selectedTable.value}/${editingId.value}`;
+                    ? `/@/admin/db/table/${selectedTable.value}`
+                    : `/@/admin/db/table/${selectedTable.value}/${editingId.value}`;
 
                 const method = modalMode.value === 'create' ? 'POST' : 'PATCH';
 
@@ -317,7 +317,7 @@ export default {
 
         const deleteRecord = async (id) => {
             try {
-                const res = await fetch(`/api/admin/db/table/${selectedTable.value}/${id}`, {
+                const res = await fetch(`/@/admin/db/table/${selectedTable.value}/${id}`, {
                     method: 'DELETE'
                 });
                 if (res.ok) {

@@ -20,8 +20,8 @@ The Media API handles secure image serving, resizing, and caching.
 - **Square Crop (150x150)**: `/media/1/image.jpg?w=150&h=150&fit=cover`
 
 ### Cache Management
-- `GET /api/media/cache`: Get cache stats (count, size).
-- `POST /api/media/cache/clear`: Clear the media cache.
+- `GET /@/media/cache`: Get cache stats (count, size).
+- `POST /@/media/cache/clear`: Clear the media cache.
 
 ---
 
@@ -29,42 +29,42 @@ The Media API handles secure image serving, resizing, and caching.
 These endpoints return JSON and require Session Authentication.
 
 ### Global
-- `GET /api/me`: Returns current user info (`id`, `username`, `level`).
+- `GET /@/user`: Returns current user info (`id`, `username`, `level`).
 
 ### Todo Management
-- `GET /api/todos`: List user's todos (ordered by hierarchy).
+- `GET /@/todos`: List user's todos (ordered by hierarchy).
   - **Query Params**: `label` - Filter by label (e.g., `?label=work`)
-- `POST /api/todos`: Create a new todo.
+- `POST /@/todos`: Create a new todo.
   - Body: `{"title": "My Task", "parent_id": 1, "labels": "work,urgent"}`
   - `parent_id` (optional): ID of parent todo for hierarchical structure
   - `labels` (optional): Comma-separated labels
-- `PATCH /api/todos/{id}`: Update a todo.
+- `PATCH /@/todos/{id}`: Update a todo.
   - Body: `{"title": "...", "completed": true, "parent_id": 2, "labels": "work"}`
   - All fields are optional
-- `DELETE /api/todos/{id}`: Delete a todo.
+- `DELETE /@/todos/{id}`: Delete a todo.
   - Note: Children are unlinked (parent_id set to NULL), not deleted
-- `GET /api/todos/{id}/children`: Get all child todos of a parent.
+- `GET /@/todos/{id}/children`: Get all child todos of a parent.
 
 
 ### Admin Handlers
-- `POST /api/admin/users/delete`: Delete a user (Level 100+ only).
+- `POST /@/admin/users/delete`: Delete a user (Level 100+ only).
   - Body: `{"id": 456}`
 
 ### File Uploads
-- `POST /api/upload`: Upload an image.
+- `POST /@/upload`: Upload an image.
   - **Multipart Form Data**: field `file`
   - **Returns**: `{"url": "/media/1/newimage.jpg"}`
 
 ### CMS
-- `GET /api/cms/pages`: List all pages.
+- `GET /@/cms/pages`: List all pages.
   - **Query Params**:
     - `cat`: "page" | "image" (default: "page")
-- `POST /api/cms/pages`: Create a page.
+- `POST /@/cms/pages`: Create a page.
   - **Body**: `{"title":"...","slug":"...","content":"...","image":"...","cat":"page"}`
-- `PATCH /api/cms/pages/{id}`: Update a page.
+- `PATCH /@/cms/pages/{id}`: Update a page.
   - **Body**: `{"title":"...","content":"...","image":"..."}`
-- `DELETE /api/cms/pages/{id}`: Delete a page.
-- `POST /api/cms/upload`: Upload an image.
+- `DELETE /@/cms/pages/{id}`: Delete a page.
+- `POST /@/cms/upload`: Upload an image.
   - **Multipart Form Data**: field `image`
   - **Returns**: `{"url": "/media/1/newimage.webp"}`
   - **Processing**: 
@@ -75,43 +75,54 @@ These endpoints return JSON and require Session Authentication.
     - Auto-creates CMS entry with `cat='image'`
 
 ### Admin
-- `GET /api/admin/stats`: Get system statistics (Admin only).
+- `GET /@/admin/stats`: Get system statistics (Admin only).
   - **Returns**: `{"users": 12, "todos": 6, "pages": 3, "images": 1}`
-- `GET /api/admin/users`: List all users (Admin only).
-- `POST /api/admin/users`: Create a user (Admin only).
+- `GET /@/admin/users`: List all users (Admin only).
+- `POST /@/admin/users`: Create a user (Admin only).
   - **Body**: `{"username":"...","password":"...","level":10}`
-- `PATCH /api/admin/users/{id}`: Update a user (Admin only).
+- `PATCH /@/admin/users/{id}`: Update a user (Admin only).
   - **Body**: `{"level":100,"password":"..."}`
-- `DELETE /api/admin/users/{id}`: Delete a user (Admin only).
+- `DELETE /@/admin/users/{id}`: Delete a user (Admin only).
 
 ### Database Manager (Admin Only)
-- `GET /api/admin/db/tables`: List all database tables.
+- `GET /@/admin/db/tables`: List all database tables.
   - **Returns**: `{"tables": ["users", "todos", "cms_pages", "data_store"]}`
-- `GET /api/admin/db/table/{tableName}`: Get table schema and data.
+- `GET /@/admin/db/table/{tableName}`: Get table schema and data.
   - **Returns**: `{"table": "users", "schema": [...], "data": [...], "count": 10}`
-- `POST /api/admin/db/query`: Execute a SQL query.
+- `POST /@/admin/db/query`: Execute a SQL query.
   - **Body**: `{"query": "SELECT * FROM users WHERE level >= 100"}`
   - **Returns**: 
     - SELECT: `{"success": true, "type": "select", "results": [...], "count": 5}`
     - Other: `{"success": true, "type": "modification", "affected_rows": 3}`
-- `POST /api/admin/db/table/{tableName}`: Create a record.
+- `POST /@/admin/db/table/{tableName}`: Create a record.
   - **Body**: `{"column1": "value1", "column2": "value2"}`
   - **Returns**: `{"success": true, "id": "123"}`
-- `PATCH /api/admin/db/table/{tableName}/{id}`: Update a record.
+- `PATCH /@/admin/db/table/{tableName}/{id}`: Update a record.
   - **Body**: `{"column1": "new_value"}`
   - **Returns**: `{"success": true}`
-- `DELETE /api/admin/db/table/{tableName}/{id}`: Delete a record.
+- `DELETE /@/admin/db/table/{tableName}/{id}`: Delete a record.
   - **Returns**: `{"success": true}`
 
 ### API Builder (Admin Only)
-- `GET /api/admin/api-builder/tables`: List all tables and their API config status.
-- `POST /api/admin/api-builder/config`: Enable/Disable API for a table.
+- `GET /@/admin/api-builder/tables`: List all tables and their API config status.
+- `POST /@/admin/api-builder/config`: Enable/Disable API for a table.
   - **Body**: `{"name": "users", "config": {"enabled": true, "methods": ["GET"], "auth_level": "admin"}}`
 
 ### Dynamic APIs
 These endpoints are generated by the API Builder for enabled tables.
-- `GET /api/v1/{table}`: List items (supports pagination `?page=X&limit=Y` and sorting `?sort=col&order=desc`).
-- `GET /api/v1/{table}/{id}`: Get single item.
-- `POST /api/v1/{table}`: Create item.
-- `PUT /api/v1/{table}/{id}`: Update item.
-- `DELETE /api/v1/{table}/{id}`: Delete item.
+- `GET /@/v1/{table}`: List items (supports pagination `?page=X&limit=Y` and sorting `?sort=col&order=desc`).
+- `GET /@/v1/{table}/{id}`: Get single item.
+- `POST /@/v1/{table}`: Create item.
+- `PUT /@/v1/{table}/{id}`: Update item.
+- `DELETE /@/v1/{table}/{id}`: Delete item.
+
+### Menus
+- `GET /@/menus`: List all menus.
+- `POST /@/menus`: Create a menu.
+- `GET /@/menus/{id}`: Get a specific menu.
+- `PATCH /@/menus/{id}`: Update a menu.
+- `DELETE /@/menus/{id}`: Delete a menu.
+
+### Public Pages (JSON)
+- `GET /@/public/pages`: List public pages.
+- `GET /@/public/pages/{slug}`: Get a public page by slug.

@@ -385,7 +385,7 @@ export default {
         const fetchSettings = async () => {
             // Try to get setting from API if not in local storage or to refresh
             try {
-                const res = await fetch('/api/user/settings');
+                const res = await fetch('/@/user/settings');
                 if (res.ok) {
                     const data = await res.json();
                     if (data.settings && data.settings.default_todo_duration) {
@@ -416,7 +416,7 @@ export default {
         });
 
         const fetchTodos = async () => {
-            const res = await fetch('/api/todos');
+            const res = await fetch('/@/todos');
             if (res.ok) todos.value = await res.json();
         };
 
@@ -433,7 +433,7 @@ export default {
             };
 
             try {
-                const res = await fetch('/api/todos', {
+                const res = await fetch('/@/todos', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(data)
@@ -460,7 +460,7 @@ export default {
 
         const toggleTodo = async (todo) => {
             const updated = !todo.completed;
-            const res = await fetch(`/api/todos/${todo.id}`, {
+            const res = await fetch(`/@/todos/${todo.id}`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ completed: updated })
@@ -473,7 +473,7 @@ export default {
         const deleteTodo = async (id) => {
             // if (!confirm('Delete this todo?')) return;
 
-            const res = await fetch(`/api/todos/${id}`, { method: 'DELETE' });
+            const res = await fetch(`/@/todos/${id}`, { method: 'DELETE' });
             if (res.ok) {
                 todos.value = todos.value.filter(t => t.id !== id);
             }
@@ -492,7 +492,7 @@ export default {
         };
 
         const saveEdit = async () => {
-            const res = await fetch(`/api/todos/${editingTodo.value.id}`, {
+            const res = await fetch(`/@/todos/${editingTodo.value.id}`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(editForm.value)
@@ -587,7 +587,7 @@ export default {
             todos.value.sort((a, b) => (a.position - b.position) || (a.id - b.id));
 
             // API Call
-            await fetch('/api/todos/reorder', {
+            await fetch('/@/todos/reorder', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

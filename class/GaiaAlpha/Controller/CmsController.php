@@ -163,17 +163,17 @@ class CmsController extends BaseController
 
     public function registerRoutes()
     {
-        \GaiaAlpha\Router::add('GET', '/api/cms/pages', [$this, 'index']);
-        \GaiaAlpha\Router::add('POST', '/api/cms/pages', [$this, 'create']);
-        \GaiaAlpha\Router::add('PATCH', '/api/cms/pages/(\d+)', [$this, 'update']);
-        \GaiaAlpha\Router::add('DELETE', '/api/cms/pages/(\d+)', [$this, 'delete']);
-        \GaiaAlpha\Router::add('POST', '/api/cms/upload', [$this, 'upload']);
+        \GaiaAlpha\Router::add('GET', '/@/cms/pages', [$this, 'index']);
+        \GaiaAlpha\Router::add('POST', '/@/cms/pages', [$this, 'create']);
+        \GaiaAlpha\Router::add('PATCH', '/@/cms/pages/(\d+)', [$this, 'update']);
+        \GaiaAlpha\Router::add('DELETE', '/@/cms/pages/(\d+)', [$this, 'delete']);
+        \GaiaAlpha\Router::add('POST', '/@/cms/upload', [$this, 'upload']);
 
         // Template Routes
-        \GaiaAlpha\Router::add('GET', '/api/cms/templates', [$this, 'getTemplates']);
-        \GaiaAlpha\Router::add('POST', '/api/cms/templates', [$this, 'createTemplate']);
-        \GaiaAlpha\Router::add('PATCH', '/api/cms/templates/(\d+)', [$this, 'updateTemplate']);
-        \GaiaAlpha\Router::add('DELETE', '/api/cms/templates/(\d+)', [$this, 'deleteTemplate']);
+        \GaiaAlpha\Router::add('GET', '/@/cms/templates', [$this, 'getTemplates']);
+        \GaiaAlpha\Router::add('POST', '/@/cms/templates', [$this, 'createTemplate']);
+        \GaiaAlpha\Router::add('PATCH', '/@/cms/templates/(\d+)', [$this, 'updateTemplate']);
+        \GaiaAlpha\Router::add('DELETE', '/@/cms/templates/(\d+)', [$this, 'deleteTemplate']);
     }
 
     public function getTemplates()

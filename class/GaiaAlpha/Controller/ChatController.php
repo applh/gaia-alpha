@@ -11,10 +11,10 @@ class ChatController extends BaseController
 {
     public function registerRoutes()
     {
-        Router::get('/api/chat/users', [$this, 'getUsers']);
-        Router::get('/api/chat/messages/(\d+)', [$this, 'getMessages']);
-        Router::post('/api/chat', [$this, 'sendMessage']);
-        Router::patch('/api/chat/read/(\d+)', [$this, 'markRead']);
+        Router::get('/@/chat/users', [$this, 'getUsers']);
+        Router::get('/@/chat/messages/(\d+)', [$this, 'getMessages']);
+        Router::post('/@/chat', [$this, 'sendMessage']);
+        Router::patch('/@/chat/read/(\d+)', [$this, 'markRead']);
     }
 
     public function getUsers()

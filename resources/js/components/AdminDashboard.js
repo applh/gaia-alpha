@@ -61,7 +61,7 @@ export default {
         const stats = ref(null);
 
         const fetchStats = async () => {
-            const res = await fetch('/api/admin/stats');
+            const res = await fetch('/@/admin/stats');
             if (res.ok) {
                 stats.value = await res.json();
             }

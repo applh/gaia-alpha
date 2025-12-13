@@ -17,7 +17,7 @@ const UserSettings = {
             localStorage.setItem('todo_palette', JSON.stringify(palette.value));
             saving.value = true;
             try {
-                await fetch('/api/user/settings', {
+                await fetch('/@/user/settings', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ key: 'todo_palette', value: JSON.stringify(palette.value) })
@@ -68,7 +68,7 @@ const UserSettings = {
             localStorage.setItem('defaultDuration', val);
             saving.value = true;
             try {
-                await fetch('/api/user/settings', {
+                await fetch('/@/user/settings', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ key: 'default_todo_duration', value: val })

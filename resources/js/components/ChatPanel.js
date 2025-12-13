@@ -96,7 +96,7 @@ export default {
 
         const fetchUsers = async () => {
             try {
-                const res = await fetch('/api/chat/users');
+                const res = await fetch('/@/chat/users');
                 if (res.ok) {
                     users.value = await res.json();
                 }
@@ -109,7 +109,7 @@ export default {
             if (!selectedUser.value) return;
             try {
                 // Don't set isLoading on poll, only initial
-                const res = await fetch(`/api/chat/messages/${selectedUser.value.id}`);
+                const res = await fetch(`/@/chat/messages/${selectedUser.value.id}`);
                 if (res.ok) {
                     const newData = await res.json();
 
@@ -151,7 +151,7 @@ export default {
         };
 
         const markRead = async (senderId) => {
-            await fetch(`/api/chat/read/${senderId}`, { method: 'PATCH' });
+            await fetch(`/@/chat/read/${senderId}`, { method: 'PATCH' });
             // Update local badge
             const u = users.value.find(u => u.id === senderId);
             if (u) u.unread = 0;
@@ -165,7 +165,7 @@ export default {
             isSending.value = true;
 
             try {
-                const res = await fetch('/api/chat', {
+                const res = await fetch('/@/chat', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({

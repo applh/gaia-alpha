@@ -46,7 +46,7 @@ export default {
         const fetchSubmissions = async () => {
             loading.value = true;
             try {
-                const res = await fetch(`/api/forms/${props.formId}/submissions`);
+                const res = await fetch(`/@/forms/${props.formId}/submissions`);
                 if (res.ok) {
                     submissions.value = await res.json();
 

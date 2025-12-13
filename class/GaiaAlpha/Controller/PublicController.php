@@ -169,8 +169,8 @@ class PublicController extends BaseController
 
     public function registerRoutes()
     {
-        \GaiaAlpha\Router::add('GET', '/api/public/pages', [$this, 'index']);
-        \GaiaAlpha\Router::add('GET', '/api/public/pages/([\w-]+)', [$this, 'show']);
+        \GaiaAlpha\Router::add('GET', '/@/public/pages', [$this, 'index']);
+        \GaiaAlpha\Router::add('GET', '/@/public/pages/([\w-]+)', [$this, 'show']);
 
         // Public HTML Views
         \GaiaAlpha\Router::add('GET', '/page/([\w-]+)', [$this, 'render']);

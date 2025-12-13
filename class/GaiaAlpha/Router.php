@@ -86,7 +86,7 @@ class Router
             // Hook for 404
             Hook::run('router_404', $uri);
 
-            if (strpos($uri, '/api/') === 0) {
+            if (strpos($uri, '/api/') === 0 || strpos($uri, '/@/') === 0) {
                 Response::json(['error' => 'API Endpoint Not Found'], 404);
             } else {
                 echo "File not found";

@@ -8,5 +8,3 @@ CREATE TABLE IF NOT EXISTS cms_templates (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UNIQUE(slug)
 );
-
-ALTER TABLE cms_pages ADD COLUMN template_slug VARCHAR(255) DEFAULT NULL;

@@ -59,6 +59,7 @@ class App
             "step10" => "GaiaAlpha\\Framework::loadControllers",
             "step12" => "GaiaAlpha\\Framework::sortControllers",
             "step15" => "GaiaAlpha\\Framework::registerRoutes",
+            "step18" => "GaiaAlpha\\Controller\\InstallController::checkInstalled",
             "step20" => "GaiaAlpha\\Router::handle",
         ]);
 
@@ -69,6 +70,9 @@ class App
         }
 
         $dataPath = defined('GAIA_DATA_PATH') ? GAIA_DATA_PATH : $rootDir . '/my-data';
+        if (!is_dir($dataPath)) {
+            mkdir($dataPath, 0755, true);
+        }
         Env::set('path_data', $dataPath);
 
         self::registerAutoloaders();
@@ -93,6 +97,9 @@ class App
         }
 
         $dataPath = defined('GAIA_DATA_PATH') ? GAIA_DATA_PATH : $rootDir . '/my-data';
+        if (!is_dir($dataPath)) {
+            mkdir($dataPath, 0755, true);
+        }
         Env::set('path_data', $dataPath);
 
         self::registerAutoloaders();

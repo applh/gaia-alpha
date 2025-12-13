@@ -1,2 +1,0 @@
-ALTER TABLE todos ADD COLUMN start_date DATETIME;
-ALTER TABLE todos ADD COLUMN end_date DATETIME;

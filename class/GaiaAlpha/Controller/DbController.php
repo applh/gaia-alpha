@@ -11,10 +11,19 @@ class DbController extends BaseController
     public static function connect(): Database
     {
         $dataPath = Env::get('path_data');
-        $dsn = defined('GAIA_DB_DSN') ? GAIA_DB_DSN : 'sqlite:' . (defined('GAIA_DB_PATH') ? GAIA_DB_PATH : $dataPath . '/database.sqlite');
+        // Resolve path logic similar to how DSN is built
+        $dbPath = defined('GAIA_DB_PATH') ? GAIA_DB_PATH : $dataPath . '/database.sqlite';
+
+        // Check if DB exists before PDO potentially creates it
+        $installNeeded = !file_exists($dbPath) || filesize($dbPath) === 0;
+
+        $dsn = defined('GAIA_DB_DSN') ? GAIA_DB_DSN : 'sqlite:' . $dbPath;
 
         $db = new Database($dsn);
-        $db->ensureSchema();
+
+        if ($installNeeded) {
+            $db->ensureSchema();
+        }
 
         return $db;
     }

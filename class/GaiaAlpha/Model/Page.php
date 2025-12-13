@@ -16,7 +16,7 @@ class Page
     public static function getLatestPublic(int $limit = 10)
     {
         $stmt = \GaiaAlpha\Controller\DbController::getPdo()->query("
-            SELECT id, title, slug, content, image, created_at, user_id, template_slug
+            SELECT id, title, slug, content, image, created_at, user_id, template_slug, meta_description, meta_keywords
             FROM cms_pages 
             WHERE cat = 'page'
             ORDER BY created_at DESC 
@@ -28,7 +28,7 @@ class Page
     public static function findBySlug(string $slug)
     {
         $stmt = \GaiaAlpha\Controller\DbController::getPdo()->prepare("
-            SELECT id, title, slug, content, image, created_at, user_id, template_slug
+            SELECT id, title, slug, content, image, created_at, user_id, template_slug, meta_description, meta_keywords
             FROM cms_pages 
             WHERE slug = ? AND cat = 'page'
         ");
@@ -38,7 +38,7 @@ class Page
 
     public static function create(int $userId, array $data)
     {
-        $stmt = \GaiaAlpha\Controller\DbController::getPdo()->prepare("INSERT INTO cms_pages (user_id, title, slug, content, image, cat, tag, template_slug, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
+        $stmt = \GaiaAlpha\Controller\DbController::getPdo()->prepare("INSERT INTO cms_pages (user_id, title, slug, content, image, cat, tag, template_slug, meta_description, meta_keywords, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
         $stmt->execute([
             $userId,
             $data['title'],
@@ -47,7 +47,9 @@ class Page
             $data['image'] ?? null,
             $data['cat'] ?? 'page',
             $data['tag'] ?? null,
-            $data['template_slug'] ?? null
+            $data['template_slug'] ?? null,
+            $data['meta_description'] ?? null,
+            $data['meta_keywords'] ?? null
         ]);
         return \GaiaAlpha\Controller\DbController::getPdo()->lastInsertId();
     }
@@ -80,6 +82,14 @@ class Page
         if (isset($data['template_slug'])) {
             $fields[] = "template_slug = ?";
             $values[] = $data['template_slug'];
+        }
+        if (isset($data['meta_description'])) {
+            $fields[] = "meta_description = ?";
+            $values[] = $data['meta_description'];
+        }
+        if (isset($data['meta_keywords'])) {
+            $fields[] = "meta_keywords = ?";
+            $values[] = $data['meta_keywords'];
         }
 
         if (empty($fields)) {

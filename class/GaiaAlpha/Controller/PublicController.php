@@ -33,35 +33,20 @@ class PublicController extends BaseController
 
         if (!$page) {
             http_response_code(404);
+            // Optional: load a 404 template if exists
             echo "Page not found";
             return;
         }
 
-        // Check if content is JSON
+        // Check if content is JSON (Structure) or HTML
         $content = $page['content'];
         $structure = json_decode($content, true);
 
         if (json_last_error() === JSON_ERROR_NONE && is_array($structure)) {
-            // Render Structure
-            $html = "<!DOCTYPE html><html><head><title>" . htmlspecialchars($page['title']) . "</title>";
-            $html .= "<style>
-                body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; margin: 0; padding: 0; line-height: 1.6; }
-                .site-header { padding: 20px; background: #eee; }
-                .site-main { padding: 40px 20px; max-width: 1200px; margin: 0 auto; }
-                .site-footer { padding: 20px; background: #333; color: white; text-align: center; }
-                .col-container { display: flex; gap: 20px; }
-                .col { flex: 1; min-width: 0; }
-                img { max-width: 100%; height: auto; }
-            </style>";
+            // Render Structure to HTML string
+            $html = '';
 
-            // Allow plugins to inject styles/scripts
-            ob_start();
-            Hook::run('public_page_render_head', $page);
-            $html .= ob_get_clean();
-
-            $html .= "</head><body>";
-
-            // Header Hook
+            // Allow plugins to inject content before structure
             ob_start();
             Hook::run('public_page_render_header', $page);
             $html .= ob_get_clean();
@@ -87,17 +72,28 @@ class PublicController extends BaseController
                 $html .= "</footer>";
             }
 
-            // Footer Hook
+            // Allow plugins to inject content after structure
             ob_start();
             Hook::run('public_page_render_footer', $page);
             $html .= ob_get_clean();
 
-            $html .= "</body></html>";
-            echo $html;
-        } else {
-            // Render Raw HTML/Text
-            echo $content;
+            $page['content'] = $html;
         }
+        // Else: Content is already HTML string, use as is.
+
+        // Determine Template
+        $template = $page['template_slug'] ?? 'single_page';
+        // Sanitize template name to prevent traversal
+        $template = preg_replace('/[^a-zA-Z0-9_-]/', '', $template);
+
+        $templatePath = dirname(__DIR__, 3) . '/templates/' . $template . '.php';
+
+        if (!file_exists($templatePath)) {
+            $templatePath = dirname(__DIR__, 3) . '/templates/single_page.php';
+        }
+
+        // Render Template
+        require $templatePath;
     }
 
     private function renderNode($node)
@@ -167,10 +163,47 @@ class PublicController extends BaseController
         return $html;
     }
 
+    public function sitemap()
+    {
+        $pdo = \GaiaAlpha\Controller\DbController::getPdo();
+        $stmt = $pdo->query("SELECT slug, updated_at FROM cms_pages WHERE cat='page'");
+        $pages = $stmt->fetchAll();
+
+        header("Content-Type: application/xml");
+        echo '<?xml version="1.0" encoding="UTF-8"?>';
+        echo '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
+
+        $baseUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]";
+
+        // Add Home
+        echo '<url><loc>' . $baseUrl . '/</loc><changefreq>daily</changefreq></url>';
+
+        foreach ($pages as $p) {
+            if ($p['slug'] === 'home')
+                continue;
+            echo '<url>';
+            echo '<loc>' . $baseUrl . '/' . $p['slug'] . '</loc>';
+            echo '<lastmod>' . date('Y-m-d', strtotime($p['updated_at'])) . '</lastmod>';
+            echo '<changefreq>weekly</changefreq>';
+            echo '</url>';
+        }
+        echo '</urlset>';
+    }
+
+    public function robots()
+    {
+        header("Content-Type: text/plain");
+        echo "User-agent: *\nAllow: /\nSitemap: /sitemap.xml";
+    }
+
     public function registerRoutes()
     {
         \GaiaAlpha\Router::add('GET', '/@/public/pages', [$this, 'index']);
         \GaiaAlpha\Router::add('GET', '/@/public/pages/([\w-]+)', [$this, 'show']);
+
+        // SEO Routes
+        \GaiaAlpha\Router::add('GET', '/sitemap.xml', [$this, 'sitemap']);
+        \GaiaAlpha\Router::add('GET', '/robots.txt', [$this, 'robots']);
 
         // Public HTML Views
         \GaiaAlpha\Router::add('GET', '/page/([\w-]+)', [$this, 'render']);

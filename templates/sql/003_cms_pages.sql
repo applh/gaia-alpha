@@ -10,6 +10,8 @@ CREATE TABLE IF NOT EXISTS cms_pages (
     cat TEXT DEFAULT 'page',
     tag TEXT,
     template_slug VARCHAR(255) DEFAULT NULL,
+    meta_description TEXT,
+    meta_keywords TEXT,
     FOREIGN KEY(user_id) REFERENCES users(id),
     UNIQUE(slug)
 );

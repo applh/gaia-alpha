@@ -95,4 +95,11 @@ class DbCommands
 
         echo "Database imported from $inputFile\n";
     }
+    public static function handleMigrate(): void
+    {
+        echo "Running database migrations...\n";
+        $db = \GaiaAlpha\Controller\DbController::connect();
+        $db->ensureSchema();
+        echo "Migrations completed.\n";
+    }
 }

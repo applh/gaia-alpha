@@ -11,6 +11,8 @@ All notable changes to this project will be documented in this file.
 ### Refactored
 - **Assets**: Moved public assets from `www/` to `resources/` to prevent direct access and enforce the minification pipeline.
 - **Docker**: Optimized Nginx configurations in `docker/deployment` and `docker/multimedia` to cache minified assets.
+- **UI**: Standardized all Delete buttons to use standard red styling (`.btn-danger`) across all admin panels.
+- **UI**: Replaced Google Fonts with locally hosted "Outfit" font files.
 
 ### Fixed
 - **Assets**: Fixed `Asset::url` to correctly handle query strings (e.g., `?v=2`).

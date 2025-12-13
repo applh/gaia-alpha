@@ -30,7 +30,7 @@ export default {
                             <td>{{ getItemsCount(menu.items) }} items</td>
                             <td class="actions">
                                 <button @click="openEdit(menu)">Edit</button>
-                                <button @click="deleteMenu(menu.id)" class="danger">Delete</button>
+                                <button @click="deleteMenu(menu.id)" class="btn-small btn-danger">Delete</button>
                             </td>
                         </tr>
                     </tbody>
@@ -72,7 +72,7 @@ export default {
                                 <option value="page">Page</option>
                             </select>
                             <input v-model="item.value" :placeholder="item.type === 'page' ? 'Page Slug' : 'https://...'" class="item-value">
-                            <button @click="removeItem(idx)" class="btn-xs danger">×</button>
+                            <button @click="removeItem(idx)" class="btn-xs btn-danger">×</button>
                         </div>
                     </div>
                     <button @click="addItem" class="btn-secondary btn-small">+ Add Item</button>

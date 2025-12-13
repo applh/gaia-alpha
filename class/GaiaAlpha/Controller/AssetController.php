@@ -76,7 +76,7 @@ class AssetController extends BaseController
                 'svg' => 'image/svg+xml',
                 'webp' => 'image/webp'
             ];
-            header('Content-Type: ' . ($mimeTypes[$ext] ?? 'application/octet-stream'));
+            $contentType = $mimeTypes[$ext] ?? 'application/octet-stream';
         } else {
             // Normal Minification Flow
             $cacheFile = $this->cacheDir . '/' . md5($path) . '.' . $type;
@@ -96,13 +96,21 @@ class AssetController extends BaseController
                 file_put_contents($cacheFile, $content);
             }
 
-            // Set headers
+            // Determine Content-Type
             if ($type === 'css') {
-                header('Content-Type: text/css');
+                $contentType = 'text/css';
             } else {
-                header('Content-Type: application/javascript');
+                $contentType = 'application/javascript';
             }
         }
+
+        // Set Headers
+        // Clear any output buffers to ensure clean output
+        while (ob_get_level()) {
+            ob_end_clean();
+        }
+
+        header("Content-Type: $contentType", true);
 
         // Cache control (1 year)
         $seconds = 31536000;
@@ -110,6 +118,7 @@ class AssetController extends BaseController
         header("Last-Modified: " . gmdate("D, d M Y H:i:s", filemtime($sourceFile)) . " GMT");
 
         echo $content;
+        exit;
     }
 
     private function minifyCss($input)
@@ -148,6 +157,59 @@ class AssetController extends BaseController
         return implode("\n", $output);
     }
 
+    public function servePublic($path)
+    {
+        // Security check: prevent directory traversal
+        if (strpos($path, '..') !== false) {
+            http_response_code(403);
+            echo "Forbidden";
+            exit;
+        }
+
+        $rootDir = Env::get('root_dir');
+        $sourceFile = $rootDir . '/resources/assets/' . $path;
+
+        if (!file_exists($sourceFile)) {
+            http_response_code(404);
+            echo "File not found";
+            exit;
+        }
+
+        $ext = pathinfo($sourceFile, PATHINFO_EXTENSION);
+        $mimeTypes = [
+            'png' => 'image/png',
+            'jpg' => 'image/jpeg',
+            'jpeg' => 'image/jpeg',
+            'gif' => 'image/gif',
+            'svg' => 'image/svg+xml',
+            'webp' => 'image/webp',
+            'css' => 'text/css',
+            'js' => 'application/javascript',
+            'woff' => 'font/woff',
+            'woff2' => 'font/woff2',
+            'ttf' => 'font/ttf',
+            'eot' => 'application/vnd.ms-fontobject',
+            'otf' => 'font/otf'
+        ];
+
+        $contentType = $mimeTypes[$ext] ?? 'application/octet-stream';
+
+        // Clear any output buffers to ensure clean output
+        while (ob_get_level()) {
+            ob_end_clean();
+        }
+
+        header("Content-Type: $contentType", true);
+
+        // Cache control (1 year)
+        $seconds = 31536000;
+        header("Cache-Control: public, max-age=$seconds");
+        header("Last-Modified: " . gmdate("D, d M Y H:i:s", filemtime($sourceFile)) . " GMT");
+
+        readfile($sourceFile);
+        exit;
+    }
+
     public function registerRoutes()
     {
         // Matches /min/css/site.css
@@ -155,5 +217,8 @@ class AssetController extends BaseController
 
         // Matches /min/js/site.js
         Router::get('/min/js/(.+)', [$this, 'serveJs']);
+
+        // Matches /assets/... for static resources
+        Router::get('/assets/(.+)', [$this, 'servePublic']);
     }
 }

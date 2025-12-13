@@ -8,6 +8,12 @@ class AuthController extends BaseController
 {
     public function init()
     {
+        // Skip session for asset requests (performance + header fix)
+        $uri = $_SERVER['REQUEST_URI'] ?? '/';
+        if (strpos($uri, '/min/') === 0 || strpos($uri, '/assets/') === 0) {
+            return;
+        }
+
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }

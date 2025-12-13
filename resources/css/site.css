@@ -253,6 +253,29 @@ button:hover,
     transform: scale(1.05);
 }
 
+.btn-danger {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--danger-color);
+    border-color: rgba(239, 68, 68, 0.2);
+}
+
+.btn-danger:hover {
+    background: var(--danger-color);
+    color: white;
+    border-color: var(--danger-color);
+    box-shadow: 0 0 10px rgba(239, 68, 68, 0.4);
+}
+
+.btn-small {
+    padding: 4px 10px;
+    font-size: 0.8rem;
+}
+
+.btn-xs {
+    padding: 2px 6px;
+    font-size: 0.75rem;
+}
+
 /* Header UI */
 nav button {
     font-weight: 100 !important;
@@ -2395,6 +2418,7 @@ input[type="checkbox"]:checked::before {
         height: 500px;
     }
 }
+
 /* =========================================
    6. NAVIGATION DROPDOWNS
    ========================================= */
@@ -2446,8 +2470,15 @@ input[type="checkbox"]:checked::before {
 }
 
 @keyframes fadeInDropdown {
-    from { opacity: 0; transform: translateY(-8px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* Show Dropdown on Open */
@@ -2466,7 +2497,8 @@ input[type="checkbox"]:checked::before {
     color: var(--text-secondary);
     font-size: 0.9rem;
     height: auto;
-    flex-direction: row; /* Force row for dropdown items */
+    flex-direction: row;
+    /* Force row for dropdown items */
     gap: 10px;
 }
 
@@ -2500,7 +2532,8 @@ body.layout-side .nav-group {
 
 body.layout-side .nav-group-trigger {
     width: 100%;
-    justify-content: space-between !important; /* Push chevron to right */
+    justify-content: space-between !important;
+    /* Push chevron to right */
     background: transparent;
 }
 
@@ -2512,11 +2545,13 @@ body.layout-side .nav-group-trigger .nav-label {
 body.layout-side .nav-dropdown-menu {
     position: static;
     margin-top: 2px;
-    background: rgba(0, 0, 0, 0.15); /* Slightly darker inner bg */
+    background: rgba(0, 0, 0, 0.15);
+    /* Slightly darker inner bg */
     border: none;
     box-shadow: none;
     border-radius: var(--radius-sm);
-    padding-left: var(--space-xs); /* Slight indent */
+    padding-left: var(--space-xs);
+    /* Slight indent */
     transform: none;
     animation: none;
     backdrop-filter: none;
@@ -2536,8 +2571,15 @@ body.layout-side .nav-group.open .nav-dropdown-menu {
 }
 
 @keyframes slideDownCustom {
-    from { opacity: 0; transform: translateY(-5px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* =========================================
@@ -2562,7 +2604,7 @@ body.layout-side .nav-group.open .nav-dropdown-menu {
 .chat-header {
     padding: var(--space-md);
     border-bottom: 1px solid var(--border-color);
-    background: rgba(255,255,255,0.02);
+    background: rgba(255, 255, 255, 0.02);
 }
 
 .chat-header h3 {
@@ -2637,7 +2679,7 @@ body.layout-side .nav-group.open .nav-dropdown-menu {
     border-bottom: 1px solid var(--border-color);
     display: flex;
     align-items: center;
-    background: rgba(255,255,255,0.02);
+    background: rgba(255, 255, 255, 0.02);
 }
 
 .header-user {
@@ -2706,12 +2748,12 @@ body.layout-side .nav-group.open .nav-dropdown-menu {
     border-top: 1px solid var(--border-color);
     display: flex;
     gap: var(--space-md);
-    background: rgba(0,0,0,0.1);
+    background: rgba(0, 0, 0, 0.1);
 }
 
 .chat-input-area input {
     flex: 1;
-    background: rgba(0,0,0,0.2);
+    background: rgba(0, 0, 0, 0.2);
     border: 1px solid var(--border-color);
     border-radius: 20px;
     padding: 10px 20px;

@@ -44,7 +44,7 @@ export default {
                                     <div class="actions-group">
                                         <button class="btn-small" @click="openBuilder(form.id)">Edit</button>
                                         <button class="btn-small" @click="openSubmissions(form.id)">Submissions</button>
-                                        <button class="btn-small danger" @click="deleteForm(form.id)">Delete</button>
+                                        <button class="btn-small btn-danger" @click="deleteForm(form.id)">Delete</button>
                                     </div>
                                 </td>
                             </tr>

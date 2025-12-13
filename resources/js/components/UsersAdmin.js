@@ -42,7 +42,7 @@ export default {
                             <td>
                                 <div class="actions-group">
                                     <button class="btn-small" @click="openEditModal(user)">Edit</button>
-                                    <button class="btn-small danger" @click="deleteItem(user.id)">Delete</button>
+                                    <button class="btn-small btn-danger" @click="deleteItem(user.id)">Delete</button>
                                 </div>
                             </td>
                         </tr>

@@ -155,7 +155,7 @@ const TodoItem = {
                 <!-- Zone 3: Tools -->
                 <div class="todo-tools">
                     <button @click="showEditForm(todo)" class="btn-small" title="Edit">Edit</button>
-                    <button @click="deleteTodo(todo.id)" class="btn-small danger" title="Delete">Delete</button>
+                    <button @click="deleteTodo(todo.id)" class="btn-small btn-danger" title="Delete">Delete</button>
                 </div>
             </div>
         </li>

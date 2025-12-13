@@ -48,7 +48,12 @@ class Router
         // Simple exact match or regex
         foreach (self::$routes as $route) {
             if ($route['method'] !== $method) {
-                continue;
+                // Allow HEAD requests for GET routes
+                if ($method === 'HEAD' && $route['method'] === 'GET') {
+                    // Continue matching
+                } else {
+                    continue;
+                }
             }
 
             // Convert route path to regex

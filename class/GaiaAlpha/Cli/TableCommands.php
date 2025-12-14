@@ -94,13 +94,13 @@ class TableCommands
         if (!isset($args[2]))
             die("Missing SQL query.\n");
         $sql = $args[2];
-        $result = \GaiaAlpha\Model\DB::query($sql);
-        $rows = $result->fetchAll(PDO::FETCH_ASSOC); // DB::query returns statement
 
-        if (stripos(trim($sql), 'SELECT') !== 0) {
-            echo "Query executed. Rows affected: " . $result->rowCount() . "\n";
-        } else {
+        if (stripos(trim($sql), 'SELECT') === 0) {
+            $rows = \GaiaAlpha\Model\DB::fetchAll($sql);
             echo json_encode($rows, JSON_PRETTY_PRINT) . "\n";
+        } else {
+            $affectedRows = \GaiaAlpha\Model\DB::execute($sql);
+            echo "Query executed. Rows affected: " . $affectedRows . "\n";
         }
     }
 }

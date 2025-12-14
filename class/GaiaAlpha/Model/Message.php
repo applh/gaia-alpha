@@ -1,13 +1,11 @@
 <?php
 namespace GaiaAlpha\Model;
 
-use GaiaAlpha\Controller\DbController;
+
 use PDO;
 
-class Message extends DB
+class Message
 {
-    protected static $table = 'messages';
-    protected static $fillable = ['sender_id', 'receiver_id', 'content', 'is_read'];
 
     public static function create($data)
     {

@@ -131,8 +131,8 @@ class Seeder
         $stmt = $pdo->prepare("INSERT INTO cms_templates (user_id, title, slug, content) VALUES (?, ?, ?, ?)");
         $stmt->execute([$userId, $defaultTemplate['title'], $defaultTemplate['slug'], $defaultTemplate['content']]);
 
-        // Update existing pages to use the new template
-        $pdo->exec("UPDATE cms_pages SET template_slug = 'default_site' WHERE user_id = $userId");
+        // Update existing pages to use the new template ONLY if they don't have one
+        $pdo->exec("UPDATE cms_pages SET template_slug = 'default_site' WHERE user_id = $userId AND (template_slug IS NULL OR template_slug = '')");
 
         // Also seed from files if they exist
         $tplDir = $seedDir . '/templates';

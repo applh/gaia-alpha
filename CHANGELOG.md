@@ -1,6 +1,10 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+## [v0.28.2] - 2025-12-14
+### Fixed
+- **Seeder**: Fixed issue where `/app` page template was incorrectly overwritten to `default_site` during installation/seeding. `Seeder` now respects existing template slugs.
+
 ## [v0.28.0] - 2025-12-14
 ### Added
 - **Templates**: Enhanced Code Editor with Ace Editor (syntax highlighting, autocomplete).

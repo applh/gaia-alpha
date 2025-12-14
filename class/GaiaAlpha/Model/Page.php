@@ -11,12 +11,12 @@ class Page
 
     public static function findAllByUserId(int $userId, string $cat = 'page')
     {
-        return BaseModel::fetchAll("SELECT * FROM cms_pages WHERE user_id = ? AND cat = ? ORDER BY created_at DESC", [$userId, $cat]);
+        return DB::fetchAll("SELECT * FROM cms_pages WHERE user_id = ? AND cat = ? ORDER BY created_at DESC", [$userId, $cat]);
     }
 
     public static function getLatestPublic(int $limit = 10)
     {
-        return BaseModel::fetchAll("
+        return DB::fetchAll("
             SELECT id, title, slug, content, image, created_at, user_id, template_slug, meta_description, meta_keywords
             FROM cms_pages 
             WHERE cat = 'page'
@@ -27,7 +27,7 @@ class Page
 
     public static function findBySlug(string $slug)
     {
-        return BaseModel::fetch("
+        return DB::fetch("
             SELECT id, title, slug, content, image, created_at, user_id, template_slug, meta_description, meta_keywords
             FROM cms_pages 
             WHERE slug = ? AND cat = 'page'
@@ -49,8 +49,8 @@ class Page
             $data['meta_description'] ?? null,
             $data['meta_keywords'] ?? null
         ];
-        BaseModel::query($sql, $params);
-        return BaseModel::lastInsertId();
+        DB::query($sql, $params);
+        return DB::lastInsertId();
     }
 
     public static function update(int $id, int $userId, array $data)
@@ -101,29 +101,29 @@ class Page
 
         $sql = "UPDATE cms_pages SET " . implode(', ', $fields) . " WHERE id = ? AND user_id = ?";
 
-        return BaseModel::execute($sql, $values) > 0;
+        return DB::execute($sql, $values) > 0;
     }
 
     public static function delete(int $id, int $userId)
     {
-        return BaseModel::execute("DELETE FROM cms_pages WHERE id = ? AND user_id = ?", [$id, $userId]) > 0;
+        return DB::execute("DELETE FROM cms_pages WHERE id = ? AND user_id = ?", [$id, $userId]) > 0;
     }
 
     public static function findAllCats(int $userId)
     {
-        return BaseModel::fetchAll("SELECT DISTINCT cat FROM cms_pages WHERE user_id = ?", [$userId], PDO::FETCH_COLUMN);
+        return DB::fetchAll("SELECT DISTINCT cat FROM cms_pages WHERE user_id = ?", [$userId], PDO::FETCH_COLUMN);
     }
 
     public static function count(?string $cat = null)
     {
         if ($cat) {
-            return BaseModel::fetchColumn("SELECT count(*) FROM cms_pages WHERE cat = ?", [$cat]);
+            return DB::fetchColumn("SELECT count(*) FROM cms_pages WHERE cat = ?", [$cat]);
         }
-        return BaseModel::fetchColumn("SELECT count(*) FROM cms_pages");
+        return DB::fetchColumn("SELECT count(*) FROM cms_pages");
     }
 
     public static function getAppDashboard()
     {
-        return BaseModel::fetchColumn("SELECT slug FROM cms_pages WHERE template_slug = 'app' LIMIT 1");
+        return DB::fetchColumn("SELECT slug FROM cms_pages WHERE template_slug = 'app' LIMIT 1");
     }
 }

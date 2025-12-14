@@ -4,7 +4,7 @@ namespace GaiaAlpha;
 
 use GaiaAlpha\Model\Page;
 use GaiaAlpha\Model\Todo;
-use GaiaAlpha\Model\BaseModel;
+use GaiaAlpha\Model\DB;
 use GaiaAlpha\Env;
 
 class Seeder
@@ -56,11 +56,11 @@ class Seeder
         ];
 
         // Clear existing partials for this user
-        BaseModel::execute("DELETE FROM cms_partials WHERE user_id = ?", [$userId]);
+        DB::execute("DELETE FROM cms_partials WHERE user_id = ?", [$userId]);
 
         $sql = "INSERT INTO cms_partials (user_id, name, content) VALUES (?, ?, ?)";
         foreach ($partialsData as $partial) {
-            BaseModel::execute($sql, [$userId, $partial['name'], $partial['content']]);
+            DB::execute($sql, [$userId, $partial['name'], $partial['content']]);
         }
 
         echo "3. Seeding Pages...\n";
@@ -77,7 +77,7 @@ class Seeder
         if (file_exists($menusFile)) {
             $menus = json_decode(file_get_contents($menusFile), true);
             foreach ($menus as $menu) {
-                BaseModel::execute(
+                DB::execute(
                     "INSERT INTO menus (title, location, items, created_at, updated_at) VALUES (?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)",
                     [$menu['title'], $menu['location'], json_encode($menu['items'])]
                 );
@@ -90,7 +90,7 @@ class Seeder
             $forms = json_decode(file_get_contents($formsFile), true);
             foreach ($forms as $form) {
                 $sql = "INSERT INTO forms (user_id, title, slug, description, schema, submit_label) VALUES (?, ?, ?, ?, ?, ?)";
-                BaseModel::execute($sql, [
+                DB::execute($sql, [
                     $userId,
                     $form['title'],
                     $form['slug'],
@@ -100,9 +100,9 @@ class Seeder
                 ]);
 
                 if (!empty($form['submissions'])) {
-                    $formId = BaseModel::lastInsertId();
+                    $formId = DB::lastInsertId();
                     foreach ($form['submissions'] as $sub) {
-                        BaseModel::execute(
+                        DB::execute(
                             "INSERT INTO form_submissions (form_id, data, ip_address, user_agent) VALUES (?, ?, ?, ?)",
                             [$formId, json_encode($sub), '127.0.0.1', 'Mozilla/5.0 (Demo Agent)']
                         );
@@ -117,7 +117,7 @@ class Seeder
             $markers = json_decode(file_get_contents($markersFile), true);
             $sql = "INSERT INTO map_markers (user_id, label, lat, lng) VALUES (?, ?, ?, ?)";
             foreach ($markers as $m) {
-                BaseModel::execute($sql, [$userId, $m['label'], $m['lat'], $m['lng']]);
+                DB::execute($sql, [$userId, $m['label'], $m['lat'], $m['lng']]);
             }
         }
 
@@ -132,10 +132,10 @@ class Seeder
         ];
 
         $sql = "INSERT INTO cms_templates (user_id, title, slug, content) VALUES (?, ?, ?, ?)";
-        BaseModel::execute($sql, [$userId, $defaultTemplate['title'], $defaultTemplate['slug'], $defaultTemplate['content']]);
+        DB::execute($sql, [$userId, $defaultTemplate['title'], $defaultTemplate['slug'], $defaultTemplate['content']]);
 
         // Update existing pages to use the new template ONLY if they don't have one
-        BaseModel::execute("UPDATE cms_pages SET template_slug = 'default_site' WHERE user_id = ? AND (template_slug IS NULL OR template_slug = '')", [$userId]);
+        DB::execute("UPDATE cms_pages SET template_slug = 'default_site' WHERE user_id = ? AND (template_slug IS NULL OR template_slug = '')", [$userId]);
 
         // Also seed from files if they exist
         $tplDir = $seedDir . '/templates';
@@ -145,14 +145,14 @@ class Seeder
                 $slug = pathinfo($tplFile, PATHINFO_FILENAME);
                 $title = ucwords(str_replace(['_', '-'], ' ', $slug));
                 $content = file_get_contents($tplFile);
-                BaseModel::execute($sql, [$userId, $title, $slug, $content]);
+                DB::execute($sql, [$userId, $title, $slug, $content]);
             }
         }
 
         // 8. Data Store (User Preferences)
         $sql = "INSERT INTO data_store (user_id, type, key, value) VALUES (?, ?, ?, ?)";
-        BaseModel::execute($sql, [$userId, 'user_pref', 'theme', 'dark']);
-        BaseModel::execute($sql, [$userId, 'user_pref', 'language', 'en']);
+        DB::execute($sql, [$userId, 'user_pref', 'theme', 'dark']);
+        DB::execute($sql, [$userId, 'user_pref', 'language', 'en']);
 
         // 9. Messages
         $msgsFile = $seedDir . '/messages.json';
@@ -160,7 +160,7 @@ class Seeder
             $msgs = json_decode(file_get_contents($msgsFile), true);
             $sql = "INSERT INTO messages (sender_id, receiver_id, content, is_read) VALUES (?, ?, ?, ?)";
             foreach ($msgs as $msg) {
-                BaseModel::execute($sql, [$userId, $userId, $msg['content'], $msg['is_read']]);
+                DB::execute($sql, [$userId, $userId, $msg['content'], $msg['is_read']]);
             }
         }
 
@@ -190,7 +190,7 @@ class Seeder
         for ($i = 1; $i <= 15; $i++) {
             $lat = 48.8566 + (rand(-100, 100) / 1000);
             $lng = 2.3522 + (rand(-100, 100) / 1000);
-            BaseModel::execute($sql, [$userId, "Random Point #$i", $lat, $lng]);
+            DB::execute($sql, [$userId, "Random Point #$i", $lat, $lng]);
         }
 
         // Submissions: 20 dummy entries for the Contact form
@@ -202,7 +202,7 @@ class Seeder
                     'email' => "user$i@example.com",
                     'message' => "This is automated message number $i."
                 ]);
-                BaseModel::execute($sql, [$formId, $subData, '192.168.1.' . rand(1, 255), 'Mozilla/5.0 (Bot)']);
+                DB::execute($sql, [$formId, $subData, '192.168.1.' . rand(1, 255), 'Mozilla/5.0 (Bot)']);
             }
         }
     }

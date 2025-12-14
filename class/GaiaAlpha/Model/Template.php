@@ -10,23 +10,23 @@ class Template
 
     public static function findAllByUserId(int $userId)
     {
-        return BaseModel::fetchAll("SELECT * FROM cms_templates WHERE user_id = ? ORDER BY created_at DESC", [$userId]);
+        return DB::fetchAll("SELECT * FROM cms_templates WHERE user_id = ? ORDER BY created_at DESC", [$userId]);
     }
 
     public static function findBySlug(string $slug)
     {
-        return BaseModel::fetch("SELECT * FROM cms_templates WHERE slug = ?", [$slug]);
+        return DB::fetch("SELECT * FROM cms_templates WHERE slug = ?", [$slug]);
     }
 
     public static function create(int $userId, array $data)
     {
-        BaseModel::query("INSERT INTO cms_templates (user_id, title, slug, content, created_at, updated_at) VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)", [
+        DB::query("INSERT INTO cms_templates (user_id, title, slug, content, created_at, updated_at) VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)", [
             $userId,
             $data['title'],
             $data['slug'],
             $data['content'] ?? ''
         ]);
-        return BaseModel::lastInsertId();
+        return DB::lastInsertId();
     }
 
     public static function update(int $id, int $userId, array $data)
@@ -52,11 +52,11 @@ class Template
         $values[] = $id;
         $values[] = $userId;
 
-        return BaseModel::execute($sql, $values) > 0;
+        return DB::execute($sql, $values) > 0;
     }
 
     public static function delete(int $id, int $userId)
     {
-        return BaseModel::execute("DELETE FROM cms_templates WHERE id = ? AND user_id = ?", [$id, $userId]) > 0;
+        return DB::execute("DELETE FROM cms_templates WHERE id = ? AND user_id = ?", [$id, $userId]) > 0;
     }
 }

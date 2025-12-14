@@ -15,7 +15,7 @@ class DataCommands
         DbController::connect();
 
         // Get first admin user
-        $user = \GaiaAlpha\Model\BaseModel::fetch("SELECT id FROM users WHERE level >= 100 LIMIT 1");
+        $user = \GaiaAlpha\Model\DB::fetch("SELECT * FROM users WHERE level = 10 LIMIT 1");
 
         if (!$user) {
             echo "❌ Error: No admin user found. Please create an admin user first.\n";

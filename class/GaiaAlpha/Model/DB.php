@@ -6,7 +6,7 @@ use GaiaAlpha\Database;
 use GaiaAlpha\Hook;
 use PDO;
 
-class BaseModel
+class DB
 {
 
 

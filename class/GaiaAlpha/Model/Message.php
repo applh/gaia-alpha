@@ -4,7 +4,7 @@ namespace GaiaAlpha\Model;
 use GaiaAlpha\Controller\DbController;
 use PDO;
 
-class Message extends BaseModel
+class Message extends DB
 {
     protected static $table = 'messages';
     protected static $fillable = ['sender_id', 'receiver_id', 'content', 'is_read'];
@@ -15,12 +15,12 @@ class Message extends BaseModel
         $receiverId = $data['receiver_id'];
         $content = $data['content'];
 
-        BaseModel::query(
+        DB::query(
             "INSERT INTO messages (sender_id, receiver_id, content, created_at) VALUES (?, ?, ?, CURRENT_TIMESTAMP)",
             [$senderId, $receiverId, $content]
         );
 
-        return BaseModel::lastInsertId();
+        return DB::lastInsertId();
     }
 
     public static function getConversation($user1, $user2, $limit = 50, $offset = 0)
@@ -37,18 +37,18 @@ class Message extends BaseModel
                 ORDER BY created_at DESC
                 LIMIT ? OFFSET ?";
 
-        return array_reverse(BaseModel::fetchAll($sql, [$user1, $user2, $user2, $user1, $limit, $offset]));
+        return array_reverse(DB::fetchAll($sql, [$user1, $user2, $user2, $user1, $limit, $offset]));
     }
 
     public static function markAsRead($senderId, $receiverId)
     {
         $sql = "UPDATE messages SET is_read = 1 WHERE sender_id = ? AND receiver_id = ? AND is_read = 0";
-        return BaseModel::execute($sql, [$senderId, $receiverId]) > 0;
+        return DB::execute($sql, [$senderId, $receiverId]) > 0;
     }
 
     public static function getUnreadCounts($userId)
     {
         $sql = "SELECT sender_id, COUNT(*) as count FROM messages WHERE receiver_id = ? AND is_read = 0 GROUP BY sender_id";
-        return BaseModel::fetchAll($sql, [$userId], PDO::FETCH_KEY_PAIR);
+        return DB::fetchAll($sql, [$userId], PDO::FETCH_KEY_PAIR);
     }
 }

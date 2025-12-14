@@ -98,18 +98,19 @@ class AdminController extends BaseController
 
         // Get table schema
         // PRAGMA queries are safe to log? Yes.
-        $schemaStmt = \GaiaAlpha\Model\BaseModel::query("PRAGMA table_info($tableName)");
+        $schemaStmt = \GaiaAlpha\Model\DB::query("PRAGMA table_info($tableName)");
         $schema = $schemaStmt->fetchAll(\PDO::FETCH_ASSOC);
 
         // Get table data
-        $dataStmt = \GaiaAlpha\Model\BaseModel::query("SELECT * FROM $tableName LIMIT 100");
+        $dataStmt = \GaiaAlpha\Model\DB::query("SELECT * FROM $tableName LIMIT 100");
         $data = $dataStmt->fetchAll(\PDO::FETCH_ASSOC);
+        $count = \GaiaAlpha\Model\DB::fetchColumn("SELECT COUNT(*) FROM $tableName");
 
         $this->jsonResponse([
             'table' => $tableName,
             'schema' => $schema,
             'data' => $data,
-            'count' => count($data)
+            'count' => $count
         ]);
     }
 
@@ -178,11 +179,11 @@ class AdminController extends BaseController
                 implode(', ', $placeholders)
             );
 
-            \GaiaAlpha\Model\BaseModel::query($sql, array_values($data));
+            \GaiaAlpha\Model\DB::execute($sql, array_values($data));
 
             $this->jsonResponse([
                 'success' => true,
-                'id' => \GaiaAlpha\Model\BaseModel::lastInsertId()
+                'id' => \GaiaAlpha\Model\DB::lastInsertId()
             ]);
         } catch (\PDOException $e) {
             $this->jsonResponse(['error' => 'Insert failed: ' . $e->getMessage()], 400);
@@ -235,7 +236,7 @@ class AdminController extends BaseController
         }
 
         try {
-            \GaiaAlpha\Model\BaseModel::query("DELETE FROM $tableName WHERE id = ?", [$id]);
+            \GaiaAlpha\Model\DB::execute("DELETE FROM $tableName WHERE id = ?", [$id]);
 
             $this->jsonResponse(['success' => true]);
         } catch (\PDOException $e) {
@@ -374,7 +375,7 @@ class AdminController extends BaseController
                 "INSERT INTO cms_partials (user_id, name, content, created_at, updated_at) VALUES (?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)",
                 [$_SESSION['user_id'], $data['name'], $data['content'] ?? '']
             );
-            $this->jsonResponse(['success' => true, 'id' => \GaiaAlpha\Model\BaseModel::lastInsertId()]);
+            $this->jsonResponse(['success' => true, 'id' => \GaiaAlpha\Model\DB::lastInsertId()]);
         } catch (\PDOException $e) {
             $this->jsonResponse(['error' => 'Name already exists'], 400);
         }
@@ -414,7 +415,7 @@ class AdminController extends BaseController
     public function deletePartial($id)
     {
         $this->requireAdmin();
-        \GaiaAlpha\Model\BaseModel::query("DELETE FROM cms_partials WHERE id = ?", [$id]);
+        \GaiaAlpha\Model\DB::execute("DELETE FROM cms_partials WHERE id = ? AND user_id = ?", [$id, $_SESSION['user_id']]);
         $this->jsonResponse(['success' => true]);
     }
 

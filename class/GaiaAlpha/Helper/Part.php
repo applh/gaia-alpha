@@ -20,7 +20,7 @@ class Part
 
         if (!file_exists($cacheFile)) {
             // Fetch from DB
-            $content = \GaiaAlpha\Model\BaseModel::fetchColumn("SELECT content FROM cms_partials WHERE name = ?", [$name]);
+            $content = \GaiaAlpha\Model\DB::fetchColumn("SELECT content FROM cms_partials WHERE name = ?", [$name]);
 
             if ($content === false) {
                 echo "<!-- Partial '$name' not found -->";

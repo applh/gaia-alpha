@@ -80,7 +80,7 @@ class BenchCommands
             $iterations = 1000;
 
             for ($i = 0; $i < $iterations; $i++) {
-                \GaiaAlpha\Model\BaseModel::query("SELECT 1");
+                \GaiaAlpha\Model\DB::query("SELECT 1");
             }
 
             $end = microtime(true);

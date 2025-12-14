@@ -368,7 +368,7 @@ HTML;
             // But we need to create it if missing.
         } else {
             // Fetch from DB
-            $content = \GaiaAlpha\Model\BaseModel::fetchColumn("SELECT content FROM cms_partials WHERE name = ?", [$name]);
+            $content = \GaiaAlpha\Model\DB::fetchColumn("SELECT content FROM cms_partials WHERE name = ?", [$name]);
 
             if ($content === false) {
                 echo "<!-- Partial '$name' not found -->";
@@ -408,8 +408,7 @@ HTML;
 
     public function sitemap()
     {
-        $pages = \GaiaAlpha\Model\BaseModel::fetchAll("SELECT slug, updated_at FROM cms_pages WHERE cat='page'");
-
+        $pages = \GaiaAlpha\Model\DB::fetchAll("SELECT slug, updated_at FROM cms_pages WHERE cat = 'page' ORDER BY updated_at DESC");
         header("Content-Type: application/xml");
         echo '<?xml version="1.0" encoding="UTF-8"?>';
         echo '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';

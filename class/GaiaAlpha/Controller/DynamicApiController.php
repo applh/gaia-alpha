@@ -129,7 +129,7 @@ class DynamicApiController extends BaseController
     public function handleGet(string $table, string $id)
     {
         $this->checkAccess($table);
-        $row = \GaiaAlpha\Model\BaseModel::fetch("SELECT * FROM $table WHERE id = ?", [$id]);
+        $row = \GaiaAlpha\Model\DB::fetch("SELECT * FROM $table WHERE id = ?", [$id]);
 
         if (!$row) {
             Response::json(['error' => 'Not Found'], 404);
@@ -154,8 +154,8 @@ class DynamicApiController extends BaseController
 
         $sql = "INSERT INTO $table ($columns) VALUES ($placeholders)";
         try {
-            \GaiaAlpha\Model\BaseModel::execute($sql, array_values($data));
-            $id = \GaiaAlpha\Model\BaseModel::lastInsertId();
+            \GaiaAlpha\Model\DB::execute($sql, array_values($data));
+            $id = \GaiaAlpha\Model\DB::lastInsertId();
 
             Response::json(['id' => $id, 'message' => 'Created successfully'], 201);
         } catch (\Exception $e) {
@@ -184,7 +184,7 @@ class DynamicApiController extends BaseController
         $values[] = $id;
 
         try {
-            \GaiaAlpha\Model\BaseModel::execute($sql, $values);
+            \GaiaAlpha\Model\DB::execute($sql, $values);
             $this->jsonResponse(['message' => 'Updated successfully']);
         } catch (\Exception $e) {
             Response::json(['error' => $e->getMessage()], 500);
@@ -194,7 +194,11 @@ class DynamicApiController extends BaseController
     public function handleDelete(string $table, string $id)
     {
         $this->checkAccess($table);
-        \GaiaAlpha\Model\BaseModel::execute("DELETE FROM $table WHERE id = ?", [$id]);
-        $this->jsonResponse(['message' => 'Deleted successfully']);
+        try {
+            \GaiaAlpha\Model\DB::execute("DELETE FROM $table WHERE id = ?", [$id]);
+            $this->jsonResponse(['message' => 'Deleted successfully']);
+        } catch (\Exception $e) {
+            Response::json(['error' => $e->getMessage()], 500);
+        }
     }
 }

@@ -190,7 +190,7 @@ HTML;
         $php = "<?php\n";
         $php .= "// Auto-generated from Visual Builder\n";
         $php .= "?>\n";
-        $php .= "<!DOCTYPE html>\n<html lang='en'>\n<head>\n";
+        $php .= "<!DOCTYPE html>\n<html lang='<?= \$globalSettings['site_language'] ?? 'en' ?>'>\n<head>\n";
         $php .= "    <meta charset='UTF-8'>\n";
         $php .= "    <meta name='viewport' content='width=device-width, initial-scale=1.0'>\n";
         $php .= "    <title><?= \$page['title'] ?></title>\n";
@@ -439,7 +439,14 @@ HTML;
     public function robots()
     {
         header("Content-Type: text/plain");
-        echo "User-agent: *\nAllow: /\nSitemap: /sitemap.xml";
+
+        $customRobots = \GaiaAlpha\Model\DataStore::get(0, 'global_config', 'robots_txt');
+
+        if (!empty($customRobots)) {
+            echo $customRobots;
+        } else {
+            echo "User-agent: *\nAllow: /\nSitemap: /sitemap.xml";
+        }
     }
 
     public function registerRoutes()

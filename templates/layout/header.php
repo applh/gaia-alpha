@@ -31,7 +31,7 @@ $navItems = $mainMenu ? json_decode($mainMenu['items'], true) : [];
 $appSlug = \GaiaAlpha\Model\Page::getAppDashboard();
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?= htmlspecialchars($globalSettings['site_language'] ?? 'en') ?>">
 
 <head>
     <meta charset="UTF-8">

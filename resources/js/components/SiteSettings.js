@@ -28,6 +28,12 @@ export default {
                         </div>
 
                         <div class="form-group">
+                            <label>Site Language</label>
+                            <input v-model="settings.site_language" placeholder="en" style="width: 80px;">
+                            <small>Two-letter language code (e.g. en, fr, es).</small>
+                        </div>
+
+                        <div class="form-group">
                             <label>Meta Description</label>
                             <textarea v-model="settings.site_description" rows="3" placeholder="Brief description of your site for SEO."></textarea>
                         </div>
@@ -59,6 +65,20 @@ export default {
                             </div>
                         </div>
 
+                        <div class="form-group">
+                            <label>Robots.txt Content</label>
+                            <textarea v-model="settings.robots_txt" rows="5" placeholder="User-agent: *&#10;Allow: /" style="font-family:monospace;"></textarea>
+                            <small>
+                                Leave empty to use default. 
+                                <a href="#" @click.prevent="showRobotsTips = !showRobotsTips" style="margin-left:10px;">{{ showRobotsTips ? 'Hide Tips' : 'Show Tips' }}</a>
+                            </small>
+                            <div v-if="showRobotsTips" style="background:var(--bg-secondary); padding:10px; border-radius:4px; margin-top:8px; font-size:0.85em; color:var(--text-secondary);">
+                                <strong>Tips:</strong><br>
+                                Public: <code>User-agent: *<br>Allow: /</code><br>
+                                Private: <code>User-agent: *<br>Disallow: /</code>
+                            </div>
+                        </div>
+
                         <div class="form-actions">
                             <button type="submit" class="btn-primary" :disabled="saving" style="min-width: 140px;">
                                 <LucideIcon v-if="saveStatus === 'saving'" name="loader" class="spin" size="18"></LucideIcon>
@@ -83,15 +103,18 @@ export default {
     setup() {
         const settings = reactive({
             site_title: '',
+            site_language: 'en',
             site_description: '',
             site_keywords: '',
             site_favicon: '',
-            site_logo: ''
+            site_logo: '',
+            robots_txt: ''
         });
         const saving = ref(false);
         const saveStatus = ref('idle'); // idle, saving, success, error
         const showSelector = ref(false);
         const selectorMode = ref('');
+        const showRobotsTips = ref(false);
 
         const fetchSettings = async () => {
             try {
@@ -151,6 +174,6 @@ export default {
 
         onMounted(fetchSettings);
 
-        return { settings, saving, saveStatus, saveSettings, showSelector, openSelector, handleImageSelect };
+        return { settings, saving, saveStatus, saveSettings, showSelector, openSelector, handleImageSelect, showRobotsTips };
     }
 };

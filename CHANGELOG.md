@@ -1,6 +1,13 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+## [v0.32.0] - 2025-12-14
+### Added
+- **Settings**: Robots.txt Management. Admins can now edit the `robots.txt` content directly from Site Settings.
+- **Settings**: Site Language. Admins can configure the global `<html lang="...">` attribute.
+- **Frontend**: Dynamic `robots.txt` serving via `PublicController`.
+- **UI**: Added collapsible tips for `robots.txt` configuration in Site Settings to guide users.
+
 ## [v0.31.0] - 2025-12-14
 ### Added
 - **Settings**: Site Settings implementation. Admins can now configure Site Title, Description, Keywords, Favicon, and Logo via the dashboard.

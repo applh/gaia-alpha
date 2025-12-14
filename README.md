@@ -40,12 +40,12 @@
 Everything you need to know about using and extending Gaia Alpha.
 
 - **[Documentation Hub](docs/index.md)**: The central entry point for all docs.
-- **[System Architecture](docs/architecture.md)**: Deep dive into the core.
-- **[Design System](docs/design_system.md)**: UI architecture, CSS hierarchy, and layout patterns.
-- **[API Reference](docs/api.md)**: Endpoints and data structures.
-- **[Performance](docs/performance.md)**: Benchmarks and profiling.
-- **[Plugin System](docs/plugins.md)**: Extending the framework.
-- **[Roadmap](docs/roadmap.md)**: Future plans and upcoming features.
+- **[System Architecture](docs/architect/architecture.md)**: Deep dive into the core.
+- **[Design System](docs/developer/design_system.md)**: UI architecture, CSS hierarchy, and layout patterns.
+- **[API Reference](docs/developer/api.md)**: Endpoints and data structures.
+- **[Performance](docs/devops/performance.md)**: Benchmarks and profiling.
+- **[Plugin System](docs/developer/plugins.md)**: Extending the framework.
+- **[Roadmap](docs/cto/roadmap.md)**: Future plans and upcoming features.
 
 ---
 
@@ -91,7 +91,7 @@ php cli.php <command> [args]
 - `bench:all`: Run performance checks.
 - `help`: See all available commands.
 
-For a full list of commands, see the [CLI Documentation](docs/shell_commands.md) or run `php cli.php help`.
+For a full list of commands, see the [CLI Documentation](docs/developer/shell_commands.md) or run `php cli.php help`.
 
 ---
 

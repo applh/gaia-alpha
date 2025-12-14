@@ -3,8 +3,6 @@
 namespace GaiaAlpha\Cli;
 
 use GaiaAlpha\Env;
-use PDO;
-use GaiaAlpha\Controller\DbController;
 
 class TableCommands
 {

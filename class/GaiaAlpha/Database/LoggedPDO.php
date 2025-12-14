@@ -14,17 +14,12 @@ class LoggedPDO extends PDO
         $this->setAttribute(PDO::ATTR_STATEMENT_CLASS, [LoggedPDOStatement::class, [$this]]);
     }
 
-    #[\ReturnTypeWillChange]
-    public function query($statement, $fetchMode = null, ...$fetchModeArgs)
+    public function query($query, $fetchMode = \PDO::FETCH_CLASS, $classname = null, $constructorArgs = []): \PDOStatement|false
     {
         $start = microtime(true);
-        if ($fetchMode !== null) {
-            $result = parent::query($statement, $fetchMode, ...$fetchModeArgs);
-        } else {
-            $result = parent::query($statement);
-        }
+        $result = parent::query(...func_get_args());
         $duration = microtime(true) - $start;
-        Debug::logQuery($statement, [], $duration);
+        Debug::logQuery($query, [], $duration);
         return $result;
     }
 

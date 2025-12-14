@@ -17,18 +17,43 @@ const DebugToolbar = {
                     <span class="label">Queries:</span>
                     <span class="value">{{ data.queries.length }}</span>
                 </span>
+                <span class="metric" v-if="data.user">
+                    <span class="label">User:</span>
+                    <span class="value">{{ data.user.username }} ({{ data.user.level }})</span>
+                </span>
             </div>
-            <div class="controls">
+            <div class="controls" style="display:flex; align-items:center;">
+                <button @click.stop="logout" title="Logout" style="margin-right:10px;">⏻</button>
                 <button @click.stop="isMinimized = !isMinimized">{{ isMinimized ? '▲' : '▼' }}</button>
             </div>
         </div>
         <div class="debug-toolbar-body" v-if="!isMinimized">
             <div class="tabs">
                 <button :class="{ active: currentTab === 'queries' }" @click="currentTab = 'queries'">SQL Queries ({{ data.queries.length }})</button>
+                <button :class="{ active: currentTab === 'tasks' }" @click="currentTab = 'tasks'">Tasks ({{ data.tasks ? data.tasks.length : 0 }})</button>
                 <button :class="{ active: currentTab === 'request' }" @click="currentTab = 'request'">Request</button>
                 <button :class="{ active: currentTab === 'globals' }" @click="currentTab = 'globals'">Globals</button>
             </div>
             <div class="tab-content">
+                <div v-if="currentTab === 'tasks'" class="tab-pane">
+                    <table class="debug-table">
+                        <thead>
+                            <tr>
+                                <th>Step</th>
+                                <th>Task</th>
+                                <th>Duration</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="(task, index) in data.tasks" :key="index">
+                                <td>{{ task.step }}</td>
+                                <td class="code-cell">{{ task.task }}</td>
+                                <td :class="{ 'text-danger': task.duration > 0.05 }">{{ formatTime(task.duration) }}ms</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
                 <div v-if="currentTab === 'queries'" class="tab-pane">
                     <table class="debug-table">
                         <thead>
@@ -207,10 +232,12 @@ const DebugToolbar = {
 
         const data = window.GAIA_DEBUG_DATA || {
             queries: [],
+            tasks: [],
             time: { total: 0, start: 0 },
             memory: { peak: 0, current: 0, start: 0 },
             post: {},
-            get: {}
+            get: {},
+            user: { username: 'Guest', level: 0 }
         };
 
         const isMinimized = Vue.ref(true);
@@ -245,6 +272,19 @@ const DebugToolbar = {
             isMinimized.value = !isMinimized.value;
         };
 
+        const logout = async () => {
+            if (confirm('Logout?')) {
+                try {
+                    const res = await fetch('/@/logout', { method: 'POST' });
+                    if (res.ok) {
+                        window.location.reload();
+                    }
+                } catch (e) {
+                    console.error(e);
+                }
+            }
+        };
+
         return {
             data,
             isMinimized,
@@ -253,7 +293,8 @@ const DebugToolbar = {
             formatTime,
             formatMemory,
             formatHandler,
-            toggleMinimize
+            toggleMinimize,
+            logout
         };
     }
 };

@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 ### Fixed
 - **Seeder**: Fixed issue where `/app` page template was incorrectly overwritten to `default_site` during installation/seeding. `Seeder` now respects existing template slugs.
 
+## [v0.29.1] - 2025-12-14
+### Added
+- **Debug**: Added **Tasks** tab to visualize Framework task performance.
+- **Debug**: Added **Logout** button (⏻) to toolbar header.
+- **Debug**: Displayed current **Username** and **Level** in toolbar header.
+
 ## [v0.29.0] - 2025-12-14
 ### Added
 - **Debug**: Interactive Debug Toolbar for Admins (`v-if="admin"`).

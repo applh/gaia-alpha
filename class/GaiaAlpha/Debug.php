@@ -6,6 +6,7 @@ class Debug
 {
     private static $queries = [];
     private static $route = null;
+    private static $tasks = [];
     private static $timers = [];
     private static $memoryStart = 0;
     private static $startTime = 0;
@@ -17,6 +18,26 @@ class Debug
 
         // Register hooks to capture data
         Hook::add('router_matched', [self::class, 'captureRoute']);
+        Hook::add('app_task_before', [self::class, 'startTask']);
+        Hook::add('app_task_after', [self::class, 'endTask']);
+    }
+
+    public static function startTask($step, $task)
+    {
+        self::startTimer('task_' . $step);
+    }
+
+    public static function endTask($step, $task)
+    {
+        $duration = self::endTimer('task_' . $step);
+
+        $taskName = is_string($task) ? $task : (is_array($task) ? (is_object($task[0]) ? get_class($task[0]) : $task[0]) . '::' . $task[1] : 'Closure');
+
+        self::$tasks[] = [
+            'step' => $step,
+            'task' => $taskName,
+            'duration' => $duration
+        ];
     }
 
     public static function captureRoute($route, $params)
@@ -56,6 +77,7 @@ class Debug
     {
         return [
             'queries' => self::$queries,
+            'tasks' => self::$tasks,
             'route' => self::$route,
             'memory' => [
                 'current' => memory_get_usage(),
@@ -68,7 +90,11 @@ class Debug
             ],
             'php_version' => PHP_VERSION,
             'post' => $_POST,
-            'get' => $_GET
+            'get' => $_GET,
+            'user' => [
+                'username' => $_SESSION['username'] ?? 'Guest',
+                'level' => $_SESSION['level'] ?? 0
+            ]
         ];
     }
 }

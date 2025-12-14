@@ -6,8 +6,10 @@ Gaia Alpha includes a built-in Debug Toolbar to assist developers and administra
 
 The Debug Toolbar provides real-time insights into the current request, including:
 - **SQL Queries**: A list of all executed SQL statements with their execution duration.
+- **Tasks**: Performance breakdown of Framework tasks and steps.
 - **Request Info**: Details about the matched route, controller method, and parameters.
 - **Performance Metrics**: Total execution time and memory usage (current vs peak).
+- **User Info**: Current username and access level.
 - **Globals**: Inspection of `$_GET` and `$_POST` data.
 
 ## Usage
@@ -17,8 +19,8 @@ The toolbar is automatically injected into the bottom of the page for users with
 1.  **Log in** as an administrator.
 2.  Visit any public-facing page or admin panel.
 3.  Click the **Gaia Debug** bar at the bottom of the screen to expand it.
-4.  Use the tabs (**SQL Queries**, **Request**, **Globals**) to switch between different data views.
-5.  Click the arrow icon or the header to minimize the toolbar.
+4.  Use the tabs (**SQL Queries**, **Tasks**, **Request**, **Globals**) to switch between different data views.
+5.  Click the power icon (⏻) to logout, or the arrow icon to minimize.
 
 ## Architecture
 

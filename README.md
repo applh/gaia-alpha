@@ -44,6 +44,7 @@ Everything you need to know about using and extending Gaia Alpha.
 - **[Design System](docs/developer/design_system.md)**: UI architecture, CSS hierarchy, and layout patterns.
 - **[API Reference](docs/developer/api.md)**: Endpoints and data structures.
 - **[Performance](docs/devops/performance.md)**: Benchmarks and profiling.
+- **[Multi-Site](docs/devops/multi_site.md)**: Serving multiple domains from one install.
 - **[Plugin System](docs/developer/plugins.md)**: Extending the framework.
 - **[Roadmap](docs/cto/roadmap.md)**: Future plans and upcoming features.
 

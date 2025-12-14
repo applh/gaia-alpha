@@ -1,6 +1,14 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+## [v0.30.0] - 2025-12-14
+### Added
+- **Core**: Multi-Site Support. Single installation can now serve multiple domains using isolated databases per site (`One Database Per Site` architecture).
+- **Core**: `SiteManager` class for handling domain-to-database resolution.
+- **CLI**: `site` command group (`site:create`, `site:list`) for managing multi-site installations.
+- **CLI**: Global `--site={domain}` flag support for identifying the target database for any CLI command.
+- **Docs**: Added `docs/devops/multi_site.md`.
+
 ## [v0.28.2] - 2025-12-14
 ### Fixed
 - **Seeder**: Fixed issue where `/app` page template was incorrectly overwritten to `default_site` during installation/seeding. `Seeder` now respects existing template slugs.

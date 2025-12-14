@@ -54,6 +54,10 @@ class App
     {
         Hook::run('app_init');
         Env::set('root_dir', $rootDir);
+
+        // Resolve Site / DB Path
+        \GaiaAlpha\SiteManager::resolve();
+
         Env::set('controllers', []);
         Env::set('framework_tasks', [
             "step05" => "GaiaAlpha\\Framework::loadPlugins",
@@ -90,6 +94,10 @@ class App
 
         Hook::run('app_init');
         Env::set('root_dir', $rootDir);
+
+        // Resolve Site / DB Path
+        \GaiaAlpha\SiteManager::resolve();
+
         Env::set('framework_tasks', [
             "step05" => "GaiaAlpha\\Framework::loadPlugins",
             "step06" => "GaiaAlpha\\Framework::appBoot",

@@ -32,7 +32,10 @@ gaia-alpha/
 │   ├── database.sqlite # SQLite Database
 │   ├── api-config.json # API Builder Configuration
 │   ├── uploads/        # Raw User Uploads
-│   └── cache/          # Processed Image Cache
+│   ├── logs/           # Application Logs
+│   ├── cache/          # Processed Image Cache
+│   │   ├── min/        # Minified Assets (Site specific)
+│   │   └── templates/  # Compiled Templates (Site specific)
 │
 ├── scripts/            # Utility Scripts (e.g., Backfill)
 └── cli.php             # Command Line Entry Point

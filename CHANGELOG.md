@@ -1,6 +1,10 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+## [v0.30.1] - 2025-12-14
+### Fixed
+- **Cache**: Segregated `Asset` and `Template` cache directories by site ID (`my-data/cache/min/domain.com`) to prevent cache collisions in multi-site setups.
+
 ## [v0.30.0] - 2025-12-14
 ### Added
 - **Core**: Multi-Site Support. Single installation can now serve multiple domains using isolated databases per site (`One Database Per Site` architecture).

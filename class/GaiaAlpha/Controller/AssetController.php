@@ -11,7 +11,8 @@ class AssetController extends BaseController
 
     public function init()
     {
-        $this->cacheDir = Env::get('path_data') . '/cache/min';
+        $site = \GaiaAlpha\SiteManager::getCurrentSite() ?? 'default';
+        $this->cacheDir = Env::get('path_data') . '/cache/min/' . $site;
         if (!is_dir($this->cacheDir)) {
             mkdir($this->cacheDir, 0755, true);
         }

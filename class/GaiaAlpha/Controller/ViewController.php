@@ -29,7 +29,8 @@ class ViewController extends BaseController
 
             if ($dbTemplate) {
                 // Ensure Cache Dir
-                $cacheDir = $rootDir . '/my-data/cache/templates';
+                $site = \GaiaAlpha\SiteManager::getCurrentSite() ?? 'default';
+                $cacheDir = $rootDir . '/my-data/cache/templates/' . $site;
                 if (!is_dir($cacheDir))
                     mkdir($cacheDir, 0777, true);
 

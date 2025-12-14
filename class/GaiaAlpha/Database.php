@@ -76,7 +76,7 @@ class Database
                 foreach ($statements as $statement) {
                     try {
                         $this->pdo->exec($statement);
-                    } catch (\PDOException $e) {
+                    } catch (PDOException $e) {
                         // Column/constraint likely already exists, ignore
                     }
                 }

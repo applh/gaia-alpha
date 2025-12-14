@@ -7,10 +7,7 @@ use GaiaAlpha\Controller\DbController;
 
 class TableCommands
 {
-    private static function getPdo(): PDO
-    {
-        return DbController::connect()->getPdo();
-    }
+
 
     public static function handleList(): void
     {
@@ -19,9 +16,7 @@ class TableCommands
         if (!isset($args[2]))
             die("Missing table name.\n");
         $table = $args[2];
-        $stmt = self::getPdo()->prepare("SELECT * FROM $table");
-        $stmt->execute();
-        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $rows = \GaiaAlpha\Model\BaseModel::fetchAll("SELECT * FROM $table");
         echo json_encode($rows, JSON_PRETTY_PRINT) . "\n";
     }
 
@@ -40,10 +35,9 @@ class TableCommands
         $placeholders = implode(', ', array_fill(0, count($data), '?'));
 
         $sql = "INSERT INTO $table ($columns) VALUES ($placeholders)";
-        $stmt = self::getPdo()->prepare($sql);
-        $stmt->execute(array_values($data));
+        \GaiaAlpha\Model\BaseModel::execute($sql, array_values($data));
 
-        echo "Row inserted. ID: " . self::getPdo()->lastInsertId() . "\n";
+        echo "Row inserted. ID: " . DbController::getPdo()->lastInsertId() . "\n";
     }
 
     public static function handleUpdate(): void
@@ -68,8 +62,7 @@ class TableCommands
         $values = array_values($data);
         $values[] = $id;
 
-        $stmt = self::getPdo()->prepare($sql);
-        $stmt->execute($values);
+        \GaiaAlpha\Model\BaseModel::execute($sql, $values);
 
         echo "Row updated.\n";
     }
@@ -83,8 +76,7 @@ class TableCommands
         $table = $args[2];
         $id = $args[3];
 
-        $stmt = self::getPdo()->prepare("DELETE FROM $table WHERE id = ?");
-        $stmt->execute([$id]);
+        \GaiaAlpha\Model\BaseModel::execute("DELETE FROM $table WHERE id = ?", [$id]);
 
         echo "Row deleted.\n";
     }
@@ -97,14 +89,12 @@ class TableCommands
             die("Missing SQL query.\n");
         $sql = $args[2];
 
-        $stmt = self::getPdo()->prepare($sql);
-        $stmt->execute();
-
         if (stripos(trim($sql), 'SELECT') === 0) {
-            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $rows = \GaiaAlpha\Model\BaseModel::fetchAll($sql);
             echo json_encode($rows, JSON_PRETTY_PRINT) . "\n";
         } else {
-            echo "Query executed. Rows affected: " . $stmt->rowCount() . "\n";
+            $count = \GaiaAlpha\Model\BaseModel::execute($sql);
+            echo "Query executed. Rows affected: " . $count . "\n";
         }
     }
 }

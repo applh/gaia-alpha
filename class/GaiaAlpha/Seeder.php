@@ -12,7 +12,6 @@ class Seeder
     public static function run(int $userId)
     {
         echo "Starting seeder for user $userId...\n";
-        $pdo = DbController::getPdo();
         $seedDir = Env::get('root_dir') . '/templates/seed';
 
         echo "1. Seeding Todos...\n";
@@ -57,11 +56,11 @@ class Seeder
         ];
 
         // Clear existing partials for this user
-        $pdo->exec("DELETE FROM cms_partials WHERE user_id = $userId");
+        \GaiaAlpha\Model\BaseModel::execute("DELETE FROM cms_partials WHERE user_id = ?", [$userId]);
 
-        $stmt = $pdo->prepare("INSERT INTO cms_partials (user_id, name, content) VALUES (?, ?, ?)");
+        $sql = "INSERT INTO cms_partials (user_id, name, content) VALUES (?, ?, ?)";
         foreach ($partialsData as $partial) {
-            $stmt->execute([$userId, $partial['name'], $partial['content']]);
+            \GaiaAlpha\Model\BaseModel::execute($sql, [$userId, $partial['name'], $partial['content']]);
         }
 
         echo "3. Seeding Pages...\n";
@@ -78,8 +77,10 @@ class Seeder
         if (file_exists($menusFile)) {
             $menus = json_decode(file_get_contents($menusFile), true);
             foreach ($menus as $menu) {
-                $stmt = $pdo->prepare("INSERT INTO menus (title, location, items, created_at, updated_at) VALUES (?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
-                $stmt->execute([$menu['title'], $menu['location'], json_encode($menu['items'])]);
+                \GaiaAlpha\Model\BaseModel::execute(
+                    "INSERT INTO menus (title, location, items, created_at, updated_at) VALUES (?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)",
+                    [$menu['title'], $menu['location'], json_encode($menu['items'])]
+                );
             }
         }
 
@@ -88,8 +89,8 @@ class Seeder
         if (file_exists($formsFile)) {
             $forms = json_decode(file_get_contents($formsFile), true);
             foreach ($forms as $form) {
-                $stmt = $pdo->prepare("INSERT INTO forms (user_id, title, slug, description, schema, submit_label) VALUES (?, ?, ?, ?, ?, ?)");
-                $stmt->execute([
+                $sql = "INSERT INTO forms (user_id, title, slug, description, schema, submit_label) VALUES (?, ?, ?, ?, ?, ?)";
+                \GaiaAlpha\Model\BaseModel::execute($sql, [
                     $userId,
                     $form['title'],
                     $form['slug'],
@@ -99,10 +100,12 @@ class Seeder
                 ]);
 
                 if (!empty($form['submissions'])) {
-                    $formId = $pdo->lastInsertId();
+                    $formId = DbController::getPdo()->lastInsertId();
                     foreach ($form['submissions'] as $sub) {
-                        $stmt = $pdo->prepare("INSERT INTO form_submissions (form_id, data, ip_address, user_agent) VALUES (?, ?, ?, ?)");
-                        $stmt->execute([$formId, json_encode($sub), '127.0.0.1', 'Mozilla/5.0 (Demo Agent)']);
+                        \GaiaAlpha\Model\BaseModel::execute(
+                            "INSERT INTO form_submissions (form_id, data, ip_address, user_agent) VALUES (?, ?, ?, ?)",
+                            [$formId, json_encode($sub), '127.0.0.1', 'Mozilla/5.0 (Demo Agent)']
+                        );
                     }
                 }
             }
@@ -112,9 +115,9 @@ class Seeder
         $markersFile = $seedDir . '/markers.json';
         if (file_exists($markersFile)) {
             $markers = json_decode(file_get_contents($markersFile), true);
-            $stmt = $pdo->prepare("INSERT INTO map_markers (user_id, label, lat, lng) VALUES (?, ?, ?, ?)");
+            $sql = "INSERT INTO map_markers (user_id, label, lat, lng) VALUES (?, ?, ?, ?)";
             foreach ($markers as $m) {
-                $stmt->execute([$userId, $m['label'], $m['lat'], $m['lng']]);
+                \GaiaAlpha\Model\BaseModel::execute($sql, [$userId, $m['label'], $m['lat'], $m['lng']]);
             }
         }
 
@@ -128,36 +131,36 @@ class Seeder
             'content' => $homeTemplateContent
         ];
 
-        $stmt = $pdo->prepare("INSERT INTO cms_templates (user_id, title, slug, content) VALUES (?, ?, ?, ?)");
-        $stmt->execute([$userId, $defaultTemplate['title'], $defaultTemplate['slug'], $defaultTemplate['content']]);
+        $sql = "INSERT INTO cms_templates (user_id, title, slug, content) VALUES (?, ?, ?, ?)";
+        \GaiaAlpha\Model\BaseModel::execute($sql, [$userId, $defaultTemplate['title'], $defaultTemplate['slug'], $defaultTemplate['content']]);
 
         // Update existing pages to use the new template ONLY if they don't have one
-        $pdo->exec("UPDATE cms_pages SET template_slug = 'default_site' WHERE user_id = $userId AND (template_slug IS NULL OR template_slug = '')");
+        \GaiaAlpha\Model\BaseModel::execute("UPDATE cms_pages SET template_slug = 'default_site' WHERE user_id = ? AND (template_slug IS NULL OR template_slug = '')", [$userId]);
 
         // Also seed from files if they exist
         $tplDir = $seedDir . '/templates';
         if (is_dir($tplDir)) {
-            $stmt = $pdo->prepare("INSERT INTO cms_templates (user_id, title, slug, content) VALUES (?, ?, ?, ?)");
+            $sql = "INSERT INTO cms_templates (user_id, title, slug, content) VALUES (?, ?, ?, ?)";
             foreach (glob($tplDir . '/*.html') as $tplFile) {
                 $slug = pathinfo($tplFile, PATHINFO_FILENAME);
                 $title = ucwords(str_replace(['_', '-'], ' ', $slug));
                 $content = file_get_contents($tplFile);
-                $stmt->execute([$userId, $title, $slug, $content]);
+                \GaiaAlpha\Model\BaseModel::execute($sql, [$userId, $title, $slug, $content]);
             }
         }
 
         // 8. Data Store (User Preferences)
-        $stmt = $pdo->prepare("INSERT INTO data_store (user_id, type, key, value) VALUES (?, ?, ?, ?)");
-        $stmt->execute([$userId, 'user_pref', 'theme', 'dark']);
-        $stmt->execute([$userId, 'user_pref', 'language', 'en']);
+        $sql = "INSERT INTO data_store (user_id, type, key, value) VALUES (?, ?, ?, ?)";
+        \GaiaAlpha\Model\BaseModel::execute($sql, [$userId, 'user_pref', 'theme', 'dark']);
+        \GaiaAlpha\Model\BaseModel::execute($sql, [$userId, 'user_pref', 'language', 'en']);
 
         // 9. Messages
         $msgsFile = $seedDir . '/messages.json';
         if (file_exists($msgsFile)) {
             $msgs = json_decode(file_get_contents($msgsFile), true);
-            $stmt = $pdo->prepare("INSERT INTO messages (sender_id, receiver_id, content, is_read) VALUES (?, ?, ?, ?)");
+            $sql = "INSERT INTO messages (sender_id, receiver_id, content, is_read) VALUES (?, ?, ?, ?)";
             foreach ($msgs as $msg) {
-                $stmt->execute([$userId, $userId, $msg['content'], $msg['is_read']]);
+                \GaiaAlpha\Model\BaseModel::execute($sql, [$userId, $userId, $msg['content'], $msg['is_read']]);
             }
         }
 
@@ -183,23 +186,23 @@ class Seeder
         }
 
         // Markers: 15 random locations around Paris
-        $stmt = $pdo->prepare("INSERT INTO map_markers (user_id, label, lat, lng) VALUES (?, ?, ?, ?)");
+        $sql = "INSERT INTO map_markers (user_id, label, lat, lng) VALUES (?, ?, ?, ?)";
         for ($i = 1; $i <= 15; $i++) {
             $lat = 48.8566 + (rand(-100, 100) / 1000);
             $lng = 2.3522 + (rand(-100, 100) / 1000);
-            $stmt->execute([$userId, "Random Point #$i", $lat, $lng]);
+            \GaiaAlpha\Model\BaseModel::execute($sql, [$userId, "Random Point #$i", $lat, $lng]);
         }
 
         // Submissions: 20 dummy entries for the Contact form
         if (isset($formId)) {
-            $stmt = $pdo->prepare("INSERT INTO form_submissions (form_id, data, ip_address, user_agent) VALUES (?, ?, ?, ?)");
+            $sql = "INSERT INTO form_submissions (form_id, data, ip_address, user_agent) VALUES (?, ?, ?, ?)";
             for ($i = 1; $i <= 20; $i++) {
                 $subData = json_encode([
                     'name' => "User $i",
                     'email' => "user$i@example.com",
                     'message' => "This is automated message number $i."
                 ]);
-                $stmt->execute([$formId, $subData, '192.168.1.' . rand(1, 255), 'Mozilla/5.0 (Bot)']);
+                \GaiaAlpha\Model\BaseModel::execute($sql, [$formId, $subData, '192.168.1.' . rand(1, 255), 'Mozilla/5.0 (Bot)']);
             }
         }
     }

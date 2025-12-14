@@ -173,6 +173,12 @@ class DynamicApiController extends BaseController
             return;
         }
 
+        $sets = [];
+        foreach (array_keys($data) as $col) {
+            $sets[] = "$col = ?";
+        }
+        $setString = implode(', ', $sets);
+
         $sql = "UPDATE $table SET $setString WHERE id = ?";
         $values = array_values($data);
         $values[] = $id;

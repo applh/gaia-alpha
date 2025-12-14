@@ -1,5 +1,6 @@
 <?php
 $page = $page ?? null;
+use GaiaAlpha\Helper\Part;
 // Variables for layout/header.php
 // Use Page Title -> Global Title -> Hardcoded Fallback
 $title = $page['title'] ?? $globalSettings['site_title'] ?? 'Gaia Alpha - Enterprise Solution';

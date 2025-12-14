@@ -74,40 +74,13 @@ class BenchCommands
         echo "Running Database Benchmark...\n";
 
         try {
-            // Assuming default connection is available via new Database() if DSN is set in Env or similar, 
-            // but the Database class constructor takes a DSN.
-            // We need to construct it same as the app does.
-            // Checking how App.php does it or if there is a helper.
-            // Env::get('db_path')? No, let's look at how the app makes a DB connection.
-            // Using a simple DSN for sqlite for now if not available easily.
-
-            $dsn = '';
-            if (defined('GAIA_DB_DSN')) {
-                $dsn = constant('GAIA_DB_DSN');
-            } elseif (Env::get('ga_db_dsn')) {
-                $dsn = Env::get('ga_db_dsn');
-            }
-
-            if (empty($dsn)) {
-                $dbPath = defined('GAIA_DB_PATH') ? constant('GAIA_DB_PATH') : Env::get('ga_db_path');
-                if ($dbPath) {
-                    $dsn = 'sqlite:' . $dbPath;
-                } else {
-                    echo "Skipping DB benchmark: No DSN or DB Path found (GAIA_DB_DSN/GAIA_DB_PATH).\n";
-                    return;
-                }
-            }
-
-            $db = new Database($dsn);
-            $pdo = $db->getPdo();
-
+            // Benchmark the application's DB layer (BaseModel)
+            // This includes connection (if not already connected) and logging overhead
             $start = microtime(true);
             $iterations = 1000;
 
-            $stmt = $pdo->prepare("SELECT 1");
-
             for ($i = 0; $i < $iterations; $i++) {
-                $stmt->execute();
+                \GaiaAlpha\Model\BaseModel::query("SELECT 1");
             }
 
             $end = microtime(true);
@@ -115,8 +88,8 @@ class BenchCommands
             $avg = ($total / $iterations) * 1000;
             $qps = $iterations / $total;
 
-            echo "Database Query: " . number_format($avg, 4) . "ms per query\n";
-            echo "Database QPS: " . number_format($qps, 2) . " queries/sec\n";
+            echo "Database Query (BaseModel): " . number_format($avg, 4) . "ms per query\n";
+            echo "Database QPS (BaseModel): " . number_format($qps, 2) . " queries/sec\n";
 
         } catch (\Exception $e) {
             echo "Database Benchmark Failed: " . $e->getMessage() . "\n";

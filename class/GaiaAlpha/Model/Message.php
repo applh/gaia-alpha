@@ -23,7 +23,6 @@ class Message
 
     public static function getConversation($user1, $user2, $limit = 50, $offset = 0)
     {
-        $db = DbController::getPdo();
         $sql = "SELECT m.*, 
                        u1.username as sender_name, 
                        u2.username as receiver_name 

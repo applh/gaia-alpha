@@ -45,7 +45,7 @@ class Todo
             [$userId, $title, $parentId, $labels, $startDate, $endDate, $color, $position]
         );
 
-        return \GaiaAlpha\Controller\DbController::getPdo()->lastInsertId();
+        return BaseModel::lastInsertId();
     }
 
     public static function updatePosition(int $id, int $userId, ?int $parentId, float $position)

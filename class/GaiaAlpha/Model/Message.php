@@ -20,7 +20,7 @@ class Message extends BaseModel
             [$senderId, $receiverId, $content]
         );
 
-        return DbController::getPdo()->lastInsertId();
+        return BaseModel::lastInsertId();
     }
 
     public static function getConversation($user1, $user2, $limit = 50, $offset = 0)

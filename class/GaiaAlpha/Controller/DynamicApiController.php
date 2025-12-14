@@ -155,7 +155,7 @@ class DynamicApiController extends BaseController
         $sql = "INSERT INTO $table ($columns) VALUES ($placeholders)";
         try {
             \GaiaAlpha\Model\BaseModel::execute($sql, array_values($data));
-            $id = \GaiaAlpha\Controller\DbController::getPdo()->lastInsertId();
+            $id = \GaiaAlpha\Model\BaseModel::lastInsertId();
 
             Response::json(['id' => $id, 'message' => 'Created successfully'], 201);
         } catch (\Exception $e) {

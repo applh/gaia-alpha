@@ -52,6 +52,11 @@ class BaseModel
         return self::query($sql, $params)->rowCount();
     }
 
+    public static function lastInsertId()
+    {
+        return \GaiaAlpha\Controller\DbController::getPdo()->lastInsertId();
+    }
+
     public static function all()
     {
         $db = \GaiaAlpha\Controller\DbController::getPdo();
@@ -97,7 +102,7 @@ class BaseModel
 
         $sql = "INSERT INTO $table (" . implode(', ', $fields) . ") VALUES (" . implode(', ', $placeholders) . ")";
         self::query($sql, $values);
-        return $db->lastInsertId();
+        return self::lastInsertId();
     }
 
     public static function update($id, $data)

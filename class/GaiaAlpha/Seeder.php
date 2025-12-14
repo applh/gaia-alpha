@@ -100,7 +100,7 @@ class Seeder
                 ]);
 
                 if (!empty($form['submissions'])) {
-                    $formId = DbController::getPdo()->lastInsertId();
+                    $formId = \GaiaAlpha\Model\BaseModel::lastInsertId();
                     foreach ($form['submissions'] as $sub) {
                         \GaiaAlpha\Model\BaseModel::execute(
                             "INSERT INTO form_submissions (form_id, data, ip_address, user_agent) VALUES (?, ?, ?, ?)",

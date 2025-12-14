@@ -15,7 +15,7 @@ class MapMarker
             ':lat' => $lat,
             ':lng' => $lng
         ]);
-        return \GaiaAlpha\Controller\DbController::getPdo()->lastInsertId();
+        return BaseModel::lastInsertId();
     }
 
     public static function findAllByUserId($userId)

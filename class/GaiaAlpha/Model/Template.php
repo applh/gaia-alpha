@@ -26,7 +26,7 @@ class Template
             $data['slug'],
             $data['content'] ?? ''
         ]);
-        return \GaiaAlpha\Controller\DbController::getPdo()->lastInsertId();
+        return BaseModel::lastInsertId();
     }
 
     public static function update(int $id, int $userId, array $data)

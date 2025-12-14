@@ -37,7 +37,7 @@ class TableCommands
         $sql = "INSERT INTO $table ($columns) VALUES ($placeholders)";
         \GaiaAlpha\Model\BaseModel::execute($sql, array_values($data));
 
-        echo "Row inserted. ID: " . DbController::getPdo()->lastInsertId() . "\n";
+        echo "Row inserted. ID: " . \GaiaAlpha\Model\BaseModel::lastInsertId() . "\n";
     }
 
     public static function handleUpdate(): void

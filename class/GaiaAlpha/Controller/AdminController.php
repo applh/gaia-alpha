@@ -182,7 +182,7 @@ class AdminController extends BaseController
 
             $this->jsonResponse([
                 'success' => true,
-                'id' => DbController::getPdo()->lastInsertId()
+                'id' => \GaiaAlpha\Model\BaseModel::lastInsertId()
             ]);
         } catch (\PDOException $e) {
             $this->jsonResponse(['error' => 'Insert failed: ' . $e->getMessage()], 400);
@@ -374,7 +374,7 @@ class AdminController extends BaseController
                 "INSERT INTO cms_partials (user_id, name, content, created_at, updated_at) VALUES (?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)",
                 [$_SESSION['user_id'], $data['name'], $data['content'] ?? '']
             );
-            $this->jsonResponse(['success' => true, 'id' => \GaiaAlpha\Controller\DbController::getPdo()->lastInsertId()]);
+            $this->jsonResponse(['success' => true, 'id' => \GaiaAlpha\Model\BaseModel::lastInsertId()]);
         } catch (\PDOException $e) {
             $this->jsonResponse(['error' => 'Name already exists'], 400);
         }

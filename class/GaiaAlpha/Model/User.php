@@ -20,7 +20,7 @@ class User
             password_hash($password, PASSWORD_DEFAULT),
             $level
         ]);
-        return \GaiaAlpha\Controller\DbController::getPdo()->lastInsertId();
+        return BaseModel::lastInsertId();
     }
 
     public static function findAll()

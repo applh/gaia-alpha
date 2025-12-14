@@ -50,7 +50,7 @@ class Page
             $data['meta_keywords'] ?? null
         ];
         BaseModel::query($sql, $params);
-        return \GaiaAlpha\Controller\DbController::getPdo()->lastInsertId();
+        return BaseModel::lastInsertId();
     }
 
     public static function update(int $id, int $userId, array $data)

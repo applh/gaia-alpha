@@ -84,7 +84,7 @@ class FormController extends BaseController
 
             $this->jsonResponse([
                 'success' => true,
-                'id' => \GaiaAlpha\Controller\DbController::getPdo()->lastInsertId(),
+                'id' => \GaiaAlpha\Model\BaseModel::lastInsertId(),
                 'slug' => $slug
             ]);
         } catch (\PDOException $e) {

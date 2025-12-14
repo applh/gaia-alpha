@@ -25,6 +25,7 @@ gaia-alpha/
 │       ├── Cli.php     # CLI Tool Logic (Static)
 │       ├── Controller/ # Request Controllers (Auth, Cms, etc.)
 │       └── Model/      # Data Models (User, Page, etc.)
+│           └── DB.php  # Database Helper (Static Methods)
 │
 ├── templates/          # PHP Templates (HTML Views)
 │
@@ -194,6 +195,64 @@ We chose to **inherit from `PDO`** (`class LoggedPDO extends PDO`) rather than w
 3.  **Simplicity**: Inheritance allows `LoggedPDO` to be a drop-in replacement, keeping the architecture simple and aligned with PHP's standard library patterns.
 
 While composition is often preferred for loose coupling, in this specific case (a low-level driver wrapper), inheritance provides the most robust and maintainable solution.
+
+### DB Helper Class
+The `DB` class (`GaiaAlpha\Model\DB`) provides a centralized interface for database operations with built-in query logging via hooks.
+
+**Design Pattern**: Static helper methods (not inheritance)
+- Models define their own methods and call `DB::` static methods
+- No inheritance required - models are independent classes
+- Consistent with modern PHP practices (explicit dependencies)
+
+**Core Methods**:
+```php
+// Query execution with logging
+DB::query($sql, $params = [])  // Returns PDOStatement
+
+// Data retrieval
+DB::fetchAll($sql, $params = [], $fetchMode = PDO::FETCH_ASSOC)
+DB::fetch($sql, $params = [])
+DB::fetchColumn($sql, $params = [])
+
+// Data modification
+DB::execute($sql, $params = [])  // Returns affected row count
+DB::lastInsertId()
+```
+
+**Query Logging**:
+All queries trigger the `database_query_executed` hook with timing information:
+```php
+Hook::trigger('database_query_executed', [
+    'query' => $sql,
+    'params' => $params,
+    'duration' => $duration
+]);
+```
+
+**Model Pattern**:
+```php
+class Page
+{
+    public static function all() {
+        return DB::fetchAll("SELECT * FROM cms_pages ORDER BY id DESC");
+    }
+    
+    public static function find(int $id) {
+        return DB::fetch("SELECT * FROM cms_pages WHERE id = ?", [$id]);
+    }
+    
+    public static function create(array $data) {
+        DB::execute($sql, $values);
+        return DB::lastInsertId();
+    }
+}
+```
+
+**Benefits**:
+1. **Centralized Logging**: All database queries are automatically logged for debugging
+2. **Explicit Dependencies**: Models clearly show they use `DB::` methods
+3. **No Magic**: No hidden inherited behavior - all methods are visible
+4. **Flexibility**: Each model can define custom query logic
 
 ## Database Schema
 The application uses SQLite.

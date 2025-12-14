@@ -11,10 +11,11 @@ class Seeder
 {
     public static function run(int $userId)
     {
+        echo "Starting seeder for user $userId...\n";
         $pdo = DbController::getPdo();
         $seedDir = Env::get('root_dir') . '/templates/seed';
 
-        // 1. Todos
+        echo "1. Seeding Todos...\n";
         $todosFile = $seedDir . '/todos.json';
         if (file_exists($todosFile)) {
             $todos = json_decode(file_get_contents($todosFile), true);
@@ -38,7 +39,32 @@ class Seeder
             }
         }
 
-        // 2. CMS Pages
+        echo "2. Seeding Partials...\n";
+        // Copy actual header/footer files as partials
+        $rootDir = Env::get('root_dir');
+        $headerContent = file_get_contents($rootDir . '/templates/layout/header.php');
+        $footerContent = file_get_contents($rootDir . '/templates/layout/footer.php');
+
+        $partialsData = [
+            [
+                'name' => 'site_header',
+                'content' => $headerContent
+            ],
+            [
+                'name' => 'site_footer',
+                'content' => $footerContent
+            ]
+        ];
+
+        // Clear existing partials for this user
+        $pdo->exec("DELETE FROM cms_partials WHERE user_id = $userId");
+
+        $stmt = $pdo->prepare("INSERT INTO cms_partials (user_id, name, content) VALUES (?, ?, ?)");
+        foreach ($partialsData as $partial) {
+            $stmt->execute([$userId, $partial['name'], $partial['content']]);
+        }
+
+        echo "3. Seeding Pages...\n";
         $pagesDir = $seedDir . '/pages';
         if (is_dir($pagesDir)) {
             foreach (glob($pagesDir . '/*.json') as $pageFile) {
@@ -92,7 +118,23 @@ class Seeder
             }
         }
 
-        // 7. CMS Templates
+        echo "7. Seeding Templates...\n";
+        // Copy the home_template content (between header and footer)
+        $homeTemplateContent = file_get_contents($seedDir . '/default_template_fallback.php');
+
+        $defaultTemplate = [
+            'title' => 'Default Site Template',
+            'slug' => 'default_site',
+            'content' => $homeTemplateContent
+        ];
+
+        $stmt = $pdo->prepare("INSERT INTO cms_templates (user_id, title, slug, content) VALUES (?, ?, ?, ?)");
+        $stmt->execute([$userId, $defaultTemplate['title'], $defaultTemplate['slug'], $defaultTemplate['content']]);
+
+        // Update existing pages to use the new template
+        $pdo->exec("UPDATE cms_pages SET template_slug = 'default_site' WHERE user_id = $userId");
+
+        // Also seed from files if they exist
         $tplDir = $seedDir . '/templates';
         if (is_dir($tplDir)) {
             $stmt = $pdo->prepare("INSERT INTO cms_templates (user_id, title, slug, content) VALUES (?, ?, ?, ?)");

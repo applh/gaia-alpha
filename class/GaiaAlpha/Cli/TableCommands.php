@@ -95,7 +95,7 @@ class TableCommands
             die("Missing SQL query.\n");
         $sql = $args[2];
         $result = \GaiaAlpha\Model\DB::query($sql);
-        $rows = $result->fetchAll(\PDO::FETCH_ASSOC); // DB::query returns statement
+        $rows = $result->fetchAll(PDO::FETCH_ASSOC); // DB::query returns statement
 
         if (stripos(trim($sql), 'SELECT') !== 0) {
             echo "Query executed. Rows affected: " . $result->rowCount() . "\n";

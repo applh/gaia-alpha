@@ -110,11 +110,11 @@ class DynamicApiController extends BaseController
         $sort = preg_replace('/[^a-zA-Z0-9_]/', '', $sort);
 
         $sql = "SELECT * FROM $table ORDER BY $sort $order LIMIT $limit OFFSET $offset";
-        $rows = \GaiaAlpha\Model\BaseModel::fetchAll($sql);
+        $rows = \GaiaAlpha\Model\DB::fetchAll($sql);
 
         // Count total
         $countParams = "SELECT COUNT(*) FROM $table";
-        $total = \GaiaAlpha\Model\BaseModel::fetchColumn($countParams);
+        $total = \GaiaAlpha\Model\DB::fetchColumn($countParams);
 
         $this->jsonResponse([
             'data' => $rows,

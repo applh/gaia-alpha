@@ -28,3 +28,15 @@ This document outlines the future plans and upcoming features for the Gaia Alpha
 ## 🚀 Performance
 - **Caching Drivers**: Support for Redis or Memcached in addition to the file-based cache.
 - [x] **Asset Minification**: On-the-fly minification of CSS/JS for production environments.
+
+## 📈 SEO & Marketing
+- [x] **Robots.txt Management**: Admin control over `robots.txt` content.
+- [x] **Site Language**: Configurable global `<html lang>` attribute.
+- [x] **XML Sitemap**: Auto-generated sitemap at `/sitemap.xml`.
+- [x] **Meta Tags**: Dynamic Title, Description, and Keywords.
+- [x] **OpenGraph**: Basic OpenGraph Image support for pages.
+- [ ] **Canonical URLs**: Automatic or manual canonical tag generation.
+- [ ] **Structured Data**: Schema.org JSON-LD support for Articles, Products, etc.
+- [ ] **Social Cards**: Enhanced Twitter Card and OG tag customization.
+- [ ] **Auto Meta**: AI or rule-based generation of descriptions.
+- [ ] **SEO Score**: In-editor analysis of content quality and keyword density.

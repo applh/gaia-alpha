@@ -2,9 +2,9 @@
 
 namespace GaiaAlpha;
 
-use GaiaAlpha\Controller\DbController;
 use GaiaAlpha\Model\Page;
 use GaiaAlpha\Model\Todo;
+use GaiaAlpha\Model\BaseModel;
 use GaiaAlpha\Env;
 
 class Seeder
@@ -56,11 +56,11 @@ class Seeder
         ];
 
         // Clear existing partials for this user
-        \GaiaAlpha\Model\BaseModel::execute("DELETE FROM cms_partials WHERE user_id = ?", [$userId]);
+        BaseModel::execute("DELETE FROM cms_partials WHERE user_id = ?", [$userId]);
 
         $sql = "INSERT INTO cms_partials (user_id, name, content) VALUES (?, ?, ?)";
         foreach ($partialsData as $partial) {
-            \GaiaAlpha\Model\BaseModel::execute($sql, [$userId, $partial['name'], $partial['content']]);
+            BaseModel::execute($sql, [$userId, $partial['name'], $partial['content']]);
         }
 
         echo "3. Seeding Pages...\n";
@@ -77,7 +77,7 @@ class Seeder
         if (file_exists($menusFile)) {
             $menus = json_decode(file_get_contents($menusFile), true);
             foreach ($menus as $menu) {
-                \GaiaAlpha\Model\BaseModel::execute(
+                BaseModel::execute(
                     "INSERT INTO menus (title, location, items, created_at, updated_at) VALUES (?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)",
                     [$menu['title'], $menu['location'], json_encode($menu['items'])]
                 );
@@ -90,7 +90,7 @@ class Seeder
             $forms = json_decode(file_get_contents($formsFile), true);
             foreach ($forms as $form) {
                 $sql = "INSERT INTO forms (user_id, title, slug, description, schema, submit_label) VALUES (?, ?, ?, ?, ?, ?)";
-                \GaiaAlpha\Model\BaseModel::execute($sql, [
+                BaseModel::execute($sql, [
                     $userId,
                     $form['title'],
                     $form['slug'],
@@ -100,9 +100,9 @@ class Seeder
                 ]);
 
                 if (!empty($form['submissions'])) {
-                    $formId = \GaiaAlpha\Model\BaseModel::lastInsertId();
+                    $formId = BaseModel::lastInsertId();
                     foreach ($form['submissions'] as $sub) {
-                        \GaiaAlpha\Model\BaseModel::execute(
+                        BaseModel::execute(
                             "INSERT INTO form_submissions (form_id, data, ip_address, user_agent) VALUES (?, ?, ?, ?)",
                             [$formId, json_encode($sub), '127.0.0.1', 'Mozilla/5.0 (Demo Agent)']
                         );
@@ -117,7 +117,7 @@ class Seeder
             $markers = json_decode(file_get_contents($markersFile), true);
             $sql = "INSERT INTO map_markers (user_id, label, lat, lng) VALUES (?, ?, ?, ?)";
             foreach ($markers as $m) {
-                \GaiaAlpha\Model\BaseModel::execute($sql, [$userId, $m['label'], $m['lat'], $m['lng']]);
+                BaseModel::execute($sql, [$userId, $m['label'], $m['lat'], $m['lng']]);
             }
         }
 
@@ -132,10 +132,10 @@ class Seeder
         ];
 
         $sql = "INSERT INTO cms_templates (user_id, title, slug, content) VALUES (?, ?, ?, ?)";
-        \GaiaAlpha\Model\BaseModel::execute($sql, [$userId, $defaultTemplate['title'], $defaultTemplate['slug'], $defaultTemplate['content']]);
+        BaseModel::execute($sql, [$userId, $defaultTemplate['title'], $defaultTemplate['slug'], $defaultTemplate['content']]);
 
         // Update existing pages to use the new template ONLY if they don't have one
-        \GaiaAlpha\Model\BaseModel::execute("UPDATE cms_pages SET template_slug = 'default_site' WHERE user_id = ? AND (template_slug IS NULL OR template_slug = '')", [$userId]);
+        BaseModel::execute("UPDATE cms_pages SET template_slug = 'default_site' WHERE user_id = ? AND (template_slug IS NULL OR template_slug = '')", [$userId]);
 
         // Also seed from files if they exist
         $tplDir = $seedDir . '/templates';
@@ -145,14 +145,14 @@ class Seeder
                 $slug = pathinfo($tplFile, PATHINFO_FILENAME);
                 $title = ucwords(str_replace(['_', '-'], ' ', $slug));
                 $content = file_get_contents($tplFile);
-                \GaiaAlpha\Model\BaseModel::execute($sql, [$userId, $title, $slug, $content]);
+                BaseModel::execute($sql, [$userId, $title, $slug, $content]);
             }
         }
 
         // 8. Data Store (User Preferences)
         $sql = "INSERT INTO data_store (user_id, type, key, value) VALUES (?, ?, ?, ?)";
-        \GaiaAlpha\Model\BaseModel::execute($sql, [$userId, 'user_pref', 'theme', 'dark']);
-        \GaiaAlpha\Model\BaseModel::execute($sql, [$userId, 'user_pref', 'language', 'en']);
+        BaseModel::execute($sql, [$userId, 'user_pref', 'theme', 'dark']);
+        BaseModel::execute($sql, [$userId, 'user_pref', 'language', 'en']);
 
         // 9. Messages
         $msgsFile = $seedDir . '/messages.json';
@@ -160,7 +160,7 @@ class Seeder
             $msgs = json_decode(file_get_contents($msgsFile), true);
             $sql = "INSERT INTO messages (sender_id, receiver_id, content, is_read) VALUES (?, ?, ?, ?)";
             foreach ($msgs as $msg) {
-                \GaiaAlpha\Model\BaseModel::execute($sql, [$userId, $userId, $msg['content'], $msg['is_read']]);
+                BaseModel::execute($sql, [$userId, $userId, $msg['content'], $msg['is_read']]);
             }
         }
 
@@ -190,7 +190,7 @@ class Seeder
         for ($i = 1; $i <= 15; $i++) {
             $lat = 48.8566 + (rand(-100, 100) / 1000);
             $lng = 2.3522 + (rand(-100, 100) / 1000);
-            \GaiaAlpha\Model\BaseModel::execute($sql, [$userId, "Random Point #$i", $lat, $lng]);
+            BaseModel::execute($sql, [$userId, "Random Point #$i", $lat, $lng]);
         }
 
         // Submissions: 20 dummy entries for the Contact form
@@ -202,7 +202,7 @@ class Seeder
                     'email' => "user$i@example.com",
                     'message' => "This is automated message number $i."
                 ]);
-                \GaiaAlpha\Model\BaseModel::execute($sql, [$formId, $subData, '192.168.1.' . rand(1, 255), 'Mozilla/5.0 (Bot)']);
+                BaseModel::execute($sql, [$formId, $subData, '192.168.1.' . rand(1, 255), 'Mozilla/5.0 (Bot)']);
             }
         }
     }

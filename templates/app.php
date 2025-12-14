@@ -12,6 +12,9 @@
             }
         }
     </script>
+    <script>
+        window.siteConfig = <?= json_encode($globalSettings ?? []) ?>;
+    </script>
     <link rel="stylesheet" href="<?= \GaiaAlpha\Asset::url('/css/site.css') ?>">
     <script type="module" src="<?= \GaiaAlpha\Asset::url('/js/site.js?v=2') ?>"></script>
     <script src="<?= \GaiaAlpha\Asset::url('/js/vendor/lucide.min.js') ?>"></script>

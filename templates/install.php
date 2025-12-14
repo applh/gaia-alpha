@@ -147,8 +147,21 @@
                         <input type="text" id="app_slug" name="app_slug" value="app" placeholder="app"
                             pattern="[a-z0-9-_]+" title="Lowercase letters, numbers, and hyphens only">
                     </div>
-                    <p style="font-size: 0.75rem; color: var(--gray); margin-top: 0.25rem;">The public page where the
-                        Vue app will be mounted.</p>
+                </div>
+
+                <div class="form-group" style="margin-top: 1rem;">
+                    <label>Site Configuration</label>
+                    <div style="margin-bottom: 1rem;">
+                        <label for="site_title" style="font-size:0.8em; color:var(--gray);">Site Title</label>
+                        <input type="text" id="site_title" name="site_title" value="Gaia Alpha"
+                            placeholder="e.g. My Company">
+                    </div>
+                    <div>
+                        <label for="site_description" style="font-size:0.8em; color:var(--gray);">Site
+                            Description</label>
+                        <input type="text" id="site_description" name="site_description"
+                            value="The unified open-source operating system." placeholder="Short description for SEO">
+                    </div>
                 </div>
 
                 <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; margin-top: 1rem;">

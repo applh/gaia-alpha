@@ -1,9 +1,10 @@
 <?php
 $page = $page ?? null;
 // Variables for layout/header.php
-$title = $page['title'] ?? 'Gaia Alpha - Enterprise Solution';
-$desc = $page['meta_description'] ?? 'The unified open-source operating system for your digital life. Scalable, Secure, Simple.';
-$keywords = $page['meta_keywords'] ?? 'enterprise, software, open source, gaia alpha';
+// Use Page Title -> Global Title -> Hardcoded Fallback
+$title = $page['title'] ?? $globalSettings['site_title'] ?? 'Gaia Alpha - Enterprise Solution';
+$desc = $page['meta_description'] ?? $globalSettings['site_description'] ?? 'The unified open-source operating system for your digital life. Scalable, Secure, Simple.';
+$keywords = $page['meta_keywords'] ?? $globalSettings['site_keywords'] ?? 'enterprise, software, open source, gaia alpha';
 
 // Fetch latest pages/news
 $latestPages = \GaiaAlpha\Model\Page::getLatestPublic(3);

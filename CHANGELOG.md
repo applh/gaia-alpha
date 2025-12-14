@@ -1,6 +1,18 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+## [v0.31.0] - 2025-12-14
+### Added
+- **Settings**: Site Settings implementation. Admins can now configure Site Title, Description, Keywords, Favicon, and Logo via the dashboard.
+- **UI**: Added "Logo Upload" to Site Settings.
+- **UI**: Dynamic Admin Header. Admin dashboard now displays the configured Site Title and Logo.
+- **Frontend**: `MultiSitePanel` for managing multiple site databases.
+- **Frontend**: "Launch App" link in the public header now dynamically points to the configured App URI.
+
+### Fixed
+- **Install**: Installation wizard now correctly captures initial Site Title and Description.
+- **Regex**: Fixed invalid regex pattern in `MultiSitePanel` for domain validation.
+
 ## [v0.30.1] - 2025-12-14
 ### Fixed
 - **Cache**: Segregated `Asset` and `Template` cache directories by site ID (`my-data/cache/min/domain.com`) to prevent cache collisions in multi-site setups.

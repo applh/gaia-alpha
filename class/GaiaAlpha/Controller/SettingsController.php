@@ -60,7 +60,45 @@ class SettingsController
         \GaiaAlpha\Router::add('GET', '/@/user/settings', [$this, 'index']);
         \GaiaAlpha\Router::add('POST', '/@/user/settings', [$this, 'update']);
 
+        // Global Site Settings (Admin only)
+        \GaiaAlpha\Router::add('GET', '/@/admin/settings', [$this, 'getGlobal']);
+        \GaiaAlpha\Router::add('POST', '/@/admin/settings', [$this, 'updateGlobal']);
+
 
     }
 
+    private function requireAdmin()
+    {
+        $this->requireAuth();
+        if ($_SESSION['level'] < 100) {
+            $this->jsonResponse(['error' => 'Forbidden'], 403);
+            exit;
+        }
+    }
+
+    public function getGlobal()
+    {
+        $this->requireAdmin();
+        $settings = DataStore::getAll(0, 'global_config'); // user_id 0 = system/global
+        $this->jsonResponse(['settings' => $settings]);
+    }
+
+    public function updateGlobal()
+    {
+        $this->requireAdmin();
+        $data = json_decode(file_get_contents('php://input'), true);
+
+        if (!isset($data['key']) || !isset($data['value'])) {
+            $this->jsonResponse(['error' => 'Missing key or value'], 400);
+        }
+
+        // user_id 0 = system/global
+        $success = DataStore::set(0, 'global_config', $data['key'], $data['value']);
+
+        if ($success) {
+            $this->jsonResponse(['success' => true]);
+        } else {
+            $this->jsonResponse(['error' => 'Failed to update setting'], 500);
+        }
+    }
 }

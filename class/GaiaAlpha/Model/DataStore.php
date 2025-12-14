@@ -29,7 +29,7 @@ class DataStore
 
     public static function getAll(int $userId, string $type)
     {
-        $sql = "SELECT key, value FROM data_store WHERE user_id = ? AND type = ?";
+        $sql = "SELECT \"key\", \"value\" FROM data_store WHERE user_id = ? AND type = ?";
         $stmt = \GaiaAlpha\Controller\DbController::getPdo()->prepare($sql);
         $stmt->execute([$userId, $type]);
 

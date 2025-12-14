@@ -8,19 +8,22 @@ const UsersAdmin = defineAsyncComponent(() => import('./components/UsersAdmin.js
 const CMS = defineAsyncComponent(() => import('./components/CMS.js'));
 const DatabaseManager = defineAsyncComponent(() => import('./components/DatabaseManager.js'));
 const UserSettings = defineAsyncComponent(() => import('./components/UserSettings.js'));
+const SiteSettings = defineAsyncComponent(() => import('./components/SiteSettings.js'));
 const FormsAdmin = defineAsyncComponent(() => import('./components/FormsAdmin.js'));
 const ApiManager = defineAsyncComponent(() => import('./components/ApiManager.js'));
 const MapPanel = defineAsyncComponent(() => import('./components/MapPanel.js'));
 const ConsolePanel = defineAsyncComponent(() => import('./components/ConsolePanel.js'));
 const ChatPanel = defineAsyncComponent(() => import('./components/ChatPanel.js'));
+const MultiSitePanel = defineAsyncComponent(() => import('./components/MultiSitePanel.js'));
 
 const App = {
     components: { Login, LucideIcon: defineAsyncComponent(() => import('./components/Icon.js')) },
     template: `
         <div class="app-container">
             <header>
-                <a href="/" style="text-decoration: none; color: inherit;">
-                    <h1>Gaia Alpha</h1>
+                <a href="/" style="text-decoration: none; color: inherit; display:flex; align-items:center;">
+                    <img v-if="siteLogo" :src="siteLogo" :alt="siteTitle" style="height: 28px; margin-right: 10px;">
+                    <h1 v-else>{{ siteTitle }}</h1>
                 </a>
                 <div style="display: flex; align-items: center; gap: 10px;">
                     <nav v-if="store.state.user" style="display: flex; align-items: center; gap: 10px;">
@@ -112,6 +115,8 @@ const App = {
         </div>
     `,
     setup() {
+        const siteTitle = (window.siteConfig && window.siteConfig.site_title) ? window.siteConfig.site_title : 'Gaia Alpha';
+        const siteLogo = (window.siteConfig && window.siteConfig.site_logo) ? window.siteConfig.site_logo : null;
         const isAdmin = store.getters.isAdmin;
         const activeDropdown = ref(null);
         const isMobile = ref(window.innerWidth <= 768);
@@ -141,7 +146,9 @@ const App = {
                     { label: 'Users', view: 'users', icon: 'users' },
                     { label: 'Databases', view: 'database', icon: 'database' },
                     { label: 'APIs', view: 'api-builder', icon: 'zap' },
-                    { label: 'Console', view: 'console', icon: 'terminal' }
+                    { label: 'Console', view: 'console', icon: 'terminal' },
+                    { label: 'Sites', view: 'sites', icon: 'server' },
+                    { label: 'Site Settings', view: 'site-settings', icon: 'globe' }
                 ]
             }
         ];
@@ -187,6 +194,8 @@ const App = {
                 case 'console': return isAdmin.value ? ConsolePanel : TodoList;
                 case 'chat': return ChatPanel;
                 case 'settings': return UserSettings;
+                case 'site-settings': return SiteSettings;
+                case 'sites': return isAdmin.value ? MultiSitePanel : TodoList;
                 case 'todos': default: return TodoList;
             }
         });
@@ -227,7 +236,9 @@ const App = {
             activeDropdown,
             toggleDropdown,
             isGroupActive,
-            isMobile
+            isMobile,
+            siteTitle,
+            siteLogo
         };
     }
 };

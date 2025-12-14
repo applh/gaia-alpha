@@ -54,6 +54,9 @@ class ViewController extends BaseController
             // If still not found, templatePath will fail on include and show error
         }
 
+        // Fetch Global Settings
+        $globalSettings = \GaiaAlpha\Model\DataStore::getAll(0, 'global_config');
+
         // Start output buffering
         ob_start();
         include $templatePath;

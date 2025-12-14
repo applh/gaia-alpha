@@ -1,9 +1,9 @@
 <?php
 $page = $page ?? null;
 // Variables for layout/header.php
-$title = $page['title'] ?? 'Gaia Alpha';
-$desc = $page['meta_description'] ?? 'Gaia Alpha - The unified open-source operating system.';
-$keywords = $page['meta_keywords'] ?? '';
+$title = $page['title'] ?? ($globalSettings['site_title'] ?? 'Gaia Alpha');
+$desc = $page['meta_description'] ?? ($globalSettings['site_description'] ?? 'Gaia Alpha - The unified open-source operating system.');
+$keywords = $page['meta_keywords'] ?? ($globalSettings['site_keywords'] ?? '');
 
 require __DIR__ . '/layout/header.php';
 ?>

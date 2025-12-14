@@ -127,4 +127,11 @@ class Page
         }
         return \GaiaAlpha\Controller\DbController::getPdo()->query("SELECT count(*) FROM cms_pages")->fetchColumn();
     }
+
+    public static function getAppDashboard()
+    {
+        $stmt = \GaiaAlpha\Controller\DbController::getPdo()->prepare("SELECT slug FROM cms_pages WHERE template_slug = 'app' LIMIT 1");
+        $stmt->execute();
+        return $stmt->fetchColumn();
+    }
 }

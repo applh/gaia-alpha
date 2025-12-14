@@ -123,6 +123,10 @@ class PublicController extends BaseController
 
         // Render Template
         // Render Template
+
+        // Fetch Global Settings for Templates
+        $globalSettings = \GaiaAlpha\Model\DataStore::getAll(0, 'global_config');
+
         ob_start();
         require $templatePath;
         $content = ob_get_clean();

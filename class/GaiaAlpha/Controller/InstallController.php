@@ -61,6 +61,13 @@ class InstallController extends BaseController
                 \GaiaAlpha\Seeder::run($id);
             }
 
+            // Save Site Settings
+            $siteTitle = $data['site_title'] ?? 'Gaia Alpha';
+            $siteDesc = $data['site_description'] ?? 'The unified open-source operating system.';
+
+            \GaiaAlpha\Model\DataStore::set(0, 'global_config', 'site_title', $siteTitle);
+            \GaiaAlpha\Model\DataStore::set(0, 'global_config', 'site_description', $siteDesc);
+
             // Auto login? For now let client handle redirect.
 
             $this->jsonResponse(['success' => true]);

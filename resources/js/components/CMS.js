@@ -436,7 +436,8 @@ export default {
                 // The ImageSelector handles upload internal to itself. 
                 // So "selecting" an image for "Header BG" when it was likely just a generic upload button seems confused in original.
                 // I'll assume users want to just copy the URL or it was a way to add images to library generally?
-                alert('Image Selected: ' + img.image);
+                // alert('Image Selected: ' + img.image);
+                console.log('Image Selected', img.image);
             }
         };
 
@@ -451,124 +452,125 @@ export default {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ name: p.name, content: p.content })
                 });
-                if (res.ok) {
-                    if (!p.id) { // New partial
-                        const data = await res.json();
-                        p.id = data.id;
-                    }
-                    alert('Partial Saved!');
-                    fetchPartials(); // Refresh
-                } else {
-                    alert('Failed to save partial');
+                if (!p.id) { // New partial
+                    const data = await res.json();
+                    p.id = data.id;
                 }
-                return;
-            }
-
-            let url;
-            if (filterCat.value === 'template') {
-                url = form.id ? `/@/cms/templates/${form.id}` : '/@/cms/templates';
+                // alert('Partial Saved!');
+                console.log('Partial Saved');
+                fetchPartials(); // Refresh
             } else {
-                url = form.id ? `/@/cms/pages/${form.id}` : '/@/cms/pages';
+                // alert('Failed to save partial');
+                console.error('Failed to save partial');
             }
+            return;
+        }
 
-            const method = form.id ? 'PATCH' : 'POST';
+        let url;
+        if (filterCat.value === 'template') {
+            url = form.id ? `/@/cms/templates/${form.id}` : '/@/cms/templates';
+        } else {
+            url = form.id ? `/@/cms/pages/${form.id}` : '/@/cms/pages';
+        }
 
-            const res = await fetch(url, {
-                method,
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(form)
-            });
+        const method = form.id ? 'PATCH' : 'POST';
 
-            if (res.ok) {
-                showForm.value = false;
-                fetchPages();
-            } else {
-                const err = await res.json();
-                alert(err.error || 'Failed to save page');
-            }
-        };
+        const res = await fetch(url, {
+            method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(form)
+        });
 
-        const switchFile = (fileType, partial = null) => {
-            currentFile.value = fileType;
-            if (fileType === 'partial') currentPartial.value = partial;
-            else currentPartial.value = null;
-        };
-
-        const createPartial = async () => {
-            const name = prompt("Enter partial name (e.g. header_v2):");
-            if (!name) return;
-            // Optimistic add to list, then user saves content? 
-            // Better to create record immediately to get ID.
-            const res = await fetch('/@/cms/partials', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name, content: '<!-- New Partial -->' })
-            });
-            if (res.ok) {
-                await fetchPartials();
-                // Switch to it
-                const newP = partials.value.find(p => p.name === name);
-                if (newP) switchFile('partial', newP);
-            } else {
-                alert('Error creating partial (name taken?)');
-            }
-        };
-
-        const deletePartial = async (id) => {
-            // if (!confirm('Delete this partial?')) return;
-            await fetch(`/@/cms/partials/${id}`, { method: 'DELETE' });
-            await fetchPartials();
-            if (currentFile.value === 'partial' && currentPartial.value?.id === id) {
-                switchFile('main');
-            }
-        };
-
-        const deletePage = async (id) => {
-            let url;
-            if (filterCat.value === 'template') {
-                url = `/@/cms/templates/${id}`;
-            } else {
-                url = `/@/cms/pages/${id}`;
-            }
-            const res = await fetch(url, { method: 'DELETE' });
-            if (res.ok) {
-                fetchPages();
-            }
-        };
-
-        const cancelForm = () => {
+        if (res.ok) {
             showForm.value = false;
-        };
+            fetchPages();
+        } else {
+            const err = await res.json();
+            console.error(err.error || 'Failed to save page');
+        }
+    };
 
-        const formatDate = (dateStr) => {
-            if (!dateStr) return '';
-            return new Date(dateStr).toLocaleDateString();
-        };
+    const switchFile = (fileType, partial = null) => {
+        currentFile.value = fileType;
+        if (fileType === 'partial') currentPartial.value = partial;
+        else currentPartial.value = null;
+    };
 
-        // Watch store.state.currentView to switch tabs if needed
-        watch(() => store.state.currentView, (val) => {
-            if (val === 'cms-templates') {
-                filterCat.value = 'template';
-                fetchPages();
-                showForm.value = false;
-            } else if (val === 'cms') {
-                filterCat.value = 'page';
-                fetchPages();
-                showForm.value = false;
-            }
-        }, { immediate: true });
+    const createPartial = async () => {
+        const name = prompt("Enter partial name (e.g. header_v2):");
+        if (!name) return;
+        // Optimistic add to list, then user saves content? 
+        // Better to create record immediately to get ID.
+        const res = await fetch('/@/cms/partials', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, content: '<!-- New Partial -->' })
+        });
+        if (res.ok) {
+            await fetchPartials();
+            // Switch to it
+            const newP = partials.value.find(p => p.name === name);
+            if (newP) switchFile('partial', newP);
+        } else {
+            console.error('Error creating partial (name taken?)');
+        }
+    };
 
-        onMounted(fetchPages);
+    const deletePartial = async (id) => {
+        // if (!confirm('Delete this partial?')) return;
+        await fetch(`/@/cms/partials/${id}`, { method: 'DELETE' });
+        await fetchPartials();
+        if (currentFile.value === 'partial' && currentPartial.value?.id === id) {
+            switchFile('main');
+        }
+    };
 
-        return {
-            pages, allTemplates, loading, showForm, showImageSelector, form, filterCat,
-            openCreate, editPage, savePage, deletePage, cancelForm, generateSlug,
-            formatDate, handleImageSelection, openSelector, fetchPages,
-            formatDate, handleImageSelection, openSelector, fetchPages,
-            sortBy, sortColumn, sortDirection, sortedPages, pageTitle, pageIcon, useBuilder, isStructured, editStructure,
-            formatDate, handleImageSelection, openSelector, fetchPages,
-            sortBy, sortColumn, sortDirection, sortedPages, pageTitle, pageIcon, useBuilder, isStructured, editStructure,
-            templateMode, currentFile, partials, currentPartial, activeContent, switchFile, createPartial, deletePartial, showTips
-        };
+    const deletePage = async (id) => {
+        let url;
+        if (filterCat.value === 'template') {
+            url = `/@/cms/templates/${id}`;
+        } else {
+            url = `/@/cms/pages/${id}`;
+        }
+        const res = await fetch(url, { method: 'DELETE' });
+        if (res.ok) {
+            fetchPages();
+        }
+    };
+
+    const cancelForm = () => {
+        showForm.value = false;
+    };
+
+    const formatDate = (dateStr) => {
+        if (!dateStr) return '';
+        return new Date(dateStr).toLocaleDateString();
+    };
+
+    // Watch store.state.currentView to switch tabs if needed
+    watch(() => store.state.currentView, (val) => {
+        if (val === 'cms-templates') {
+            filterCat.value = 'template';
+            fetchPages();
+            showForm.value = false;
+        } else if (val === 'cms') {
+            filterCat.value = 'page';
+            fetchPages();
+            showForm.value = false;
+        }
+    }, { immediate: true });
+
+onMounted(fetchPages);
+
+return {
+    pages, allTemplates, loading, showForm, showImageSelector, form, filterCat,
+    openCreate, editPage, savePage, deletePage, cancelForm, generateSlug,
+    formatDate, handleImageSelection, openSelector, fetchPages,
+    formatDate, handleImageSelection, openSelector, fetchPages,
+    sortBy, sortColumn, sortDirection, sortedPages, pageTitle, pageIcon, useBuilder, isStructured, editStructure,
+    formatDate, handleImageSelection, openSelector, fetchPages,
+    sortBy, sortColumn, sortDirection, sortedPages, pageTitle, pageIcon, useBuilder, isStructured, editStructure,
+    templateMode, currentFile, partials, currentPartial, activeContent, switchFile, createPartial, deletePartial, showTips
+};
     }
 };

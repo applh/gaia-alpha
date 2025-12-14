@@ -2,7 +2,7 @@ database.sqlite
 .DS_Store
 /www/uploads/
 vendor/
-!www/js/vendor/
+!resources/js/vendor/
 .vscode/
 *.log
 my-*

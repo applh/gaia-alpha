@@ -22,9 +22,9 @@ class AdminController extends BaseController
         // Actually FormController has no model usage, it uses raw SQL. So we do same here.
         // Raw queries for forms as we don't have a model method for "count all" easily accessible without refactor
         // Actually FormController has no model usage, it uses raw SQL. So we do same here.
-        $formsCount = \GaiaAlpha\Model\BaseModel::query("SELECT COUNT(*) FROM forms")->fetchColumn();
-        $subsCount = \GaiaAlpha\Model\BaseModel::query("SELECT COUNT(*) FROM form_submissions")->fetchColumn();
-        $templatesCount = \GaiaAlpha\Model\BaseModel::query("SELECT COUNT(*) FROM cms_templates")->fetchColumn();
+        $formsCount = \GaiaAlpha\Model\DB::query("SELECT COUNT(*) FROM forms")->fetchColumn();
+        $subsCount = \GaiaAlpha\Model\DB::query("SELECT COUNT(*) FROM form_submissions")->fetchColumn();
+        $templatesCount = \GaiaAlpha\Model\DB::query("SELECT COUNT(*) FROM cms_templates")->fetchColumn();
 
         $this->jsonResponse([
             'users' => User::count(),
@@ -34,7 +34,7 @@ class AdminController extends BaseController
             'images' => Page::count('image'),
             'forms' => $formsCount,
             'submissions' => $subsCount,
-            'datastore' => \GaiaAlpha\Model\BaseModel::query("SELECT COUNT(*) FROM data_store")->fetchColumn()
+            'datastore' => \GaiaAlpha\Model\DB::query("SELECT COUNT(*) FROM data_store")->fetchColumn()
         ]);
     }
 
@@ -80,7 +80,7 @@ class AdminController extends BaseController
     {
         $this->requireAdmin();
         // Get all tables from SQLite
-        $stmt = \GaiaAlpha\Model\BaseModel::query("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name");
+        $stmt = \GaiaAlpha\Model\DB::query("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name");
         $tables = $stmt->fetchAll(\PDO::FETCH_COLUMN);
 
         $this->jsonResponse(['tables' => $tables]);
@@ -132,7 +132,7 @@ class AdminController extends BaseController
             $isSelect = stripos($query, 'SELECT') === 0;
 
             if ($isSelect) {
-                $stmt = \GaiaAlpha\Model\BaseModel::query($query);
+                $stmt = \GaiaAlpha\Model\DB::query($query);
                 $results = $stmt->fetchAll(\PDO::FETCH_ASSOC);
                 $this->jsonResponse([
                     'success' => true,
@@ -141,7 +141,7 @@ class AdminController extends BaseController
                     'count' => count($results)
                 ]);
             } else {
-                $stmt = \GaiaAlpha\Model\BaseModel::query($query);
+                $stmt = \GaiaAlpha\Model\DB::query($query);
                 $affectedRows = $stmt->rowCount();
                 $this->jsonResponse([
                     'success' => true,
@@ -218,7 +218,7 @@ class AdminController extends BaseController
                 implode(', ', $setParts)
             );
 
-            \GaiaAlpha\Model\BaseModel::query($sql, $values);
+            \GaiaAlpha\Model\DB::execute($sql, $values);
 
             $this->jsonResponse(['success' => true]);
         } catch (\PDOException $e) {
@@ -308,7 +308,7 @@ class AdminController extends BaseController
             // But we can add findById or just use generic DB call.
             // Let's use simple query as we are in AdminController
             // Let's use simple query as we are in AdminController
-            $stmt = \GaiaAlpha\Model\BaseModel::query("SELECT * FROM cms_templates WHERE id = ?", [$id]);
+            $stmt = \GaiaAlpha\Model\DB::query("SELECT * FROM cms_templates WHERE id = ?", [$id]);
             $tmpl = $stmt->fetch(\PDO::FETCH_ASSOC);
             if ($tmpl) {
                 $tmpl['type'] = 'db';
@@ -357,7 +357,7 @@ class AdminController extends BaseController
     public function getPartials()
     {
         $this->requireAdmin();
-        $stmt = \GaiaAlpha\Model\BaseModel::query("SELECT * FROM cms_partials ORDER BY name ASC");
+        $stmt = \GaiaAlpha\Model\DB::query("SELECT * FROM cms_partials ORDER BY name ASC");
         $this->jsonResponse($stmt->fetchAll(\PDO::FETCH_ASSOC));
     }
 
@@ -371,7 +371,7 @@ class AdminController extends BaseController
         }
 
         try {
-            \GaiaAlpha\Model\BaseModel::query(
+            \GaiaAlpha\Model\DB::execute(
                 "INSERT INTO cms_partials (user_id, name, content, created_at, updated_at) VALUES (?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)",
                 [$_SESSION['user_id'], $data['name'], $data['content'] ?? '']
             );
@@ -408,7 +408,7 @@ class AdminController extends BaseController
         $values[] = $id;
 
         $sql = "UPDATE cms_partials SET " . implode(', ', $fields) . " WHERE id = ?";
-        \GaiaAlpha\Model\BaseModel::query($sql, $values);
+        \GaiaAlpha\Model\DB::execute($sql, $values);
         $this->jsonResponse(['success' => true]);
     }
 

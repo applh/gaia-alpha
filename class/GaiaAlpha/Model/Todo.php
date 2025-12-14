@@ -116,7 +116,7 @@ class Todo
 
     public static function count()
     {
-        return BaseModel::fetchColumn("SELECT count(*) FROM todos");
+        return DB::fetchColumn("SELECT count(*) FROM todos");
     }
 }
 

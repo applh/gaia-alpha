@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 ### Fixed
 - **Seeder**: Fixed issue where `/app` page template was incorrectly overwritten to `default_site` during installation/seeding. `Seeder` now respects existing template slugs.
 
+## [v0.29.2] - 2025-12-14
+### Changed
+- **UX**: Removed native `confirm()` popups from Delete actions and Logout for a smoother, instant experience.
+
 ## [v0.29.1] - 2025-12-14
 ### Added
 - **Debug**: Added **Tasks** tab to visualize Framework task performance.

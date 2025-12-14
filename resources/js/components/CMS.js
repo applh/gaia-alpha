@@ -515,7 +515,7 @@ export default {
         };
 
         const deletePartial = async (id) => {
-            if (!confirm('Delete this partial?')) return;
+            // if (!confirm('Delete this partial?')) return;
             await fetch(`/@/cms/partials/${id}`, { method: 'DELETE' });
             await fetchPartials();
             if (currentFile.value === 'partial' && currentPartial.value?.id === id) {

@@ -273,15 +273,13 @@ const DebugToolbar = {
         };
 
         const logout = async () => {
-            if (confirm('Logout?')) {
-                try {
-                    const res = await fetch('/@/logout', { method: 'POST' });
-                    if (res.ok) {
-                        window.location.reload();
-                    }
-                } catch (e) {
-                    console.error(e);
+            try {
+                const res = await fetch('/@/logout', { method: 'POST' });
+                if (res.ok) {
+                    window.location.reload();
                 }
+            } catch (e) {
+                console.error(e);
             }
         };
 

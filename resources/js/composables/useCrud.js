@@ -79,7 +79,7 @@ export function useCrud(baseUrl, idField = 'id') {
     };
 
     const deleteItem = async (id) => {
-        if (!confirm('Are you sure you want to delete this item?')) return;
+        // if (!confirm('Are you sure you want to delete this item?')) return;
         error.value = null;
         try {
             const res = await fetch(`${baseUrl}/${id}`, { method: 'DELETE' });

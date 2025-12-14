@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 ### Fixed
 - **Seeder**: Fixed issue where `/app` page template was incorrectly overwritten to `default_site` during installation/seeding. `Seeder` now respects existing template slugs.
 
+## [v0.29.0] - 2025-12-14
+### Added
+- **Debug**: Interactive Debug Toolbar for Admins (`v-if="admin"`).
+    - **SQL**: Real-time logging of executed SQL statements and their duration.
+    - **Request**: Insights into Matched Route, Controller, and Parameters.
+    - **Performance**: Metrics for total execution time and memory usage.
+- **Core**: `LoggedPDO` database wrapper to intercept and profile SQL queries.
+- **Core**: `Debug` singleton for collecting application telemetry.
+- **Docs**: Added `docs/debug_toolbar.md`.
+
 ## [v0.28.0] - 2025-12-14
 ### Added
 - **Templates**: Enhanced Code Editor with Ace Editor (syntax highlighting, autocomplete).

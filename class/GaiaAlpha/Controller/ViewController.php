@@ -53,7 +53,62 @@ class ViewController extends BaseController
             // If still not found, templatePath will fail on include and show error
         }
 
+        // Start output buffering
+        ob_start();
         include $templatePath;
+        $content = ob_get_clean();
+
+        // Inject Debug Toolbar if Admin
+        // Check session safely
+        if (session_status() == PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        $isAdmin = isset($_SESSION['level']) && $_SESSION['level'] >= 100;
+
+        if ($isAdmin) {
+            $content = $this->injectDebugToolbar($content);
+        }
+
+        echo $content;
+    }
+
+    private function injectDebugToolbar($content)
+    {
+        // Don't inject if not HTML
+        if (strpos($content, '</html>') === false) {
+            return $content;
+        }
+
+        $debugData = \GaiaAlpha\Debug::getData();
+        $jsonData = json_encode($debugData);
+
+        $vueUrl = \GaiaAlpha\Asset::url('/js/vendor/vue.esm-browser.js');
+        // Ensure component is accessible via asset pipeline
+        // Note: AssetController needs to serve this. 
+        // Assuming /min/js/components/DebugToolbar.js maps to resources/js/components/DebugToolbar.js
+        $componentUrl = \GaiaAlpha\Asset::url('/js/components/DebugToolbar.js');
+
+        $toolbarScript = <<<HTML
+<div id="gaia-debug-root" style="position:fixed;bottom:0;left:0;right:0;z-index:99999;"></div>
+<script>
+    window.GAIA_DEBUG_DATA = $jsonData;
+</script>
+<script type="module">
+    import { createApp } from '$vueUrl';
+    import * as Vue from '$vueUrl';
+    import DebugToolbar from '$componentUrl';
+    
+    // Make Vue available globally for the component
+    window.Vue = Vue;
+    
+    // Create a separate app for the toolbar to avoid conflicts with main app
+    const app = createApp(DebugToolbar);
+    app.mount('#gaia-debug-root');
+</script>
+HTML;
+
+        return str_replace('</body>', $toolbarScript . '</body>', $content);
     }
 
     private function isJson($string)

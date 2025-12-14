@@ -8,6 +8,8 @@ class App
 {
     public static function run()
     {
+        Debug::init();
+
         register_shutdown_function(function () {
             Hook::run('app_terminate');
         });

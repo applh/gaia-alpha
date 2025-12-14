@@ -122,7 +122,54 @@ class PublicController extends BaseController
         }
 
         // Render Template
+        // Render Template
+        ob_start();
         require $templatePath;
+        $content = ob_get_clean();
+
+        // Inject Debug Toolbar if Admin
+        if (session_status() == PHP_SESSION_NONE) {
+            session_start();
+        }
+        $isAdmin = isset($_SESSION['level']) && $_SESSION['level'] >= 100;
+
+        if ($isAdmin) {
+            // Need access to helper method or duplicate code.
+            // Best to use a helper class or method.
+            // Since PublicController extends BaseController, let's look if BaseController has it?
+            // BaseController doesn't have injectDebugToolbar.
+            // Ideally, move logic to valid Helper or BaseController.
+            // For now, I'll use the same logic here to fix it immediately.
+
+            if (strpos($content, '</html>') !== false) {
+                $debugData = \GaiaAlpha\Debug::getData();
+                $jsonData = json_encode($debugData);
+                $vueUrl = \GaiaAlpha\Asset::url('/js/vendor/vue.esm-browser.js');
+                $componentUrl = \GaiaAlpha\Asset::url('/js/components/DebugToolbar.js');
+
+                $toolbarScript = <<<HTML
+<div id="gaia-debug-root" style="position:fixed;bottom:0;left:0;right:0;z-index:99999;"></div>
+<script>
+    window.GAIA_DEBUG_DATA = $jsonData;
+</script>
+<script type="module">
+    import { createApp } from '$vueUrl';
+    import * as Vue from '$vueUrl';
+    import DebugToolbar from '$componentUrl';
+    
+    // Make Vue available globally for the component
+    window.Vue = Vue;
+    
+    // Create a separate app for the toolbar to avoid conflicts with main app
+    const app = createApp(DebugToolbar);
+    app.mount('#gaia-debug-root');
+</script>
+HTML;
+                $content = str_replace('</body>', $toolbarScript . '</body>', $content);
+            }
+        }
+
+        echo $content;
     }
 
     private function isJson($string)

@@ -182,6 +182,19 @@ Image processing happens **synchronously on first request** (cache miss), then s
 > [!TIP]
 > For high-traffic sites, consider pre-generating common sizes during upload or using a CDN with origin caching.
 
+## Database Abstraction
+The application uses a custom `LoggedPDO` class that extends PHP's native `PDO`.
+
+### Design Decision: Inheritance vs. Composition
+We chose to **inherit from `PDO`** (`class LoggedPDO extends PDO`) rather than wrapping it via composition.
+
+**Rationale:**
+1.  **Type Compatibility**: The codebase extensively uses `PDO` type hints (e.g., `Database::getPdo(): PDO`). Changing this would require refactoring 20+ files and potentially introducing a non-standard `DatabaseInterface`.
+2.  **Native Hooks**: PHP provides `PDO::ATTR_STATEMENT_CLASS`, which allows us to automatically inject our custom `LoggedPDOStatement` class for all queries. This makes logging prepared statements (`execute()`) trivial without manual wrapper logic.
+3.  **Simplicity**: Inheritance allows `LoggedPDO` to be a drop-in replacement, keeping the architecture simple and aligned with PHP's standard library patterns.
+
+While composition is often preferred for loose coupling, in this specific case (a low-level driver wrapper), inheritance provides the most robust and maintainable solution.
+
 ## Database Schema
 The application uses SQLite.
 

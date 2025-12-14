@@ -1,6 +1,8 @@
 <?php
 
 namespace GaiaAlpha;
+use GaiaAlpha\Env;
+use GaiaAlpha\Debug;
 
 class Framework
 {
@@ -23,6 +25,11 @@ class Framework
 
     public static function appBoot()
     {
+        // Debug hooking
+        Hook::add('database_query_executed', function ($sql, $params, $duration) {
+            Debug::logQuery($sql, $params, $duration);
+        });
+
         Hook::run('app_boot');
     }
 

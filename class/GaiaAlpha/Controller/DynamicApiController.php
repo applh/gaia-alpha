@@ -97,9 +97,6 @@ class DynamicApiController extends BaseController
     public function handleList(string $table)
     {
         $this->checkAccess($table);
-        $db = DbController::connect();
-        $pdo = $db->getPdo();
-
         // Basic Pagination
         $page = Request::queryInt('page', 1);
         $limit = Request::queryInt('limit', 20);
@@ -113,12 +110,11 @@ class DynamicApiController extends BaseController
         $sort = preg_replace('/[^a-zA-Z0-9_]/', '', $sort);
 
         $sql = "SELECT * FROM $table ORDER BY $sort $order LIMIT $limit OFFSET $offset";
-        $stmt = $pdo->query($sql);
-        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $rows = \GaiaAlpha\Model\BaseModel::fetchAll($sql);
 
         // Count total
         $countParams = "SELECT COUNT(*) FROM $table";
-        $total = $pdo->query($countParams)->fetchColumn();
+        $total = \GaiaAlpha\Model\BaseModel::fetchColumn($countParams);
 
         $this->jsonResponse([
             'data' => $rows,
@@ -133,12 +129,7 @@ class DynamicApiController extends BaseController
     public function handleGet(string $table, string $id)
     {
         $this->checkAccess($table);
-        $db = DbController::connect();
-        $pdo = $db->getPdo();
-
-        $stmt = $pdo->prepare("SELECT * FROM $table WHERE id = ?");
-        $stmt->execute([$id]);
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        $row = \GaiaAlpha\Model\BaseModel::fetch("SELECT * FROM $table WHERE id = ?", [$id]);
 
         if (!$row) {
             Response::json(['error' => 'Not Found'], 404);
@@ -158,17 +149,13 @@ class DynamicApiController extends BaseController
             return;
         }
 
-        $db = DbController::connect();
-        $pdo = $db->getPdo();
-
         $columns = implode(', ', array_keys($data));
         $placeholders = implode(', ', array_fill(0, count($data), '?'));
 
         $sql = "INSERT INTO $table ($columns) VALUES ($placeholders)";
         try {
-            $stmt = $pdo->prepare($sql);
-            $stmt->execute(array_values($data));
-            $id = $pdo->lastInsertId();
+            \GaiaAlpha\Model\BaseModel::execute($sql, array_values($data));
+            $id = \GaiaAlpha\Controller\DbController::getPdo()->lastInsertId();
 
             Response::json(['id' => $id, 'message' => 'Created successfully'], 201);
         } catch (\Exception $e) {
@@ -186,22 +173,12 @@ class DynamicApiController extends BaseController
             return;
         }
 
-        $db = DbController::connect();
-        $pdo = $db->getPdo();
-
-        $sets = [];
-        foreach (array_keys($data) as $col) {
-            $sets[] = "$col = ?";
-        }
-        $setString = implode(', ', $sets);
-
         $sql = "UPDATE $table SET $setString WHERE id = ?";
         $values = array_values($data);
         $values[] = $id;
 
         try {
-            $stmt = $pdo->prepare($sql);
-            $stmt->execute($values);
+            \GaiaAlpha\Model\BaseModel::execute($sql, $values);
             $this->jsonResponse(['message' => 'Updated successfully']);
         } catch (\Exception $e) {
             Response::json(['error' => $e->getMessage()], 500);
@@ -211,12 +188,7 @@ class DynamicApiController extends BaseController
     public function handleDelete(string $table, string $id)
     {
         $this->checkAccess($table);
-        $db = DbController::connect();
-        $pdo = $db->getPdo();
-
-        $stmt = $pdo->prepare("DELETE FROM $table WHERE id = ?");
-        $stmt->execute([$id]);
-
+        \GaiaAlpha\Model\BaseModel::execute("DELETE FROM $table WHERE id = ?", [$id]);
         $this->jsonResponse(['message' => 'Deleted successfully']);
     }
 }

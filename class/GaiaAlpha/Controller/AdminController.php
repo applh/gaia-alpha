@@ -20,10 +20,11 @@ class AdminController extends BaseController
 
         // Raw queries for forms as we don't have a model method for "count all" easily accessible without refactor
         // Actually FormController has no model usage, it uses raw SQL. So we do same here.
-        $pdo = DbController::getPdo();
-        $formsCount = $pdo->query("SELECT COUNT(*) FROM forms")->fetchColumn();
-        $subsCount = $pdo->query("SELECT COUNT(*) FROM form_submissions")->fetchColumn();
-        $templatesCount = $pdo->query("SELECT COUNT(*) FROM cms_templates")->fetchColumn();
+        // Raw queries for forms as we don't have a model method for "count all" easily accessible without refactor
+        // Actually FormController has no model usage, it uses raw SQL. So we do same here.
+        $formsCount = \GaiaAlpha\Model\BaseModel::query("SELECT COUNT(*) FROM forms")->fetchColumn();
+        $subsCount = \GaiaAlpha\Model\BaseModel::query("SELECT COUNT(*) FROM form_submissions")->fetchColumn();
+        $templatesCount = \GaiaAlpha\Model\BaseModel::query("SELECT COUNT(*) FROM cms_templates")->fetchColumn();
 
         $this->jsonResponse([
             'users' => User::count(),
@@ -33,7 +34,7 @@ class AdminController extends BaseController
             'images' => Page::count('image'),
             'forms' => $formsCount,
             'submissions' => $subsCount,
-            'datastore' => $pdo->query("SELECT COUNT(*) FROM data_store")->fetchColumn()
+            'datastore' => \GaiaAlpha\Model\BaseModel::query("SELECT COUNT(*) FROM data_store")->fetchColumn()
         ]);
     }
 
@@ -78,10 +79,8 @@ class AdminController extends BaseController
     public function getTables()
     {
         $this->requireAdmin();
-        $pdo = DbController::getPdo();
-
         // Get all tables from SQLite
-        $stmt = $pdo->query("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name");
+        $stmt = \GaiaAlpha\Model\BaseModel::query("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name");
         $tables = $stmt->fetchAll(\PDO::FETCH_COLUMN);
 
         $this->jsonResponse(['tables' => $tables]);
@@ -97,15 +96,14 @@ class AdminController extends BaseController
             return;
         }
 
-        $pdo = DbController::getPdo();
-
         // Get table schema
-        $schemaStmt = $pdo->query("PRAGMA table_info($tableName)");
-        $schema = $schemaStmt->fetchAll();
+        // PRAGMA queries are safe to log? Yes.
+        $schemaStmt = \GaiaAlpha\Model\BaseModel::query("PRAGMA table_info($tableName)");
+        $schema = $schemaStmt->fetchAll(\PDO::FETCH_ASSOC);
 
         // Get table data
-        $dataStmt = $pdo->query("SELECT * FROM $tableName LIMIT 100");
-        $data = $dataStmt->fetchAll();
+        $dataStmt = \GaiaAlpha\Model\BaseModel::query("SELECT * FROM $tableName LIMIT 100");
+        $data = $dataStmt->fetchAll(\PDO::FETCH_ASSOC);
 
         $this->jsonResponse([
             'table' => $tableName,
@@ -133,8 +131,8 @@ class AdminController extends BaseController
             $isSelect = stripos($query, 'SELECT') === 0;
 
             if ($isSelect) {
-                $stmt = $pdo->query($query);
-                $results = $stmt->fetchAll();
+                $stmt = \GaiaAlpha\Model\BaseModel::query($query);
+                $results = $stmt->fetchAll(\PDO::FETCH_ASSOC);
                 $this->jsonResponse([
                     'success' => true,
                     'type' => 'select',
@@ -142,7 +140,8 @@ class AdminController extends BaseController
                     'count' => count($results)
                 ]);
             } else {
-                $affectedRows = $pdo->exec($query);
+                $stmt = \GaiaAlpha\Model\BaseModel::query($query);
+                $affectedRows = $stmt->rowCount();
                 $this->jsonResponse([
                     'success' => true,
                     'type' => 'modification',
@@ -179,12 +178,11 @@ class AdminController extends BaseController
                 implode(', ', $placeholders)
             );
 
-            $stmt = $pdo->prepare($sql);
-            $stmt->execute(array_values($data));
+            \GaiaAlpha\Model\BaseModel::query($sql, array_values($data));
 
             $this->jsonResponse([
                 'success' => true,
-                'id' => $pdo->lastInsertId()
+                'id' => DbController::getPdo()->lastInsertId()
             ]);
         } catch (\PDOException $e) {
             $this->jsonResponse(['error' => 'Insert failed: ' . $e->getMessage()], 400);
@@ -219,8 +217,7 @@ class AdminController extends BaseController
                 implode(', ', $setParts)
             );
 
-            $stmt = $pdo->prepare($sql);
-            $stmt->execute($values);
+            \GaiaAlpha\Model\BaseModel::query($sql, $values);
 
             $this->jsonResponse(['success' => true]);
         } catch (\PDOException $e) {
@@ -237,11 +234,8 @@ class AdminController extends BaseController
             return;
         }
 
-        $pdo = DbController::getPdo();
-
         try {
-            $stmt = $pdo->prepare("DELETE FROM $tableName WHERE id = ?");
-            $stmt->execute([$id]);
+            \GaiaAlpha\Model\BaseModel::query("DELETE FROM $tableName WHERE id = ?", [$id]);
 
             $this->jsonResponse(['success' => true]);
         } catch (\PDOException $e) {
@@ -312,10 +306,9 @@ class AdminController extends BaseController
             // Use raw PDO or Template Model? Template Model doesn't have findById, only Slug.
             // But we can add findById or just use generic DB call.
             // Let's use simple query as we are in AdminController
-            $pdo = DbController::getPdo();
-            $stmt = $pdo->prepare("SELECT * FROM cms_templates WHERE id = ?");
-            $stmt->execute([$id]);
-            $tmpl = $stmt->fetch();
+            // Let's use simple query as we are in AdminController
+            $stmt = \GaiaAlpha\Model\BaseModel::query("SELECT * FROM cms_templates WHERE id = ?", [$id]);
+            $tmpl = $stmt->fetch(\PDO::FETCH_ASSOC);
             if ($tmpl) {
                 $tmpl['type'] = 'db';
                 $this->jsonResponse($tmpl);
@@ -363,9 +356,8 @@ class AdminController extends BaseController
     public function getPartials()
     {
         $this->requireAdmin();
-        $pdo = \GaiaAlpha\Controller\DbController::getPdo();
-        $stmt = $pdo->query("SELECT * FROM cms_partials ORDER BY name ASC");
-        $this->jsonResponse($stmt->fetchAll());
+        $stmt = \GaiaAlpha\Model\BaseModel::query("SELECT * FROM cms_partials ORDER BY name ASC");
+        $this->jsonResponse($stmt->fetchAll(\PDO::FETCH_ASSOC));
     }
 
     public function createPartial()
@@ -377,11 +369,12 @@ class AdminController extends BaseController
             return;
         }
 
-        $pdo = \GaiaAlpha\Controller\DbController::getPdo();
         try {
-            $stmt = $pdo->prepare("INSERT INTO cms_partials (user_id, name, content, created_at, updated_at) VALUES (?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
-            $stmt->execute([$_SESSION['user_id'], $data['name'], $data['content'] ?? '']);
-            $this->jsonResponse(['success' => true, 'id' => $pdo->lastInsertId()]);
+            \GaiaAlpha\Model\BaseModel::query(
+                "INSERT INTO cms_partials (user_id, name, content, created_at, updated_at) VALUES (?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)",
+                [$_SESSION['user_id'], $data['name'], $data['content'] ?? '']
+            );
+            $this->jsonResponse(['success' => true, 'id' => \GaiaAlpha\Controller\DbController::getPdo()->lastInsertId()]);
         } catch (\PDOException $e) {
             $this->jsonResponse(['error' => 'Name already exists'], 400);
         }
@@ -414,17 +407,14 @@ class AdminController extends BaseController
         $values[] = $id;
 
         $sql = "UPDATE cms_partials SET " . implode(', ', $fields) . " WHERE id = ?";
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute($values);
+        \GaiaAlpha\Model\BaseModel::query($sql, $values);
         $this->jsonResponse(['success' => true]);
     }
 
     public function deletePartial($id)
     {
         $this->requireAdmin();
-        $pdo = \GaiaAlpha\Controller\DbController::getPdo();
-        $stmt = $pdo->prepare("DELETE FROM cms_partials WHERE id = ?");
-        $stmt->execute([$id]);
+        \GaiaAlpha\Model\BaseModel::query("DELETE FROM cms_partials WHERE id = ?", [$id]);
         $this->jsonResponse(['success' => true]);
     }
 

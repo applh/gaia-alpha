@@ -13,12 +13,9 @@ class FormController extends BaseController
         }
 
         $userId = $_SESSION['user_id'];
-        $pdo = $this->db->getPdo();
 
         // Fetch user's forms
-        $stmt = $pdo->prepare("SELECT * FROM forms WHERE user_id = ? ORDER BY created_at DESC");
-        $stmt->execute([$userId]);
-        $forms = $stmt->fetchAll();
+        $forms = \GaiaAlpha\Model\BaseModel::fetchAll("SELECT * FROM forms WHERE user_id = ? ORDER BY created_at DESC", [$userId]);
 
         // Decode schema for convenience? Or leave as string.
         // Frontend might expect objects.
@@ -37,9 +34,7 @@ class FormController extends BaseController
         }
 
         $pdo = $this->db->getPdo();
-        $stmt = $pdo->prepare("SELECT * FROM forms WHERE id = ?");
-        $stmt->execute([$id]);
-        $form = $stmt->fetch();
+        $form = \GaiaAlpha\Model\BaseModel::fetch("SELECT * FROM forms WHERE id = ?", [$id]);
 
         if (!$form) {
             $this->jsonResponse(['error' => 'Form not found'], 404);
@@ -79,17 +74,19 @@ class FormController extends BaseController
         // Generate Slug
         $slug = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $title)));
         // Ensure uniqueness
-        $pdo = $this->db->getPdo();
-        $stmt = $pdo->prepare("SELECT COUNT(*) FROM forms WHERE slug = ?");
-        $stmt->execute([$slug]);
-        if ($stmt->fetchColumn() > 0) {
+        if (\GaiaAlpha\Model\BaseModel::fetchColumn("SELECT COUNT(*) FROM forms WHERE slug = ?", [$slug]) > 0) {
             $slug .= '-' . time();
         }
 
         try {
-            $stmt = $pdo->prepare("INSERT INTO forms (user_id, title, slug, description, submit_label, schema) VALUES (?, ?, ?, ?, ?, ?)");
-            $stmt->execute([$userId, $title, $slug, $description, $submitLabel, $schema]);
-            $this->jsonResponse(['success' => true, 'id' => $pdo->lastInsertId(), 'slug' => $slug]);
+            $sql = "INSERT INTO forms (user_id, title, slug, description, submit_label, schema) VALUES (?, ?, ?, ?, ?, ?)";
+            \GaiaAlpha\Model\BaseModel::execute($sql, [$userId, $title, $slug, $description, $submitLabel, $schema]);
+
+            $this->jsonResponse([
+                'success' => true,
+                'id' => \GaiaAlpha\Controller\DbController::getPdo()->lastInsertId(),
+                'slug' => $slug
+            ]);
         } catch (\PDOException $e) {
             $this->jsonResponse(['error' => "Create failed: " . $e->getMessage()], 400);
         }
@@ -103,12 +100,9 @@ class FormController extends BaseController
         }
 
         $data = $this->getJsonInput();
-        $pdo = $this->db->getPdo();
 
         // Ownership Check
-        $stmt = $pdo->prepare("SELECT user_id FROM forms WHERE id = ?");
-        $stmt->execute([$id]);
-        $form = $stmt->fetch();
+        $form = \GaiaAlpha\Model\BaseModel::fetch("SELECT user_id FROM forms WHERE id = ?", [$id]);
 
         if (!$form || $form['user_id'] != $_SESSION['user_id']) {
             $this->jsonResponse(['error' => 'Forbidden'], 403);
@@ -146,8 +140,7 @@ class FormController extends BaseController
         $sql = "UPDATE forms SET " . implode(', ', $fields) . " WHERE id = ?";
 
         try {
-            $stmt = $pdo->prepare($sql);
-            $stmt->execute($values);
+            \GaiaAlpha\Model\BaseModel::execute($sql, $values);
             $this->jsonResponse(['success' => true]);
         } catch (\PDOException $e) {
             $this->jsonResponse(['error' => "Update failed: " . $e->getMessage()], 400);
@@ -162,26 +155,21 @@ class FormController extends BaseController
         }
 
         $pdo = $this->db->getPdo();
-        $stmt = $pdo->prepare("SELECT user_id FROM forms WHERE id = ?");
-        $stmt->execute([$id]);
-        $form = $stmt->fetch();
+        $form = \GaiaAlpha\Model\BaseModel::fetch("SELECT user_id FROM forms WHERE id = ?", [$id]);
 
         if (!$form || $form['user_id'] != $_SESSION['user_id']) {
             $this->jsonResponse(['error' => 'Forbidden'], 403);
             return;
         }
 
-        $pdo->prepare("DELETE FROM forms WHERE id = ?")->execute([$id]);
+        \GaiaAlpha\Model\BaseModel::execute("DELETE FROM forms WHERE id = ?", [$id]);
         $this->jsonResponse(['success' => true]);
     }
 
     // Public Get Schema
     public function publicShow($slug)
     {
-        $pdo = $this->db->getPdo();
-        $stmt = $pdo->prepare("SELECT title, description, schema, submit_label FROM forms WHERE slug = ?");
-        $stmt->execute([$slug]);
-        $form = $stmt->fetch();
+        $form = \GaiaAlpha\Model\BaseModel::fetch("SELECT title, description, schema, submit_label FROM forms WHERE slug = ?", [$slug]);
 
         if (!$form) {
             $this->jsonResponse(['error' => 'Form not found'], 404);
@@ -196,11 +184,8 @@ class FormController extends BaseController
     public function submit($slug)
     {
         $data = $this->getJsonInput();
-        $pdo = $this->db->getPdo();
 
-        $stmt = $pdo->prepare("SELECT id FROM forms WHERE slug = ?");
-        $stmt->execute([$slug]);
-        $form = $stmt->fetch();
+        $form = \GaiaAlpha\Model\BaseModel::fetch("SELECT id FROM forms WHERE slug = ?", [$slug]);
 
         if (!$form) {
             $this->jsonResponse(['error' => 'Form not found'], 404);
@@ -212,8 +197,10 @@ class FormController extends BaseController
         $ua = $_SERVER['HTTP_USER_AGENT'] ?? null;
 
         try {
-            $stmt = $pdo->prepare("INSERT INTO form_submissions (form_id, data, ip_address, user_agent) VALUES (?, ?, ?, ?)");
-            $stmt->execute([$form['id'], $formData, $ip, $ua]);
+            \GaiaAlpha\Model\BaseModel::execute(
+                "INSERT INTO form_submissions (form_id, data, ip_address, user_agent) VALUES (?, ?, ?, ?)",
+                [$form['id'], $formData, $ip, $ua]
+            );
             $this->jsonResponse(['success' => true]);
         } catch (\PDOException $e) {
             $this->jsonResponse(['error' => 'Submission failed'], 500);
@@ -227,19 +214,14 @@ class FormController extends BaseController
             return;
         }
 
-        $pdo = $this->db->getPdo();
-        $stmt = $pdo->prepare("SELECT user_id FROM forms WHERE id = ?");
-        $stmt->execute([$id]);
-        $form = $stmt->fetch();
+        $form = \GaiaAlpha\Model\BaseModel::fetch("SELECT user_id FROM forms WHERE id = ?", [$id]);
 
         if (!$form || $form['user_id'] != $_SESSION['user_id']) {
             $this->jsonResponse(['error' => 'Forbidden'], 403);
             return;
         }
 
-        $stmt = $pdo->prepare("SELECT * FROM form_submissions WHERE form_id = ? ORDER BY submitted_at DESC");
-        $stmt->execute([$id]);
-        $submissions = $stmt->fetchAll();
+        $submissions = \GaiaAlpha\Model\BaseModel::fetchAll("SELECT * FROM form_submissions WHERE form_id = ? ORDER BY submitted_at DESC", [$id]);
 
         foreach ($submissions as &$sub) {
             $sub['data'] = json_decode($sub['data']);

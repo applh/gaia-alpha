@@ -2,6 +2,7 @@
 namespace GaiaAlpha\Model;
 
 use GaiaAlpha\Controller\DbController;
+use PDO;
 
 class Message extends BaseModel
 {
@@ -14,10 +15,12 @@ class Message extends BaseModel
         $receiverId = $data['receiver_id'];
         $content = $data['content'];
 
-        $db = DbController::getPdo();
-        $stmt = $db->prepare("INSERT INTO messages (sender_id, receiver_id, content, created_at) VALUES (?, ?, ?, CURRENT_TIMESTAMP)");
-        $stmt->execute([$senderId, $receiverId, $content]);
-        return $db->lastInsertId();
+        BaseModel::query(
+            "INSERT INTO messages (sender_id, receiver_id, content, created_at) VALUES (?, ?, ?, CURRENT_TIMESTAMP)",
+            [$senderId, $receiverId, $content]
+        );
+
+        return DbController::getPdo()->lastInsertId();
     }
 
     public static function getConversation($user1, $user2, $limit = 50, $offset = 0)
@@ -34,28 +37,18 @@ class Message extends BaseModel
                 ORDER BY created_at DESC
                 LIMIT ? OFFSET ?";
 
-        $stmt = $db->prepare($sql);
-        $stmt->execute([$user1, $user2, $user2, $user1, $limit, $offset]);
-        $results = $stmt->fetchAll();
-
-        // Return in chronological order
-        return array_reverse($results);
+        return array_reverse(BaseModel::fetchAll($sql, [$user1, $user2, $user2, $user1, $limit, $offset]));
     }
 
     public static function markAsRead($senderId, $receiverId)
     {
-        $db = DbController::getPdo();
         $sql = "UPDATE messages SET is_read = 1 WHERE sender_id = ? AND receiver_id = ? AND is_read = 0";
-        $stmt = $db->prepare($sql);
-        return $stmt->execute([$senderId, $receiverId]);
+        return BaseModel::execute($sql, [$senderId, $receiverId]) > 0;
     }
 
     public static function getUnreadCounts($userId)
     {
-        $db = DbController::getPdo();
         $sql = "SELECT sender_id, COUNT(*) as count FROM messages WHERE receiver_id = ? AND is_read = 0 GROUP BY sender_id";
-        $stmt = $db->prepare($sql);
-        $stmt->execute([$userId]);
-        return $stmt->fetchAll(\PDO::FETCH_KEY_PAIR);
+        return BaseModel::fetchAll($sql, [$userId], PDO::FETCH_KEY_PAIR);
     }
 }

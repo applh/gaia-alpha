@@ -1,6 +1,17 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+## [v0.33.0] - 2025-12-14
+### Refactored
+- **Database**: Replaced `LoggedPDO` with native `PDO` to fix signature mismatch warnings.
+- **Database**: Centralized query logging via `BaseModel::query()`, `fetchAll()`, `fetch()`, `fetchColumn()`, and `execute()` helpers.
+- **Coverage**: Refactored ALL Models (`Page`, `DataStore`, `Todo`, `Template`, `User`, `Message`, `MapMarker`, `Menu`) and Controllers (`AdminController`, `FormController`, `PublicController`, `DynamicApiController`, `Part`) to use `BaseModel` helpers, ensuring 100% of application queries are logged to the Debug Bar.
+- **CMS**: Helper `Part::load` now uses `BaseModel` for database access.
+
+### Fixed
+- **CMS**: Fixed "Unexpected reserved word" syntax error in `CMS.js` caused by malformed `async/await` structure and duplicate object keys in `setup()`.
+- **Admin**: Fixed `AdminController` generic query execution to log correctly.
+
 ## [v0.32.0] - 2025-12-14
 ### Added
 - **Settings**: Robots.txt Management. Admins can now edit the `robots.txt` content directly from Site Settings.

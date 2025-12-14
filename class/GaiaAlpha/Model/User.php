@@ -2,34 +2,35 @@
 
 namespace GaiaAlpha\Model;
 
+use PDO;
+
 class User
 {
 
 
     public static function findByUsername(string $username)
     {
-        $stmt = \GaiaAlpha\Controller\DbController::getPdo()->prepare("SELECT * FROM users WHERE username = ?");
-        $stmt->execute([$username]);
-        return $stmt->fetch();
+        return BaseModel::fetch("SELECT * FROM users WHERE username = ?", [$username]);
     }
 
     public static function create(string $username, string $password, int $level = 10)
     {
-        $db = \GaiaAlpha\Controller\DbController::getPdo();
-        $stmt = $db->prepare("INSERT INTO users (username, password_hash, level, created_at, updated_at) VALUES (?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
-        $stmt->execute([$username, password_hash($password, PASSWORD_DEFAULT), $level]);
-        return $db->lastInsertId();
+        BaseModel::query("INSERT INTO users (username, password_hash, level, created_at, updated_at) VALUES (?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)", [
+            $username,
+            password_hash($password, PASSWORD_DEFAULT),
+            $level
+        ]);
+        return \GaiaAlpha\Controller\DbController::getPdo()->lastInsertId();
     }
 
     public static function findAll()
     {
-        $stmt = \GaiaAlpha\Controller\DbController::getPdo()->query("SELECT id, username, level, created_at, updated_at FROM users ORDER BY id DESC");
-        return $stmt->fetchAll();
+        return BaseModel::fetchAll("SELECT id, username, level, created_at, updated_at FROM users ORDER BY id DESC");
     }
 
     public static function count()
     {
-        return \GaiaAlpha\Controller\DbController::getPdo()->query("SELECT count(*) FROM users")->fetchColumn();
+        return BaseModel::fetchColumn("SELECT count(*) FROM users");
     }
 
     public static function update($id, $data)
@@ -57,13 +58,11 @@ class User
         $sql = "UPDATE users SET " . implode(', ', $fields) . " WHERE id = ?";
         $values[] = $id;
 
-        $stmt = \GaiaAlpha\Controller\DbController::getPdo()->prepare($sql);
-        return $stmt->execute($values);
+        return BaseModel::execute($sql, $values) > 0;
     }
 
     public static function delete($id)
     {
-        $stmt = \GaiaAlpha\Controller\DbController::getPdo()->prepare("DELETE FROM users WHERE id = ?");
-        return $stmt->execute([$id]);
+        return BaseModel::execute("DELETE FROM users WHERE id = ?", [$id]) > 0;
     }
 }

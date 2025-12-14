@@ -368,10 +368,7 @@ HTML;
             // But we need to create it if missing.
         } else {
             // Fetch from DB
-            $pdo = \GaiaAlpha\Controller\DbController::getPdo();
-            $stmt = $pdo->prepare("SELECT content FROM cms_partials WHERE name = ?");
-            $stmt->execute([$name]);
-            $content = $stmt->fetchColumn();
+            $content = \GaiaAlpha\Model\BaseModel::fetchColumn("SELECT content FROM cms_partials WHERE name = ?", [$name]);
 
             if ($content === false) {
                 echo "<!-- Partial '$name' not found -->";
@@ -411,9 +408,7 @@ HTML;
 
     public function sitemap()
     {
-        $pdo = \GaiaAlpha\Controller\DbController::getPdo();
-        $stmt = $pdo->query("SELECT slug, updated_at FROM cms_pages WHERE cat='page'");
-        $pages = $stmt->fetchAll();
+        $pages = \GaiaAlpha\Model\BaseModel::fetchAll("SELECT slug, updated_at FROM cms_pages WHERE cat='page'");
 
         header("Content-Type: application/xml");
         echo '<?xml version="1.0" encoding="UTF-8"?>';

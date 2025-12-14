@@ -3,6 +3,7 @@
 namespace GaiaAlpha\Model;
 
 use GaiaAlpha\Database;
+use GaiaAlpha\Hook;
 use PDO;
 
 class BaseModel
@@ -13,11 +14,49 @@ class BaseModel
     protected static $table;
     protected static $fillable = [];
 
+    public static function query(string $sql, array $params = [])
+    {
+        $db = \GaiaAlpha\Controller\DbController::getPdo();
+        $start = microtime(true);
+
+        // Check if it's a SELECT (query) or INSERT/UPDATE/DELETE (prepare+execute)
+        // Actually, prepare+execute works for SELECT too and is safer.
+        // Consistency: implementation plan said "return PDOStatement".
+
+        $stmt = $db->prepare($sql);
+        $stmt->execute($params);
+
+        $duration = microtime(true) - $start;
+        Hook::run('database_query_executed', $sql, $params, $duration);
+
+        return $stmt;
+    }
+
+    public static function fetchAll(string $sql, array $params = [], int $mode = PDO::FETCH_ASSOC)
+    {
+        return self::query($sql, $params)->fetchAll($mode);
+    }
+
+    public static function fetch(string $sql, array $params = [], int $mode = PDO::FETCH_ASSOC)
+    {
+        return self::query($sql, $params)->fetch($mode);
+    }
+
+    public static function fetchColumn(string $sql, array $params = [], int $column = 0)
+    {
+        return self::query($sql, $params)->fetchColumn($column);
+    }
+
+    public static function execute(string $sql, array $params = [])
+    {
+        return self::query($sql, $params)->rowCount();
+    }
+
     public static function all()
     {
         $db = \GaiaAlpha\Controller\DbController::getPdo();
         $table = static::$table;
-        $stmt = $db->query("SELECT * FROM $table ORDER BY id DESC");
+        $stmt = self::query("SELECT * FROM $table ORDER BY id DESC");
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
@@ -25,8 +64,7 @@ class BaseModel
     {
         $db = \GaiaAlpha\Controller\DbController::getPdo();
         $table = static::$table;
-        $stmt = $db->prepare("SELECT * FROM $table WHERE id = ?");
-        $stmt->execute([$id]);
+        $stmt = self::query("SELECT * FROM $table WHERE id = ?", [$id]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
@@ -58,8 +96,7 @@ class BaseModel
         $placeholders[] = '?';
 
         $sql = "INSERT INTO $table (" . implode(', ', $fields) . ") VALUES (" . implode(', ', $placeholders) . ")";
-        $stmt = $db->prepare($sql);
-        $stmt->execute($values);
+        self::query($sql, $values);
         return $db->lastInsertId();
     }
 
@@ -88,15 +125,15 @@ class BaseModel
         $values[] = $id; // For WHERE clause
 
         $sql = "UPDATE $table SET " . implode(', ', $sets) . " WHERE id = ?";
-        $stmt = $db->prepare($sql);
-        return $stmt->execute($values);
+        $stmt = self::query($sql, $values);
+        return $stmt->rowCount() > 0;
     }
 
     public static function delete($id)
     {
         $db = \GaiaAlpha\Controller\DbController::getPdo();
         $table = static::$table;
-        $stmt = $db->prepare("DELETE FROM $table WHERE id = ?");
-        return $stmt->execute([$id]);
+        $stmt = self::query("DELETE FROM $table WHERE id = ?", [$id]);
+        return true;
     }
 }

@@ -2,28 +2,25 @@
 
 namespace GaiaAlpha\Model;
 
+use PDO;
+
 class Template
 {
 
 
     public static function findAllByUserId(int $userId)
     {
-        $stmt = \GaiaAlpha\Controller\DbController::getPdo()->prepare("SELECT * FROM cms_templates WHERE user_id = ? ORDER BY created_at DESC");
-        $stmt->execute([$userId]);
-        return $stmt->fetchAll();
+        return BaseModel::fetchAll("SELECT * FROM cms_templates WHERE user_id = ? ORDER BY created_at DESC", [$userId]);
     }
 
     public static function findBySlug(string $slug)
     {
-        $stmt = \GaiaAlpha\Controller\DbController::getPdo()->prepare("SELECT * FROM cms_templates WHERE slug = ?");
-        $stmt->execute([$slug]);
-        return $stmt->fetch();
+        return BaseModel::fetch("SELECT * FROM cms_templates WHERE slug = ?", [$slug]);
     }
 
     public static function create(int $userId, array $data)
     {
-        $stmt = \GaiaAlpha\Controller\DbController::getPdo()->prepare("INSERT INTO cms_templates (user_id, title, slug, content, created_at, updated_at) VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
-        $stmt->execute([
+        BaseModel::query("INSERT INTO cms_templates (user_id, title, slug, content, created_at, updated_at) VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)", [
             $userId,
             $data['title'],
             $data['slug'],
@@ -55,13 +52,11 @@ class Template
         $values[] = $id;
         $values[] = $userId;
 
-        $stmt = \GaiaAlpha\Controller\DbController::getPdo()->prepare($sql);
-        return $stmt->execute($values);
+        return BaseModel::execute($sql, $values) > 0;
     }
 
     public static function delete(int $id, int $userId)
     {
-        $stmt = \GaiaAlpha\Controller\DbController::getPdo()->prepare("DELETE FROM cms_templates WHERE id = ? AND user_id = ?");
-        return $stmt->execute([$id, $userId]);
+        return BaseModel::execute("DELETE FROM cms_templates WHERE id = ? AND user_id = ?", [$id, $userId]) > 0;
     }
 }

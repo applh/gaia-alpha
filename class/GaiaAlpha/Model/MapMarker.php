@@ -8,37 +8,30 @@ class MapMarker
 
     public static function create($userId, $label, $lat, $lng)
     {
-        $pdo = \GaiaAlpha\Controller\DbController::getPdo();
         $sql = "INSERT INTO map_markers (user_id, label, lat, lng) VALUES (:user_id, :label, :lat, :lng)";
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute([
+        BaseModel::query($sql, [
             ':user_id' => $userId,
             ':label' => $label,
             ':lat' => $lat,
             ':lng' => $lng
         ]);
-        return $pdo->lastInsertId();
+        return \GaiaAlpha\Controller\DbController::getPdo()->lastInsertId();
     }
 
     public static function findAllByUserId($userId)
     {
-        $pdo = \GaiaAlpha\Controller\DbController::getPdo();
         $sql = "SELECT * FROM map_markers WHERE user_id = :user_id ORDER BY created_at DESC";
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute([':user_id' => $userId]);
-        return $stmt->fetchAll();
+        return BaseModel::fetchAll($sql, [':user_id' => $userId]);
     }
 
     public static function updatePosition($id, $userId, $lat, $lng)
     {
-        $pdo = \GaiaAlpha\Controller\DbController::getPdo();
         $sql = "UPDATE map_markers SET lat = :lat, lng = :lng WHERE id = :id AND user_id = :user_id";
-        $stmt = $pdo->prepare($sql);
-        return $stmt->execute([
+        return BaseModel::execute($sql, [
             ':lat' => $lat,
             ':lng' => $lng,
             ':id' => $id,
             ':user_id' => $userId
-        ]);
+        ]) > 0;
     }
 }

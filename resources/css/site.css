@@ -3247,3 +3247,36 @@ body.layout-side .nav-group.open .nav-dropdown-menu {
     position: sticky;
     top: 0;
 }
+/* Component Builder Toolbox */
+.toolbox-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.toolbox-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    cursor: grab;
+    transition: all 0.2s;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.toolbox-item:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: var(--primary-color);
+    color: var(--text-main);
+    transform: translateY(-1px);
+}
+
+.toolbox-icon {
+    opacity: 0.8;
+    flex-shrink: 0;
+}

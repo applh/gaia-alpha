@@ -148,7 +148,7 @@ export default {
         const saved = ref(false);
         const showMetadataModal = ref(false);
         const selectedComponentId = ref(null);
-        const activeTab = ref('layout');
+        const activeTab = ref('structure');
 
         const component = reactive({
             id: null,

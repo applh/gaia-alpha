@@ -1,7 +1,16 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
-## [v0.35.2] - 2025-12-15
+## [v0.35.3] - 2025-12-15
+### Added
+- **Component Builder**: Added collapsible groups to the Toolbox for better organization.
+- **Component Builder**: Implemented nested custom component composition.
+- **Component Builder**: Added collapse/expand functionality to the Component Tree.
+
+### Changed
+- **Component Builder**: Updated Toolbox styling with smaller icons and a grid layout.
+- **Component Builder**: Changed the default view to "Structure" instead of "Layout".
+
 ### Fixed
 - **Builder**: Fixed incorrect Preview Link URL by updating `ComponentBuilder.js` to use the `/component-preview/` route.
 - **Builder**: Fixed "Saved!" button layout shift by enforcing minimum width and consistent iconography.

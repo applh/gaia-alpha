@@ -17,7 +17,10 @@ This document outlines the future plans and upcoming features for the Gaia Alpha
 
 ## 🧩 Admin Builder (Low-Code)
 - [x] **Async Component System**: Architecture for loading Vue components from the database.
-- [x] **Component Builder UI**: Drag-and-drop interface for creating admin panels.
+- [x] **Refine Component Builder**
+    - [x] Implement nested structure view (Tree View)
+    - [x] Support custom nested components
+    - [x] Toolbox Styling & Group Collapsing
 - [x] **Component Library**: Base set of components (Data Table, Stat Card, Container).
 - [ ] **Form Builder Integration**: Use created forms within the Component Builder.
 - [ ] **Marketplace**: Share and install components from a community repository.

@@ -15,13 +15,20 @@ This document outlines the future plans and upcoming features for the Gaia Alpha
 - **Rate Limiting**: Built-in middleware to prevent brute-force attacks on API and Login endpoints.
 - **Content Security Policy (CSP)**: rigorous default headers to prevent XSS.
 
+## 🧩 Admin Builder (Low-Code)
+- [x] **Async Component System**: Architecture for loading Vue components from the database.
+- [x] **Component Builder UI**: Drag-and-drop interface for creating admin panels.
+- [x] **Component Library**: Base set of components (Data Table, Stat Card, Container).
+- [ ] **Form Builder Integration**: Use created forms within the Component Builder.
+- [ ] **Marketplace**: Share and install components from a community repository.
+
 ## 💻 Developer Experience
-- **Debug Toolbar**: A frontend overlay showing SQL queries, memory usage, and route info for the current page.
+- [x] **Debug Toolbar**: A frontend overlay showing SQL queries, memory usage, and route info for the current page.
 - **Testing Helpers**: Utilities to make writing PHPUnit and Vue component tests easier.
 - **Scaffolding CLI**: Commands like `make:controller` or `make:plugin` to speed up development.
 
 ## 🎨 Media & Content
-- **Advanced Image Formats**: Native support for AVIF and WebP conversion on upload.
+- [x] **Advanced Image Formats**: Native support for AVIF and WebP conversion on upload.
 - **Internationalization (i18n)**: Core support for multi-language routes and content.
 - **DAM Features**: Better tagging, searching, and organizing of the media library.
 

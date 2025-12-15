@@ -30,9 +30,10 @@ export default {
                 { type: 'data-list', label: 'List', icon: 'list' }
             ],
             'Input': [
-                { type: 'form', label: 'Form', icon: 'edit' },
-                { type: 'search-box', label: 'Search', icon: 'search' },
-                { type: 'filter-panel', label: 'Filter', icon: 'filter' } // Fixed: filter-panel from plan
+                { type: 'form', label: 'Form Container', icon: 'check-square' },
+                { type: 'input', label: 'Text Input', icon: 'type' },
+                { type: 'select', label: 'Select', icon: 'list' },
+                { type: 'button', label: 'Button', icon: 'mouse-pointer' }
             ],
             'Visualization': [
                 { type: 'chart-bar', label: 'Bar Chart', icon: 'bar-chart' },

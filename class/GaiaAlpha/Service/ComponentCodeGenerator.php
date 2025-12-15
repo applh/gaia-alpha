@@ -33,19 +33,26 @@ import { ref, onMounted, defineAsyncComponent } from 'vue';
 // Import Library Components
 const StatCard = defineAsyncComponent(() => import('../../builder/library/StatCard.js'));
 const DataTable = defineAsyncComponent(() => import('../../builder/library/DataTable.js'));
+const FormInput = defineAsyncComponent(() => import('../../builder/library/FormInput.js'));
+const FormSelect = defineAsyncComponent(() => import('../../builder/library/FormSelect.js'));
+const FormButton = defineAsyncComponent(() => import('../../builder/library/FormButton.js'));
 
 export default {
   name: '{$this->pascalCase($name)}',
   components: {
     StatCard,
-    DataTable
+    DataTable,
+    FormInput,
+    FormSelect,
+    FormButton
   },
   setup() {
     const loading = ref(false);
     
     // Data sources
     const data = ref({});
-    
+    const formData = ref({});
+
     onMounted(async () => {
         console.log('Component {$name} mounted');
         await restoreData();
@@ -59,10 +66,20 @@ export default {
             loading.value = false;
         }, 500);
     };
+
+    const submitForm = async () => {
+        console.log('Form Submitted', formData.value);
+        loading.value = true;
+        await new Promise(r => setTimeout(r, 1000));
+        loading.value = false;
+        alert('Form submitted! check console');
+    };
     
     return {
         loading,
-        data
+        data,
+        formData,
+        submitForm
     };
   }
 };
@@ -108,18 +125,36 @@ VUE;
   {
     $type = $component['type'] ?? 'unknown';
     $label = $component['label'] ?? '';
-
     // Map types to components
     switch ($type) {
       case 'stat-card':
-        return "<StatCard label=\"{$label}\" :value=\"1234\" :loading=\"loading\" />";
+        $value = $component['props']['value'] ?? '0';
+        return "<StatCard label=\"{$label}\" :value=\"'{$value}'\" :loading=\"loading\" />";
       case 'data-table':
+        //$endpoint = $component['props']['endpoint'] ?? '';
         return "<DataTable :columns=\"[]\" :data=\"[]\" :loading=\"loading\" />";
+      case 'form':
+        return "<form @submit.prevent=\"submitForm\">" . $this->generateLayout(['children' => $component['children'] ?? []]) . "</form>";
+      case 'input':
+        $name = $component['props']['name'] ?? 'field_' . uniqid();
+        $inputType = $component['props']['type'] ?? 'text';
+        $placeholder = $component['props']['placeholder'] ?? '';
+        // Add to reactive data model logic (implicit TODO)
+        return "<FormInput name=\"{$name}\" label=\"{$label}\" type=\"{$inputType}\" placeholder=\"{$placeholder}\" v-model=\"formData.{$name}\" />";
+      case 'select':
+        $name = $component['props']['name'] ?? 'field_' . uniqid();
+        $options = json_encode($component['props']['options'] ?? []);
+        // We need to escape double quotes for the HTML attribute
+        $optionsAttr = htmlspecialchars($options, ENT_QUOTES, 'UTF-8');
+        return "<FormSelect name=\"{$name}\" label=\"{$label}\" :options=\"{$optionsAttr}\" v-model=\"formData.{$name}\" />";
+      case 'button':
+        $btnType = $component['props']['type'] ?? 'button';
+        $variant = $component['props']['variant'] ?? 'primary';
+        return "<FormButton label=\"{$label}\" type=\"{$btnType}\" variant=\"{$variant}\" :loading=\"loading\" />";
       default:
         return "<div class=\"component-{$type}\">Component: {$type} ({$label})</div>";
     }
   }
-
   private function pascalCase($string)
   {
     return str_replace(' ', '', ucwords(str_replace(['-', '_'], ' ', $string)));

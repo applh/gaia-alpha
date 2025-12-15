@@ -1,6 +1,15 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+## [v0.35.4] - 2025-12-15
+### Added
+- **Debug**: Enhanced Debug Toolbar with "Network" tab to monitor background JSON/AJAX requests.
+- **Debug**: Unified Tracking. Backend SQL queries and tasks triggered by AJAX requests are now merged into the main debug view.
+- **Debug**: Implemented `X-Gaia-Debug` header injection for capturing server-side metrics of API calls.
+
+### Optimized
+- **Install**: Eliminated redundant `SELECT count(*)` database queries on every page load by caching installation status in `installed.lock`.
+
 ## [v0.35.3] - 2025-12-15
 ### Added
 - **Component Builder**: Added collapsible groups to the Toolbox for better organization.

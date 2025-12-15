@@ -11,7 +11,7 @@ class InstallController extends BaseController
     public function index()
     {
         // If already installed, redirect home
-        if (User::count() > 0) {
+        if (self::isInstalled()) {
             header('Location: /');
             exit;
         }
@@ -23,7 +23,7 @@ class InstallController extends BaseController
     public function install()
     {
         // If already installed, forbid
-        if (User::count() > 0) {
+        if (self::isInstalled()) {
             $this->jsonResponse(['error' => 'Application already installed'], 403);
             return;
         }
@@ -70,6 +70,7 @@ class InstallController extends BaseController
 
             // Auto login? For now let client handle redirect.
 
+            $this->markInstalled();
             $this->jsonResponse(['success' => true]);
         } catch (\PDOException $e) {
             $this->jsonResponse(['error' => 'Failed to create user: ' . $e->getMessage()], 400);
@@ -104,21 +105,44 @@ class InstallController extends BaseController
             return;
         }
 
-        // Connection will auto-create schema if missing (handled in DbController)
-        // So we strictly check if any user exists.
+        if (self::isInstalled()) {
+            return;
+        }
+
+        // If we got here, not installed
+        header('Location: /install');
+        exit;
+    }
+
+    private static function isInstalled()
+    {
+        $dataPath = defined('GAIA_DATA_PATH') ? GAIA_DATA_PATH : Env::get('root_dir') . '/my-data';
+        $lockFile = $dataPath . '/installed.lock';
+
+        if (file_exists($lockFile)) {
+            return true;
+        }
+
         try {
-            if (User::count() === 0) {
-                header('Location: /install');
-                exit;
+            if (User::count() > 0) {
+                // Self-heal: create lock file
+                if (is_dir($dataPath)) {
+                    touch($lockFile);
+                }
+                return true;
             }
         } catch (\Exception $e) {
-            // If DB triggers error (e.g. table missing despite ensureSchema?), redirect to install
-            // But ensureSchema is in DbController::connect, so User::count() connects first.
-            // If User::count throws, it means DB issue.
-            // We can't really "install" if schema is broken, but let's assume /install will show helpful UI if we expanded it.
-            // For now, redirect.
-            header('Location: /install');
-            exit;
+            return false;
+        }
+        return false;
+    }
+
+    private function markInstalled()
+    {
+        $dataPath = defined('GAIA_DATA_PATH') ? GAIA_DATA_PATH : Env::get('root_dir') . '/my-data';
+        if (is_dir($dataPath)) {
+            touch($dataPath . '/installed.lock');
         }
     }
+
 }

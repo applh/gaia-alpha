@@ -20,6 +20,32 @@ class Debug
         Hook::add('router_matched', [self::class, 'captureRoute']);
         Hook::add('app_task_before', [self::class, 'startTask']);
         Hook::add('app_task_after', [self::class, 'endTask']);
+        Hook::add('response_send_before', [self::class, 'injectHeader']);
+    }
+
+    public static function injectHeader($data, $status)
+    {
+        // Only inject for Admins
+        if (session_status() == PHP_SESSION_NONE) {
+            session_start(); // Ensure session is open to check level
+        }
+
+        if (!isset($_SESSION['level']) || $_SESSION['level'] < 100) {
+            return;
+        }
+
+        $debugData = self::getData();
+
+        // Strip traces to reduce header size
+        foreach ($debugData['queries'] as &$query) {
+            unset($query['trace']);
+        }
+
+        $json = json_encode($debugData);
+        // Ensure valid header value (no newlines)
+        $json = str_replace(["\r", "\n"], '', $json);
+
+        header('X-Gaia-Debug: ' . $json);
     }
 
     public static function startTask($step, $task)

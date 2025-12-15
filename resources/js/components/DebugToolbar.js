@@ -31,6 +31,7 @@ const DebugToolbar = {
             <div class="tabs">
                 <button :class="{ active: currentTab === 'queries' }" @click="currentTab = 'queries'">SQL Queries ({{ data.queries.length }})</button>
                 <button :class="{ active: currentTab === 'tasks' }" @click="currentTab = 'tasks'">Tasks ({{ data.tasks ? data.tasks.length : 0 }})</button>
+                <button :class="{ active: currentTab === 'network' }" @click="currentTab = 'network'">Network ({{ requests.length }})</button>
                 <button :class="{ active: currentTab === 'request' }" @click="currentTab = 'request'">Request</button>
                 <button :class="{ active: currentTab === 'globals' }" @click="currentTab = 'globals'">Globals</button>
             </div>
@@ -59,6 +60,7 @@ const DebugToolbar = {
                         <thead>
                             <tr>
                                 <th>#</th>
+                                <th>Source</th>
                                 <th>Query</th>
                                 <th>Duration</th>
                             </tr>
@@ -66,12 +68,40 @@ const DebugToolbar = {
                         <tbody>
                             <tr v-for="(query, index) in data.queries" :key="index">
                                 <td>{{ index + 1 }}</td>
+                                <td>
+                                    <span v-if="query.source" class="badge-source">{{ query.source }}</span>
+                                    <span v-else class="badge-source main">Main</span>
+                                </td>
                                 <td class="code-cell">{{ query.sql }}</td>
                                 <td :class="{ 'text-danger': query.duration > 0.05 }">{{ formatTime(query.duration) }}ms</td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
+
+                <div v-if="currentTab === 'network'" class="tab-pane">
+                     <table class="debug-table">
+                        <thead>
+                            <tr>
+                                <th>Method</th>
+                                <th>URL</th>
+                                <th>Status</th>
+                                <th>Time</th>
+                                <th>SQL</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="(req, index) in requests" :key="index">
+                                <td>{{ req.method }}</td>
+                                <td class="code-cell">{{ req.url }}</td>
+                                <td :class="getStatusClass(req.status)">{{ req.status }}</td>
+                                <td>{{ formatTime(req.duration/1000) }}ms</td>
+                                <td>{{ req.sqlCount }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
                 <div v-if="currentTab === 'request'" class="tab-pane">
                     <h3>Route</h3>
                     <div v-if="data.route">
@@ -199,10 +229,14 @@ const DebugToolbar = {
                 .debug-table .code-cell {
                     font-family: monospace;
                     color: #a78bfa;
+                    word-break: break-all;
                 }
                 .text-danger {
                     color: #f87171;
                 }
+                .text-success { color: #4ade80; }
+                .text-warning { color: #facc15; }
+                
                 .debug-toggle {
                     position: fixed;
                     bottom: 10px;
@@ -226,11 +260,23 @@ const DebugToolbar = {
                     cursor: pointer;
                     padding: 4px;
                 }
+                .badge-source {
+                    padding: 2px 4px;
+                    border-radius: 4px;
+                    font-size: 10px;
+                    background: #3f3f46;
+                    color: #eee;
+                }
+                .badge-source.main {
+                    background: #1e1b4b;
+                    color: #818cf8;
+                }
             `;
             document.head.appendChild(style);
         }
 
-        const data = window.GAIA_DEBUG_DATA || {
+        // Make data reactive to handle injected array pushes
+        const data = Vue.reactive(window.GAIA_DEBUG_DATA || {
             queries: [],
             tasks: [],
             time: { total: 0, start: 0 },
@@ -238,11 +284,72 @@ const DebugToolbar = {
             post: {},
             get: {},
             user: { username: 'Guest', level: 0 }
-        };
+        });
 
+        const requests = Vue.reactive([]);
         const isMinimized = Vue.ref(true);
         const currentTab = Vue.ref('queries');
         const visible = Vue.ref(!!window.GAIA_DEBUG_DATA);
+
+        // Intercept Fetch
+        const originalFetch = window.fetch;
+        window.fetch = async (...args) => {
+            const start = performance.now();
+            const method = args[1]?.method || 'GET';
+            const url = typeof args[0] === 'string' ? args[0] : args[0].url;
+
+            const reqRecord = Vue.reactive({
+                method,
+                url,
+                status: '...',
+                duration: 0,
+                sqlCount: 0
+            });
+            requests.push(reqRecord);
+
+            try {
+                const response = await originalFetch(...args);
+                const end = performance.now();
+                reqRecord.duration = end - start;
+                reqRecord.status = response.status;
+
+                const debugHeader = response.headers.get('X-Gaia-Debug');
+                if (debugHeader) {
+                    try {
+                        const serverDebug = JSON.parse(debugHeader);
+                        if (serverDebug.queries) {
+                            reqRecord.sqlCount = serverDebug.queries.length;
+                            // Merge queries
+                            serverDebug.queries.forEach(q => {
+                                data.queries.push({
+                                    ...q,
+                                    source: `${method} ${url}`
+                                });
+                            });
+                        }
+
+                        // Merge tasks
+                        if (serverDebug.tasks) {
+                            serverDebug.tasks.forEach(t => {
+                                data.tasks.push({
+                                    ...t,
+                                    step: `AJAX: ${t.step}`, // Prefix to distinguish
+                                    // Optional: indicate source url if needed, but step prefix helps
+                                });
+                            });
+                        }
+
+                    } catch (e) {
+                        console.error('Failed to parse debug header', e);
+                    }
+                }
+
+                return response;
+            } catch (error) {
+                reqRecord.status = 'Error';
+                throw error;
+            }
+        };
 
         const formatTime = (seconds) => {
             return (seconds * 1000).toFixed(2);
@@ -258,14 +365,15 @@ const DebugToolbar = {
             if (!handler) return 'Unknown';
             if (typeof handler === 'string') return handler;
             if (Array.isArray(handler)) {
-                // It's [Object, 'method']
-                // We can't easily serialize the object instance to JSON in PHP without recursion issues
-                // So PHP probably sent it as [ {}, "method" ] or similar.
-                // Actually Debug.php json_encode calls might fail on closures or objects.
-                // But wait, Route::add stores the handler.
                 return 'Controller Method';
             }
             return 'Closure/Function';
+        };
+
+        const getStatusClass = (status) => {
+            if (status >= 200 && status < 300) return 'text-success';
+            if (status >= 400) return 'text-danger';
+            return 'text-warning';
         };
 
         const toggleMinimize = () => {
@@ -285,34 +393,19 @@ const DebugToolbar = {
 
         return {
             data,
+            requests,
             isMinimized,
             currentTab,
             visible,
             formatTime,
             formatMemory,
             formatHandler,
+            getStatusClass,
             toggleMinimize,
             logout
         };
     }
 };
 
-// Mount it detached from the main app to avoid conflicts? 
-// Or just register it as a global component?
-// Since it relies on generic window data, we can just create a new app instance for it 
-// and append it to the body.
-
-if (window.GAIA_DEBUG_DATA) {
-    const debugContainer = document.createElement('div');
-    debugContainer.id = 'gaia-debug-toolbar-root';
-    document.body.appendChild(debugContainer);
-
-    // Check if we need to load Vue (it might handle page where Vue isn't loaded)
-    // But currently all our pages load Vue via modules or CDN. 
-    // Assuming Vue is available on window or we can import it.
-    // The main app uses import map.
-
-    // We'll trust that this script is module type and imports Vue.
-}
-
+// Mount handled by injection script in ViewController
 export default DebugToolbar;

@@ -163,8 +163,8 @@ JS;
         $value = $component['props']['value'] ?? '0';
         return "<StatCard label=\"{$label}\" :value=\"'{$value}'\" :loading=\"loading\" />";
       case 'data-table':
-        //$endpoint = $component['props']['endpoint'] ?? '';
-        return "<DataTable :columns=\"[]\" :data=\"[]\" :loading=\"loading\" />";
+        $endpoint = $component['props']['endpoint'] ?? '';
+        return "<DataTable :columns=\"[]\" :data=\"[]\" :loading=\"loading\" endpoint=\"{$endpoint}\" />";
       case 'chart-bar':
         $title = $component['props']['title'] ?? $label;
         return "<ChartWidget type=\"bar\" title=\"{$title}\" :data=\"data.chartData || {labels:[],datasets:[]}\" :loading=\"loading\" />";

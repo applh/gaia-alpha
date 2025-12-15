@@ -1,6 +1,14 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+## [v0.35.1] - 2025-12-15
+### Fixed
+- **Builder**: Implemented auto-column discovery in `DataTable` component to handle empty column definitions gracefully.
+- **Builder**: Fixed `ReferenceError: Vue is not defined` in `DataTable.js` by standardizing ES module imports.
+- **Builder**: Fixed `TypeError: parentNode` crash in `DataTable` caused by invalid template nesting logic.
+- **Builder**: Fixed `DataTable` data fetching by connecting the `endpoint` prop to the internal fetch logic in both the component and generator.
+- **Builder**: Resolved 404 error for `todos` custom component by regenerating missing component files from database definitions.
+
 ## [v0.35.0] - 2025-12-15
 ### Added
 - **Builder**: Component Preview. Added "App View" link in the CMS to view components in a standalone environment.

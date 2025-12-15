@@ -1,6 +1,7 @@
 import { ref, reactive, onMounted, computed, watch } from 'vue';
 import SortTh from './SortTh.js';
 import TemplateBuilder from './TemplateBuilder.js';
+import ComponentBuilder from './ComponentBuilder.js';
 import SlotEditor from './SlotEditor.js';
 import MenuBuilder from './MenuBuilder.js';
 import Icon from './Icon.js';
@@ -10,7 +11,7 @@ import { useSorting } from '../composables/useSorting.js';
 import { store } from '../store.js';
 
 export default {
-    components: { SortTh, TemplateBuilder, MenuBuilder, LucideIcon: Icon, SlotEditor, ImageSelector, CodeEditor },
+    components: { SortTh, TemplateBuilder, ComponentBuilder, MenuBuilder, LucideIcon: Icon, SlotEditor, ImageSelector, CodeEditor },
     template: `
         <div class="admin-page">
             <div class="admin-header">
@@ -29,6 +30,12 @@ export default {
                          <button v-if="!showForm && filterCat === 'image'" @click="$refs.headerUpload.click()" class="btn-secondary">
                             <LucideIcon name="upload" size="18" style="vertical-align:middle; margin-right:4px;"></LucideIcon> Upload
                          </button>
+                         <button v-if="filterCat === 'menu'" @click="$refs.menuBuilder.openCreate()" class="btn-primary">
+                            <LucideIcon name="plus" size="18" style="vertical-align:middle; margin-right:4px;"></LucideIcon> Create
+                         </button>
+                         <button v-if="!showForm && filterCat === 'component'" @click="openCreate" class="btn-primary">
+                            <LucideIcon name="plus" size="18" style="vertical-align:middle; margin-right:4px;"></LucideIcon> Create
+                         </button>
                     </div>
                 </div>
                 <div class="nav-tabs">
@@ -36,6 +43,7 @@ export default {
                     <button @click="filterCat = 'template'; fetchPages()" :class="{ active: filterCat === 'template' }">Templates</button>
                     <button @click="filterCat = 'image'; fetchPages()" :class="{ active: filterCat === 'image' }">Images</button>
                     <button @click="filterCat = 'menu'" :class="{ active: filterCat === 'menu' }">Menus</button>
+                    <button @click="filterCat = 'component'; fetchPages()" :class="{ active: filterCat === 'component' }">Components</button>
                 </div>
                 <button v-if="!showForm && filterCat === 'page'" @click="openSelector('header')" class="btn-secondary" style="margin-left: 20px;">
                     <LucideIcon name="image" size="18" style="vertical-align:middle;"></LucideIcon> Header BG
@@ -43,7 +51,11 @@ export default {
             </div>
             
             <div class="admin-card" v-if="filterCat === 'menu'">
-                <MenuBuilder />
+                <MenuBuilder ref="menuBuilder" />
+            </div>
+
+            <div class="admin-full-height" v-else-if="filterCat === 'component' && showForm" style="height: calc(100vh - 100px); margin: -20px;">
+                <ComponentBuilder :initial-id="form.id" @back="showForm = false; fetchPages()" />
             </div>
 
             <div class="admin-card" v-else>
@@ -57,6 +69,7 @@ export default {
                             <th>Image</th>
                             <SortTh name="title" :label="filterCat === 'image' ? 'Filename' : 'Title'" :current-sort="sortColumn" :sort-dir="sortDirection" @sort="sortBy" />
                             <SortTh v-if="filterCat === 'page' || filterCat === 'template'" name="slug" label="Slug" :current-sort="sortColumn" :sort-dir="sortDirection" @sort="sortBy" />
+                            <SortTh v-if="filterCat === 'component'" name="name" label="ID" :current-sort="sortColumn" :sort-dir="sortDirection" @sort="sortBy" />
                             <SortTh name="created_at" label="Created" :current-sort="sortColumn" :sort-dir="sortDirection" @sort="sortBy" />
                             <th>Actions</th>
                         </tr>
@@ -65,17 +78,23 @@ export default {
                         <tr v-for="page in sortedPages" :key="page.id">
                             <td>
                                 <img v-if="page.image" :src="page.image" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;">
+                                <div v-else-if="page.icon" style="width: 50px; height: 50px; background: #333; display: flex; align-items: center; justify-content: center; border-radius: 4px;">
+                                    <i :class="'icon-' + page.icon" style="font-size: 24px; color: #888;"></i>
+                                </div>
                                 <span v-else style="color: #666; font-size: 0.8em;">No Img</span>
                             </td>
-                            <td>{{ page.title }}</td>
+                            <td>{{ page.title || page.name }}</td>
                             <td v-if="filterCat === 'page'">
                                 <a :href="'/page/' + page.slug" target="_blank">{{ page.slug }}</a>
                             </td>
                             <td v-else-if="filterCat === 'template'">{{ page.slug }}</td>
+                            <td v-else-if="filterCat === 'component'">{{ page.name }}</td>
                             <td>{{ formatDate(page.created_at) }}</td>
                             <td class="actions">
                                 <button v-if="filterCat === 'page' || filterCat === 'template'" @click="editPage(page)" class="btn-small">Edit</button>
-                                <button @click="deletePage(page.id)" class="btn-small btn-danger">Delete</button>
+                                <button v-if="filterCat === 'component'" @click="editPage(page)" class="btn-small">Builder</button>
+                                <button v-if="filterCat === 'component'" @click="deleteComponent(page.id)" class="btn-small btn-danger">Delete</button>
+                                <button v-else @click="deletePage(page.id)" class="btn-small btn-danger">Delete</button>
                             </td>
                         </tr>
                     </tbody>
@@ -262,6 +281,7 @@ export default {
                 case 'template': return 'Templates';
                 case 'image': return 'Media Library';
                 case 'menu': return 'Menu Builder';
+                case 'component': return 'Component Builder';
                 default: return 'Content Management';
             }
         });
@@ -271,6 +291,7 @@ export default {
                 case 'template': return 'layout-template';
                 case 'image': return 'image';
                 case 'menu': return 'list';
+                case 'component': return 'box';
                 default: return 'file-text';
             }
         });
@@ -358,6 +379,8 @@ export default {
                 let url;
                 if (filterCat.value === 'template') {
                     url = '/@/cms/templates';
+                } else if (filterCat.value === 'component') {
+                    url = '/@/admin/component-builder/list';
                 } else {
                     url = `/@/cms/pages?cat=${filterCat.value}`;
                 }
@@ -379,6 +402,7 @@ export default {
                 await fetchPartials();
                 currentFile.value = 'main';
             }
+            // Component just needs empty form, already done above
             showForm.value = true;
         };
 
@@ -534,6 +558,16 @@ export default {
             }
         };
 
+        const deleteComponent = async (id) => {
+            if (!confirm('Are you sure you want to delete this component?')) return;
+            const res = await fetch(`/@/admin/component-builder/${id}`, { method: 'DELETE' });
+            if (res.ok) {
+                fetchPages();
+            } else {
+                alert('Failed to delete component');
+            }
+        };
+
         const cancelForm = () => {
             showForm.value = false;
         };
@@ -549,6 +583,10 @@ export default {
                 filterCat.value = 'template';
                 fetchPages();
                 showForm.value = false;
+            } else if (val === 'cms-components') {
+                filterCat.value = 'component';
+                fetchPages();
+                showForm.value = false;
             } else if (val === 'cms') {
                 filterCat.value = 'page';
                 fetchPages();
@@ -560,7 +598,7 @@ export default {
 
         return {
             pages, allTemplates, loading, showForm, showImageSelector, form, filterCat,
-            openCreate, editPage, savePage, deletePage, cancelForm, generateSlug,
+            openCreate, editPage, savePage, deletePage, deleteComponent, cancelForm, generateSlug,
             formatDate, handleImageSelection, openSelector, fetchPages,
             sortBy, sortColumn, sortDirection, sortedPages, pageTitle, pageIcon, useBuilder, isStructured, editStructure,
             templateMode, currentFile, partials, currentPartial, activeContent, switchFile, createPartial, deletePartial, showTips

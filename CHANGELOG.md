@@ -8,6 +8,13 @@ All notable changes to this project will be documented in this file.
 - **Core**: `AdminComponentManager` and `ComponentCodeGenerator` services for generating Vue 3 async components from JSON definitions.
 - **Database**: Added `admin_components`, `versions`, and `permissions` tables.
 
+### Fixed
+- **Builder**: Fixed "Unique constraint failed" error when saving existing components (implemented valid UPSERT logic).
+- **Builder**: Fixed "Cannot read properties of null" error on Save button by using reactive state.
+- **Builder**: Fixed Empty Tree View issue by flattening recursive VNode arrays.
+- **Builder**: Fixed Layout Loading issue where nested `definition` data was not correctly hydrated on edit.
+- **Builder**: Removed duplicate "Toolbox" header.
+
 ## [v0.33.0] - 2025-12-14
 ### Refactored
 - **Database**: Replaced `LoggedPDO` with native `PDO` to fix signature mismatch warnings.

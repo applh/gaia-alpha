@@ -6,14 +6,9 @@ import { store } from '../store.js';
 export default {
     components: { Modal },
     template: `
-        <div class="admin-page">
-            <div class="admin-header">
-                <h2 class="page-title">Menu Builder</h2>
-                <button v-if="!editMode" @click="openCreate">Create Menu</button>
-            </div>
-
+        <div class="menu-builder-container">
             <!-- List View -->
-            <div v-if="!editMode" class="admin-card">
+            <div v-if="!editMode">
                 <table v-if="menus.length">
                     <thead>
                         <tr>
@@ -39,7 +34,7 @@ export default {
             </div>
 
             <!-- Editor View -->
-            <div v-else class="admin-card menu-editor">
+            <div v-else class="menu-editor">
                 <div class="editor-header">
                     <button @click="closeEditor" class="btn-xs">&larr; Back</button>
                     <h3>{{ form.id ? 'Edit Menu' : 'New Menu' }}</h3>

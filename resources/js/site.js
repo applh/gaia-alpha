@@ -138,6 +138,7 @@ const App = {
                 label: 'Content', icon: 'folder', id: 'grp-content', children: [
                     { label: 'CMS', view: 'cms', icon: 'file-text' },
                     { label: 'Templates', view: 'cms-templates', icon: 'layout-template', adminOnly: true },
+                    { label: 'Components', view: 'cms-components', icon: 'puzzle', adminOnly: true },
                     { label: 'Forms', view: 'forms', icon: 'clipboard-list' },
                     { label: 'Maps', view: 'map', icon: 'map' }
                 ]
@@ -150,7 +151,6 @@ const App = {
                     { label: 'Console', view: 'console', icon: 'terminal' },
                     { label: 'Sites', view: 'sites', icon: 'server' },
                     { label: 'Site Settings', view: 'site-settings', icon: 'globe' },
-                    { label: 'Component Builder', view: 'component-builder', icon: 'puzzle' }
                 ]
             }
         ];
@@ -189,6 +189,7 @@ const App = {
                 case 'users': return isAdmin.value ? UsersAdmin : TodoList;
                 case 'cms': return CMS;
                 case 'cms-templates': return CMS;
+                case 'cms-components': return CMS;
                 case 'forms': return FormsAdmin;
                 case 'database': return isAdmin.value ? DatabaseManager : TodoList;
                 case 'map': return MapPanel;

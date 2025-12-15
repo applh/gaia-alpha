@@ -2,7 +2,6 @@ export default {
     name: 'ComponentToolbox',
     template: `
         <div class="component-toolbox">
-            <h3>Toolbox</h3>
             
             <div v-for="(group, name) in groups" :key="name" class="toolbox-group">
                 <h4>{{ name }}</h4>

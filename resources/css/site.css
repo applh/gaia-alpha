@@ -2808,3 +2808,273 @@ body.layout-side .nav-group.open .nav-dropdown-menu {
     height: 42px;
     padding: 0;
 }
+/* Component Builder Styles */
+.component-builder {
+    height: calc(100vh - 60px); 
+    display: flex;
+    flex-direction: column;
+}
+.builder-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background: #1a1f2c;
+    border-bottom: 1px solid #2d3748;
+}
+.builder-workspace {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+    background: #0f172a;
+}
+.builder-sidebar {
+    width: 250px;
+    background: #1a1f2c;
+    border-right: 1px solid #2d3748;
+    overflow-y: auto;
+    flex-shrink: 0;
+}
+.builder-sidebar.right {
+    border-right: none;
+    border-left: 1px solid #2d3748;
+    width: 300px;
+}
+.builder-canvas-wrapper {
+    flex: 1;
+    padding: 40px;
+    overflow-y: auto;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+/* Component Canvas Styles */
+.component-canvas {
+    min-height: 100%;
+    width: 100%;
+    padding: 20px;
+}
+.canvas-node {
+    border: 1px dashed #4a5568;
+    margin: 5px;
+    padding: 10px;
+    background: rgba(255,255,255,0.02);
+    position: relative;
+    min-height: 50px;
+}
+.canvas-node.selected {
+    border: 1px solid #6366f1;
+    background: rgba(99, 102, 241, 0.1);
+    box-shadow: 0 0 0 1px #6366f1;
+}
+.canvas-node.drag-over {
+    background: rgba(72, 187, 120, 0.1);
+    border-color: #48bb78;
+}
+.node-label {
+    font-size: 0.75rem;
+    color: #a0aec0;
+    margin-bottom: 5px;
+    pointer-events: none;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+.node-content {
+    min-height: 20px;
+}
+.empty-placeholder {
+    text-align: center;
+    padding: 20px;
+    color: #718096;
+    font-style: italic;
+    font-size: 0.8rem;
+    border: 1px dashed #2d3748;
+    border-radius: 4px;
+}
+
+/* Specific Layout Styling for Canvas Preview */
+.node-row > .node-content {
+    display: flex;
+    flex-wrap: wrap;
+    margin: -5px;
+}
+.node-col {
+    flex: 1; /* Default flex behavior for canvas */
+}
+
+/* Component Builder Modal Specific Overrides */
+.component-builder .modal {
+    display: none;
+    position: relative;
+    z-index: 2000;
+}
+.component-builder .modal.active {
+    display: block;
+}
+.component-builder .modal-overlay {
+    position: fixed;
+    top: 0; 
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.8);
+    z-index: 2001;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.component-builder .modal-container {
+    background: #1a1f2c;
+    width: 500px;
+    max-width: 90%;
+    padding: 30px;
+    border-radius: 12px;
+    border: 1px solid #2d3748;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    z-index: 2002;
+    position: relative;
+    color: #fff;
+}
+.component-builder .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #2d3748;
+    padding-bottom: 10px;
+}
+.component-builder .modal-header h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+.component-builder .close-btn {
+    background: none;
+    border: none;
+    color: #a0aec0;
+    font-size: 1.5rem;
+    cursor: pointer;
+    line-height: 1;
+}
+.component-builder .close-btn:hover {
+    color: #fff;
+}
+.component-builder .modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #2d3748;
+}
+
+/* Builder Sidebar Tabs */
+.sidebar-tabs {
+    display: flex;
+    border-bottom: 1px solid #2d3748;
+}
+.sidebar-tabs button {
+    flex: 1;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: #a0aec0;
+    padding: 10px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border-radius: 0;
+}
+.sidebar-tabs button:hover {
+    color: #fff;
+    background: rgba(255,255,255,0.02);
+}
+.sidebar-tabs button.active {
+    color: var(--accent-color);
+    border-bottom-color: var(--accent-color);
+    background: rgba(99, 102, 241, 0.05);
+}
+.sidebar-content {
+    padding: 0;
+}
+
+/* Stacked Sidebar Styles */
+.stacked-sidebar {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+.sidebar-panel {
+    flex: 1;
+    overflow-y: auto;
+    border-bottom: 1px solid #2d3748;
+}
+.sidebar-panel.toolbox-panel {
+    flex: 0 0 45%; /* Toolbox takes top 45% */
+    border-bottom: 3px solid #0f172a;
+}
+.sidebar-panel.tree-panel {
+    flex: 1; /* Tree takes remaining space */
+}
+
+/* Component Tree Styles (Visual Cues) */
+.component-tree {
+    padding: 10px 0;
+    color: #ccc;
+    font-size: 0.9rem;
+}
+.component-tree h4 {
+    padding: 10px 15px;
+    margin: 0;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    font-size: 0.8em;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    background: rgba(0,0,0,0.2);
+    color: #a0aec0;
+}
+.tree-root, .tree-children {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.tree-node {
+    padding: 8px 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid rgba(255,255,255,0.02);
+    transition: background 0.1s;
+    position: relative;
+}
+.tree-node:hover {
+    background: rgba(255,255,255,0.05);
+}
+.tree-node.selected {
+    background: rgba(99, 102, 241, 0.2);
+    border-left: 2px solid #6366f1;
+    color: #fff;
+}
+/* Visual Cues for Drag and Drop */
+.tree-node.drag-over-inside {
+    background: rgba(99, 102, 241, 0.3) !important;
+    border: 1px dashed #6366f1;
+}
+.tree-node.drag-over-top {
+    border-top: 2px solid #6366f1;
+    background-color: rgba(99, 102, 241, 0.1);
+}
+.tree-node.drag-over-bottom {
+    border-bottom: 2px solid #6366f1;
+    background-color: rgba(99, 102, 241, 0.1);
+}
+.node-icon {
+    margin-right: 8px;
+    opacity: 0.7;
+    width: 16px; 
+    text-align: center;
+}

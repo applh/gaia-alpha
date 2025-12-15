@@ -37,6 +37,9 @@ const FormInput = defineAsyncComponent(() => import('../../builder/library/FormI
 const FormSelect = defineAsyncComponent(() => import('../../builder/library/FormSelect.js'));
 const FormButton = defineAsyncComponent(() => import('../../builder/library/FormButton.js'));
 const ChartWidget = defineAsyncComponent(() => import('../../builder/library/ChartWidget.js'));
+const LayoutContainer = defineAsyncComponent(() => import('../../builder/library/LayoutContainer.js'));
+const LayoutRow = defineAsyncComponent(() => import('../../builder/library/LayoutRow.js'));
+const LayoutCol = defineAsyncComponent(() => import('../../builder/library/LayoutCol.js'));
 
 export default {
   name: '{$this->pascalCase($name)}',
@@ -46,7 +49,10 @@ export default {
     FormInput,
     FormSelect,
     FormButton,
-    ChartWidget
+    ChartWidget,
+    LayoutContainer,
+    LayoutRow,
+    LayoutCol
   },
   setup() {
     const loading = ref(false);
@@ -155,6 +161,17 @@ VUE;
       case 'chart-line':
         $title = $component['props']['title'] ?? $label;
         return "<ChartWidget type=\"line\" title=\"{$title}\" :data=\"data.chartData || {labels:[],datasets:[]}\" :loading=\"loading\" />";
+      case 'container':
+        $fluid = ($component['props']['fluid'] ?? false) ? 'true' : 'false';
+        return "<LayoutContainer :fluid=\"{$fluid}\">" . $this->generateLayout(['children' => $component['children'] ?? []]) . "</LayoutContainer>";
+      case 'row':
+        $gutter = $component['props']['gutter'] ?? 'md';
+        $align = $component['props']['align'] ?? 'start';
+        $justify = $component['props']['justify'] ?? 'start';
+        return "<LayoutRow gutter=\"{$gutter}\" align=\"{$align}\" justify=\"{$justify}\">" . $this->generateLayout(['children' => $component['children'] ?? []]) . "</LayoutRow>";
+      case 'col':
+        $width = $component['props']['width'] ?? 12;
+        return "<LayoutCol :width=\"{$width}\">" . $this->generateLayout(['children' => $component['children'] ?? []]) . "</LayoutCol>";
       case 'form':
         return "<form @submit.prevent=\"submitForm\">" . $this->generateLayout(['children' => $component['children'] ?? []]) . "</form>";
       case 'input':

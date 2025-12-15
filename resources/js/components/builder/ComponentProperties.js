@@ -173,6 +173,75 @@ export default {
                         >
                     </div>
                 </div>
+                
+                <!-- Layout Container Props -->
+                <div v-if="component.type === 'container'">
+                    <div class="form-group">
+                        <label>Fluid Width</label>
+                         <select 
+                            :value="component.props.fluid || false"
+                            @change="update('props.fluid', $event.target.value === 'true')"
+                        >
+                            <option :value="false">Fixed (Centered)</option>
+                            <option :value="true">Fluid (100%)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Layout Row Props -->
+                <div v-if="component.type === 'row'">
+                    <div class="form-group">
+                        <label>Gutter</label>
+                         <select 
+                            :value="component.props.gutter || 'md'"
+                            @change="update('props.gutter', $event.target.value)"
+                        >
+                            <option value="none">None</option>
+                            <option value="sm">Small</option>
+                            <option value="md">Medium</option>
+                            <option value="lg">Large</option>
+                        </select>
+                    </div>
+                     <div class="form-group">
+                        <label>Align Items</label>
+                         <select 
+                            :value="component.props.align || 'start'"
+                            @change="update('props.align', $event.target.value)"
+                        >
+                            <option value="start">Start</option>
+                            <option value="center">Center</option>
+                            <option value="end">End</option>
+                            <option value="stretch">Stretch</option>
+                        </select>
+                    </div>
+                     <div class="form-group">
+                        <label>Justify Content</label>
+                         <select 
+                            :value="component.props.justify || 'start'"
+                            @change="update('props.justify', $event.target.value)"
+                        >
+                            <option value="start">Start</option>
+                            <option value="center">Center</option>
+                            <option value="end">End</option>
+                            <option value="between">Space Between</option>
+                            <option value="around">Space Around</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- Layout Column Props -->
+                <div v-if="component.type === 'col'">
+                     <div class="form-group">
+                        <label>Width (1-12)</label>
+                        <input 
+                            type="number" 
+                            min="1"
+                            max="12"
+                             :value="component.props.width || 12"
+                             @input="update('props.width', $event.target.value)"
+                        >
+                    </div>
+                </div>
 
             </div>
         </div>

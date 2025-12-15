@@ -41,7 +41,8 @@ export default {
             ],
             'Layout': [
                 { type: 'container', label: 'Container', icon: 'box' },
-                { type: 'row', label: 'Row', icon: 'columns' }
+                { type: 'row', label: 'Row', icon: 'columns' },
+                { type: 'col', label: 'Column', icon: 'layout' }
             ]
         };
 

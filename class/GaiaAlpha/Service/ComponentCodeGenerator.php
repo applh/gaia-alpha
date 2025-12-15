@@ -173,17 +173,17 @@ JS;
         return "<ChartWidget type=\"line\" title=\"{$title}\" :data=\"data.chartData || {labels:[],datasets:[]}\" :loading=\"loading\" />";
       case 'container':
         $fluid = ($component['props']['fluid'] ?? false) ? 'true' : 'false';
-        return "<LayoutContainer :fluid=\"{$fluid}\">" . $this->generateLayout(['children' => $component['children'] ?? []]) . "</LayoutContainer>";
+        return "<LayoutContainer :fluid=\"{$fluid}\">" . $this->generateChildren($component['children'] ?? []) . "</LayoutContainer>";
       case 'row':
         $gutter = $component['props']['gutter'] ?? 'md';
         $align = $component['props']['align'] ?? 'start';
         $justify = $component['props']['justify'] ?? 'start';
-        return "<LayoutRow gutter=\"{$gutter}\" align=\"{$align}\" justify=\"{$justify}\">" . $this->generateLayout(['children' => $component['children'] ?? []]) . "</LayoutRow>";
+        return "<LayoutRow gutter=\"{$gutter}\" align=\"{$align}\" justify=\"{$justify}\">" . $this->generateChildren($component['children'] ?? []) . "</LayoutRow>";
       case 'col':
         $width = $component['props']['width'] ?? 12;
-        return "<LayoutCol :width=\"{$width}\">" . $this->generateLayout(['children' => $component['children'] ?? []]) . "</LayoutCol>";
+        return "<LayoutCol :width=\"{$width}\">" . $this->generateChildren($component['children'] ?? []) . "</LayoutCol>";
       case 'form':
-        return "<form @submit.prevent=\"submitForm\">" . $this->generateLayout(['children' => $component['children'] ?? []]) . "</form>";
+        return "<form @submit.prevent=\"submitForm\">" . $this->generateChildren($component['children'] ?? []) . "</form>";
       case 'input':
         $name = $component['props']['name'] ?? 'field_' . uniqid();
         $inputType = $component['props']['type'] ?? 'text';
@@ -212,6 +212,17 @@ JS;
       default:
         return "<div class=\"component-{$type}\">Component: {$type} ({$label})</div>";
     }
+  }
+
+  private function generateChildren(array $children)
+  {
+    $html = "";
+    foreach ($children as $child) {
+      if (is_array($child)) {
+        $html .= $this->generateComponent($child);
+      }
+    }
+    return $html;
   }
   private function pascalCase($string)
   {

@@ -37,7 +37,7 @@ export default {
       <!-- Layout Container -->
       <div class="component-container">
         <!-- Components will be rendered here based on layout -->
-        <div class="layout-container"><LayoutRow gutter="md" align="start" justify="start"><div class="layout-div"><LayoutCol :width="12"><div class="layout-div"><DataTable :columns="[]" :data="[]" :loading="loading" endpoint="/@/v1/todos" /></div></LayoutCol></div></LayoutRow></div>
+        <div class="layout-container"><LayoutRow gutter="md" align="start" justify="start"><LayoutCol :width="4"><FormButton label="COL1" type="button" variant="primary" :loading="loading" /><DataTable :columns="[]" :data="[]" :loading="loading" endpoint="/@/v1/todos" /></LayoutCol><LayoutCol :width="4"><FormButton label="New button" type="button" variant="primary" :loading="loading" /><ActionButton label="GOGO" action="refresh" variant="primary" @action="handleAction" /></LayoutCol><LayoutCol :width="4"><FormButton label="New button" type="button" variant="primary" :loading="loading" /></LayoutCol></LayoutRow></div>
       </div>
     </div>
   </div>

@@ -300,6 +300,12 @@ export default {
                     </div>
                 </div>
 
+                <!-- Delete Action -->
+                <div class="form-group mt-lg" style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px;">
+                    <button class="btn btn-danger w-full" @click="handleRemove">
+                        <i class="icon-trash"></i> Delete Component
+                    </button>
+                </div>
             </div>
         </div>
     `,
@@ -322,7 +328,11 @@ export default {
             }
         };
 
-        return { update, tryUpdateJson };
+        const handleRemove = () => {
+            emit('remove', props.component.id);
+        };
+
+        return { update, tryUpdateJson, handleRemove };
     },
     styles: `
         .component-properties input,

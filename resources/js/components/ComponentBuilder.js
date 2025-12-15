@@ -5,6 +5,7 @@ const ComponentToolbox = defineAsyncComponent(() => import('./builder/ComponentT
 const ComponentCanvas = defineAsyncComponent(() => import('./builder/ComponentCanvas.js'));
 const ComponentProperties = defineAsyncComponent(() => import('./builder/ComponentProperties.js'));
 const ComponentTree = defineAsyncComponent(() => import('./builder/ComponentTree.js'));
+const LucideIcon = defineAsyncComponent(() => import('./Icon.js'));
 
 export default {
     name: 'ComponentBuilder',
@@ -12,27 +13,27 @@ export default {
         ComponentToolbox,
         ComponentCanvas,
         ComponentProperties,
-        ComponentTree
+        ComponentProperties,
+        ComponentTree,
+        LucideIcon
     },
     template: `
         <div class="component-builder">
             <div class="builder-header">
                 <div style="display:flex; align-items:center;">
                     <button class="btn btn-icon" @click="$emit('back')" style="margin-right: 15px;">
-                        <i class="icon-arrow-left"></i>
+                        <LucideIcon name="arrow-left" size="20" />
                     </button>
                     <h1>Component Builder</h1>
                 </div>
                 <div class="builder-actions">
                     <button class="btn btn-secondary" @click="previewComponent" :disabled="loading">
-                        <i class="icon-eye"></i> Preview
+                        <LucideIcon name="eye" size="18" /> Preview
                     </button>
-                    <button class="btn btn-primary" @click="saveComponent" :disabled="loading">
+                    <button class="btn" :class="saved ? 'btn-success' : 'btn-primary'" @click="saveComponent" :disabled="loading" style="min-width: 160px;">
                         <span v-if="loading" class="spinner-sm"></span>
-                        <span v-else-if="saved"><i class="icon-check"></i> Saved!</span>
-                        <template v-else>
-                            <i class="icon-save"></i> Save Component
-                        </template>
+                        <LucideIcon v-else :name="saved ? 'check' : 'save'" size="18" />
+                        {{ saved ? 'Saved!' : 'Save Component' }}
                     </button>
                 </div>
             </div>
@@ -56,14 +57,14 @@ export default {
                             :class="{ active: activeTab === 'layout' }"
                             @click="activeTab = 'layout'"
                         >
-                            <i class="icon-layout"></i> Layout
+                            <LucideIcon name="layout" size="18" /> Layout
                         </button>
                         <button 
                             class="tab-btn" 
                             :class="{ active: activeTab === 'structure' }"
                             @click="activeTab = 'structure'"
                         >
-                            <i class="icon-list"></i> Structure
+                            <LucideIcon name="list" size="18" /> Structure
                         </button>
                     </div>
 
@@ -100,6 +101,7 @@ export default {
                     <ComponentProperties 
                         :component="selectedComponent"
                         @update="updateComponentProperty"
+                        @remove="removeComponent"
                     />
                 </div>
             </div>
@@ -362,6 +364,36 @@ export default {
             selectComponent(sourceId);
         };
 
+        const removeComponent = (id) => {
+            if (id === component.layout.id) {
+                alert('Cannot remove the root component.');
+                return;
+            }
+
+            // Recursive finder for parent
+            const findParent = (root, childId) => {
+                if (root.children) {
+                    if (root.children.some(c => c.id === childId)) return root;
+                    for (const c of root.children) {
+                        const res = findParent(c, childId);
+                        if (res) return res;
+                    }
+                }
+                return null;
+            };
+
+            const parent = findParent(component.layout, id);
+
+            if (parent) {
+                parent.children = parent.children.filter(c => c.id !== id);
+                // If the removed component was selected, deselect it
+                if (selectedComponentId.value === id) {
+                    selectedComponentId.value = null;
+                }
+                updateLayout({ ...component.layout });
+            }
+        };
+
         const updateComponentProperty = ({ id, key, value }) => {
             const comp = findComponentById(component.layout, id);
             if (comp) {
@@ -444,7 +476,7 @@ export default {
             }
             // Use view_name if available, fallback to name (sanitized)
             const view = component.view_name || component.name;
-            window.open(`/?view=${view}`, '_blank');
+            window.open(`/component-preview/${view}`, '_blank');
         };
 
         return {
@@ -460,7 +492,9 @@ export default {
             moveComponent,
             handleTreeAdd,
             updateLayout,
+            updateLayout,
             updateComponentProperty,
+            removeComponent,
             saveComponent,
             saveMetadata,
             previewComponent

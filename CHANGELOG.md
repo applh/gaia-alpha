@@ -1,6 +1,14 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+## [v0.35.2] - 2025-12-15
+### Fixed
+- **Builder**: Fixed incorrect Preview Link URL by updating `ComponentBuilder.js` to use the `/component-preview/` route.
+- **Builder**: Fixed "Saved!" button layout shift by enforcing minimum width and consistent iconography.
+- **Builder**: Fixed broken Back Icon and other UI icons by refactoring `ComponentBuilder.js` to use the standard `LucideIcon` component.
+- **Builder**: Fixed Data Table overflow issues by adding `overflow-x: auto` to the `data-table-wrapper` in `site.css`.
+- **Builder**: Added "Delete Component" functionality to the properties panel.
+
 ## [v0.35.1] - 2025-12-15
 ### Fixed
 - **Builder**: Implemented auto-column discovery in `DataTable` component to handle empty column definitions gracefully.

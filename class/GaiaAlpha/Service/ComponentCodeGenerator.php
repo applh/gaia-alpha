@@ -36,6 +36,7 @@ const DataTable = defineAsyncComponent(() => import('../../builder/library/DataT
 const FormInput = defineAsyncComponent(() => import('../../builder/library/FormInput.js'));
 const FormSelect = defineAsyncComponent(() => import('../../builder/library/FormSelect.js'));
 const FormButton = defineAsyncComponent(() => import('../../builder/library/FormButton.js'));
+const ChartWidget = defineAsyncComponent(() => import('../../builder/library/ChartWidget.js'));
 
 export default {
   name: '{$this->pascalCase($name)}',
@@ -44,7 +45,8 @@ export default {
     DataTable,
     FormInput,
     FormSelect,
-    FormButton
+    FormButton,
+    ChartWidget
   },
   setup() {
     const loading = ref(false);
@@ -63,6 +65,20 @@ export default {
         loading.value = true;
         // Mock data loading
         setTimeout(() => {
+            data.value = {
+                chartData: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May'],
+                    datasets: [
+                        {
+                            label: 'Sales',
+                            data: [12, 19, 3, 5, 2],
+                            backgroundColor: 'rgba(99, 102, 241, 0.5)',
+                            borderColor: '#6366f1',
+                            borderWidth: 1
+                        }
+                    ]
+                }
+            };
             loading.value = false;
         }, 500);
     };
@@ -133,6 +149,12 @@ VUE;
       case 'data-table':
         //$endpoint = $component['props']['endpoint'] ?? '';
         return "<DataTable :columns=\"[]\" :data=\"[]\" :loading=\"loading\" />";
+      case 'chart-bar':
+        $title = $component['props']['title'] ?? $label;
+        return "<ChartWidget type=\"bar\" title=\"{$title}\" :data=\"data.chartData || {labels:[],datasets:[]}\" :loading=\"loading\" />";
+      case 'chart-line':
+        $title = $component['props']['title'] ?? $label;
+        return "<ChartWidget type=\"line\" title=\"{$title}\" :data=\"data.chartData || {labels:[],datasets:[]}\" :loading=\"loading\" />";
       case 'form':
         return "<form @submit.prevent=\"submitForm\">" . $this->generateLayout(['children' => $component['children'] ?? []]) . "</form>";
       case 'input':

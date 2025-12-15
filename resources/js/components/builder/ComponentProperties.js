@@ -154,6 +154,26 @@ export default {
                     </div>
                 </div>
 
+                <!-- Chart Props -->
+                <div v-if="component.type && component.type.startsWith('chart-')">
+                     <div class="form-group">
+                        <label>Endpoint</label>
+                        <input 
+                            type="text" 
+                             :value="component.props.endpoint"
+                             @input="update('props.endpoint', $event.target.value)"
+                        >
+                    </div>
+                     <div class="form-group">
+                        <label>Title</label>
+                        <input 
+                            type="text" 
+                             :value="component.props.title"
+                             @input="update('props.title', $event.target.value)"
+                        >
+                    </div>
+                </div>
+
             </div>
         </div>
     `,
@@ -198,4 +218,3 @@ export default {
         }
     `
 };
-```

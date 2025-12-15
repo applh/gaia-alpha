@@ -88,7 +88,12 @@ export default {
                                 <a :href="'/page/' + page.slug" target="_blank">{{ page.slug }}</a>
                             </td>
                             <td v-else-if="filterCat === 'template'">{{ page.slug }}</td>
-                            <td v-else-if="filterCat === 'component'">{{ page.name }}</td>
+                            <td v-else-if="filterCat === 'component'">
+                                {{ page.name }} <br>
+                                <a :href="'/component-preview/' + page.view_name" target="_blank" style="font-size: 0.8em; color: var(--accent-color);">
+                                    <LucideIcon name="external-link" size="12"></LucideIcon> App View
+                                </a>
+                            </td>
                             <td>{{ formatDate(page.created_at) }}</td>
                             <td class="actions">
                                 <button v-if="filterCat === 'page' || filterCat === 'template'" @click="editPage(page)" class="btn-small">Edit</button>

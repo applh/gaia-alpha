@@ -242,7 +242,10 @@ const App = {
 
         const onLogin = async (loggedInUser) => {
             store.setUser(loggedInUser);
-            setDefaultView();
+            // Only set default if current view is the default 'todos' or 'login' state (respect deep links)
+            if (!store.state.currentView || store.state.currentView === 'todos' || store.state.currentView === 'login') {
+                setDefaultView();
+            }
         };
 
         const setDefaultView = () => {

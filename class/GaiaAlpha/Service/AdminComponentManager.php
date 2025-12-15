@@ -54,7 +54,7 @@ class AdminComponentManager
         // Also save to file system (Phase 1.3 requirement)
         // clean up view_name to be safe filename
         $filename = preg_replace('/[^a-zA-Z0-9_-]/', '', $component['view_name']) . '.js';
-        $path = __DIR__ . '/../../../../resources/js/components/custom/' . $filename;
+        $path = __DIR__ . '/../../../resources/js/components/custom/' . $filename;
 
         // Ensure directory exists
         if (!is_dir(dirname($path))) {

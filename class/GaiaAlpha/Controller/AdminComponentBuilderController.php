@@ -31,7 +31,8 @@ class AdminComponentBuilderController extends BaseController
         Router::add('PUT', '/@/admin/component-builder/([0-9]+)', [$this, 'handleUpdate']);
         Router::add('DELETE', '/@/admin/component-builder/([0-9]+)', [$this, 'handleDelete']);
         Router::add('POST', '/@/admin/component-builder/([0-9]+)/generate', [$this, 'handleGenerate']);
-        Router::add('POST', '/@/admin/component-builder/([0-9]+)/preview', [$this, 'handlePreview']);
+        Router::add('POST', '/@/admin/component-builder/([0-9]+)/preview', [$this, 'handlePreview']); // Keep logic API
+        Router::add('GET', '/component-preview/([a-zA-Z0-9_-]+)', [$this, 'handlePreviewRender']); // Standalone Viewer
     }
 
     public function handleList()
@@ -39,6 +40,50 @@ class AdminComponentBuilderController extends BaseController
         $this->requireAdmin();
         $components = $this->manager->getComponents();
         $this->jsonResponse($components);
+    }
+
+    // ... (rest of methods)
+
+    public function handlePreviewRender($viewName)
+    {
+        $this->requireAdmin();
+
+        // Sanitize
+        $viewName = preg_replace('/[^a-zA-Z0-9_-]/', '', $viewName);
+
+        // Find component by view_name (inefficiently for now, or assume it exists)
+        // Ideally Manager should have findByViewName
+        $components = $this->manager->getComponents();
+        $component = null;
+        foreach ($components as $c) {
+            if ($c['view_name'] == $viewName) {
+                $component = $c;
+                break;
+            }
+        }
+
+        if (!$component) {
+            // Fallback: maybe passed ID? 
+            $component = $this->manager->getComponent($viewName);
+        }
+
+        if (!$component) {
+            http_response_code(404);
+            echo "Component not found";
+            return;
+        }
+
+        $name = $component['name'];
+        // $viewName is already set
+
+        require __DIR__ . '/../../../templates/component_viewer.php';
+    }
+
+    public function handlePreview($id)
+    {
+        $this->requireAdmin();
+        $component = $this->manager->getComponent($id);
+        $this->jsonResponse(['definition' => json_decode($component['definition'])]);
     }
 
     public function handleGet($id)
@@ -145,14 +190,5 @@ class AdminComponentBuilderController extends BaseController
             ]
         ];
         $this->jsonResponse($templates);
-    }
-
-    public function handlePreview($id)
-    {
-        $this->requireAdmin();
-        // Preview logic - return the definition ?
-        // Or render generic preview
-        $component = $this->manager->getComponent($id);
-        $this->jsonResponse(['definition' => json_decode($component['definition'])]);
     }
 }

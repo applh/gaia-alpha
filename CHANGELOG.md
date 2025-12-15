@@ -1,6 +1,18 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+## [v0.35.0] - 2025-12-15
+### Added
+- **Builder**: Component Preview. Added "App View" link in the CMS to view components in a standalone environment.
+- **Templates**: Component Viewer. Created `component_viewer.php` template for isolated component rendering.
+- **Routing**: Deep Linking. Admin panel now supports URL-based navigation to specific views (e.g., `/?view=component-builder`).
+
+### Fixed
+- **Builder**: Fixed `SyntaxError` in generated components by refactoring `ComponentCodeGenerator` to output standard ES Modules instead of Vue SFCs.
+- **Builder**: Fixed 404 errors in generated components by correcting relative import paths for library components.
+- **Builder**: Fixed duplicate method fatal error in `AdminComponentBuilderController`.
+- **Builder**: Fixed invalid template literal escape sequences in `LayoutCol.js`.
+
 ## [v0.34.0] - 2025-12-15
 ### Added
 - **Admin**: Async Component Builder. Visual drag-and-drop interface for creating custom admin panels without writing code.

@@ -10,38 +10,22 @@ class ComponentCodeGenerator
     $title = $definition['title'];
     $layout = $definition['layout'];
 
-    // Basic template
-    $template = <<<VUE
-<template>
-  <div class="admin-page">
-    <div class="admin-header">
-      <h2 class="page-title">{$title}</h2>
-    </div>
-    <div class="admin-content">
-      <!-- Layout Container -->
-      <div class="component-container">
-        <!-- Components will be rendered here based on layout -->
-        {$this->generateLayout($layout)}
-      </div>
-    </div>
-  </div>
-</template>
-
-<script>
+    // Generate JS Module format compatible with browser ES imports
+    $template = <<<JS
 import { ref, onMounted, defineAsyncComponent } from 'vue';
 
 // Import Library Components
-const StatCard = defineAsyncComponent(() => import('../../builder/library/StatCard.js'));
-const DataTable = defineAsyncComponent(() => import('../../builder/library/DataTable.js'));
-const FormInput = defineAsyncComponent(() => import('../../builder/library/FormInput.js'));
-const FormSelect = defineAsyncComponent(() => import('../../builder/library/FormSelect.js'));
-const FormButton = defineAsyncComponent(() => import('../../builder/library/FormButton.js'));
-const ChartWidget = defineAsyncComponent(() => import('../../builder/library/ChartWidget.js'));
-const LayoutContainer = defineAsyncComponent(() => import('../../builder/library/LayoutContainer.js'));
-const LayoutRow = defineAsyncComponent(() => import('../../builder/library/LayoutRow.js'));
-const LayoutCol = defineAsyncComponent(() => import('../../builder/library/LayoutCol.js'));
-const ActionButton = defineAsyncComponent(() => import('../../builder/library/ActionButton.js'));
-const LinkButton = defineAsyncComponent(() => import('../../builder/library/LinkButton.js'));
+const StatCard = defineAsyncComponent(() => import('../builder/library/StatCard.js'));
+const DataTable = defineAsyncComponent(() => import('../builder/library/DataTable.js'));
+const FormInput = defineAsyncComponent(() => import('../builder/library/FormInput.js'));
+const FormSelect = defineAsyncComponent(() => import('../builder/library/FormSelect.js'));
+const FormButton = defineAsyncComponent(() => import('../builder/library/FormButton.js'));
+const ChartWidget = defineAsyncComponent(() => import('../builder/library/ChartWidget.js'));
+const LayoutContainer = defineAsyncComponent(() => import('../builder/library/LayoutContainer.js'));
+const LayoutRow = defineAsyncComponent(() => import('../builder/library/LayoutRow.js'));
+const LayoutCol = defineAsyncComponent(() => import('../builder/library/LayoutCol.js'));
+const ActionButton = defineAsyncComponent(() => import('../builder/library/ActionButton.js'));
+const LinkButton = defineAsyncComponent(() => import('../builder/library/LinkButton.js'));
 
 export default {
   name: '{$this->pascalCase($name)}',
@@ -58,6 +42,20 @@ export default {
     ActionButton,
     LinkButton
   },
+  template: `
+  <div class="admin-page">
+    <div class="admin-header">
+      <h2 class="page-title">{$title}</h2>
+    </div>
+    <div class="admin-content">
+      <!-- Layout Container -->
+      <div class="component-container">
+        <!-- Components will be rendered here based on layout -->
+        {$this->generateLayout($layout)}
+      </div>
+    </div>
+  </div>
+  `,
   setup() {
     const loading = ref(false);
     
@@ -124,14 +122,7 @@ export default {
     };
   }
 };
-</script>
-
-<style scoped>
-.component-container {
-    padding: 20px;
-}
-</style>
-VUE;
+JS;
 
     return $template;
   }

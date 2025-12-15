@@ -1,11 +1,14 @@
 import { reactive, computed } from 'vue';
 
 // 1. Reactive State
+const params = new URLSearchParams(window.location.search);
+const initialView = params.get('view') || 'todos';
+
 const state = reactive({
     user: null,
     theme: localStorage.getItem('theme') || 'dark', // 'dark' | 'light'
     layout: localStorage.getItem('layout') || 'top', // 'top' | 'side'
-    currentView: 'todos', // 'dashboard', 'users', 'cms', 'map', etc.
+    currentView: initialView, // 'dashboard', 'users', 'cms', 'map', etc.
     loginMode: 'login' // 'login' | 'register'
 });
 

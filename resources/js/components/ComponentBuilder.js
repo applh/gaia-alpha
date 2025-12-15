@@ -438,8 +438,13 @@ export default {
         };
 
         const previewComponent = () => {
-            // Logic to open preview
-            alert('Preview not implemented yet');
+            if (!component.name) {
+                alert('Please give the component a name first.');
+                return;
+            }
+            // Use view_name if available, fallback to name (sanitized)
+            const view = component.view_name || component.name;
+            window.open(`/?view=${view}`, '_blank');
         };
 
         return {

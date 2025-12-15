@@ -10,6 +10,23 @@ class ComponentCodeGenerator
     $title = $definition['title'];
     $layout = $definition['layout'];
 
+    // Scan layout for custom components
+    $customComponents = $this->findCustomComponents($layout);
+
+    // Generate imports for custom components
+    $customImports = "";
+    $customComponentsList = "";
+
+    foreach ($customComponents as $viewName) {
+      $className = $this->pascalCase($viewName);
+      // Note: We assume the generated files exist in defined path
+      // Using relative path from where these components are usually served 
+      // (resources/js/components/custom/*.js) relative to resources/js/components/custom/
+      // Actually, if we are in resources/js/components/custom/, imports are ./ClassName.js
+      $customImports .= "const {$className} = defineAsyncComponent(() => import('./" . preg_replace('/[^a-zA-Z0-9_-]/', '', $viewName) . ".js'));\n";
+      $customComponentsList .= "    {$className},\n";
+    }
+
     // Generate JS Module format compatible with browser ES imports
     $template = <<<JS
 import { ref, onMounted, defineAsyncComponent } from 'vue';
@@ -27,6 +44,9 @@ const LayoutCol = defineAsyncComponent(() => import('../builder/library/LayoutCo
 const ActionButton = defineAsyncComponent(() => import('../builder/library/ActionButton.js'));
 const LinkButton = defineAsyncComponent(() => import('../builder/library/LinkButton.js'));
 
+// Custom Component Imports
+{$customImports}
+
 export default {
   name: '{$this->pascalCase($name)}',
   components: {
@@ -40,7 +60,8 @@ export default {
     LayoutRow,
     LayoutCol,
     ActionButton,
-    LinkButton
+    LinkButton,
+{$customComponentsList}
   },
   template: `
   <div class="admin-page">
@@ -210,6 +231,12 @@ JS;
         $variant = $component['props']['variant'] ?? 'secondary';
         return "<LinkButton label=\"{$label}\" href=\"{$href}\" target=\"{$target}\" variant=\"{$variant}\" />";
       default:
+        // Check for custom component prefix
+        if (strpos($type, 'custom:') === 0) {
+          $viewName = substr($type, 7);
+          $tagName = $this->pascalCase($viewName);
+          return "<{$tagName} />";
+        }
         return "<div class=\"component-{$type}\">Component: {$type} ({$label})</div>";
     }
   }
@@ -227,5 +254,29 @@ JS;
   private function pascalCase($string)
   {
     return str_replace(' ', '', ucwords(str_replace(['-', '_'], ' ', $string)));
+  }
+
+  private function findCustomComponents($layout)
+  {
+    $components = [];
+    $this->traverseLayout($layout, function ($node) use (&$components) {
+      if (isset($node['type']) && strpos($node['type'], 'custom:') === 0) {
+        $viewName = substr($node['type'], 7);
+        if (!in_array($viewName, $components)) {
+          $components[] = $viewName;
+        }
+      }
+    });
+    return $components;
+  }
+
+  private function traverseLayout($node, $callback)
+  {
+    $callback($node);
+    if (isset($node['children']) && is_array($node['children'])) {
+      foreach ($node['children'] as $child) {
+        $this->traverseLayout($child, $callback);
+      }
+    }
   }
 }

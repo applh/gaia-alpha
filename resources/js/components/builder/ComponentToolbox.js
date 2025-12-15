@@ -1,3 +1,5 @@
+import { onMounted, reactive } from 'vue';
+
 export default {
     name: 'ComponentToolbox',
     template: `
@@ -22,7 +24,7 @@ export default {
         </div>
     `,
     setup() {
-        const groups = {
+        const groups = reactive({
             'Data Display': [
                 { type: 'data-table', label: 'Table', icon: 'table' },
                 { type: 'stat-card', label: 'Stat Card', icon: 'info' },
@@ -46,8 +48,29 @@ export default {
                 { type: 'container', label: 'Container', icon: 'box' },
                 { type: 'row', label: 'Row', icon: 'columns' },
                 { type: 'col', label: 'Column', icon: 'layout' }
-            ]
+            ],
+            'Custom': []
+        });
+
+        const fetchCustomComponents = async () => {
+            try {
+                const res = await fetch('/@/admin/component-builder/list');
+                const data = await res.json();
+                if (Array.isArray(data)) {
+                    groups['Custom'] = data.map(c => ({
+                        type: 'custom:' + c.view_name,
+                        label: c.title,
+                        icon: c.icon || 'puzzle'
+                    }));
+                }
+            } catch (e) {
+                console.error('Failed to load custom components', e);
+            }
         };
+
+        onMounted(() => {
+            fetchCustomComponents();
+        });
 
         const startDrag = (event, type) => {
             event.dataTransfer.dropEffect = 'copy';

@@ -39,6 +39,10 @@ export default {
                 { type: 'chart-bar', label: 'Bar Chart', icon: 'bar-chart' },
                 { type: 'chart-line', label: 'Line Chart', icon: 'line-chart' }
             ],
+            'Actions': [
+                { type: 'action-button', label: 'Action Button', icon: 'zap' },
+                { type: 'link-button', label: 'Link Button', icon: 'link' }
+            ],
             'Layout': [
                 { type: 'container', label: 'Container', icon: 'box' },
                 { type: 'row', label: 'Row', icon: 'columns' },

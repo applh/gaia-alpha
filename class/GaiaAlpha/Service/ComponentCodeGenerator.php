@@ -40,6 +40,8 @@ const ChartWidget = defineAsyncComponent(() => import('../../builder/library/Cha
 const LayoutContainer = defineAsyncComponent(() => import('../../builder/library/LayoutContainer.js'));
 const LayoutRow = defineAsyncComponent(() => import('../../builder/library/LayoutRow.js'));
 const LayoutCol = defineAsyncComponent(() => import('../../builder/library/LayoutCol.js'));
+const ActionButton = defineAsyncComponent(() => import('../../builder/library/ActionButton.js'));
+const LinkButton = defineAsyncComponent(() => import('../../builder/library/LinkButton.js'));
 
 export default {
   name: '{$this->pascalCase($name)}',
@@ -52,7 +54,9 @@ export default {
     ChartWidget,
     LayoutContainer,
     LayoutRow,
-    LayoutCol
+    LayoutCol,
+    ActionButton,
+    LinkButton
   },
   setup() {
     const loading = ref(false);
@@ -96,12 +100,27 @@ export default {
         loading.value = false;
         alert('Form submitted! check console');
     };
+
+    const handleAction = async (action) => {
+        console.log('Action Triggered:', action);
+        switch (action) {
+            case 'refresh':
+                await restoreData();
+                break;
+            case 'back':
+                window.history.back();
+                break;
+            default:
+                alert('Action: ' + action);
+        }
+    };
     
     return {
         loading,
         data,
         formData,
-        submitForm
+        submitForm,
+        handleAction
     };
   }
 };
@@ -190,6 +209,15 @@ VUE;
         $btnType = $component['props']['type'] ?? 'button';
         $variant = $component['props']['variant'] ?? 'primary';
         return "<FormButton label=\"{$label}\" type=\"{$btnType}\" variant=\"{$variant}\" :loading=\"loading\" />";
+      case 'action-button':
+        $action = $component['props']['action'] ?? 'refresh';
+        $variant = $component['props']['variant'] ?? 'primary';
+        return "<ActionButton label=\"{$label}\" action=\"{$action}\" variant=\"{$variant}\" @action=\"handleAction\" />";
+      case 'link-button':
+        $href = $component['props']['href'] ?? '#';
+        $target = $component['props']['target'] ?? '_self';
+        $variant = $component['props']['variant'] ?? 'secondary';
+        return "<LinkButton label=\"{$label}\" href=\"{$href}\" target=\"{$target}\" variant=\"{$variant}\" />";
       default:
         return "<div class=\"component-{$type}\">Component: {$type} ({$label})</div>";
     }

@@ -154,6 +154,63 @@ export default {
                     </div>
                 </div>
 
+                <!-- Action Button Props -->
+                <div v-if="component.type === 'action-button'">
+                     <div class="form-group">
+                        <label>Action Name (Event)</label>
+                        <input 
+                            type="text" 
+                             :value="component.props.action"
+                             @input="update('props.action', $event.target.value)"
+                             placeholder="e.g. refresh"
+                        >
+                    </div>
+                     <div class="form-group">
+                        <label>Variant</label>
+                         <select 
+                            :value="component.props.variant || 'primary'"
+                            @change="update('props.variant', $event.target.value)"
+                        >
+                            <option value="primary">Primary</option>
+                            <option value="secondary">Secondary</option>
+                            <option value="danger">Danger</option>
+                            <option value="success">Success</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Link Button Props -->
+                <div v-if="component.type === 'link-button'">
+                     <div class="form-group">
+                        <label>URL</label>
+                        <input 
+                            type="text" 
+                             :value="component.props.href"
+                             @input="update('props.href', $event.target.value)"
+                        >
+                    </div>
+                     <div class="form-group">
+                        <label>Target</label>
+                         <select 
+                            :value="component.props.target || '_self'"
+                            @change="update('props.target', $event.target.value)"
+                        >
+                            <option value="_self">Same Tab</option>
+                            <option value="_blank">New Tab</option>
+                        </select>
+                    </div>
+                     <div class="form-group">
+                        <label>Variant</label>
+                         <select 
+                            :value="component.props.variant || 'secondary'"
+                            @change="update('props.variant', $event.target.value)"
+                        >
+                            <option value="primary">Primary</option>
+                            <option value="secondary">Secondary</option>
+                        </select>
+                    </div>
+                </div>
+
                 <!-- Chart Props -->
                 <div v-if="component.type && component.type.startsWith('chart-')">
                      <div class="form-group">

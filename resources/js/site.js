@@ -15,6 +15,7 @@ const MapPanel = defineAsyncComponent(() => import('./components/MapPanel.js'));
 const ConsolePanel = defineAsyncComponent(() => import('./components/ConsolePanel.js'));
 const ChatPanel = defineAsyncComponent(() => import('./components/ChatPanel.js'));
 const MultiSitePanel = defineAsyncComponent(() => import('./components/MultiSitePanel.js'));
+const ComponentBuilder = defineAsyncComponent(() => import('./components/ComponentBuilder.js'));
 
 const App = {
     components: { Login, LucideIcon: defineAsyncComponent(() => import('./components/Icon.js')) },
@@ -148,7 +149,8 @@ const App = {
                     { label: 'APIs', view: 'api-builder', icon: 'zap' },
                     { label: 'Console', view: 'console', icon: 'terminal' },
                     { label: 'Sites', view: 'sites', icon: 'server' },
-                    { label: 'Site Settings', view: 'site-settings', icon: 'globe' }
+                    { label: 'Site Settings', view: 'site-settings', icon: 'globe' },
+                    { label: 'Component Builder', view: 'component-builder', icon: 'puzzle' }
                 ]
             }
         ];
@@ -196,9 +198,46 @@ const App = {
                 case 'settings': return UserSettings;
                 case 'site-settings': return SiteSettings;
                 case 'sites': return isAdmin.value ? MultiSitePanel : TodoList;
+                case 'component-builder': return isAdmin.value ? ComponentBuilder : TodoList;
                 case 'todos': default: return TodoList;
             }
+            // Check for custom component
+            if (customComponents.value[store.state.currentView]) {
+                return customComponents.value[store.state.currentView];
+            }
+            return TodoList;
         });
+
+        const customComponents = ref({});
+        const loadCustomComponents = async () => {
+            if (!isAdmin.value) return;
+            try {
+                const res = await fetch('/@/admin/component-builder/list');
+                const components = await res.json();
+                if (Array.isArray(components)) {
+                    components.forEach(comp => {
+                        // Dynamic import with Vite/Webpack requires some static part of path
+                        // We assume the generated file is at ./components/custom/{viewName}.js
+                        // Note: view_name in DB should match filename.
+                        // We use name for filename usually.
+                        const name = comp.name.replace(/[^a-zA-Z0-9_-]/g, '');
+                        if (comp.enabled) {
+                            customComponents.value[comp.view_name] = defineAsyncComponent(
+                                () => import(`./components/custom/${name}.js`)
+                            );
+
+                            // Add to menu if not exists
+                            // Ideally we should merge into menuTree but simple append logic for now
+                            // We don't modify menuItems directly as it's static const
+                            // We'll handle this by pushing to a reactive array if we made menuItems reactive
+                            // For now, let's just make the component available for routing.
+                        }
+                    });
+                }
+            } catch (e) {
+                console.error('Failed to load custom components', e);
+            }
+        };
 
         const onLogin = async (loggedInUser) => {
             store.setUser(loggedInUser);
@@ -224,6 +263,9 @@ const App = {
                 if (store.state.currentView === 'todos') { // default
                     setDefaultView();
                 }
+
+                // Load custom components
+                await loadCustomComponents();
             }
         });
 

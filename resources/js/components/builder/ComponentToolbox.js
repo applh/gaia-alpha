@@ -1,0 +1,58 @@
+export default {
+    name: 'ComponentToolbox',
+    template: `
+        <div class="component-toolbox">
+            <h3>Toolbox</h3>
+            
+            <div v-for="(group, name) in groups" :key="name" class="toolbox-group">
+                <h4>{{ name }}</h4>
+                <div class="toolbox-grid">
+                    <div 
+                        v-for="comp in group" 
+                        :key="comp.type" 
+                        class="toolbox-item"
+                        draggable="true"
+                        @dragstart="startDrag($event, comp.type)"
+                        @click="$emit('add-component', comp.type)"
+                    >
+                        <i :class="'icon-' + comp.icon"></i>
+                        <span>{{ comp.label }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `,
+    setup() {
+        const groups = {
+            'Data Display': [
+                { type: 'data-table', label: 'Table', icon: 'table' },
+                { type: 'stat-card', label: 'Stat Card', icon: 'info' },
+                { type: 'data-list', label: 'List', icon: 'list' }
+            ],
+            'Input': [
+                { type: 'form', label: 'Form', icon: 'edit' },
+                { type: 'search-box', label: 'Search', icon: 'search' },
+                { type: 'filter-panel', label: 'Filter', icon: 'filter' } // Fixed: filter-panel from plan
+            ],
+            'Visualization': [
+                { type: 'chart-bar', label: 'Bar Chart', icon: 'bar-chart' },
+                { type: 'chart-line', label: 'Line Chart', icon: 'line-chart' }
+            ],
+            'Layout': [
+                { type: 'container', label: 'Container', icon: 'box' },
+                { type: 'row', label: 'Row', icon: 'columns' }
+            ]
+        };
+
+        const startDrag = (event, type) => {
+            event.dataTransfer.dropEffect = 'copy';
+            event.dataTransfer.effectAllowed = 'copy';
+            event.dataTransfer.setData('component-type', type);
+        };
+
+        return {
+            groups,
+            startDrag
+        };
+    }
+};

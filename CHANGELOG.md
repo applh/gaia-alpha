@@ -1,6 +1,13 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+## [v0.34.0] - 2025-12-15
+### Added
+- **Admin**: Async Component Builder. Visual drag-and-drop interface for creating custom admin panels without writing code.
+- **Admin**: Component Library. Added "Stat Card" and "Data Table" components to the builder library.
+- **Core**: `AdminComponentManager` and `ComponentCodeGenerator` services for generating Vue 3 async components from JSON definitions.
+- **Database**: Added `admin_components`, `versions`, and `permissions` tables.
+
 ## [v0.33.0] - 2025-12-14
 ### Refactored
 - **Database**: Replaced `LoggedPDO` with native `PDO` to fix signature mismatch warnings.

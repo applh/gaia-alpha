@@ -1,6 +1,13 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+## [v0.35.5] - 2025-12-16
+### Fixed
+- **Debug**: Fixed "Missing Debug Info" issue by implementing "Late Injection Strategy" where debug data is injected at the final `Response::flush` (step99).
+- **Debug**: Resolved frontend `SyntaxError` crashes by using a neutral string placeholder (`__GAIA_DEBUG_DATA_PLACEHOLDER__`) fallback.
+- **Buffers**: Fixed empty response issues by forcing `ob_start()` in `Response::startBuffer`, correcting conflicts with PHP's default output buffering.
+- **Buffers**: Refactored `App::run` to use `Response::startBuffer` (step01) and `Response::flush` (step99) as formal framework tasks.
+
 ## [v0.35.4] - 2025-12-15
 ### Added
 - **Debug**: Enhanced Debug Toolbar with "Network" tab to monitor background JSON/AJAX requests.

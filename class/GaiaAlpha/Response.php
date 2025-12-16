@@ -11,27 +11,65 @@ class Response
      * @param int $status HTTP status code
      * @param bool $exit Whether to exit script execution
      */
-    public static function json($data, int $status = 200, bool $exit = true)
+    /**
+     * Send a JSON response
+     * 
+     * @param mixed $data Data to encode
+     * @param int $status HTTP status code
+     * @param bool $exit Deprecated: Whether to exit (ignored, framework handles lifecycle)
+     */
+    public static function json($data, int $status = 200, bool $exit = false)
     {
         // Allow plugins to modify response data or status
-        // Pass by reference so they can be modified
         $context = [
             'data' => &$data,
             'status' => &$status
         ];
 
-        // Hook to modify data and status before JSON encoding
+        // Hook to modify data vs status
         Hook::run('response_json_before', $context);
-
-        // Notify that we are about to send response
-        Hook::run('response_send_before', $data, $status);
 
         http_response_code($status);
         header('Content-Type: application/json');
         echo json_encode($data);
 
-        if ($exit) {
-            exit;
+        // We do NOT exit here anymore. We return control to framework.
+    }
+
+    /**
+     * Send final response content
+     * Called by App::run at the end of lifecycle
+     */
+    public static function send($content)
+    {
+        // Hook for global modification (e.g. Debug Headers, Compression)
+        $context = ['content' => &$content];
+        Hook::run('response_send', $context);
+
+        echo $content;
+    }
+
+    /**
+     * Start Output Buffering
+     * Used as a Framework Task (step01)
+     */
+    public static function startBuffer()
+    {
+        // Always start our own buffer to capture framework output reliably
+        ob_start();
+    }
+
+    /**
+     * Flush output buffer and send response
+     * Used as a Framework Task (step99)
+     */
+    public static function flush()
+    {
+        $content = ob_get_clean();
+
+        if ($content === false) {
+            $content = '';
         }
+        self::send($content);
     }
 }

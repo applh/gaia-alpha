@@ -35,6 +35,8 @@ class Framework
 
     public static function loadControllers()
     {
+        Hook::run('framework_load_controllers_before');
+
         $rootDir = Env::get('root_dir');
         // Dynamically Init Controllers
         $controllers = [];
@@ -44,6 +46,9 @@ class Framework
                 continue;
 
             $key = strtolower(str_replace('Controller', '', $filename));
+
+            Debug::startTask("load_ctrl_$key", "Load $filename");
+
             $className = "GaiaAlpha\\Controller\\$filename";
 
             if (class_exists($className)) {
@@ -57,9 +62,12 @@ class Framework
 
                 $controllers[$key] = $controller;
             }
+
+            Debug::endTask("load_ctrl_$key", "Load $filename");
         }
 
         Env::set('controllers', $controllers);
+        Hook::run('framework_load_controllers_after', $controllers);
     }
 
     public static function sortControllers()

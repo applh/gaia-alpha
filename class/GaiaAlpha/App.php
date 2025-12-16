@@ -8,8 +8,6 @@ class App
 {
     public static function run()
     {
-        Debug::init();
-
         register_shutdown_function(function () {
             Hook::run('app_terminate');
         });
@@ -60,6 +58,8 @@ class App
 
         Env::set('controllers', []);
         Env::set('framework_tasks', [
+            "step00" => "GaiaAlpha\\Debug::init",
+            "step01" => "GaiaAlpha\\Response::startBuffer",
             "step05" => "GaiaAlpha\\Framework::loadPlugins",
             "step06" => "GaiaAlpha\\Framework::appBoot",
             "step10" => "GaiaAlpha\\Framework::loadControllers",
@@ -67,6 +67,7 @@ class App
             "step15" => "GaiaAlpha\\Framework::registerRoutes",
             "step18" => "GaiaAlpha\\Controller\\InstallController::checkInstalled",
             "step20" => "GaiaAlpha\\Router::handle",
+            "step99" => "GaiaAlpha\\Response::flush",
         ]);
 
         // load my-config.php
@@ -99,6 +100,7 @@ class App
         \GaiaAlpha\SiteManager::resolve();
 
         Env::set('framework_tasks', [
+            "step00" => "GaiaAlpha\\Debug::init",
             "step05" => "GaiaAlpha\\Framework::loadPlugins",
             "step06" => "GaiaAlpha\\Framework::appBoot",
             "step10" => "GaiaAlpha\\Cli::run"

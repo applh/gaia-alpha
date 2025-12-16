@@ -275,21 +275,30 @@ const DebugToolbar = {
             document.head.appendChild(style);
         }
 
-        // Make data reactive to handle injected array pushes
-        const data = Vue.reactive(window.GAIA_DEBUG_DATA || {
+        // Safe access to global data, with fallback if replacement failed
+        let initialData = window.GAIA_DEBUG_DATA;
+
+        const defaultData = {
             queries: [],
             tasks: [],
+            route: {},
+            memory: { current: 0, peak: 0, start: 0 },
             time: { total: 0, start: 0 },
-            memory: { peak: 0, current: 0, start: 0 },
             post: {},
             get: {},
             user: { username: 'Guest', level: 0 }
-        });
+        };
 
+        // If placeholder wasn't replaced (e.g. non-admin or error), use default
+        if (!initialData || typeof initialData !== 'object' || initialData === '__GAIA_DEBUG_DATA_PLACEHOLDER__') {
+            initialData = defaultData;
+        }
+
+        const data = Vue.reactive(initialData);
         const requests = Vue.reactive([]);
-        const isMinimized = Vue.ref(true);
+        const visible = Vue.ref(true);
+        const isMinimized = Vue.ref(localStorage.getItem('gaia_debug_minimized') === 'true');
         const currentTab = Vue.ref('queries');
-        const visible = Vue.ref(!!window.GAIA_DEBUG_DATA);
 
         // Intercept Fetch
         const originalFetch = window.fetch;

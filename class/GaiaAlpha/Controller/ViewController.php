@@ -84,19 +84,16 @@ class ViewController extends BaseController
             return $content;
         }
 
-        $debugData = \GaiaAlpha\Debug::getData();
-        $jsonData = json_encode($debugData);
-
         $vueUrl = \GaiaAlpha\Asset::url('/js/vendor/vue.esm-browser.js');
-        // Ensure component is accessible via asset pipeline
-        // Note: AssetController needs to serve this. 
-        // Assuming /min/js/components/DebugToolbar.js maps to resources/js/components/DebugToolbar.js
         $componentUrl = \GaiaAlpha\Asset::url('/js/components/DebugToolbar.js');
 
+        // Use placeholder for late injection (handled by Debug::injectHeader via response_send hook)
+        // This ensures all tasks (including step99 flush) are captured.
+        // Using a valid JS string prevents SyntaxError if replacement fails.
         $toolbarScript = <<<HTML
 <div id="gaia-debug-root" style="position:fixed;bottom:0;left:0;right:0;z-index:99999;"></div>
 <script>
-    window.GAIA_DEBUG_DATA = $jsonData;
+    window.GAIA_DEBUG_DATA = "__GAIA_DEBUG_DATA_PLACEHOLDER__";
 </script>
 <script type="module">
     import { createApp } from '$vueUrl';

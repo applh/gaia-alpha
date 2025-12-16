@@ -67,19 +67,27 @@ define('GAIA_DB_DSN', 'sqlite:' . GAIA_DB_PATH);
 1. **Request**: All requests to non-static files are routed to `www/index.php`.
 2. **Bootstrap**: 
    - `index.php` loads `autoload.php`.
-   - Calls `App::web_setup(__DIR__)`:
-     - Sets up `Env` variables (`root_dir`,Paths).
+   - Calls `App::web_setup(__DIR__)` (or `cli_setup`):
+     - Sets up `Env` variables (`root_dir`, Paths).
      - Loads `my-config.php`.
-     - Defines framework tasks.
-3. **Execution (`App::run()`)**:
-   - Iterates through defined tasks:
-     - `Framework::loadControllers`: Dynamically instantiates controllers.
-     - `Framework::registerRoutes`: Collects routes from all controllers.
-     - `Router::handle`: Dispatches the request to the matching handler.
-4. **Routing**:
-   - **API Requests**: `/api/...` -> Mapped Controller Method.
-   - **Media Requests**: `/media/{userId}/{filename}` -> `MediaController`.
-   - **Page Requests**: Default -> Renders templates (Vue App host).
+     - Defines generic steps in `framework_tasks`.
+3. **Task Execution (`App::run()`)**:
+   - The framework iterates through the configured `framework_tasks` array.
+   - **Step 00**: `Debug::init` (Starts timing and memory tracking).
+   - **Step 01**: `Response::startBuffer` (Starts robust output buffering).
+   - **Step 05**: `Framework::loadPlugins` (Loads active plugins).
+   - **Step 06**: `Framework::appBoot` (Generic boot hook).
+   - **Step 10**: `Framework::loadControllers` (Instantiates controllers).
+   - **Step 12**: `Framework::sortControllers` (Prioritizes routes by Rank).
+   - **Step 15**: `Framework::registerRoutes` (Registers routes to Router).
+   - **Step 18**: `InstallController::checkInstalled` (Redirects if not installed).
+   - **Step 20**: `Router::handle` (Dispatches request to controller).
+   - **Step 99**: `Response::flush` (Captures buffer and sends response).
+4. **Output Buffering**:
+   - We strictly enforce output buffering via `Response::startBuffer`.
+   - This prevents premature output (e.g. from `echo`) from breaking header injection.
+   - It allows plugins to modify the full response body via the `response_send` hook.
+   - Buffering is DISABLED for CLI commands to allow real-time feedback.
 
 ## Routing Strategy
 The framework employs a two-tiered strategy to manage route priority and prevent conflicts between API endpoints and frontend "catch-all" routes.

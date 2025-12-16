@@ -10,6 +10,7 @@ class Debug
     private static $timers = [];
     private static $memoryStart = 0;
     private static $startTime = 0;
+    private static $currentTask = null;
 
     public static function init()
     {
@@ -20,10 +21,15 @@ class Debug
         Hook::add('router_matched', [self::class, 'captureRoute']);
         Hook::add('app_task_before', [self::class, 'startTask']);
         Hook::add('app_task_after', [self::class, 'endTask']);
-        Hook::add('response_send_before', [self::class, 'injectHeader']);
+        Hook::add('response_send', [self::class, 'injectHeader']);
     }
 
-    public static function injectHeader($data, $status)
+    /**
+     * Injects Debug Header or Replaces Body Placeholder
+     * 
+     * @param array|null $context Context array with content reference (e.g. ['content' => &$content])
+     */
+    public static function injectHeader($context = null)
     {
         // Only inject for Admins
         if (session_status() == PHP_SESSION_NONE) {
@@ -36,26 +42,41 @@ class Debug
 
         $debugData = self::getData();
 
-        // Strip traces to reduce header size
-        foreach ($debugData['queries'] as &$query) {
+        // Strip traces to reduce header size for X-Gaia-Debug
+        $headerData = $debugData;
+        foreach ($headerData['queries'] as &$query) {
             unset($query['trace']);
         }
 
-        $json = json_encode($debugData);
+        $json = json_encode($headerData);
         // Ensure valid header value (no newlines)
         $json = str_replace(["\r", "\n"], '', $json);
 
         header('X-Gaia-Debug: ' . $json);
+
+        // If content is passed (from Response::send hook), replace placeholder
+        if (is_array($context) && isset($context['content'])) {
+            $fullJson = json_encode($debugData);
+
+            // Modify content reference inside array
+            // Replace the string literal placeholder with the JSON object
+            $search = '"__GAIA_DEBUG_DATA_PLACEHOLDER__"';
+            if (strpos($context['content'], $search) !== false) {
+                $context['content'] = str_replace($search, $fullJson, $context['content']);
+            }
+        }
     }
 
     public static function startTask($step, $task)
     {
+        self::$currentTask = ['step' => $step, 'task' => $task];
         self::startTimer('task_' . $step);
     }
 
     public static function endTask($step, $task)
     {
         $duration = self::endTimer('task_' . $step);
+        self::$currentTask = null;
 
         $taskName = is_string($task) ? $task : (is_array($task) ? (is_object($task[0]) ? get_class($task[0]) : $task[0]) . '::' . $task[1] : 'Closure');
 
@@ -101,9 +122,37 @@ class Debug
 
     public static function getData()
     {
+        $tasks = self::$tasks;
+
+        // If there is a currently running task, append it as active
+        if (self::$currentTask) {
+            $step = self::$currentTask['step'];
+            $task = self::$currentTask['task'];
+
+            // Calculate elapsed time so far
+            $duration = 0;
+            if (isset(self::$timers['task_' . $step])) {
+                $duration = microtime(true) - self::$timers['task_' . $step];
+            }
+
+            $taskName = is_string($task) ? $task : (is_array($task) ? (is_object($task[0]) ? get_class($task[0]) : $task[0]) . '::' . $task[1] : 'Closure');
+
+            // If the active task is the flush task, don't mark it as active (visual polish)
+            $suffix = ' (active)';
+            if (strpos($taskName, 'Response::flush') !== false) {
+                $suffix = '';
+            }
+
+            $tasks[] = [
+                'step' => $step,
+                'task' => $taskName . $suffix,
+                'duration' => $duration
+            ];
+        }
+
         return [
             'queries' => self::$queries,
-            'tasks' => self::$tasks,
+            'tasks' => $tasks,
             'route' => self::$route,
             'memory' => [
                 'current' => memory_get_usage(),

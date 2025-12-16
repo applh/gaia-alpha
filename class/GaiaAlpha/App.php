@@ -121,6 +121,37 @@ class App
 
     public static function registerAutoloaders()
     {
+        // 1. Core Framework Autoloader
+        spl_autoload_register(function ($class) {
+            // Check if class starts with GaiaAlpha\
+            if (strpos($class, 'GaiaAlpha\\') === 0) {
+                // Map GaiaAlpha\Foo -> class/GaiaAlpha/Foo.php
+                // Note: The file passed to spl_autoload might be relative or absolute, 
+                // but let's assume we are running from root or have defined root.
+                // Actually, App.php is in class/GaiaAlpha/App.php. 
+                // dirname(__DIR__) is class/GaiaAlpha.
+                // dirname(dirname(__DIR__)) is root/class.
+
+                // Let's rely on standard logic independent of cwd if possible, 
+                // but using __DIR__ inside App.php is safest.
+
+                // Class: GaiaAlpha\Sub\Foo
+                // Path: .../class/GaiaAlpha/Sub/Foo.php
+
+                $baseDir = dirname(__DIR__) . '/'; // .../class/GaiaAlpha/
+
+                // Remove prefix 'GaiaAlpha\'
+                $relativeClass = substr($class, 11);
+
+                $file = $baseDir . str_replace('\\', '/', $relativeClass) . '.php';
+
+                if (file_exists($file)) {
+                    require $file;
+                }
+            }
+        });
+
+        // 2. Plugins Autoloader
         spl_autoload_register(function ($class) {
             // Top-level namespace is the plugin name
             $parts = explode('\\', $class);

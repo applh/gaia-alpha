@@ -1,7 +1,8 @@
 <?php
 
-// add class autoloading
-require_once __DIR__ . '/class/autoload.php';
+// Bootstrap manually since we removed autoload.php
+require_once __DIR__ . '/class/GaiaAlpha/App.php';
+\GaiaAlpha\App::registerAutoloaders();
 
 // start the application
 \GaiaAlpha\App::web_setup(__DIR__);

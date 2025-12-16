@@ -197,7 +197,14 @@ $latestPages = \GaiaAlpha\Model\Page::getLatestPublic(3);
     <div class="hero-bg"></div>
     <div class="hero-content">
         <?php if ($page && !empty($page['content'])): ?>
-            <?= $page['content'] ?>
+            <?php
+            if (isset($page['content_format']) && $page['content_format'] === 'markdown') {
+                $parsedown = new \GaiaAlpha\Helper\Parsedown();
+                echo $parsedown->text($page['content']);
+            } else {
+                echo $page['content'];
+            }
+            ?>
         <?php else: ?>
             <h1 class="hero-title">The Operating System for Your Digital Enterprise</h1>
             <p class="hero-subtitle">Unified, scalable, and secure. Gaia Alpha empowers your team to build, manage, and

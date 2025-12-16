@@ -78,6 +78,10 @@ class PublicController extends BaseController
             $html .= ob_get_clean();
 
             $page['content'] = $html;
+            $page['content'] = $html;
+        } elseif (isset($page['content_format']) && $page['content_format'] === 'markdown') {
+            $parsedown = new \GaiaAlpha\Helper\Parsedown();
+            $page['content'] = $parsedown->text($content);
         }
         // Else: Content is already HTML string, use as is.
 

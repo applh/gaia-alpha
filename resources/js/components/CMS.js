@@ -238,11 +238,21 @@ export default {
                             <SlotEditor v-else v-model="form.content" />
                         </div>
                         <div class="form-group" v-else>
-                            <label>Content <button type="button" @click="useBuilder = true" class="btn-xs" v-if="isStructured">Switch to Visual</button></label>
+                            <label>
+                                Content 
+                                <span style="float: right; font-weight: normal; font-size: 0.8em; display: flex; align-items: center; gap: 5px;">
+                                    Format:
+                                    <select v-model="form.content_format" style="padding: 2px 5px; background: #333; color: white; border: 1px solid #444; border-radius: 4px;">
+                                        <option value="html">HTML</option>
+                                        <option value="markdown">Markdown</option>
+                                    </select>
+                                    <button type="button" @click="useBuilder = true" class="btn-xs" v-if="isStructured">Switch to Visual</button>
+                                </span>
+                            </label>
                             <div class="editor-toolbar">
                                  <button type="button" @click="openSelector('content')" class="btn-small">Insert Image in Content</button>
                             </div>
-                            <textarea v-model="form.content" rows="10" placeholder="Page content (HTML allowed)"></textarea>
+                            <textarea v-model="form.content" rows="10" :placeholder="form.content_format === 'markdown' ? 'Write in Markdown...' : 'Page content (HTML allowed)'"></textarea>
                         </div>
                     </template>
                     <div class="form-actions">
@@ -309,6 +319,7 @@ export default {
             slug: '',
             image: '',
             content: '',
+            content_format: 'html',
             cat: 'page',
             template_slug: ''
         });
@@ -399,7 +410,7 @@ export default {
         };
 
         const openCreate = async () => {
-            Object.assign(form, { id: null, title: '', slug: '', image: '', content: '', cat: 'page', template_slug: '' });
+            Object.assign(form, { id: null, title: '', slug: '', image: '', content: '', content_format: 'html', cat: 'page', template_slug: '' });
             if (filterCat.value === 'page') {
                 await fetchTemplatesList();
             }
@@ -413,6 +424,7 @@ export default {
 
         const editPage = async (page) => {
             Object.assign(form, page);
+            if (!form.content_format) form.content_format = 'html';
             if (!form.template_slug) form.template_slug = '';
 
             // Infer Template Mode

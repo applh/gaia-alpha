@@ -230,6 +230,13 @@ JS;
         $target = $component['props']['target'] ?? '_self';
         $variant = $component['props']['variant'] ?? 'secondary';
         return "<LinkButton label=\"{$label}\" href=\"{$href}\" target=\"{$target}\" variant=\"{$variant}\" />";
+      case 'markdown':
+        $content = $component['props']['content'] ?? '';
+        $parsedown = new \GaiaAlpha\Helper\Parsedown();
+        $html = $parsedown->text($content);
+        // Escape backticks and template literals for Vue template string compatibility
+        $html = str_replace(['`', '${'], ['\`', '\${'], $html);
+        return "<div class=\"markdown-content\">{$html}</div>";
       default:
         // Check for custom component prefix
         if (strpos($type, 'custom:') === 0) {

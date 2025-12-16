@@ -285,6 +285,10 @@ HTML;
                 if ($src)
                     $html .= "<img src='{$src}' loading='lazy' style='max-width:100%;' />";
                 break;
+            case 'markdown':
+                $parsedown = new \GaiaAlpha\Helper\Parsedown();
+                $html .= "<div class='markdown-content'>" . $parsedown->text($content) . "</div>";
+                break;
             default:
                 break;
         }
@@ -347,6 +351,10 @@ HTML;
                     $html .= "<img src='{$src}' loading='lazy' />";
                 else
                     $html .= "<div style='background:#eee; padding:20px; text-align:center'>Image Placeholder</div>";
+                break;
+            case 'markdown':
+                $parsedown = new \GaiaAlpha\Helper\Parsedown();
+                $html .= "<div class='markdown-content'>" . $parsedown->text($content) . "</div>";
                 break;
             default:
                 break;

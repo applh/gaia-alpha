@@ -49,6 +49,10 @@ To add a new component (e.g., `VideoPlayer`) to the builder:
      ```php
      case 'video-player':
          return "<VideoPlayer src=\"{$props['src']}\" />";
+     case 'markdown':
+         $parsedown = new \GaiaAlpha\Helper\Parsedown();
+         $html = $parsedown->text($component['props']['content']);
+         return "<div class=\"markdown-content\">{$html}</div>";
      ```
 
 ## Code Generation Logic

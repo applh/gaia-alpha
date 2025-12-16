@@ -48,9 +48,8 @@
                 onMounted(async () => {
                     try {
                         // Dynamic import of the component
-                        // We assume the component is located in /resources/js/components/custom/
                         // The backend must ensure this file exists
-                        const module = await import('<?= \GaiaAlpha\Asset::url("/js/components/custom/{$viewName}.js") ?>');
+                        const module = await import('<?= \GaiaAlpha\Asset::url("/js/components/custom/{$viewName}.js") ?>?t=' + Date.now());
                         component.value = module.default || module;
                     } catch (e) {
                         console.error(e);

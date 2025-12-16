@@ -83,6 +83,14 @@ export default {
                 children.push(h('div', { class: 'empty-placeholder' }, 'Drop components here'));
             }
 
+            // Markdown Preview
+            if (node.type === 'markdown') {
+                children.push(h('div', { class: 'markdown-preview' }, [
+                    h('div', { class: 'markdown-label' }, 'Markdown Content:'),
+                    h('pre', { class: 'markdown-content' }, node.props.content || '(Empty Markdown)')
+                ]));
+            }
+
             return h('div', nodeProps, [
                 h('div', { class: 'node-label' }, node.label || node.type),
                 h('div', { class: 'node-content' }, children)
@@ -145,6 +153,23 @@ export default {
         }
         .node-col {
             flex: 1; /* Default flex behavior for canvas */
+        }
+        .markdown-preview {
+            padding: 10px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 4px;
+        }
+        .markdown-label {
+            font-size: 0.7rem;
+            color: #718096;
+            margin-bottom: 5px;
+        }
+        .markdown-content {
+            font-family: monospace;
+            white-space: pre-wrap;
+            color: #e2e8f0;
+            font-size: 0.85rem;
+            margin: 0;
         }
     `
 };

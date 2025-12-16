@@ -50,6 +50,19 @@ export default {
                     </div>
                 </div>
 
+                <!-- Markdown Props -->
+                <div v-if="component.type === 'markdown'">
+                     <div class="form-group">
+                        <label>Content (Markdown)</label>
+                        <textarea 
+                             :value="component.props.content"
+                             @input="update('props.content', $event.target.value)"
+                             rows="10"
+                             placeholder="# Hello World"
+                        ></textarea>
+                    </div>
+                </div>
+
                 <!-- Form Props -->
                 <div v-if="component.type === 'form'">
                      <div class="form-group">

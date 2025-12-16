@@ -43,7 +43,8 @@ export default {
             'Data Display': [
                 { type: 'data-table', label: 'Table', icon: 'table' },
                 { type: 'stat-card', label: 'Stat Card', icon: 'info' },
-                { type: 'data-list', label: 'List', icon: 'list' }
+                { type: 'data-list', label: 'List', icon: 'list' },
+                { type: 'markdown', label: 'Markdown', icon: 'file-text' }
             ],
             'Input': [
                 { type: 'form', label: 'Form Container', icon: 'check-square' },

@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 - **CMS**: Markdown Support. Pages can now be written in Markdown format.
 - **CMS**: Editor "Format" selector (HTML vs Markdown).
 - **Library**: Integrated `Parsedown` for server-side Markdown rendering.
+- **Builder**: Added "Markdown" component to Component Builder with live preview and static generation support.
 
 ## [v0.37.0] - 2025-12-16
 ### Added

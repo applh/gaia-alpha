@@ -18,10 +18,117 @@ const MultiSitePanel = defineAsyncComponent(() => import('./components/MultiSite
 const ComponentBuilder = defineAsyncComponent(() => import('./components/ComponentBuilder.js'));
 const PluginsAdmin = defineAsyncComponent(() => import('./components/PluginsAdmin.js'));
 
+const ToastContainer = {
+    setup() {
+        onMounted(() => {
+            if (!document.getElementById('toast-styles')) {
+                const style = document.createElement('style');
+                style.id = 'toast-styles';
+                style.textContent = `
+                    .toast-container {
+                        position: fixed;
+                        top: 20px;
+                        left: 20px;
+                        z-index: 2147483647;
+                        display: flex;
+                        flex-direction: column;
+                        gap: 10px;
+                        pointer-events: none;
+                    }
+                    .toast {
+                        pointer-events: auto;
+                        background: var(--bg-card);
+                        color: var(--text-main);
+                        border: 1px solid var(--border-color);
+                        border-left: 4px solid var(--primary-color);
+                        padding: 12px 16px;
+                        border-radius: 6px;
+                        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                        display: flex;
+                        align-items: flex-start;
+                        gap: 12px;
+                        min-width: 300px;
+                        max-width: 400px;
+                        animation: slideIn 0.3s ease;
+                    }
+                    .toast.success { 
+                        background: var(--success-color, #10b981); 
+                        color: #fff; 
+                        border-left: none; 
+                        border: 1px solid rgba(255,255,255,0.1);
+                    }
+                    .toast.error { 
+                        background: var(--error-color, #ef4444); 
+                        color: #fff; 
+                        border-left: none;
+                        border: 1px solid rgba(255,255,255,0.1);
+                    }
+                    .toast.info { 
+                        background: var(--info-color, #3b82f6); 
+                        color: #fff; 
+                        border-left: none;
+                        border: 1px solid rgba(255,255,255,0.1);
+                    }
+                    
+                    /* Adjust close button for colored backgrounds */
+                    .toast.success .toast-close,
+                    .toast.error .toast-close,
+                    .toast.info .toast-close {
+                        color: rgba(255,255,255,0.8);
+                    }
+                    .toast.success .toast-close:hover,
+                    .toast.error .toast-close:hover,
+                    .toast.info .toast-close:hover {
+                        color: #fff;
+                    }
+                    
+                    .toast-message {
+                        flex: 1;
+                        font-size: 0.95rem;
+                        line-height: 1.4;
+                    }
+                    .toast-close {
+                        background: none;
+                        border: none;
+                        color: var(--text-muted);
+                        font-size: 1.2rem;
+                        line-height: 1;
+                        cursor: pointer;
+                        padding: 0;
+                        opacity: 0.7;
+                    }
+                    .toast-close:hover { opacity: 1; }
+
+                    @keyframes slideIn {
+                        from { transform: translateX(-100%); opacity: 0; }
+                        to { transform: translateX(0); opacity: 1; }
+                    }
+                    .toast-enter-active, .toast-leave-active { transition: all 0.3s ease; }
+                    .toast-enter-from, .toast-leave-to { opacity: 0; transform: translateX(-30px); }
+                `;
+                document.head.appendChild(style);
+            }
+        });
+        return { store };
+    },
+    template: `
+        <div class="toast-container">
+            <transition-group name="toast">
+                <div v-for="note in store.state.notifications" :key="note.id" class="toast" :class="note.type">
+                    <div class="toast-message">{{ note.message }}</div>
+                    <button class="toast-close" @click="store.removeNotification(note.id)">×</button>
+                </div>
+            </transition-group>
+        </div>
+    `,
+    // styles injected in setup
+};
+
 const App = {
-    components: { Login, LucideIcon: defineAsyncComponent(() => import('./components/Icon.js')) },
+    components: { Login, ToastContainer, LucideIcon: defineAsyncComponent(() => import('./components/Icon.js')) },
     template: `
         <div class="app-container">
+            <ToastContainer />
             <header>
                 <a href="/" style="text-decoration: none; color: inherit; display:flex; align-items:center;">
                     <img v-if="siteLogo" :src="siteLogo" :alt="siteTitle" style="height: 28px; margin-right: 10px;">
@@ -127,11 +234,11 @@ const App = {
             isMobile.value = window.innerWidth <= 768;
         });
 
-        const menuItems = [
+        const baseMenuItems = [
             { label: 'Dashboard', view: 'dashboard', icon: 'layout-dashboard', adminOnly: true },
             {
                 label: 'Projects', icon: 'check-square', id: 'grp-projects', children: [
-                    { label: 'Tasks', view: 'todos', icon: 'list-todo' },
+                    // { label: 'Tasks', view: 'todos', icon: 'list-todo' }, // Moved to Plugin
                     { label: 'Chat', view: 'chat', icon: 'message-square' },
                 ]
             },
@@ -159,7 +266,27 @@ const App = {
 
         const menuTree = computed(() => {
             const admin = isAdmin.value;
-            return menuItems.map(item => {
+            const dynamicItems = (store.state.user && store.state.user.menu_items) ? store.state.user.menu_items : [];
+
+            // Deep clone base items to avoid mutation issues
+            let items = JSON.parse(JSON.stringify(baseMenuItems));
+
+            // Merge dynamic items
+            dynamicItems.forEach(dItem => {
+                const existingIndex = items.findIndex(i => i.id === dItem.id || i.label === dItem.label);
+                if (existingIndex > -1) {
+                    // Merge children
+                    if (dItem.children) {
+                        if (!items[existingIndex].children) items[existingIndex].children = [];
+                        items[existingIndex].children.push(...dItem.children);
+                    }
+                } else {
+                    // Add new item
+                    items.push(dItem);
+                }
+            });
+
+            return items.map(item => {
                 if (item.adminOnly && !admin) return null;
 
                 if (item.children) {
@@ -187,7 +314,7 @@ const App = {
         const currentComponent = computed(() => {
             if (!store.state.user) return Login;
             switch (store.state.currentView) {
-                case 'dashboard': return isAdmin.value ? AdminDashboard : TodoList;
+                case 'dashboard': return isAdmin.value ? AdminDashboard : TodoList; // Fallback to TodoList for non-admin on dashboard? Should probably be dynamic too.
                 case 'users': return isAdmin.value ? UsersAdmin : TodoList;
                 case 'cms': return CMS;
                 case 'cms-templates': return CMS;
@@ -203,13 +330,19 @@ const App = {
                 case 'sites': return isAdmin.value ? MultiSitePanel : TodoList;
                 case 'component-builder': return isAdmin.value ? ComponentBuilder : TodoList;
                 case 'plugins': return isAdmin.value ? PluginsAdmin : TodoList;
-                case 'todos': default: return TodoList;
+
+                case 'todos': return TodoList;
             }
             // Check for custom component
             if (customComponents.value[store.state.currentView]) {
                 return customComponents.value[store.state.currentView];
             }
-            return TodoList;
+
+            // Default / Not Found
+            return {
+                template: `<div class="admin-page"><div class="admin-card"><h2>Page Not Found</h2><p>The requested view "{{view}}" does not exist or you do not have permission.</p></div></div>`,
+                setup() { return { view: store.state.currentView } }
+            };
         });
 
         const customComponents = ref({});
@@ -254,8 +387,19 @@ const App = {
         const setDefaultView = () => {
             if (isAdmin.value) {
                 store.setView('dashboard');
+                return;
+            }
+
+            // Fallback to first available item in menu
+            if (menuTree.value.length > 0) {
+                const first = menuTree.value[0];
+                if (first.children && first.children.length > 0) {
+                    store.setView(first.children[0].view);
+                } else {
+                    store.setView(first.view);
+                }
             } else {
-                store.setView('todos');
+                store.setView('settings'); // Absolute fallback if menu is empty
             }
         };
 
@@ -267,7 +411,7 @@ const App = {
             const loggedIn = await store.checkSession();
             if (loggedIn) {
                 // If we are on login screen but have session, go to default app view
-                if (store.state.currentView === 'todos') { // default
+                if (!store.state.currentView || store.state.currentView === 'todos' || store.state.currentView === 'login') {
                     setDefaultView();
                 }
 

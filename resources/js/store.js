@@ -2,14 +2,15 @@ import { reactive, computed } from 'vue';
 
 // 1. Reactive State
 const params = new URLSearchParams(window.location.search);
-const initialView = params.get('view') || 'todos';
+const initialView = params.get('view') || '';
 
 const state = reactive({
     user: null,
     theme: localStorage.getItem('theme') || 'dark', // 'dark' | 'light'
     layout: localStorage.getItem('layout') || 'top', // 'top' | 'side'
     currentView: initialView, // 'dashboard', 'users', 'cms', 'map', etc.
-    loginMode: 'login' // 'login' | 'register'
+    loginMode: 'login', // 'login' | 'register'
+    notifications: [] // Array of { id, message, type='info'|'success'|'error', duration }
 });
 
 // 2. Computed Getters
@@ -100,6 +101,24 @@ const checkSession = async () => {
     return false;
 };
 
+const addNotification = (message, type = 'info', duration = 3000) => {
+    const id = Date.now() + Math.random();
+    state.notifications.push({ id, message, type });
+    if (duration > 0) {
+        setTimeout(() => {
+            removeNotification(id);
+        }, duration);
+    }
+    return id; // In case caller wants to remove manually
+};
+
+const removeNotification = (id) => {
+    const index = state.notifications.findIndex(n => n.id === id);
+    if (index !== -1) {
+        state.notifications.splice(index, 1);
+    }
+};
+
 const logout = async () => {
     try {
         await fetch('/@/logout', { method: 'POST' });
@@ -124,5 +143,7 @@ export const store = {
     setLoginMode,
     checkSession,
     logout,
-    savePreference
+    savePreference,
+    addNotification,
+    removeNotification
 };

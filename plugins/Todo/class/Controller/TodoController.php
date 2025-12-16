@@ -1,8 +1,9 @@
 <?php
 
-namespace GaiaAlpha\Controller;
+namespace Todo\Controller;
 
-use GaiaAlpha\Model\Todo;
+use GaiaAlpha\Controller\BaseController;
+use Todo\Model\Todo;
 
 class TodoController extends BaseController
 {

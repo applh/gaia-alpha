@@ -1,6 +1,14 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+## [v0.39.0] - 2025-12-16
+### Added
+- **UI**: Notification System (Toasts). Replaced native browser alerts with a custom, high-visibility toast notification system in `site.js`.
+- **Admin**: Plugin "Save Changes" workflow. Plugins activaton is now batched and saved explicitly to prevent accidental toggles.
+- **Dashboard**: Dynamic Stat Cards. Dashboard now renders cards dynamically via `admin_dashboard_cards` hook, allowing plugins to inject their own stats.
+- **Core**: Enhanced Plugin Loading. Plugins are now loaded from both `my-data/plugins` and `plugins/`.
+- **Refactor**: Todo Plugin. Moved Todo functionality to `plugins/Todo/` as a fully standalone plugin.
+
 ## [v0.38.0] - 2025-12-16
 ### Added
 - **CMS**: Markdown Support. Pages can now be written in Markdown format.

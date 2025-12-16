@@ -1,5 +1,6 @@
 import { ref, onMounted } from 'vue';
 import Icon from './Icon.js';
+import { store } from '../store.js';
 
 export default {
     components: { LucideIcon: Icon },
@@ -10,6 +11,10 @@ export default {
                     Plugins
                 </h2>
                 <div class="actions">
+                    <button v-if="isDirty" class="btn btn-success" @click="saveChanges" :disabled="saving" style="margin-right: 10px;">
+                        <LucideIcon name="save" size="18" style="display:inline-block; vertical-align:middle; margin-right:6px;"></LucideIcon>
+                        {{ saving ? 'Saving...' : 'Save Changes' }}
+                    </button>
                     <button class="btn btn-primary" @click="showInstallModal = true">
                         <LucideIcon name="download" size="18" style="display:inline-block; vertical-align:middle; margin-right:6px;"></LucideIcon>
                         Install Plugin
@@ -41,7 +46,6 @@ export default {
                                     <input 
                                         type="checkbox" 
                                         :checked="plugin.active" 
-                                        :disabled="plugin.processing"
                                         @change="togglePlugin(plugin)"
                                     >
                                     <span class="slider round"></span>
@@ -53,7 +57,7 @@ export default {
             </div>
             
             <div class="admin-card" style="margin-top: 20px; font-size: 0.9em; color: #666;">
-                 <p><strong>Note:</strong> Plugins are loaded from <code>my-data/plugins/</code>. When you deactivate a plugin, it is added to the exclusion list. If you delete <code>my-data/active_plugins.json</code>, all plugins will be reactivated.</p>
+                 <p><strong>Note:</strong> Plugins are loaded from <code>my-data/plugins/</code> and <code>plugins/</code>. Changes are saved to <code>my-data/active_plugins.json</code> only when you click Save.</p>
             </div>
 
             <!-- Install Modal -->
@@ -102,12 +106,16 @@ export default {
         const installing = ref(false);
         const installError = ref(null);
 
+        const isDirty = ref(false);
+        const saving = ref(false);
+
         const fetchPlugins = async () => {
             loading.value = true;
             try {
                 const res = await fetch('/@/admin/plugins');
                 if (!res.ok) throw new Error('Failed to load plugins');
                 plugins.value = await res.json();
+                isDirty.value = false;
             } catch (e) {
                 error.value = e.message;
             } finally {
@@ -115,28 +123,38 @@ export default {
             }
         };
 
-        const togglePlugin = async (plugin) => {
-            if (plugin.processing) return;
-            plugin.processing = true;
+        const togglePlugin = (plugin) => {
+            plugin.active = !plugin.active;
+            isDirty.value = true;
+        };
+
+        const saveChanges = async () => {
+            if (!isDirty.value) return;
+            saving.value = true;
+
+            const activePlugins = plugins.value
+                .filter(p => p.active)
+                .map(p => p.name);
 
             try {
-                const res = await fetch('/@/admin/plugins/toggle', {
+                const res = await fetch('/@/admin/plugins/save', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        name: plugin.name,
-                        active: !plugin.active
-                    })
+                    body: JSON.stringify({ active_plugins: activePlugins })
                 });
 
-                if (!res.ok) throw new Error('Failed to toggle plugin');
+                if (!res.ok) throw new Error('Failed to save changes');
 
-                const data = await res.json();
-                plugin.active = data.active;
+                isDirty.value = false;
+                store.addNotification('Plugins updated successfully! Reloading...', 'success');
+
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
             } catch (e) {
-                alert(e.message);
+                store.addNotification(e.message, 'error');
             } finally {
-                plugin.processing = false;
+                saving.value = false;
             }
         };
 
@@ -161,7 +179,7 @@ export default {
                     throw new Error(data.error || 'Installation failed');
                 }
 
-                alert('Plugin installed successfully!');
+                store.addNotification('Plugin installed successfully!', 'success');
                 showInstallModal.value = false;
                 installUrl.value = '';
                 isRawUrl.value = false;
@@ -169,6 +187,7 @@ export default {
                 await fetchPlugins();
             } catch (e) {
                 installError.value = e.message;
+                store.addNotification(e.message, 'error');
             } finally {
                 installing.value = false;
             }
@@ -178,7 +197,8 @@ export default {
 
         return {
             plugins, loading, error, togglePlugin,
-            showInstallModal, installUrl, isRawUrl, installing, installError, installPlugin
+            showInstallModal, installUrl, isRawUrl, installing, installError, installPlugin,
+            isDirty, saving, saveChanges
         };
     },
     styles: `

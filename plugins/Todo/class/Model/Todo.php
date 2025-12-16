@@ -1,8 +1,9 @@
 <?php
 
-namespace GaiaAlpha\Model;
+namespace Todo\Model;
 
 use PDO;
+use GaiaAlpha\Model\DB;
 
 class Todo
 {

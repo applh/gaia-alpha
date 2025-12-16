@@ -10,11 +10,11 @@ class Framework
     {
         $rootDir = Env::get('root_dir');
         $pathData = Env::get('path_data');
-        $pluginsDir = $pathData . '/plugins';
 
-        if (!is_dir($pluginsDir)) {
-            return;
-        }
+        $pluginDirs = [
+            $pathData . '/plugins',
+            $rootDir . '/plugins'
+        ];
 
         $activePluginsFile = $pathData . '/active_plugins.json';
         $activePlugins = null;
@@ -22,15 +22,21 @@ class Framework
             $activePlugins = json_decode(file_get_contents($activePluginsFile), true);
         }
 
-        foreach (glob($pluginsDir . '/*/index.php') as $plugin) {
-            $pluginDirName = basename(dirname($plugin));
-            
-            // If active_plugins.json exists, only load if in list
-            if ($activePlugins !== null && !in_array($pluginDirName, $activePlugins)) {
+        foreach ($pluginDirs as $pluginsDir) {
+            if (!is_dir($pluginsDir)) {
                 continue;
             }
 
-            include_once $plugin;
+            foreach (glob($pluginsDir . '/*/index.php') as $plugin) {
+                $pluginDirName = basename(dirname($plugin));
+
+                // If active_plugins.json exists, only load if in list
+                if ($activePlugins !== null && !in_array($pluginDirName, $activePlugins)) {
+                    continue;
+                }
+
+                include_once $plugin;
+            }
         }
 
         Hook::run('plugins_loaded');

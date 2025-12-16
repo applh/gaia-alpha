@@ -151,17 +151,18 @@ class App
                 return;
             }
 
-            // New path: data_path/plugins/{PluginName}/class/{RestOfClass}.php
-            $dataPath = Env::get('path_data');
-            // If path_data is not set, we cannot resolve plugins
-            if (!$dataPath) {
-                return;
-            }
+            // Locations to search: data_path and root_dir
+            $roots = [
+                Env::get('path_data') . '/plugins',
+                Env::get('root_dir') . '/plugins'
+            ];
 
-            $file = $dataPath . '/plugins/' . $pluginName . '/class/' . implode('/', $parts) . '.php';
-
-            if (file_exists($file)) {
-                include $file;
+            foreach ($roots as $root) {
+                $file = $root . '/' . $pluginName . '/class/' . implode('/', $parts) . '.php';
+                if (file_exists($file)) {
+                    include $file;
+                    return;
+                }
             }
         });
 

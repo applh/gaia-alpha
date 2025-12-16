@@ -65,12 +65,17 @@ class AuthController extends BaseController
     public function me()
     {
         if (isset($_SESSION['user_id'])) {
-            $this->jsonResponse([
+            $data = [
                 'user' => [
                     'username' => $_SESSION['username'],
                     'level' => $_SESSION['level'] ?? 10
                 ]
-            ]);
+            ];
+
+            // Allow plugins to inject data (e.g. menu items)
+            $data = \GaiaAlpha\Hook::filter('auth_session_data', $data);
+
+            $this->jsonResponse($data);
         } else {
             $this->jsonResponse(['user' => null]);
         }

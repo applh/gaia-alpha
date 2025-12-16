@@ -1,6 +1,6 @@
 import { ref, onMounted } from 'vue';
-import Icon from './Icon.js';
-import { store } from '../store.js';
+import Icon from 'ui/Icon.js';
+import { store } from 'store';
 
 export default {
     components: { LucideIcon: Icon },

@@ -8,7 +8,13 @@
     <script type="importmap">
         {
             "imports": {
-                "vue": "<?= \GaiaAlpha\Asset::url('/js/vendor/vue.esm-browser.js') ?>"
+                "vue": "<?= \GaiaAlpha\Asset::url('/js/vendor/vue.esm-browser.js') ?>",
+                "@/": "/min/js/",
+                "components/": "/min/js/components/",
+                "ui/": "/min/js/components/ui/",
+                "composables/": "/min/js/composables/",
+                "builders/": "/min/js/components/builders/",
+                "store": "/min/js/store.js"
             }
         }
     </script>

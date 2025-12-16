@@ -1,22 +1,22 @@
 import { createApp, defineAsyncComponent, onMounted, computed, ref } from 'vue';
 import { store } from './store.js';
 
-const Login = defineAsyncComponent(() => import('./components/Login.js'));
-const TodoList = defineAsyncComponent(() => import('./components/TodoList.js'));
-const AdminDashboard = defineAsyncComponent(() => import('./components/AdminDashboard.js'));
-const UsersAdmin = defineAsyncComponent(() => import('./components/UsersAdmin.js'));
-const CMS = defineAsyncComponent(() => import('./components/CMS.js'));
-const DatabaseManager = defineAsyncComponent(() => import('./components/DatabaseManager.js'));
-const UserSettings = defineAsyncComponent(() => import('./components/UserSettings.js'));
-const SiteSettings = defineAsyncComponent(() => import('./components/SiteSettings.js'));
-const FormsAdmin = defineAsyncComponent(() => import('./components/FormsAdmin.js'));
-const ApiManager = defineAsyncComponent(() => import('./components/ApiManager.js'));
-const MapPanel = defineAsyncComponent(() => import('./components/MapPanel.js'));
-const ConsolePanel = defineAsyncComponent(() => import('./components/ConsolePanel.js'));
-const ChatPanel = defineAsyncComponent(() => import('./components/ChatPanel.js'));
-const MultiSitePanel = defineAsyncComponent(() => import('./components/MultiSitePanel.js'));
-const ComponentBuilder = defineAsyncComponent(() => import('./components/ComponentBuilder.js'));
-const PluginsAdmin = defineAsyncComponent(() => import('./components/PluginsAdmin.js'));
+const Login = defineAsyncComponent(() => import('components/admin/Login.js'));
+const TodoList = defineAsyncComponent(() => import('components/views/TodoList.js'));
+const AdminDashboard = defineAsyncComponent(() => import('components/admin/AdminDashboard.js'));
+const UsersAdmin = defineAsyncComponent(() => import('components/admin/settings/UsersAdmin.js'));
+const CMS = defineAsyncComponent(() => import('components/cms/CMS.js'));
+const DatabaseManager = defineAsyncComponent(() => import('components/admin/settings/DatabaseManager.js'));
+const UserSettings = defineAsyncComponent(() => import('components/admin/settings/UserSettings.js'));
+const SiteSettings = defineAsyncComponent(() => import('components/admin/settings/SiteSettings.js'));
+const FormsAdmin = defineAsyncComponent(() => import('components/cms/FormsAdmin.js'));
+const ApiManager = defineAsyncComponent(() => import('components/admin/settings/ApiManager.js'));
+const MapPanel = defineAsyncComponent(() => import('components/views/MapPanel.js'));
+const ConsolePanel = defineAsyncComponent(() => import('components/admin/ConsolePanel.js'));
+const ChatPanel = defineAsyncComponent(() => import('components/views/ChatPanel.js'));
+const MultiSitePanel = defineAsyncComponent(() => import('components/admin/MultiSitePanel.js'));
+const ComponentBuilder = defineAsyncComponent(() => import('components/builders/ComponentBuilder.js'));
+const PluginsAdmin = defineAsyncComponent(() => import('components/admin/settings/PluginsAdmin.js'));
 
 const ToastContainer = {
     setup() {
@@ -125,7 +125,7 @@ const ToastContainer = {
 };
 
 const App = {
-    components: { Login, ToastContainer, LucideIcon: defineAsyncComponent(() => import('./components/Icon.js')) },
+    components: { Login, ToastContainer, LucideIcon: defineAsyncComponent(() => import('ui/Icon.js')) },
     template: `
         <div class="app-container">
             <ToastContainer />

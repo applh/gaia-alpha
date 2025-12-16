@@ -1,14 +1,14 @@
 import { ref, reactive, onMounted, computed, watch } from 'vue';
-import SortTh from './SortTh.js';
-import TemplateBuilder from './TemplateBuilder.js';
-import ComponentBuilder from './ComponentBuilder.js';
-import SlotEditor from './SlotEditor.js';
-import MenuBuilder from './MenuBuilder.js';
-import Icon from './Icon.js';
-import ImageSelector from './ImageSelector.js';
-import CodeEditor from './CodeEditor.js';
-import { useSorting } from '../composables/useSorting.js';
-import { store } from '../store.js';
+import SortTh from 'ui/SortTh.js';
+import TemplateBuilder from 'builders/TemplateBuilder.js';
+import ComponentBuilder from 'builders/ComponentBuilder.js';
+import SlotEditor from 'builders/SlotEditor.js';
+import MenuBuilder from 'builders/MenuBuilder.js';
+import Icon from 'ui/Icon.js';
+import ImageSelector from 'ui/ImageSelector.js';
+import CodeEditor from 'ui/CodeEditor.js';
+import { useSorting } from 'composables/useSorting.js';
+import { store } from 'store';
 
 export default {
     components: { SortTh, TemplateBuilder, ComponentBuilder, MenuBuilder, LucideIcon: Icon, SlotEditor, ImageSelector, CodeEditor },

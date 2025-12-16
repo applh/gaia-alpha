@@ -1,6 +1,6 @@
 import { h, ref, reactive, defineAsyncComponent } from 'vue';
 
-const LucideIcon = defineAsyncComponent(() => import('../Icon.js'));
+const LucideIcon = defineAsyncComponent(() => import('ui/Icon.js'));
 
 export default {
     name: 'ComponentTree',

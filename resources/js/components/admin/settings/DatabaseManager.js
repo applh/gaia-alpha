@@ -1,6 +1,7 @@
 import { ref, onMounted, computed, watch } from 'vue';
-import { useSorting } from '../composables/useSorting.js';
-import Modal from './Modal.js';
+import { useSorting } from 'composables/useSorting.js';
+import Icon from 'ui/Icon.js';
+import Modal from 'ui/Modal.js';
 
 export default {
     components: { Modal },

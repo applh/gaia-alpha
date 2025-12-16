@@ -1,7 +1,7 @@
 import { ref, reactive, onMounted, computed } from 'vue';
-import { useCrud } from '../composables/useCrud.js';
-import Modal from './Modal.js';
-import { store } from '../store.js';
+import { useCrud } from 'composables/useCrud.js';
+import Modal from 'ui/Modal.js';
+import { store } from 'store';
 
 export default {
     components: { Modal },

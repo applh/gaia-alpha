@@ -153,7 +153,7 @@ class PublicController extends BaseController
                 $debugData = \GaiaAlpha\Debug::getData();
                 $jsonData = json_encode($debugData);
                 $vueUrl = \GaiaAlpha\Asset::url('/js/vendor/vue.esm-browser.js');
-                $componentUrl = \GaiaAlpha\Asset::url('/js/components/DebugToolbar.js');
+                $componentUrl = \GaiaAlpha\Asset::url('/js/components/admin/DebugToolbar.js');
 
                 $toolbarScript = <<<HTML
 <div id="gaia-debug-root" style="position:fixed;bottom:0;left:0;right:0;z-index:99999;"></div>

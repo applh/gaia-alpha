@@ -1,9 +1,9 @@
 import { ref, watch, computed, defineAsyncComponent } from 'vue';
-import { store } from '../store.js';
+import { store } from 'store';
 
 export default {
     components: {
-        'password-input': defineAsyncComponent(() => import('./PasswordInput.js'))
+        'password-input': defineAsyncComponent(() => import('ui/PasswordInput.js'))
     },
     template: `
         <div class="login-container">

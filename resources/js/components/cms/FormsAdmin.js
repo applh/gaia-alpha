@@ -1,9 +1,10 @@
 
 import { ref, onMounted } from 'vue';
-import FormBuilder from './FormBuilder.js';
+import FormBuilder from 'builders/FormBuilder.js';
 import FormSubmissions from './FormSubmissions.js';
-import SortTh from './SortTh.js';
-import { useSorting } from '../composables/useSorting.js';
+import SortTh from 'ui/SortTh.js';
+import Icon from 'ui/Icon.js';
+import { useSorting } from 'composables/useSorting.js';
 
 export default {
     components: { FormBuilder, FormSubmissions, SortTh },

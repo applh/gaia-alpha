@@ -10,7 +10,9 @@ Welcome to the official documentation for Gaia Alpha, organized by role to help 
 - **[Design System](developer/design_system.md)**: UI tokens and patterns.
 - **[Vue Components](developer/vue_components.md)**: Frontend library.
 - **[Templating Guide](developer/templating_guide.md)**: How to write templates.
-- **[Plugin System](developer/plugins.md)**: Extending the framework.
+- [Plugin System](developer/plugins.md)
+- [Component Design System](developer/component_design_system.md)
+- [Database Schema](developer/database_schema.md)ework.
 - **[Debug Toolbar](developer/debug_toolbar.md)**: Debugging tools.
 
 ## 🏗️ For Architects

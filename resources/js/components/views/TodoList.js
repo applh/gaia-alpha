@@ -1,9 +1,9 @@
 import { ref, onMounted, onActivated, computed, provide, inject } from 'vue';
 import CalendarView from './CalendarView.js';
 import GanttView from './GanttView.js';
-import ColorPicker from './ColorPicker.js';
+import ColorPicker from 'ui/ColorPicker.js';
 
-import Icon from './Icon.js';
+import Icon from 'ui/Icon.js';
 
 // Recursive Todo Item Component
 const TodoItem = {

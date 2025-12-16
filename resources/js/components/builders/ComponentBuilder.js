@@ -5,7 +5,7 @@ const ComponentToolbox = defineAsyncComponent(() => import('./builder/ComponentT
 const ComponentCanvas = defineAsyncComponent(() => import('./builder/ComponentCanvas.js'));
 const ComponentProperties = defineAsyncComponent(() => import('./builder/ComponentProperties.js'));
 const ComponentTree = defineAsyncComponent(() => import('./builder/ComponentTree.js'));
-const LucideIcon = defineAsyncComponent(() => import('./Icon.js'));
+const LucideIcon = defineAsyncComponent(() => import('ui/Icon.js'));
 
 export default {
     name: 'ComponentBuilder',

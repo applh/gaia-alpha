@@ -1,8 +1,8 @@
 
 import { ref, onMounted, nextTick } from 'vue';
-import { useSorting } from '../composables/useSorting.js';
-import SortTh from './SortTh.js';
-import Icon from './Icon.js';
+import { useSorting } from 'composables/useSorting.js';
+import SortTh from 'ui/SortTh.js';
+import Icon from 'ui/Icon.js';
 
 export default {
     components: { SortTh, LucideIcon: Icon },

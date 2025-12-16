@@ -1,6 +1,6 @@
 import { ref, computed, watch } from 'vue';
-import { store } from '../store.js';
-import Icon from './Icon.js';
+import { store } from 'store';
+import Icon from 'ui/Icon.js';
 
 const UserSettings = {
     name: 'UserSettings',

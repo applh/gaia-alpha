@@ -1,6 +1,6 @@
 import { ref, reactive, onMounted } from 'vue';
-import Icon from './Icon.js';
-import ImageSelector from './ImageSelector.js';
+import Icon from 'ui/Icon.js';
+import ImageSelector from 'ui/ImageSelector.js';
 
 export default {
     components: { LucideIcon: Icon, ImageSelector },

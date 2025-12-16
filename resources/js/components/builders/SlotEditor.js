@@ -1,6 +1,6 @@
 import { ref, watch, computed } from 'vue';
-import ImageSelector from './ImageSelector.js';
-import Icon from './Icon.js';
+import ImageSelector from 'ui/ImageSelector.js';
+import Icon from 'ui/Icon.js';
 
 const SlotCard = {
     props: ['node'],

@@ -1,4 +1,4 @@
-import Icon from './Icon.js';
+import Icon from 'ui/Icon.js';
 
 export default {
     name: 'ApiManager',

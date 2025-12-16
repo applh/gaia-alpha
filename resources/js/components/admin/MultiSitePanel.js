@@ -1,5 +1,5 @@
 import { ref, reactive, onMounted, computed } from 'vue';
-import Icon from './Icon.js';
+import Icon from 'ui/Icon.js';
 
 export default {
     components: { LucideIcon: Icon },

@@ -1,5 +1,5 @@
 import { ref, onMounted, nextTick } from 'vue';
-import Icon from './Icon.js';
+import Icon from 'ui/Icon.js';
 
 export default {
     components: { LucideIcon: Icon },

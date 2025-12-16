@@ -11,10 +11,10 @@ class Seeder
 {
     public static function run(int $userId)
     {
-        echo "Starting seeder for user $userId...\n";
+        // echo "Starting seeder for user $userId...\n";
         $seedDir = Env::get('root_dir') . '/templates/seed';
 
-        echo "1. Seeding Todos...\n";
+        // echo "1. Seeding Todos...\n";
         $todosFile = $seedDir . '/todos.json';
         if (file_exists($todosFile)) {
             $todos = json_decode(file_get_contents($todosFile), true);
@@ -38,7 +38,7 @@ class Seeder
             }
         }
 
-        echo "2. Seeding Partials...\n";
+        // echo "2. Seeding Partials...\n";
         // Copy actual header/footer files as partials
         $rootDir = Env::get('root_dir');
         $headerContent = file_get_contents($rootDir . '/templates/layout/header.php');
@@ -63,7 +63,7 @@ class Seeder
             DB::execute($sql, [$userId, $partial['name'], $partial['content']]);
         }
 
-        echo "3. Seeding Pages...\n";
+        // echo "3. Seeding Pages...\n";
         $pagesDir = $seedDir . '/pages';
         if (is_dir($pagesDir)) {
             foreach (glob($pagesDir . '/*.json') as $pageFile) {
@@ -121,7 +121,7 @@ class Seeder
             }
         }
 
-        echo "7. Seeding Templates...\n";
+        // echo "7. Seeding Templates...\n";
         // Copy the home_template content (between header and footer)
         $homeTemplateContent = file_get_contents($seedDir . '/default_template_fallback.php');
 

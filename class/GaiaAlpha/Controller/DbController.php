@@ -8,8 +8,14 @@ use GaiaAlpha\Env;
 
 class DbController extends BaseController
 {
+    private static ?Database $instance = null;
+
     public static function connect(): Database
     {
+        if (self::$instance !== null) {
+            return self::$instance;
+        }
+
         $dataPath = Env::get('path_data');
         // Resolve path logic similar to how DSN is built
         $dbPath = defined('GAIA_DB_PATH') ? GAIA_DB_PATH : $dataPath . '/database.sqlite';
@@ -25,6 +31,7 @@ class DbController extends BaseController
             $db->ensureSchema();
         }
 
+        self::$instance = $db;
         return $db;
     }
 

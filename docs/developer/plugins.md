@@ -15,7 +15,13 @@ my-data/plugins/
     └── index.php
 ```
 
-The framework automatically loads all `index.php` files found in immediate subdirectories of `my-data/plugins` during the application boot process (both Web and CLI).
+The framework loads plugins found in `my-data/plugins` during the application boot process.
+
+- **Discovery**: All folders in `my-data/plugins` containing an `index.php` are registered.
+- **Activation**: Integration with `my-data/active_plugins.json` governs which plugins are actually loaded.
+    - If `active_plugins.json` does NOT exist, **ALL** discovered plugins are loaded (Legacy Mode).
+    - If `active_plugins.json` exists, **ONLY** the plugins listed in this file are loaded.
+- **Management**: Plugins can be toggled via the Admin Dashboard in the **System > Plugins** panel.
 
 ## Class Autoloading
 
@@ -123,3 +129,16 @@ Hook::run('my_custom_event', $data);
 ### CLI Support
 
 Plugins are fully supported in CLI mode. The `plugins_loaded` and `app_boot` hooks are triggered when running `php cli.php`.
+
+## Debugging
+
+You can show logs in the Admin Debug Toolbar using the `Debug::logPlugin` method.
+
+```php
+if (class_exists('GaiaAlpha\Debug')) {
+    \GaiaAlpha\Debug::logPlugin('my_plugin_name', 'My debug message', ['foo' => 'bar']);
+}
+```
+
+These logs will appear in the "Plugins" tab of the Debug Toolbar.
+

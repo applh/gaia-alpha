@@ -16,7 +16,20 @@ class Framework
             return;
         }
 
+        $activePluginsFile = $pathData . '/active_plugins.json';
+        $activePlugins = null;
+        if (file_exists($activePluginsFile)) {
+            $activePlugins = json_decode(file_get_contents($activePluginsFile), true);
+        }
+
         foreach (glob($pluginsDir . '/*/index.php') as $plugin) {
+            $pluginDirName = basename(dirname($plugin));
+            
+            // If active_plugins.json exists, only load if in list
+            if ($activePlugins !== null && !in_array($pluginDirName, $activePlugins)) {
+                continue;
+            }
+
             include_once $plugin;
         }
 

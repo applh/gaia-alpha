@@ -8,6 +8,7 @@ class Debug
     private static $route = null;
     private static $tasks = [];
     private static $timers = [];
+    private static $pluginLogs = [];
     private static $memoryStart = 0;
     private static $startTime = 0;
     private static $currentTask = null;
@@ -105,6 +106,16 @@ class Debug
         ];
     }
 
+    public static function logPlugin(string $plugin, string $message, array $context = [])
+    {
+        self::$pluginLogs[] = [
+            'plugin' => $plugin,
+            'message' => $message,
+            'context' => $context,
+            'time' => microtime(true) - self::$startTime
+        ];
+    }
+
     public static function startTimer(string $key)
     {
         self::$timers[$key] = microtime(true);
@@ -153,6 +164,7 @@ class Debug
         return [
             'queries' => self::$queries,
             'tasks' => $tasks,
+            'plugin_logs' => self::$pluginLogs,
             'route' => self::$route,
             'memory' => [
                 'current' => memory_get_usage(),

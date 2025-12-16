@@ -1,6 +1,13 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+## [v0.36.0] - 2025-12-16
+### Added
+- **Admin**: Plugin Admin Panel. New UI for managing/toggling plugins (`System > Plugins`).
+- **Plugins**: Activation Logic. `active_plugins.json` now controls which plugins load. (Backward compatible: if file missing, all load).
+- **Plugins**: Debug Logging. Added `Debug::logPlugin()` API and a "Plugins" tab to the Debug Toolbar.
+- **Docs**: Added `docs/example_plugin/`.
+
 ## [v0.35.5] - 2025-12-16
 ### Fixed
 - **Debug**: Fixed "Missing Debug Info" issue by implementing "Late Injection Strategy" where debug data is injected at the final `Response::flush` (step99).

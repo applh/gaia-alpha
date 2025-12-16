@@ -16,6 +16,7 @@ const ConsolePanel = defineAsyncComponent(() => import('./components/ConsolePane
 const ChatPanel = defineAsyncComponent(() => import('./components/ChatPanel.js'));
 const MultiSitePanel = defineAsyncComponent(() => import('./components/MultiSitePanel.js'));
 const ComponentBuilder = defineAsyncComponent(() => import('./components/ComponentBuilder.js'));
+const PluginsAdmin = defineAsyncComponent(() => import('./components/PluginsAdmin.js'));
 
 const App = {
     components: { Login, LucideIcon: defineAsyncComponent(() => import('./components/Icon.js')) },
@@ -151,6 +152,7 @@ const App = {
                     { label: 'Console', view: 'console', icon: 'terminal' },
                     { label: 'Sites', view: 'sites', icon: 'server' },
                     { label: 'Site Settings', view: 'site-settings', icon: 'globe' },
+                    { label: 'Plugins', view: 'plugins', icon: 'plug' },
                 ]
             }
         ];
@@ -200,6 +202,7 @@ const App = {
                 case 'site-settings': return SiteSettings;
                 case 'sites': return isAdmin.value ? MultiSitePanel : TodoList;
                 case 'component-builder': return isAdmin.value ? ComponentBuilder : TodoList;
+                case 'plugins': return isAdmin.value ? PluginsAdmin : TodoList;
                 case 'todos': default: return TodoList;
             }
             // Check for custom component

@@ -419,6 +419,88 @@ class AdminController extends BaseController
         $this->jsonResponse(['success' => true]);
     }
 
+    // Plugin Management
+
+    public function getPlugins()
+    {
+        $this->requireAdmin();
+
+        $pathData = \GaiaAlpha\Env::get('path_data');
+        $pluginsDir = $pathData . '/plugins';
+        $activePluginsFile = $pathData . '/active_plugins.json';
+
+        $activePlugins = [];
+        if (file_exists($activePluginsFile)) {
+            $activePlugins = json_decode(file_get_contents($activePluginsFile), true);
+        } else {
+            // If file doesn't exist, all found plugins are implicitly active
+            $allActive = true;
+        }
+
+        $plugins = [];
+        if (is_dir($pluginsDir)) {
+            foreach (glob($pluginsDir . '/*', GLOB_ONLYDIR) as $dir) {
+                $name = basename($dir);
+                // Check if index.php exists
+                if (file_exists($dir . '/index.php')) {
+                    $plugins[] = [
+                        'name' => $name,
+                        'active' => isset($allActive) ? true : in_array($name, $activePlugins)
+                    ];
+                }
+            }
+        }
+
+        $this->jsonResponse($plugins);
+    }
+
+    public function togglePlugin()
+    {
+        $this->requireAdmin();
+        $data = $this->getJsonInput();
+
+        if (empty($data['name']) || !isset($data['active'])) {
+            $this->jsonResponse(['error' => 'Name and active status required'], 400);
+            return;
+        }
+
+        $pluginName = $data['name'];
+        $shouldBeActive = (bool) $data['active'];
+
+        $pathData = \GaiaAlpha\Env::get('path_data');
+        $activePluginsFile = $pathData . '/active_plugins.json';
+        $pluginsDir = $pathData . '/plugins';
+
+        // Security check: ensure plugin exists
+        if (!is_dir($pluginsDir . '/' . $pluginName)) {
+            $this->jsonResponse(['error' => 'Plugin not found'], 404);
+            return;
+        }
+
+        $activePlugins = [];
+        if (file_exists($activePluginsFile)) {
+            $activePlugins = json_decode(file_get_contents($activePluginsFile), true);
+        } else {
+            // Initialize with all currently existing plugins if file doesn't exist
+            foreach (glob($pluginsDir . '/*', GLOB_ONLYDIR) as $dir) {
+                if (file_exists($dir . '/index.php')) {
+                    $activePlugins[] = basename($dir);
+                }
+            }
+        }
+
+        if ($shouldBeActive) {
+            if (!in_array($pluginName, $activePlugins)) {
+                $activePlugins[] = $pluginName;
+            }
+        } else {
+            $activePlugins = array_values(array_diff($activePlugins, [$pluginName]));
+        }
+
+        file_put_contents($activePluginsFile, json_encode($activePlugins, JSON_PRETTY_PRINT));
+        $this->jsonResponse(['success' => true, 'active' => $shouldBeActive]);
+    }
+
     public function registerRoutes()
     {
         \GaiaAlpha\Router::add('GET', '/@/admin/users', [$this, 'index']);
@@ -447,5 +529,9 @@ class AdminController extends BaseController
         \GaiaAlpha\Router::add('POST', '/@/cms/partials', [$this, 'createPartial']);
         \GaiaAlpha\Router::add('PATCH', '/@/cms/partials/(\d+)', [$this, 'updatePartial']);
         \GaiaAlpha\Router::add('DELETE', '/@/cms/partials/(\d+)', [$this, 'deletePartial']);
+
+        // Plugin Management
+        \GaiaAlpha\Router::add('GET', '/@/admin/plugins', [$this, 'getPlugins']);
+        \GaiaAlpha\Router::add('POST', '/@/admin/plugins/toggle', [$this, 'togglePlugin']);
     }
 }

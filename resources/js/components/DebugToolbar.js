@@ -31,6 +31,7 @@ const DebugToolbar = {
             <div class="tabs">
                 <button :class="{ active: currentTab === 'queries' }" @click="currentTab = 'queries'">SQL Queries ({{ data.queries.length }})</button>
                 <button :class="{ active: currentTab === 'tasks' }" @click="currentTab = 'tasks'">Tasks ({{ data.tasks ? data.tasks.length : 0 }})</button>
+                <button :class="{ active: currentTab === 'plugins' }" @click="currentTab = 'plugins'">Plugins ({{ data.plugin_logs ? data.plugin_logs.length : 0 }})</button>
                 <button :class="{ active: currentTab === 'network' }" @click="currentTab = 'network'">Network ({{ requests.length }})</button>
                 <button :class="{ active: currentTab === 'request' }" @click="currentTab = 'request'">Request</button>
                 <button :class="{ active: currentTab === 'globals' }" @click="currentTab = 'globals'">Globals</button>
@@ -50,6 +51,32 @@ const DebugToolbar = {
                                 <td>{{ task.step }}</td>
                                 <td class="code-cell">{{ task.task }}</td>
                                 <td :class="{ 'text-danger': task.duration > 0.05 }">{{ formatTime(task.duration) }}ms</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div v-if="currentTab === 'plugins'" class="tab-pane">
+                    <table class="debug-table">
+                        <thead>
+                            <tr>
+                                <th>Timestamp</th>
+                                <th>Plugin</th>
+                                <th>Message</th>
+                                <th>Context</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-if="!data.plugin_logs || data.plugin_logs.length === 0">
+                                <td colspan="4" style="text-align:center; color:#666;">No plugin logs recorded.</td>
+                            </tr>
+                            <tr v-else v-for="(log, index) in data.plugin_logs" :key="index">
+                                <td>{{ formatTime(log.time) }}ms</td>
+                                <td><strong>{{ log.plugin }}</strong></td>
+                                <td class="code-cell">{{ log.message }}</td>
+                                <td>
+                                    <pre v-if="log.context && Object.keys(log.context).length" style="font-size:0.85em; margin:0; max-height:100px; overflow:auto;">{{ JSON.stringify(log.context, null, 2) }}</pre>
+                                </td>
                             </tr>
                         </tbody>
                     </table>
@@ -281,6 +308,7 @@ const DebugToolbar = {
         const defaultData = {
             queries: [],
             tasks: [],
+            plugin_logs: [],
             route: {},
             memory: { current: 0, peak: 0, start: 0 },
             time: { total: 0, start: 0 },
@@ -343,7 +371,16 @@ const DebugToolbar = {
                                 data.tasks.push({
                                     ...t,
                                     step: `AJAX: ${t.step}`, // Prefix to distinguish
-                                    // Optional: indicate source url if needed, but step prefix helps
+                                });
+                            });
+                        }
+
+                        // Merge plugin logs
+                        if (serverDebug.plugin_logs) {
+                            serverDebug.plugin_logs.forEach(l => {
+                                data.plugin_logs.push({
+                                    ...l,
+                                    plugin: `AJAX: ${l.plugin}`
                                 });
                             });
                         }

@@ -1,6 +1,11 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+## [v0.42.0] - 2025-12-16
+### Refactored
+- **MultiSite Plugin**: Full Modularization. Moved `SiteController.php` and `MultiSitePanel.js` to `plugins/MultiSite/`.
+- **MultiSite Plugin**: Dynamic Menu Injection. The "Sites" menu item is now injected by the plugin only when active.
+
 ## [v0.41.0] - 2025-12-16
 ### Refactored
 - **Chat Plugin**: Full Modularization. Moved `ChatController.php` and `ChatPanel.js` to `plugins/Chat/`.

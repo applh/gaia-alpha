@@ -30,7 +30,7 @@ Based on the current codebase analysis, the following features are prime candida
 | **Console** | `ConsoleController` | `ConsolePanel.js` | Low |
 | **Chat** | `ChatController` | `ChatPanel.js` | Low | **Done** |
 | **Media Manager** | `MediaController` | (Media UI components) | Medium |
-| **Multi-Site** | `SiteController` | `MultiSitePanel.js` | Medium |
+| **Multi-Site** | `SiteController` | `MultiSitePanel.js` | Medium | **Done** |
 | **Database Manager** | `DbController` | `DatabaseManager.js` | High |
 | **API Builder** | `ApiBuilderController`, `DynamicApiController` | `ApiManager.js` | High |
 | **Component Builder** | `AdminComponentBuilderController` | `builders/*` | High |

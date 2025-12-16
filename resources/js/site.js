@@ -14,7 +14,7 @@ const ApiManager = defineAsyncComponent(() => import('components/admin/settings/
 const MapPanel = defineAsyncComponent(() => import('components/views/MapPanel.js'));
 const ConsolePanel = defineAsyncComponent(() => import('plugins/Console/ConsolePanel.js'));
 const ChatPanel = defineAsyncComponent(() => import('plugins/Chat/ChatPanel.js'));
-const MultiSitePanel = defineAsyncComponent(() => import('components/admin/MultiSitePanel.js'));
+const MultiSitePanel = defineAsyncComponent(() => import('plugins/MultiSite/MultiSitePanel.js'));
 const ComponentBuilder = defineAsyncComponent(() => import('components/builders/ComponentBuilder.js'));
 const PluginsAdmin = defineAsyncComponent(() => import('components/admin/settings/PluginsAdmin.js'));
 
@@ -256,7 +256,7 @@ const App = {
                     { label: 'Databases', view: 'database', icon: 'database' },
                     { label: 'APIs', view: 'api-builder', icon: 'zap' },
                     // Console injected via plugin
-                    { label: 'Sites', view: 'sites', icon: 'server' },
+                    // Sites injected via plugin
                     { label: 'Site Settings', view: 'site-settings', icon: 'globe' },
                     { label: 'Plugins', view: 'plugins', icon: 'plug' },
                 ]

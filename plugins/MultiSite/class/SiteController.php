@@ -1,7 +1,8 @@
 <?php
 
-namespace GaiaAlpha\Controller;
+namespace MultiSite;
 
+use GaiaAlpha\Controller\BaseController;
 use GaiaAlpha\Router;
 use GaiaAlpha\Env;
 use GaiaAlpha\Response;

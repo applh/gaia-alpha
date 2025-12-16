@@ -27,13 +27,13 @@ export default {
                 <div v-if="activeApis.length === 0" style="grid-column: 1 / -1; padding: 20px; background: rgba(0,0,0,0.1); border-radius: 8px; text-align: center; color: #888;">
                     No active APIs found. Enable some below.
                 </div>
-                <div v-for="table in activeApis" :key="table.name" class="admin-card">
-                    <div class="card-header">
-                        <h3>{{ table.name }}</h3>
-                        <label class="switch">
+                <div v-for="table in activeApis" :key="table.name" class="admin-card" style="overflow: hidden;">
+                    <div class="card-header" style="display: flex; align-items: center; justify-content: flex-start; gap: 12px;">
+                        <label class="switch" style="margin: 0; flex-shrink: 0;">
                             <input type="checkbox" v-model="table.config.enabled">
                             <span class="slider round"></span>
                         </label>
+                        <h3 style="margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" :title="table.name">{{ table.name }}</h3>
                     </div>
                     <div class="card-body">
                         <div class="form-group">
@@ -53,8 +53,11 @@ export default {
                                 <label style="display: flex; align-items: center; gap: 8px; font-weight: normal; margin: 0;"><input type="checkbox" value="DELETE" v-model="table.config.methods" style="width: auto;"> DELETE (DELETE)</label>
                             </div>
                         </div>
-                        <div class="api-preview" style="margin-top: 16px; padding: 8px; background: rgba(0,0,0,0.2); border-radius: 4px; font-family: monospace; font-size: 0.85rem;">
-                            Endpoint: <span style="color: var(--accent-color);">/@/v1/{{ table.name }}</span>
+                        <div class="api-preview" style="margin-top: 16px; padding: 8px; background: rgba(0,0,0,0.2); border-radius: 4px; font-family: monospace; font-size: 0.85rem; display: flex; align-items: center; justify-content: space-between;">
+                            <span>Endpoint: <span style="color: var(--accent-color);">/@/v1/{{ table.name }}</span></span>
+                            <a :href="'/@/v1/' + table.name" target="_blank" title="Open in new window" style="color: inherit; text-decoration: none; display: flex; align-items: center; opacity: 0.7; hover: opacity: 1;">
+                                <LucideIcon name="external-link" size="14"></LucideIcon>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -66,13 +69,13 @@ export default {
                  <div v-if="inactiveApis.length === 0" style="grid-column: 1 / -1; padding: 20px; background: rgba(0,0,0,0.1); border-radius: 8px; text-align: center; color: #888;">
                     All available tables have active APIs.
                 </div>
-                <div v-for="table in inactiveApis" :key="table.name" class="admin-card disabled" style="opacity: 0.7;">
-                    <div class="card-header">
-                        <h3>{{ table.name }}</h3>
-                        <label class="switch">
+                <div v-for="table in inactiveApis" :key="table.name" class="admin-card disabled" style="opacity: 0.7; overflow: hidden;">
+                    <div class="card-header" style="display: flex; align-items: center; justify-content: flex-start; gap: 12px;">
+                         <label class="switch" style="margin: 0; flex-shrink: 0;">
                             <input type="checkbox" v-model="table.config.enabled">
                             <span class="slider round"></span>
                         </label>
+                        <h3 style="margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" :title="table.name">{{ table.name }}</h3>
                     </div>
                     <!-- Simplified body for inactive items, or same body but hidden/collapsed? -->
                     <!-- Keeping it visible so user can configure before enabling -->

@@ -6,6 +6,7 @@ const ComponentCanvas = defineAsyncComponent(() => import('./builder/ComponentCa
 const ComponentProperties = defineAsyncComponent(() => import('./builder/ComponentProperties.js'));
 const ComponentTree = defineAsyncComponent(() => import('./builder/ComponentTree.js'));
 const LucideIcon = defineAsyncComponent(() => import('ui/Icon.js'));
+const Modal = defineAsyncComponent(() => import('ui/Modal.js'));
 
 export default {
     name: 'ComponentBuilder',
@@ -15,7 +16,8 @@ export default {
         ComponentProperties,
         ComponentProperties,
         ComponentTree,
-        LucideIcon
+        LucideIcon,
+        Modal
     },
     template: `
         <div class="component-builder">
@@ -107,43 +109,35 @@ export default {
             </div>
             
             <!-- Metadata Modal -->
-            <div v-if="showMetadataModal" class="modal active">
-                <div class="modal-overlay" @click="showMetadataModal = false"></div>
-                <div class="modal-container">
-                    <div class="modal-header">
-                        <h3>Component Settings</h3>
-                        <button class="close-btn" @click="showMetadataModal = false">&times;</button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="form-group">
-                            <label>Name (ID)</label>
-                            <input v-model="component.name" type="text" placeholder="user-stats" pattern="[a-z0-9-]+" required>
-                            <small>Unique identifier, lowercase with hyphens</small>
-                        </div>
-                        <div class="form-group">
-                            <label>Title</label>
-                            <input v-model="component.title" type="text" placeholder="User Statistics" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Description</label>
-                            <textarea v-model="component.description"></textarea>
-                        </div>
-                        <div class="form-group">
-                            <label>Icon</label>
-                            <input v-model="component.icon" type="text" placeholder="puzzle">
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button class="btn" @click="showMetadataModal = false">Cancel</button>
-                        <button class="btn btn-primary" @click="saveMetadata">Continue</button>
-                    </div>
+            <Modal :show="showMetadataModal" title="Component Settings" @close="showMetadataModal = false">
+                <div class="form-group">
+                    <label>Name (ID)</label>
+                    <input v-model="component.name" type="text" placeholder="user-stats" pattern="[a-z0-9-]+" required>
+                    <small>Unique identifier, lowercase with hyphens</small>
                 </div>
-            </div>
+                <div class="form-group">
+                    <label>Title</label>
+                    <input v-model="component.title" type="text" placeholder="User Statistics" required>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea v-model="component.description"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Icon</label>
+                    <input v-model="component.icon" type="text" placeholder="puzzle">
+                </div>
+                <div class="modal-footer" style="margin-top:20px; text-align:right;">
+                    <button class="btn" @click="showMetadataModal = false">Cancel</button>
+                    <button class="btn btn-primary" @click="saveMetadata">Continue</button>
+                </div>
+            </Modal>
         </div>
     `,
     props: ['initialId'],
     emits: ['back'],
     setup(props, { emit }) {
+
         const loading = ref(false);
         const saved = ref(false);
         const showMetadataModal = ref(false);

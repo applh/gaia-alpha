@@ -59,6 +59,22 @@ class AssetController extends BaseController
                 }
             }
 
+            // Fallback: Check for Ace Editor files (ace-mode-*, ace-worker-*, ace-theme-*)
+            // Ace requests 'mode-php.js', we have 'ace-mode-php.min.js'
+            $filename = basename($path);
+            if ($type === 'js' && (strpos($filename, 'mode-') === 0 || strpos($filename, 'worker-') === 0 || strpos($filename, 'theme-') === 0)) {
+                $basename = basename($path, '.js'); // mode-php
+                $aceName = 'ace-' . $basename . '.min.js'; // ace-mode-php.min.js
+
+                // Check in vendor
+                $aceSource = $rootDir . '/resources/js/vendor/' . $aceName;
+                if (file_exists($aceSource)) {
+                    $sourceFile = $aceSource;
+                    goto found;
+                }
+            }
+
+
             http_response_code(404);
             echo "File not found";
             return;
@@ -99,9 +115,13 @@ class AssetController extends BaseController
                 // Minify and cache
                 $content = file_get_contents($sourceFile);
                 if ($type === 'css') {
-                    $content = $this->minifyCss($content);
+                    if (strpos($path, '.min.') === false && strpos($sourceFile, '.min.') === false) {
+                        $content = $this->minifyCss($content);
+                    }
                 } else {
-                    $content = $this->minifyJs($content);
+                    if (strpos($path, '.min.') === false && strpos($sourceFile, '.min.') === false) {
+                        $content = $this->minifyJs($content);
+                    }
                 }
                 file_put_contents($cacheFile, $content);
             }
@@ -225,7 +245,12 @@ class AssetController extends BaseController
         // Matches /min/css/site.css
         Router::get('/min/css/(.+)', [$this, 'serveCss']);
 
-        // Matches /min/js/site.js
+        // Matches /min/js/vendor/(.+) -> serveJs('vendor/$1')
+        Router::get('/min/js/vendor/(.+)', function ($file) {
+            $this->serveJs('vendor/' . $file);
+        });
+
+        // Matches /min/js/(.+)
         Router::get('/min/js/(.+)', [$this, 'serveJs']);
 
         // Matches /assets/... for static resources

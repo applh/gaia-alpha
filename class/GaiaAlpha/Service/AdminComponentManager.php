@@ -54,11 +54,14 @@ class AdminComponentManager
         // Also save to file system (Phase 1.3 requirement)
         // clean up view_name to be safe filename
         $filename = preg_replace('/[^a-zA-Z0-9_-]/', '', $component['view_name']) . '.js';
-        $path = __DIR__ . '/../../../resources/js/components/custom/' . $filename;
+
+        // Use my-data/components/custom instead of resources
+        $baseDir = \GaiaAlpha\Env::get('path_data') . '/components/custom';
+        $path = $baseDir . '/' . $filename;
 
         // Ensure directory exists
-        if (!is_dir(dirname($path))) {
-            mkdir(dirname($path), 0755, true);
+        if (!is_dir($baseDir)) {
+            mkdir($baseDir, 0755, true);
         }
 
         file_put_contents($path, $code);

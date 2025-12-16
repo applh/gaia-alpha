@@ -40,6 +40,15 @@ class AssetController extends BaseController
         $rootDir = Env::get('root_dir');
         $sourceFile = $rootDir . '/resources/' . $type . '/' . $path;
 
+        // Special handling for custom components moved to my-data
+        if ($type === 'js' && strpos($path, 'components/custom/') === 0) {
+            $customPath = Env::get('path_data') . '/' . $path;
+            if (file_exists($customPath)) {
+                $sourceFile = $customPath;
+                goto found;
+            }
+        }
+
         if (!file_exists($sourceFile)) {
             // Fallback: Check if CSS is hidden in JS folder (common for vendor libs)
             if ($type === 'css') {

@@ -2,7 +2,7 @@ import { createApp, defineAsyncComponent, onMounted, computed, ref } from 'vue';
 import { store } from './store.js';
 
 const Login = defineAsyncComponent(() => import('components/admin/Login.js'));
-const TodoList = defineAsyncComponent(() => import('components/views/TodoList.js'));
+const TodoList = defineAsyncComponent(() => import('plugins/Todo/TodoList.js'));
 const AdminDashboard = defineAsyncComponent(() => import('components/admin/AdminDashboard.js'));
 const UsersAdmin = defineAsyncComponent(() => import('components/admin/settings/UsersAdmin.js'));
 const CMS = defineAsyncComponent(() => import('components/cms/CMS.js'));

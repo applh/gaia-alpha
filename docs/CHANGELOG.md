@@ -1,6 +1,12 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+## [v0.41.0] - 2025-12-16
+### Refactored
+- **Todo Plugin**: Full Modularization. Moved `TodoList.js`, `CalendarView.js`, and `GanttView.js` to `plugins/Todo/resources/js/`.
+- **Todo Plugin**: Added `plugin.json` manifest.
+- **Frontend**: Updated `site.js` to load Todo components from the plugin directory.
+
 ## [v0.40.0] - 2025-12-16
 ### Added
 - **Core Plugins**: Architecture for moving core features into isolated plugins (`plugins/` with `type: "core"`).

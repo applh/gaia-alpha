@@ -14,6 +14,7 @@
                 "ui/": "/min/js/components/ui/",
                 "composables/": "/min/js/composables/",
                 "builders/": "/min/js/components/builders/",
+                "plugins/": "/min/js/plugins/",
                 "store": "/min/js/store.js"
             }
         }

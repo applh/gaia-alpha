@@ -12,7 +12,7 @@ const SiteSettings = defineAsyncComponent(() => import('components/admin/setting
 const FormsAdmin = defineAsyncComponent(() => import('components/cms/FormsAdmin.js'));
 const ApiManager = defineAsyncComponent(() => import('components/admin/settings/ApiManager.js'));
 const MapPanel = defineAsyncComponent(() => import('components/views/MapPanel.js'));
-const ConsolePanel = defineAsyncComponent(() => import('components/admin/ConsolePanel.js'));
+const ConsolePanel = defineAsyncComponent(() => import('plugins/Console/ConsolePanel.js'));
 const ChatPanel = defineAsyncComponent(() => import('components/views/ChatPanel.js'));
 const MultiSitePanel = defineAsyncComponent(() => import('components/admin/MultiSitePanel.js'));
 const ComponentBuilder = defineAsyncComponent(() => import('components/builders/ComponentBuilder.js'));
@@ -256,7 +256,7 @@ const App = {
                     { label: 'Users', view: 'users', icon: 'users' },
                     { label: 'Databases', view: 'database', icon: 'database' },
                     { label: 'APIs', view: 'api-builder', icon: 'zap' },
-                    { label: 'Console', view: 'console', icon: 'terminal' },
+                    // Console injected via plugin
                     { label: 'Sites', view: 'sites', icon: 'server' },
                     { label: 'Site Settings', view: 'site-settings', icon: 'globe' },
                     { label: 'Plugins', view: 'plugins', icon: 'plug' },

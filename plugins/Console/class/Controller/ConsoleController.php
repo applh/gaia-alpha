@@ -1,11 +1,17 @@
 <?php
 
-namespace GaiaAlpha\Controller;
+namespace Console\Controller;
 
+use GaiaAlpha\Controller\BaseController;
 use GaiaAlpha\Framework;
 use GaiaAlpha\System;
 use GaiaAlpha\Env;
 use GaiaAlpha\Hook;
+use GaiaAlpha\Router;
+use GaiaAlpha\Request;
+use GaiaAlpha\Response;
+use GaiaAlpha\Debug;
+use GaiaAlpha\Cli;
 
 class ConsoleController extends BaseController
 {

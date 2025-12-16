@@ -1,6 +1,13 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+## [v0.40.0] - 2025-12-16
+### Added
+- **Core Plugins**: Architecture for moving core features into isolated plugins (`plugins/` with `type: "core"`).
+- **Assets**: Plugin Asset Serving. `AssetController` now serves assets from `plugins/{Name}/resources/js/` via the `plugins/` alias.
+- **Admin**: Console Plugin. Migrated the System Console to a standalone Core Plugin.
+- **UI**: API Builder Improvements. Moved toggle switch to the left, added text truncation for long names, and added an "Open in new window" link for endpoints.
+
 ## [v0.39.0] - 2025-12-16
 ### Added
 - **UI**: Notification System (Toasts). Replaced native browser alerts with a custom, high-visibility toast notification system in `site.js`.

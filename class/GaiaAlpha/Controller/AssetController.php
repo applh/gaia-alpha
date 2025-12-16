@@ -59,6 +59,21 @@ class AssetController extends BaseController
                 }
             }
 
+            // Fallback: Check for Plugin assets (plugins/PluginName/Path -> plugins/PluginName/resources/js/Path)
+            if ($type === 'js' && strpos($path, 'plugins/') === 0) {
+                // Remove 'plugins/' prefix
+                $pluginPath = substr($path, 8);
+                $parts = explode('/', $pluginPath);
+                $pluginName = array_shift($parts);
+                $rest = implode('/', $parts);
+
+                $pluginSource = $rootDir . '/plugins/' . $pluginName . '/resources/js/' . $rest;
+                if (file_exists($pluginSource)) {
+                    $sourceFile = $pluginSource;
+                    goto found;
+                }
+            }
+
             // Fallback: Check for Ace Editor files (ace-mode-*, ace-worker-*, ace-theme-*)
             // Ace requests 'mode-php.js', we have 'ace-mode-php.min.js'
             $filename = basename($path);

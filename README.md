@@ -47,6 +47,7 @@ Everything you need to know about using and extending Gaia Alpha.
 - **[Multi-Site](docs/devops/multi_site.md)**: Serving multiple domains from one install.
 - **[Plugin System](docs/developer/plugins.md)**: Extending the framework.
 - **[Roadmap](docs/cto/roadmap.md)**: Future plans and upcoming features.
+- **[Changelog](docs/CHANGELOG.md)**: History of changes and versions.
 
 ---
 
@@ -67,8 +68,8 @@ Everything you need to know about using and extending Gaia Alpha.
 
 We welcome contributions from everyone! Here's how you can help:
 
-- **[Contributing Guide](CONTRIBUTING.md)**: How to submit PRs and report bugs.
-- **[Code of Conduct](CODE_OF_CONDUCT.md)**: Our pledge for a welcoming community.
+- **[Contributing Guide](.github/CONTRIBUTING.md)**: How to submit PRs and report bugs.
+- **[Code of Conduct](.github/CODE_OF_CONDUCT.md)**: Our pledge for a welcoming community.
 
 ### Performance Benchmarking
 We care about speed. Proof it yourself:

@@ -3,6 +3,8 @@
 All notable changes to this project will be documented in this file.
 ## [v0.41.0] - 2025-12-16
 ### Refactored
+- **Chat Plugin**: Full Modularization. Moved `ChatController.php` and `ChatPanel.js` to `plugins/Chat/`.
+- **Chat Plugin**: Dynamic Menu Injection. The "Chat" menu item is now injected by the plugin only when active.
 - **Todo Plugin**: Full Modularization. Moved `TodoList.js`, `CalendarView.js`, and `GanttView.js` to `plugins/Todo/resources/js/`.
 - **Todo Plugin**: Added `plugin.json` manifest.
 - **Frontend**: Updated `site.js` to load Todo components from the plugin directory.

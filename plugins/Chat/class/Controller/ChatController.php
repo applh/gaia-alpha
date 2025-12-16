@@ -1,11 +1,12 @@
 <?php
-namespace GaiaAlpha\Controller;
+namespace Chat\Controller;
 
 use GaiaAlpha\Framework;
 use GaiaAlpha\Router;
 use GaiaAlpha\Response;
 use GaiaAlpha\Model\Message;
 use GaiaAlpha\Model\User;
+use GaiaAlpha\Controller\BaseController;
 
 class ChatController extends BaseController
 {

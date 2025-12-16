@@ -1,0 +1,7 @@
+{
+    "name": "Chat",
+    "version": "1.0.0",
+    "description": "System Chat for internal messaging.",
+    "type": "core",
+    "author": "Gaia Alpha"
+}

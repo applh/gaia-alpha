@@ -28,7 +28,7 @@ Based on the current codebase analysis, the following features are prime candida
 | Feature | Backend Controllers | Frontend Components | Complexity |
 | :--- | :--- | :--- | :--- |
 | **Console** | `ConsoleController` | `ConsolePanel.js` | Low |
-| **Chat** | `ChatController` | (Chat UI, if distinct) | Low |
+| **Chat** | `ChatController` | `ChatPanel.js` | Low | **Done** |
 | **Media Manager** | `MediaController` | (Media UI components) | Medium |
 | **Multi-Site** | `SiteController` | `MultiSitePanel.js` | Medium |
 | **Database Manager** | `DbController` | `DatabaseManager.js` | High |
@@ -39,8 +39,9 @@ Based on the current codebase analysis, the following features are prime candida
 ## 4. Migration Strategy
 
 ### Phase 1: Proof of Concept (Low Risk)
-**Target: Console & Chat**
+**Target: Console & Chat (Completed)**
 -   **Goal**: Validate that simple features can be fully externalized.
+-   **Status**: **Useable/Done**
 -   **Tasks**:
     1. Update Autoloader/PluginManager to identify these new plugins.
     2. Move `ConsoleController` logic to `plugins/Console/class/`.

@@ -13,7 +13,7 @@ const FormsAdmin = defineAsyncComponent(() => import('components/cms/FormsAdmin.
 const ApiManager = defineAsyncComponent(() => import('components/admin/settings/ApiManager.js'));
 const MapPanel = defineAsyncComponent(() => import('components/views/MapPanel.js'));
 const ConsolePanel = defineAsyncComponent(() => import('plugins/Console/ConsolePanel.js'));
-const ChatPanel = defineAsyncComponent(() => import('components/views/ChatPanel.js'));
+const ChatPanel = defineAsyncComponent(() => import('plugins/Chat/ChatPanel.js'));
 const MultiSitePanel = defineAsyncComponent(() => import('components/admin/MultiSitePanel.js'));
 const ComponentBuilder = defineAsyncComponent(() => import('components/builders/ComponentBuilder.js'));
 const PluginsAdmin = defineAsyncComponent(() => import('components/admin/settings/PluginsAdmin.js'));
@@ -239,7 +239,6 @@ const App = {
             {
                 label: 'Projects', icon: 'check-square', id: 'grp-projects', children: [
                     // { label: 'Tasks', view: 'todos', icon: 'list-todo' }, // Moved to Plugin
-                    { label: 'Chat', view: 'chat', icon: 'message-square' },
                 ]
             },
             {

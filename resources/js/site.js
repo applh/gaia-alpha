@@ -6,7 +6,7 @@ const TodoList = defineAsyncComponent(() => import('plugins/Todo/TodoList.js'));
 const AdminDashboard = defineAsyncComponent(() => import('components/admin/AdminDashboard.js'));
 const UsersAdmin = defineAsyncComponent(() => import('components/admin/settings/UsersAdmin.js'));
 const CMS = defineAsyncComponent(() => import('components/cms/CMS.js'));
-const DatabaseManager = defineAsyncComponent(() => import('components/admin/settings/DatabaseManager.js'));
+const DatabaseManager = defineAsyncComponent(() => import('plugins/DatabaseManager/DatabaseManager.js'));
 const UserSettings = defineAsyncComponent(() => import('components/admin/settings/UserSettings.js'));
 const SiteSettings = defineAsyncComponent(() => import('components/admin/settings/SiteSettings.js'));
 const FormsAdmin = defineAsyncComponent(() => import('components/cms/FormsAdmin.js'));
@@ -253,7 +253,7 @@ const App = {
             {
                 label: 'System', icon: 'settings-2', id: 'grp-system', adminOnly: true, children: [
                     { label: 'Users', view: 'users', icon: 'users' },
-                    { label: 'Databases', view: 'database', icon: 'database' },
+
                     { label: 'APIs', view: 'api-builder', icon: 'zap' },
                     // Console injected via plugin
                     // Sites injected via plugin

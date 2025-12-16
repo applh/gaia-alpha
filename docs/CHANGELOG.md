@@ -1,6 +1,13 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+## [v0.43.0] - 2025-12-17
+### Refactored
+- **Database Manager**: Full Modularization. Moved backend logic to `plugins/DatabaseManager/class/Controller/DatabaseController.php`.
+- **Database Manager**: Moved frontend component to `plugins/DatabaseManager/resources/js/DatabaseManager.js`.
+- **Database Manager**: Dynamic Menu Injection. The "Databases" menu item is now injected via the plugin hook.
+- **Database**: Added static helper methods to `DB` model: `getTables`, `getTableSchema`, `getTableRecords`, `getTableCount`.
+
 ## [v0.42.0] - 2025-12-16
 ### Refactored
 - **MultiSite Plugin**: Full Modularization. Moved `SiteController.php` and `MultiSitePanel.js` to `plugins/MultiSite/`.

@@ -31,7 +31,7 @@ Based on the current codebase analysis, the following features are prime candida
 | **Chat** | `ChatController` | `ChatPanel.js` | Low | **Done** |
 | **Media Manager** | `MediaController` | (Media UI components) | Medium |
 | **Multi-Site** | `SiteController` | `MultiSitePanel.js` | Medium | **Done** |
-| **Database Manager** | `DbController` | `DatabaseManager.js` | High |
+| **Database Manager** | `DbController` | `DatabaseManager.js` | High | **Done** |
 | **API Builder** | `ApiBuilderController`, `DynamicApiController` | `ApiManager.js` | High |
 | **Component Builder** | `AdminComponentBuilderController` | `builders/*` | High |
 | **CMS/Pages** | `CmsController`, `ViewController` | (Page Editors) | Very High |
@@ -49,7 +49,7 @@ Based on the current codebase analysis, the following features are prime candida
     4. Register Admin Routes via `plugin.json` or `Plugin.php` boot.
 
 ### Phase 2: Tooling (Medium/High Risk)
-**Target: API Builder & Database Manager**
+**Target: API Builder & Database Manager (Partial)**
 -   **Goal**: Move complex admin tools.
 -   **Challenge**: These tools often rely on deep system access.
 -   **Tasks**:

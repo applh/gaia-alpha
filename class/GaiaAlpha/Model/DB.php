@@ -141,4 +141,24 @@ class DB
         $stmt = self::query("DELETE FROM $table WHERE id = ?", [$id]);
         return true;
     }
+
+    public static function getTables()
+    {
+        return self::fetchAll("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name", [], \PDO::FETCH_COLUMN);
+    }
+
+    public static function getTableSchema($tableName)
+    {
+        return self::fetchAll("PRAGMA table_info($tableName)");
+    }
+
+    public static function getTableRecords($tableName, $limit = 100)
+    {
+        return self::fetchAll("SELECT * FROM $tableName LIMIT $limit");
+    }
+
+    public static function getTableCount($tableName)
+    {
+        return self::fetchColumn("SELECT COUNT(*) FROM $tableName");
+    }
 }

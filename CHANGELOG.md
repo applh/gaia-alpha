@@ -1,6 +1,12 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+## [v0.37.0] - 2025-12-16
+### Added
+- **Admin**: Plugin Installer. Install plugins directly from GitHub URLs or raw Zip URLs via `System > Plugins`.
+- **Backend**: `AdminController::installPlugin` to handle zip download, extraction, and validation.
+- **UI**: Added "Install Plugin" modal to Plugins Admin panel.
+
 ## [v0.36.0] - 2025-12-16
 ### Added
 - **Admin**: Plugin Admin Panel. New UI for managing/toggling plugins (`System > Plugins`).

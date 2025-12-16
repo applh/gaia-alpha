@@ -459,46 +459,171 @@ class AdminController extends BaseController
         $this->requireAdmin();
         $data = $this->getJsonInput();
 
-        if (empty($data['name']) || !isset($data['active'])) {
-            $this->jsonResponse(['error' => 'Name and active status required'], 400);
+        $name = $data['name'] ?? null;
+        $active = $data['active'] ?? false;
+
+        if (!$name) {
+            $this->jsonResponse(['error' => 'Plugin name required'], 400);
             return;
         }
-
-        $pluginName = $data['name'];
-        $shouldBeActive = (bool) $data['active'];
 
         $pathData = \GaiaAlpha\Env::get('path_data');
-        $activePluginsFile = $pathData . '/active_plugins.json';
-        $pluginsDir = $pathData . '/plugins';
-
-        // Security check: ensure plugin exists
-        if (!is_dir($pluginsDir . '/' . $pluginName)) {
-            $this->jsonResponse(['error' => 'Plugin not found'], 404);
+        if (!is_dir($pathData . '/plugins/' . $name)) {
+            $this->jsonResponse(['error' => 'Plugin does not exist'], 404);
             return;
         }
 
+        $activePluginsFile = $pathData . '/active_plugins.json';
         $activePlugins = [];
+
         if (file_exists($activePluginsFile)) {
             $activePlugins = json_decode(file_get_contents($activePluginsFile), true);
         } else {
-            // Initialize with all currently existing plugins if file doesn't exist
-            foreach (glob($pluginsDir . '/*', GLOB_ONLYDIR) as $dir) {
-                if (file_exists($dir . '/index.php')) {
-                    $activePlugins[] = basename($dir);
-                }
+            // First time toggling: Initialize with ALL plugins currently present
+            // because previously "no file" meant "all active"
+            foreach (glob($pathData . '/plugins/*', GLOB_ONLYDIR) as $dir) {
+                $activePlugins[] = basename($dir);
             }
         }
 
-        if ($shouldBeActive) {
-            if (!in_array($pluginName, $activePlugins)) {
-                $activePlugins[] = $pluginName;
+        if ($active) {
+            if (!in_array($name, $activePlugins)) {
+                $activePlugins[] = $name;
             }
         } else {
-            $activePlugins = array_values(array_diff($activePlugins, [$pluginName]));
+            $activePlugins = array_diff($activePlugins, [$name]);
         }
 
+        // Re-index array
+        $activePlugins = array_values($activePlugins);
+
         file_put_contents($activePluginsFile, json_encode($activePlugins, JSON_PRETTY_PRINT));
-        $this->jsonResponse(['success' => true, 'active' => $shouldBeActive]);
+
+        $this->jsonResponse(['active' => $active]);
+    }
+
+    public function installPlugin()
+    {
+        $this->requireAdmin();
+        $input = $this->getJsonInput();
+        $url = $input['url'] ?? '';
+        $isRaw = $input['is_raw'] ?? false;
+
+        if (!filter_var($url, FILTER_VALIDATE_URL)) {
+            $this->jsonResponse(['error' => 'Invalid URL'], 400);
+            return;
+        }
+
+        $pathData = \GaiaAlpha\Env::get('path_data');
+        $tmpDir = $pathData . '/cache/tmp';
+        if (!is_dir($tmpDir)) {
+            mkdir($tmpDir, 0777, true);
+        }
+
+        $tmpFile = $tmpDir . '/plugin_install_' . uniqid() . '.zip';
+
+        // 1. URL processing
+        // Improve UX: parse GitHub repo URLs automatically if not raw
+        // Input: https://github.com/user/repo
+        // Target: https://github.com/user/repo/archive/HEAD.zip
+        if (!$isRaw && strpos($url, 'github.com') !== false && substr($url, -4) !== '.zip') {
+            $url = rtrim($url, '/') . '/archive/HEAD.zip';
+        }
+
+        // 2. Download
+        $content = @file_get_contents($url);
+        if ($content === false) {
+            $this->jsonResponse(['error' => 'Failed to download file from URL.'], 400);
+            return;
+        }
+        file_put_contents($tmpFile, $content);
+
+        // 2. Unzip
+        $zip = new \ZipArchive;
+        if ($zip->open($tmpFile) === TRUE) {
+            $extractPath = $tmpDir . '/extract_' . uniqid();
+            mkdir($extractPath);
+            $zip->extractTo($extractPath);
+            $zip->close();
+
+            // 3. Find Content Root
+            // GitHub zips put everything in a top-level folder 'Repo-main'
+            $files = scandir($extractPath);
+            $pluginRoot = $extractPath;
+
+            // Filter out . and ..
+            $items = array_diff($files, ['.', '..']);
+
+            // If only one directory, go inside
+            if (count($items) === 1 && is_dir($extractPath . '/' . reset($items))) {
+                $pluginRoot = $extractPath . '/' . reset($items);
+            }
+
+            // 4. Validate index.php
+            if (!file_exists($pluginRoot . '/index.php')) {
+                // Cleanup
+                $this->recursiveRmDir($extractPath);
+                unlink($tmpFile);
+                $this->jsonResponse(['error' => 'Invalid Plugin: index.php not found in root.'], 400);
+                return;
+            }
+
+            // 5. Install
+            // Use repo name from URL or generic name?
+            // Let's assume URL ends in /zipball/main or similar, or just use dirname of repo
+            // Better: use the folder name from the zip if reasonable, or fallback to uniqid
+            // Actually, let's use the last part of the URL path before extension
+
+            // Let's try to infer name from URL
+            // https://github.com/user/repo/archive/refs/heads/main.zip -> repo
+            $pathParts = parse_url($url, PHP_URL_PATH);
+            $filename = basename($pathParts); // main.zip
+            $repoName = 'installed_plugin_' . uniqid();
+
+            // If URL is github, try to parse repo name
+            if (preg_match('#github\.com/[^/]+/([^/]+)#', $url, $matches)) {
+                $repoName = $matches[1];
+                // strip .zip if present (though regex above matches repo name segment)
+            }
+
+            $targetDir = $pathData . '/plugins/' . $repoName;
+
+            // Avoid overwrite collision
+            if (is_dir($targetDir)) {
+                $targetDir .= '_' . uniqid();
+            }
+
+            rename($pluginRoot, $targetDir);
+
+            // Cleanup
+            $this->recursiveRmDir($extractPath); // Only removes empty parent if we moved the child
+            // Actually if we simply renamed $pluginRoot, the parent $extractPath might still exist (if we went down one level)
+            if (is_dir($extractPath)) {
+                $this->recursiveRmDir($extractPath);
+            }
+            unlink($tmpFile);
+
+            $this->jsonResponse(['success' => true, 'dir' => basename($targetDir)]);
+        } else {
+            unlink($tmpFile);
+            $this->jsonResponse(['error' => 'Failed to unzip file.'], 500);
+        }
+    }
+
+    private function recursiveRmDir($dir)
+    {
+        if (is_dir($dir)) {
+            $objects = scandir($dir);
+            foreach ($objects as $object) {
+                if ($object != "." && $object != "..") {
+                    if (is_dir($dir . "/" . $object) && !is_link($dir . "/" . $object))
+                        $this->recursiveRmDir($dir . "/" . $object);
+                    else
+                        unlink($dir . "/" . $object);
+                }
+            }
+            rmdir($dir);
+        }
     }
 
     public function registerRoutes()
@@ -532,6 +657,7 @@ class AdminController extends BaseController
 
         // Plugin Management
         \GaiaAlpha\Router::add('GET', '/@/admin/plugins', [$this, 'getPlugins']);
+        \GaiaAlpha\Router::add('POST', '/@/admin/plugins/install', [$this, 'installPlugin']);
         \GaiaAlpha\Router::add('POST', '/@/admin/plugins/toggle', [$this, 'togglePlugin']);
     }
 }

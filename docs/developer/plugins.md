@@ -23,6 +23,16 @@ The framework loads plugins found in `my-data/plugins` during the application bo
     - If `active_plugins.json` exists, **ONLY** the plugins listed in this file are loaded.
 - **Management**: Plugins can be toggled via the Admin Dashboard in the **System > Plugins** panel.
 
+## Installation
+
+Plugins can be installed directly from the Admin Dashboard:
+1. Go to **System > Plugins**.
+2. Click **Install Plugin**.
+3. Enter the **GitHub Repository URL** (e.g., `https://github.com/user/repo`).
+   - The system automatically detects GitHub URLs and fetches the latest `HEAD` zip.
+   - For other sources, check "Direct ZIP URL" and provide the full URL to the `.zip` file.
+
+
 ## Class Autoloading
 
 You can include classes in your plugin by placing them in a `class/` subdirectory. The framework uses a standard naming convention to autoload these classes.

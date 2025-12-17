@@ -25,16 +25,17 @@ To support these features as plugins, the Plugin System must strictly support:
 
 Based on the current codebase analysis, the following features are prime candidates:
 
-| Feature | Backend Controllers | Frontend Components | Complexity |
-| :--- | :--- | :--- | :--- |
-| **Console** | `ConsoleController` | `ConsolePanel.js` | Low |
-| **Chat** | `ChatController` | `ChatPanel.js` | Low | **Done** |
-| **Media Manager** | `MediaController` | (Media UI components) | Medium |
-| **Multi-Site** | `SiteController` | `MultiSitePanel.js` | Medium | **Done** |
-| **Database Manager** | `DbController` | `DatabaseManager.js` | High | **Done** |
-| **API Builder** | `ApiBuilderController`, `DynamicApiController` | `ApiManager.js` | High |
-| **Component Builder** | `AdminComponentBuilderController` | `builders/*` | High |
-| **CMS/Pages** | `CmsController`, `ViewController` | (Page Editors) | Very High |
+| Feature | Backend Controllers | Frontend Components | Complexity | Status |
+| :--- | :--- | :--- | :--- | :--- |
+| **Console** | `ConsoleController` | `ConsolePanel.js` | Low | [x] |
+| **Chat** | `ChatController` | `ChatPanel.js` | Low | [x] |
+| **Map** | `MapController` | `MapPanel.js` | Low | [x] |
+| **Media Manager** | `MediaController` | (Media UI components) | Medium | [ ] |
+| **Multi-Site** | `SiteController` | `MultiSitePanel.js` | Medium | [x] |
+| **Database Manager** | `DbController` | `DatabaseManager.js` | High | [x] |
+| **API Builder** | `ApiBuilderController`, `DynamicApiController` | `ApiManager.js` | High | [ ] |
+| **Component Builder** | `AdminComponentBuilderController` | `builders/*` | High | [ ] |
+| **CMS/Pages** | `CmsController`, `ViewController` | (Page Editors) | Very High | [ ] |
 
 ## 4. Migration Strategy
 

@@ -30,6 +30,11 @@ class AssetController extends BaseController
 
     private function serveAsset($path, $type)
     {
+        // Strip query string if present
+        if (strpos($path, '?') !== false) {
+            $path = explode('?', $path)[0];
+        }
+
         // Security check: prevent directory traversal
         if (strpos($path, '..') !== false) {
             http_response_code(403);

@@ -24,7 +24,7 @@ const DebugToolbar = {
             </div>
             <div class="controls" style="display:flex; align-items:center;">
                 <button @click.stop="logout" title="Logout" style="margin-right:10px;">⏻</button>
-                <button @click.stop="isMinimized = !isMinimized">{{ isMinimized ? '▲' : '▼' }}</button>
+                <button @click.stop="toggleMinimize">{{ isMinimized ? '▲' : '▼' }}</button>
             </div>
         </div>
         <div class="debug-toolbar-body" v-if="!isMinimized">
@@ -326,7 +326,11 @@ const DebugToolbar = {
         const requests = Vue.reactive([]);
         const visible = Vue.ref(true);
         const isMinimized = Vue.ref(localStorage.getItem('gaia_debug_minimized') === 'true');
-        const currentTab = Vue.ref('queries');
+        const currentTab = Vue.ref(localStorage.getItem('gaia_debug_tab') || 'queries');
+
+        Vue.watch(currentTab, (newTab) => {
+            localStorage.setItem('gaia_debug_tab', newTab);
+        });
 
         // Intercept Fetch
         const originalFetch = window.fetch;
@@ -424,6 +428,7 @@ const DebugToolbar = {
 
         const toggleMinimize = () => {
             isMinimized.value = !isMinimized.value;
+            localStorage.setItem('gaia_debug_minimized', isMinimized.value);
         };
 
         const logout = async () => {

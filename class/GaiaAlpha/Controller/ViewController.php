@@ -85,7 +85,8 @@ class ViewController extends BaseController
         }
 
         $vueUrl = \GaiaAlpha\Asset::url('/js/vendor/vue.esm-browser.js');
-        $componentUrl = \GaiaAlpha\Asset::url('/js/components/admin/DebugToolbar.js');
+        $timestamp = time() + 2; // Cache busting updated again
+        $componentUrl = \GaiaAlpha\Asset::url('/js/components/admin/DebugToolbar.js?v=' . $timestamp);
 
         // Use placeholder for late injection (handled by Debug::injectHeader via response_send hook)
         // This ensures all tasks (including step99 flush) are captured.

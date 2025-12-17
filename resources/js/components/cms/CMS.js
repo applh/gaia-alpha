@@ -1,7 +1,7 @@
 import { ref, reactive, onMounted, computed, watch } from 'vue';
 import SortTh from 'ui/SortTh.js';
 import TemplateBuilder from 'builders/TemplateBuilder.js';
-import ComponentBuilder from 'builders/ComponentBuilder.js';
+import ComponentBuilder from 'plugins/ComponentBuilder/ComponentBuilder.js';
 import SlotEditor from 'builders/SlotEditor.js';
 import MenuBuilder from 'builders/MenuBuilder.js';
 import Icon from 'ui/Icon.js';

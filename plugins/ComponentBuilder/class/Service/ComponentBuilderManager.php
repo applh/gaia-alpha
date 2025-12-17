@@ -1,35 +1,37 @@
 <?php
 
-namespace GaiaAlpha\Service;
 
-use GaiaAlpha\Model\AdminComponent;
+namespace ComponentBuilder\Service;
 
-class AdminComponentManager
+use ComponentBuilder\Model\ComponentBuilderModel;
+
+
+class ComponentBuilderManager
 {
     public function getComponents()
     {
-        return AdminComponent::findAll();
+        return ComponentBuilderModel::findAll();
     }
 
     public function getComponent($id)
     {
-        return AdminComponent::findById($id);
+        return ComponentBuilderModel::findById($id);
     }
 
     public function createComponent($data)
     {
         // Validation could go here
-        return AdminComponent::create($data);
+        return ComponentBuilderModel::create($data);
     }
 
     public function updateComponent($id, $data)
     {
-        return AdminComponent::update($id, $data);
+        return ComponentBuilderModel::update($id, $data);
     }
 
     public function deleteComponent($id)
     {
-        return AdminComponent::delete($id);
+        return ComponentBuilderModel::delete($id);
     }
 
     public function generateCode($id)
@@ -49,7 +51,7 @@ class AdminComponentManager
         $code = $generator->generate($definition);
 
         // Save generated code to DB
-        AdminComponent::update($id, ['generated_code' => $code]);
+        ComponentBuilderModel::update($id, ['generated_code' => $code]);
 
         // Also save to file system (Phase 1.3 requirement)
         // clean up view_name to be safe filename

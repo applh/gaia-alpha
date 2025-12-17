@@ -1,19 +1,22 @@
 <?php
 
-namespace GaiaAlpha\Controller;
+
+namespace ComponentBuilder\Controller;
 
 use GaiaAlpha\Router;
 use GaiaAlpha\Response;
 use GaiaAlpha\Request;
-use GaiaAlpha\Service\AdminComponentManager;
+use GaiaAlpha\Controller\BaseController;
+use ComponentBuilder\Service\ComponentBuilderManager;
 
-class AdminComponentBuilderController extends BaseController
+
+class ComponentBuilderController extends BaseController
 {
-    private AdminComponentManager $manager;
+    private ComponentBuilderManager $manager;
 
     public function init()
     {
-        $this->manager = new AdminComponentManager();
+        $this->manager = new ComponentBuilderManager();
     }
 
     public function registerRoutes()
@@ -76,7 +79,7 @@ class AdminComponentBuilderController extends BaseController
         $name = $component['name'];
         // $viewName is already set
 
-        require __DIR__ . '/../../../templates/component_viewer.php';
+        require __DIR__ . '/../../views/component_viewer.php';
     }
 
     public function handlePreview($id)

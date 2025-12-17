@@ -15,7 +15,7 @@ const MapPanel = defineAsyncComponent(() => import('plugins/Map/MapPanel.js'));
 const ConsolePanel = defineAsyncComponent(() => import('plugins/Console/ConsolePanel.js'));
 const ChatPanel = defineAsyncComponent(() => import('plugins/Chat/ChatPanel.js'));
 const MultiSitePanel = defineAsyncComponent(() => import('plugins/MultiSite/MultiSitePanel.js'));
-const ComponentBuilder = defineAsyncComponent(() => import('components/builders/ComponentBuilder.js'));
+const ComponentBuilder = defineAsyncComponent(() => import('plugins/ComponentBuilder/ComponentBuilder.js'));
 const PluginsAdmin = defineAsyncComponent(() => import('components/admin/settings/PluginsAdmin.js'));
 
 const ToastContainer = {

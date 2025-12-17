@@ -2918,12 +2918,7 @@ body.layout-side .nav-group.open .nav-dropdown-menu {
 }
 
 /* Component Builder Modal Specific Overrides */
-.component-builder .modal {
-    display: none;
-    position: relative;
-    z-index: 2000;
-}
-
+/* Modal is controlled by v-if in the Modal component, not by CSS classes */
 .component-builder .modal.active {
     display: block;
 }

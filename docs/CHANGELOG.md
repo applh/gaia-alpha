@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.46.0] - 2025-12-17
+
+### Added
+- **Component Builder Plugin**: Migrated Component Builder feature to a core plugin
+  - Moved `AdminComponentBuilderController`, `AdminComponentManager`, `ComponentCodeGenerator`, and `AdminComponent` to plugin structure
+  - Updated namespaces to `ComponentBuilder\*` pattern for plugin autoloader compatibility
+  - Implemented hook-based controller registration with manual route registration
+  - Component Builder now fully functional as a standalone plugin
+
+### Changed
+- **Plugin Architecture**: Refined plugin loading and route registration mechanism
+  - Controllers registered via `framework_load_controllers_after` hook now call `registerRoutes()` directly
+  - Improved plugin asset serving for JS modules
+  - Builder sub-components remain in core for shared use by CMS
+
+### Fixed
+- Fixed modal visibility issue in Component Builder (removed conflicting CSS `display: none` rule)
+- Fixed plugin namespace pattern to match autoloader expectations
+
+
 All notable changes to this project will be documented in this file.
 ## [v0.45.0] - 2025-12-17
 ### Refactored

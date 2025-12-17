@@ -1,0 +1,7 @@
+{
+    "name": "ComponentBuilder",
+    "description": "Admin Component Builder Core Plugin",
+    "version": "1.0.0",
+    "type": "core",
+    "enabled": true
+}

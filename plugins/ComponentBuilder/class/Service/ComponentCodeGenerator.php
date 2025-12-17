@@ -1,6 +1,8 @@
 <?php
 
-namespace GaiaAlpha\Service;
+
+namespace ComponentBuilder\Service;
+
 
 class ComponentCodeGenerator
 {

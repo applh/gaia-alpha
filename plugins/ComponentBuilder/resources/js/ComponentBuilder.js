@@ -1,10 +1,10 @@
 import { ref, reactive, onMounted, computed, defineAsyncComponent } from 'vue';
 
-// Lazy load builder sub-components
-const ComponentToolbox = defineAsyncComponent(() => import('./builder/ComponentToolbox.js'));
-const ComponentCanvas = defineAsyncComponent(() => import('./builder/ComponentCanvas.js'));
-const ComponentProperties = defineAsyncComponent(() => import('./builder/ComponentProperties.js'));
-const ComponentTree = defineAsyncComponent(() => import('./builder/ComponentTree.js'));
+// Lazy load builder sub-components from core builders
+const ComponentToolbox = defineAsyncComponent(() => import('builders/builder/ComponentToolbox.js'));
+const ComponentCanvas = defineAsyncComponent(() => import('builders/builder/ComponentCanvas.js'));
+const ComponentProperties = defineAsyncComponent(() => import('builders/builder/ComponentProperties.js'));
+const ComponentTree = defineAsyncComponent(() => import('builders/builder/ComponentTree.js'));
 const LucideIcon = defineAsyncComponent(() => import('ui/Icon.js'));
 const Modal = defineAsyncComponent(() => import('ui/Modal.js'));
 

@@ -1,8 +1,11 @@
 <?php
 
-namespace GaiaAlpha\Model;
 
-class AdminComponent
+namespace ComponentBuilder\Model;
+
+use GaiaAlpha\Model\DB;
+
+class ComponentBuilderModel
 {
     public static function findAll()
     {

@@ -4,6 +4,7 @@ namespace GaiaAlpha\Cli;
 
 use GaiaAlpha\Database;
 use GaiaAlpha\Model\User;
+use GaiaAlpha\Cli\Input;
 
 class UserCommands
 {
@@ -32,15 +33,14 @@ class UserCommands
 
     public static function handleCreate(): void
     {
-        global $argv;
-        if (count($argv) < 4) {
+        if (Input::count() < 2) {
             echo "Usage: user:create <username> <password> [level]\n";
             exit(1);
         }
 
-        $username = $argv[2];
-        $password = $argv[3];
-        $level = isset($argv[4]) ? (int) $argv[4] : 10;
+        $username = Input::get(0);
+        $password = Input::get(1);
+        $level = (int) Input::get(2, 10);
 
         // Check if user exists
         if (User::findByUsername($username)) {
@@ -54,14 +54,13 @@ class UserCommands
 
     public static function handleUpdatePassword(): void
     {
-        global $argv;
-        if (count($argv) < 4) {
+        if (Input::count() < 2) {
             echo "Usage: user:update-password <username> <new_password>\n";
             exit(1);
         }
 
-        $username = $argv[2];
-        $password = $argv[3];
+        $username = Input::get(0);
+        $password = Input::get(1);
 
         $user = User::findByUsername($username);
 
@@ -76,13 +75,12 @@ class UserCommands
 
     public static function handleDelete(): void
     {
-        global $argv;
-        if (count($argv) < 3) {
+        if (Input::count() < 1) {
             echo "Usage: user:delete <username>\n";
             exit(1);
         }
 
-        $username = $argv[2];
+        $username = Input::get(0);
 
         $user = User::findByUsername($username);
 

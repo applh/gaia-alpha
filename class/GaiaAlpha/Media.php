@@ -302,6 +302,34 @@ class Media
         return $this->deleteDirContents($this->cacheDir);
     }
 
+    public function upload(array $file, int $userId): array
+    {
+        $allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/avif'];
+        $finfo = new \finfo(FILEINFO_MIME_TYPE);
+        $mime = $finfo->file($file['tmp_name']);
+
+        if (!in_array($mime, $allowedTypes)) {
+            throw new \Exception('Invalid file type. Allowed: JPG, PNG, WEBP, AVIF');
+        }
+
+        $userDir = $this->uploadsDir . '/' . $userId;
+        \GaiaAlpha\Filesystem::makeDirectory($userDir);
+
+        $useAvif = function_exists('imageavif');
+        $ext = $useAvif ? '.avif' : '.webp';
+        $filename = time() . '_' . bin2hex(random_bytes(4)) . $ext;
+        $outputPath = $userDir . '/' . $filename;
+
+        // Process and resize
+        $this->processImage($file['tmp_name'], $outputPath, 3840, 2160, 80, 'contain');
+
+        return [
+            'filename' => $filename,
+            'url' => '/media/' . $userId . '/' . $filename,
+            'mime' => $mime
+        ];
+    }
+
     private function getDirStats(string $dir): array
     {
         $count = 0;

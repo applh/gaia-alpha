@@ -3,20 +3,20 @@
 namespace GaiaAlpha\Cli;
 
 use GaiaAlpha\Model\Page;
+use GaiaAlpha\Cli\Input;
 
 class CmsCommands
 {
     public static function handleCreatePage(): void
     {
-        global $argv;
-        if (count($argv) < 4) {
+        if (Input::count() < 2) {
             echo "Usage: cms:create-page <slug> <template> [title]\n";
             exit(1);
         }
 
-        $slug = $argv[2];
-        $template = $argv[3];
-        $title = $argv[4] ?? ucfirst($slug);
+        $slug = Input::get(0);
+        $template = Input::get(1);
+        $title = Input::get(2, ucfirst($slug));
 
         // Ensure database connection
         \GaiaAlpha\Model\DB::connect();

@@ -4,17 +4,16 @@ namespace GaiaAlpha\Cli;
 
 use GaiaAlpha\Env;
 
+use GaiaAlpha\Cli\Input;
+
 class TableCommands
 {
-
-
     public static function handleList(): void
     {
-        global $argv;
-        $args = $argv;
-        if (!isset($args[2]))
+        if (!Input::has(0))
             die("Missing table name.\n");
-        $table = $args[2];
+
+        $table = Input::get(0);
         $count = \GaiaAlpha\Model\DB::fetchColumn("SELECT count(*) FROM $table");
         $rows = \GaiaAlpha\Model\DB::fetchAll("SELECT * FROM $table LIMIT 10");
         echo json_encode($rows, JSON_PRETTY_PRINT) . "\n";
@@ -22,12 +21,11 @@ class TableCommands
 
     public static function handleInsert(): void
     {
-        global $argv;
-        $args = $argv;
-        if (!isset($args[2]) || !isset($args[3]))
+        if (!Input::has(0) || !Input::has(1))
             die("Usage: table:insert <table> <json_data>\n");
-        $table = $args[2];
-        $data = json_decode($args[3], true);
+
+        $table = Input::get(0);
+        $data = json_decode(Input::get(1), true);
         if (!$data)
             die("Invalid JSON data.\n");
 
@@ -42,16 +40,16 @@ class TableCommands
 
     public static function handleUpdate(): void
     {
-        global $argv;
-        $args = $argv;
-        if (!isset($args[2]) || !isset($args[3]))
+        if (!Input::has(0) || !Input::has(1))
             die("Usage: table:update <table> <id> key=value key2=value2...\n");
-        $table = $args[2];
-        $id = $args[3];
+
+        $table = Input::get(0);
+        $id = Input::get(1);
 
         // Parse key=value pairs
         $data = [];
-        for ($i = 4; $i < count($args); $i++) {
+        $args = Input::all();
+        for ($i = 2; $i < count($args); $i++) {
             if (strpos($args[$i], '=') !== false) {
                 list($key, $value) = explode('=', $args[$i], 2);
                 $data[$key] = $value;
@@ -73,12 +71,11 @@ class TableCommands
 
     public static function handleDelete(): void
     {
-        global $argv;
-        $args = $argv;
-        if (!isset($args[2]) || !isset($args[3]))
+        if (!Input::has(0) || !Input::has(1))
             die("Usage: table:delete <table> <id>\n");
-        $table = $args[2];
-        $id = $args[3];
+
+        $table = Input::get(0);
+        $id = Input::get(1);
 
         \GaiaAlpha\Model\DB::execute("DELETE FROM $table WHERE id = ?", [$id]);
 
@@ -87,11 +84,10 @@ class TableCommands
 
     public static function handleQuery(): void
     {
-        global $argv;
-        $args = $argv;
-        if (!isset($args[2]))
+        if (!Input::has(0))
             die("Missing SQL query.\n");
-        $sql = $args[2];
+
+        $sql = Input::get(0);
 
         if (stripos(trim($sql), 'SELECT') === 0) {
             $rows = \GaiaAlpha\Model\DB::fetchAll($sql);

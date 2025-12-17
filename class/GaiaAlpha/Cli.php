@@ -20,15 +20,26 @@ class Cli
 
         Hook::run('cli_init');
 
-        // dependencies are now initialized by the commands themselves
+        $args = $argv ?? [];
+        $command = null;
+        $commandIndex = -1;
 
+        // Skip script name [0] and find the first argument that is NOT a flag
+        for ($i = 1; $i < count($args); $i++) {
+            if (!str_starts_with($args[$i], '--')) {
+                $command = $args[$i];
+                $commandIndex = $i;
+                break;
+            }
+        }
 
-        if (count($argv) < 2) {
+        if (!$command) {
             self::showHelp();
             exit(1);
         }
 
-        $command = $argv[1];
+        // Initialize Input with arguments following the command
+        \GaiaAlpha\Cli\Input::initFromArgv(array_slice($args, $commandIndex + 1));
 
         try {
             if ($command === 'help') {

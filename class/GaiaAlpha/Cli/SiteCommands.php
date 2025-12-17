@@ -5,13 +5,13 @@ namespace GaiaAlpha\Cli;
 use GaiaAlpha\Database;
 use GaiaAlpha\Env;
 use GaiaAlpha\SiteManager;
+use GaiaAlpha\Cli\Input;
 
 class SiteCommands
 {
     public static function handleCreate()
     {
-        global $argv;
-        $domain = $argv[2] ?? null;
+        $domain = Input::get(0);
 
         if (!$domain) {
             echo "Usage: php cli.php site:create <domain>\n";

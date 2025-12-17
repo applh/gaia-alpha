@@ -5,6 +5,8 @@ namespace GaiaAlpha\Cli;
 use GaiaAlpha\Media;
 use GaiaAlpha\Env;
 use GaiaAlpha\System;
+use GaiaAlpha\Cli\Input;
+
 class MediaCommands
 {
     private static function getMedia(): Media
@@ -39,22 +41,20 @@ class MediaCommands
 
     public static function handleProcess(): void
     {
-        global $argv;
-
-        if (count($argv) < 4) {
+        if (Input::count() < 2) {
             echo "Usage: php cli.php media:process <input_file> <output_file> [width] [height] [quality] [fit] [rotate] [flip] [filter]\n";
             exit(1);
         }
 
-        $input = $argv[2];
-        $output = $argv[3];
-        $width = isset($argv[4]) ? (int) $argv[4] : 0;
-        $height = isset($argv[5]) ? (int) $argv[5] : 0;
-        $quality = isset($argv[6]) ? (int) $argv[6] : 80;
-        $fit = isset($argv[7]) ? $argv[7] : 'contain';
-        $rotate = isset($argv[8]) ? (int) $argv[8] : 0;
-        $flip = isset($argv[9]) ? $argv[9] : '';
-        $filter = isset($argv[10]) ? $argv[10] : '';
+        $input = Input::get(0);
+        $output = Input::get(1);
+        $width = (int) Input::get(2, 0);
+        $height = (int) Input::get(3, 0);
+        $quality = (int) Input::get(4, 80);
+        $fit = Input::get(5, 'contain');
+        $rotate = (int) Input::get(6, 0);
+        $flip = Input::get(7, '');
+        $filter = Input::get(8, '');
 
         if (!\GaiaAlpha\Filesystem::exists($input)) {
             echo "Error: Input file not found: $input\n";
@@ -67,23 +67,21 @@ class MediaCommands
 
     public static function handleBatchProcess(): void
     {
-        global $argv;
-
-        if (count($argv) < 4) {
+        if (Input::count() < 2) {
             echo "Usage: php cli.php media:batch-process <input_dir> <output_dir> [w] [h] [q] [fit] [rot] [flip] [filter] [ext]\n";
             exit(1);
         }
 
-        $inputDir = $argv[2];
-        $outputDir = $argv[3];
-        $width = isset($argv[4]) ? (int) $argv[4] : 0;
-        $height = isset($argv[5]) ? (int) $argv[5] : 0;
-        $quality = isset($argv[6]) ? (int) $argv[6] : 80;
-        $fit = isset($argv[7]) ? $argv[7] : 'contain';
-        $rotate = isset($argv[8]) ? (int) $argv[8] : 0;
-        $flip = isset($argv[9]) ? $argv[9] : '';
-        $filter = isset($argv[10]) ? $argv[10] : '';
-        $ext = isset($argv[11]) ? $argv[11] : 'webp';
+        $inputDir = Input::get(0);
+        $outputDir = Input::get(1);
+        $width = (int) Input::get(2, 0);
+        $height = (int) Input::get(3, 0);
+        $quality = (int) Input::get(4, 80);
+        $fit = Input::get(5, 'contain');
+        $rotate = (int) Input::get(6, 0);
+        $flip = Input::get(7, '');
+        $filter = Input::get(8, '');
+        $ext = Input::get(9, 'webp');
 
         if (!\GaiaAlpha\Filesystem::isDirectory($inputDir)) {
             echo "Error: Input directory not found: $inputDir\n";
@@ -119,19 +117,17 @@ class MediaCommands
 
     public static function handleTransparent(): void
     {
-        global $argv;
-
-        if (count($argv) < 5) {
+        if (Input::count() < 3) {
             echo "Usage: php cli.php media:transparent <input_file> <output_file> <hex_color> [fuzz]\n";
             echo "  hex_color: Target color to make transparent (e.g. #FFFFFF)\n";
             echo "  fuzz: Color distance tolerance (default: 0)\n";
             exit(1);
         }
 
-        $input = $argv[2];
-        $output = $argv[3];
-        $hex = ltrim($argv[4], '#');
-        $fuzz = isset($argv[5]) ? (int) $argv[5] : 0;
+        $input = Input::get(0);
+        $output = Input::get(1);
+        $hex = ltrim(Input::get(2), '#');
+        $fuzz = (int) Input::get(3, 0);
 
         if (strlen($hex) === 3) {
             $hex = $hex[0] . $hex[0] . $hex[1] . $hex[1] . $hex[2] . $hex[2];
@@ -159,17 +155,15 @@ class MediaCommands
 
     public static function handleExtractFrame(): void
     {
-        global $argv;
-
-        if (count($argv) < 4) {
+        if (Input::count() < 2) {
             echo "Usage: php cli.php media:extract-frame <video_file> <output_image> [time]\n";
             echo "  time: Time offset (default: 00:00:01)\n";
             exit(1);
         }
 
-        $video = $argv[2];
-        $output = $argv[3];
-        $time = isset($argv[4]) ? $argv[4] : '00:00:01';
+        $video = Input::get(0);
+        $output = Input::get(1);
+        $time = Input::get(2, '00:00:01');
 
         if (!System::isAvailable('ffmpeg')) {
             echo "Error: 'ffmpeg' tool is not found in the system PATH. Please install it.\n";
@@ -207,19 +201,17 @@ class MediaCommands
 
     public static function handleExtractAudio(): void
     {
-        global $argv;
-
-        if (count($argv) < 4) {
+        if (Input::count() < 2) {
             echo "Usage: php cli.php media:extract-audio <video_file> <output_audio> [start_time] [duration]\n";
             echo "  start_time: Start time (default: 00:00:00)\n";
             echo "  duration: Duration to extract (default: full)\n";
             exit(1);
         }
 
-        $video = $argv[2];
-        $output = $argv[3];
-        $start = isset($argv[4]) ? $argv[4] : '00:00:00';
-        $duration = isset($argv[5]) ? $argv[5] : null;
+        $video = Input::get(0);
+        $output = Input::get(1);
+        $start = Input::get(2, '00:00:00');
+        $duration = Input::get(3);
 
         if (!System::isAvailable('ffmpeg')) {
             echo "Error: 'ffmpeg' tool is not found in the system PATH. Please install it.\n";
@@ -273,20 +265,18 @@ class MediaCommands
 
     public static function handleExtractFrames(): void
     {
-        global $argv;
-
-        if (count($argv) < 7) {
+        if (Input::count() < 5) {
             echo "Usage: php cli.php media:extract-frames <video_file> <output_dir> <start_time> <end_time> <count>\n";
             echo "  start_time: HH:MM:SS\n";
             echo "  end_time: HH:MM:SS\n";
             exit(1);
         }
 
-        $video = $argv[2];
-        $outputDir = $argv[3];
-        $start = $argv[4];
-        $end = $argv[5];
-        $count = (int) $argv[6];
+        $video = Input::get(0);
+        $outputDir = Input::get(1);
+        $start = Input::get(2);
+        $end = Input::get(3);
+        $count = (int) Input::get(4);
 
         if (!System::isAvailable('ffmpeg')) {
             echo "Error: 'ffmpeg' tool is not found in the system PATH. Please install it.\n";
@@ -371,19 +361,17 @@ class MediaCommands
 
     public static function handleExtractVideo(): void
     {
-        global $argv;
-
-        if (count($argv) < 4) {
+        if (Input::count() < 2) {
             echo "Usage: php cli.php media:extract-video <video_file> <output_video> [start_time] [duration]\n";
             echo "  start_time: Start time (default: 00:00:00)\n";
             echo "  duration: Duration to extract (default: full)\n";
             exit(1);
         }
 
-        $video = $argv[2];
-        $output = $argv[3];
-        $start = isset($argv[4]) ? $argv[4] : '00:00:00';
-        $duration = isset($argv[5]) ? $argv[5] : null;
+        $video = Input::get(0);
+        $output = Input::get(1);
+        $start = Input::get(2, '00:00:00');
+        $duration = Input::get(3);
 
         if (!System::isAvailable('ffmpeg')) {
             echo "Error: 'ffmpeg' tool is not found in the system PATH. Please install it.\n";
@@ -435,19 +423,17 @@ class MediaCommands
 
     public static function handleToHls(): void
     {
-        global $argv;
-
-        if (count($argv) < 4) {
+        if (Input::count() < 2) {
             echo "Usage: php cli.php media:to-hls <video_file> <output_dir> [segment_duration] [playlist_name]\n";
             echo "  segment_duration: Duration of each segment in seconds (default: 10)\n";
             echo "  playlist_name: Name of the m3u8 playlist file (default: playlist.m3u8)\n";
             exit(1);
         }
 
-        $video = $argv[2];
-        $outputDir = $argv[3];
-        $segmentDuration = isset($argv[4]) ? (int) $argv[4] : 10;
-        $playlistName = isset($argv[5]) ? $argv[5] : 'playlist.m3u8';
+        $video = Input::get(0);
+        $outputDir = Input::get(1);
+        $segmentDuration = (int) Input::get(2, 10);
+        $playlistName = Input::get(3, 'playlist.m3u8');
 
         if (!System::isAvailable('ffmpeg')) {
             echo "Error: 'ffmpeg' tool is not found in the system PATH. Please install it.\n";
@@ -523,15 +509,13 @@ class MediaCommands
 
     public static function handleFastStart(): void
     {
-        global $argv;
-
-        if (count($argv) < 4) {
+        if (Input::count() < 2) {
             echo "Usage: php cli.php media:fast-start <input_video> <output_video>\n";
             exit(1);
         }
 
-        $input = $argv[2];
-        $output = $argv[3];
+        $input = Input::get(0);
+        $output = Input::get(1);
 
         if (!System::isAvailable('ffmpeg')) {
             echo "Error: 'ffmpeg' tool is not found in the system PATH. Please install it.\n";
@@ -578,15 +562,13 @@ class MediaCommands
 
     public static function handleInfo(): void
     {
-        global $argv;
-
-        if (count($argv) < 3) {
+        if (Input::count() < 1) {
             echo "Usage: php cli.php media:info <input_file> [--raw]\n";
             exit(1);
         }
 
-        $input = $argv[2];
-        $raw = isset($argv[3]) && $argv[3] === '--raw';
+        $input = Input::get(0);
+        $raw = Input::get(1) === '--raw';
 
         if (!System::isAvailable('ffprobe')) {
             echo "Error: 'ffprobe' tool is not found in the system PATH. Please install it.\n";
@@ -654,9 +636,7 @@ class MediaCommands
 
     public static function handleGif(): void
     {
-        global $argv;
-
-        if (count($argv) < 4) {
+        if (Input::count() < 2) {
             echo "Usage: php cli.php media:gif <video_file> <output_gif> [start_time] [duration] [width]\n";
             echo "  start_time: default 00:00:00\n";
             echo "  duration: default 5\n";
@@ -664,11 +644,11 @@ class MediaCommands
             exit(1);
         }
 
-        $video = $argv[2];
-        $output = $argv[3];
-        $start = isset($argv[4]) ? $argv[4] : '00:00:00';
-        $duration = isset($argv[5]) ? $argv[5] : '5';
-        $width = isset($argv[6]) ? (int) $argv[6] : 320;
+        $video = Input::get(0);
+        $output = Input::get(1);
+        $start = Input::get(2, '00:00:00');
+        $duration = Input::get(3, '5');
+        $width = (int) Input::get(4, 320);
 
         if (!System::isAvailable('ffmpeg')) {
             echo "Error: 'ffmpeg' tool is not found in the system PATH. Please install it.\n";
@@ -723,20 +703,18 @@ class MediaCommands
 
     public static function handleWatermark(): void
     {
-        global $argv;
-
-        if (count($argv) < 5) {
+        if (Input::count() < 3) {
             echo "Usage: php cli.php media:watermark <video_file> <output_video> <watermark_image> [position] [padding]\n";
             echo "  position: top-left, top-right, bottom-left, bottom-right, center (default: bottom-right)\n";
             echo "  padding: pixels (default: 10)\n";
             exit(1);
         }
 
-        $video = $argv[2];
-        $output = $argv[3];
-        $watermark = $argv[4];
-        $position = isset($argv[5]) ? $argv[5] : 'bottom-right';
-        $padding = isset($argv[6]) ? (int) $argv[6] : 10;
+        $video = Input::get(0);
+        $output = Input::get(1);
+        $watermark = Input::get(2);
+        $position = Input::get(3, 'bottom-right');
+        $padding = (int) Input::get(4, 10);
 
         if (!System::isAvailable('ffmpeg')) {
             echo "Error: 'ffmpeg' tool is not found in the system PATH. Please install it.\n";
@@ -811,17 +789,15 @@ class MediaCommands
 
     public static function handleCompress(): void
     {
-        global $argv;
-
-        if (count($argv) < 4) {
+        if (Input::count() < 2) {
             echo "Usage: php cli.php media:compress <video_file> <output_video> [crf]\n";
             echo "  crf: Constant Rate Factor (0-51, default: 28). Lower is better quality/larger size.\n";
             exit(1);
         }
 
-        $video = $argv[2];
-        $output = $argv[3];
-        $crf = isset($argv[4]) ? (int) $argv[4] : 28;
+        $video = Input::get(0);
+        $output = Input::get(1);
+        $crf = (int) Input::get(2, 28);
 
         if (!System::isAvailable('ffmpeg')) {
             echo "Error: 'ffmpeg' tool is not found in the system PATH. Please install it.\n";

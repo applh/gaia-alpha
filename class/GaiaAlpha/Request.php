@@ -76,11 +76,31 @@ class Request
     }
 
     /**
+     * Get uploaded file(s) from $_FILES
+     */
+    public static function file(?string $key = null, $default = null)
+    {
+        if ($key === null) {
+            return $_FILES;
+        }
+        return $_FILES[$key] ?? $default;
+    }
+
+    /**
+     * Check if a file exists in the request
+     */
+    public static function hasFile(string $key): bool
+    {
+        return isset($_FILES[$key]) && $_FILES[$key]['error'] === UPLOAD_ERR_OK;
+    }
+
+    /**
      * Helper for testing/mocking
      */
-    public static function mock(array $data = [], array $query = [])
+    public static function mock(array $data = [], array $query = [], array $files = [])
     {
         self::$jsonBody = $data;
         $_GET = $query;
+        $_FILES = $files;
     }
 }

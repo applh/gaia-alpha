@@ -2,16 +2,14 @@
 
 namespace GaiaAlpha\Cli;
 
-use Exception;
 use GaiaAlpha\System;
+use GaiaAlpha\Cli\Input;
 
 class QrCommands
 {
     public static function handleGenerate(): void
     {
-        global $argv;
-
-        if (count($argv) < 4) {
+        if (Input::count() < 2) {
             echo "Usage: php cli.php qr:generate <text> <output_file> [size] [margin]\n";
             echo "  text: Text to encode\n";
             echo "  output_file: Path to save the PNG image\n";
@@ -20,10 +18,10 @@ class QrCommands
             exit(1);
         }
 
-        $text = $argv[2];
-        $outputFile = $argv[3];
-        $size = isset($argv[4]) ? (int) $argv[4] : 3;
-        $margin = isset($argv[5]) ? (int) $argv[5] : 4;
+        $text = Input::get(0);
+        $outputFile = Input::get(1);
+        $size = (int) Input::get(2, 3);
+        $margin = (int) Input::get(3, 4);
 
         // Check if qrencode is available
         if (!System::isAvailable('qrencode')) {

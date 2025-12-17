@@ -12,7 +12,7 @@ class CmsController extends BaseController
     public function index()
     {
         $this->requireAuth();
-        $cat = \GaiaAlpha\Request::query('cat', 'page');
+        $cat = Request::query('cat', 'page');
         Response::json(Page::findAllByUserId(\GaiaAlpha\Session::id(), $cat));
     }
 
@@ -56,109 +56,51 @@ class CmsController extends BaseController
     public function upload()
     {
         $this->requireAuth();
-        if (!isset($_FILES['image']) || $_FILES['image']['error'] !== UPLOAD_ERR_OK) {
+        if (!Request::hasFile('image')) {
             Response::json(['error' => 'No image uploaded or upload error'], 400);
+            return;
         }
 
-        $file = $_FILES['image'];
-        $allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/avif'];
-        $finfo = new \finfo(FILEINFO_MIME_TYPE);
-        $mime = $finfo->file($file['tmp_name']);
-
-        if (!in_array($mime, $allowedTypes)) {
-            Response::json(['error' => 'Invalid file type. Allowed: JPG, PNG, WEBP, AVIF'], 400);
-        }
-
-        $userDir = (defined('GAIA_DATA_PATH') ? GAIA_DATA_PATH : \GaiaAlpha\Env::get('root_dir') . '/my-data') . '/uploads/' . \GaiaAlpha\Session::id();
-        \GaiaAlpha\Filesystem::makeDirectory($userDir);
-
-        $useAvif = function_exists('imageavif');
-        $ext = $useAvif ? '.avif' : '.webp';
-        $filename = time() . '_' . bin2hex(random_bytes(4)) . $ext;
-
-        switch ($mime) {
-            case 'image/jpeg':
-                $src = imagecreatefromjpeg($file['tmp_name']);
-                break;
-            case 'image/png':
-                $src = imagecreatefrompng($file['tmp_name']);
-                break;
-            case 'image/webp':
-                $src = imagecreatefromwebp($file['tmp_name']);
-                break;
-            case 'image/avif':
-                $src = imagecreatefromavif($file['tmp_name']);
-                break;
-            default:
-                $src = false;
-        }
-
-        if (!$src) {
-            Response::json(['error' => 'Failed to process image'], 400);
-        }
-
-        $width = imagesx($src);
-        $height = imagesy($src);
-        $maxWidth = 3840;
-        $maxHeight = 2160;
-
-        if ($width > $maxWidth || $height > $maxHeight) {
-            $ratio = min($maxWidth / $width, $maxHeight / $height);
-            $newWidth = (int) ($width * $ratio);
-            $newHeight = (int) ($height * $ratio);
-            $dst = imagecreatetruecolor($newWidth, $newHeight);
-
-            imagealphablending($dst, false);
-            imagesavealpha($dst, true);
-            $transparent = imagecolorallocatealpha($dst, 255, 255, 255, 127);
-            imagefilledrectangle($dst, 0, 0, $newWidth, $newHeight, $transparent);
-
-            imagecopyresampled($dst, $src, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
-            $src = $dst;
-        }
-
-        $outputPath = $userDir . '/' . $filename;
-
-        if ($useAvif) {
-            imageavif($src, $outputPath, 80);
-        } else {
-            imagewebp($src, $outputPath, 80);
-        }
-
-        $mediaUrl = '/media/' . \GaiaAlpha\Session::id() . '/' . $filename;
-
-        // Auto-create a CMS page entry for this image locally
-        // cat="image", title=filename, slug=uniqid, image=url
-        $imageSlug = 'img-' . pathinfo($filename, PATHINFO_FILENAME);
-        // Ensure slug uniqueness simple logic or just try/catch
         try {
-            Page::create(\GaiaAlpha\Session::id(), [
-                'title' => $file['name'],
-                'slug' => $imageSlug,
-                'cat' => 'image',
-                'image' => $mediaUrl,
-                'content' => '',
-                'tag' => 'upload'
-            ]);
-        } catch (\Exception $e) {
-            // If slug exists, try appending something random?
-            // For now, let's just ignore if insertion fails, but we should probably try to succeed.
-            // But main purpose is tracking.
+            $media = new \GaiaAlpha\Media(\GaiaAlpha\Env::get('path_data'));
+            $result = $media->upload(Request::file('image'), \GaiaAlpha\Session::id());
+
+            $filename = $result['filename'];
+            $mediaUrl = $result['url'];
+
+            // Auto-create a CMS page entry for this image localy
+            // cat="image", title=original name, slug=uniqid, image=url
+            $imageSlug = 'img-' . pathinfo($filename, PATHINFO_FILENAME);
+
             try {
                 Page::create(\GaiaAlpha\Session::id(), [
-                    'title' => $file['name'],
-                    'slug' => $imageSlug . '-' . rand(1000, 9999),
+                    'title' => Request::file('image')['name'],
+                    'slug' => $imageSlug,
                     'cat' => 'image',
                     'image' => $mediaUrl,
                     'content' => '',
                     'tag' => 'upload'
                 ]);
-            } catch (\Exception $ex) {
-                // Ignore
+            } catch (\Exception $e) {
+                // If slug exists, try appending something random
+                try {
+                    Page::create(\GaiaAlpha\Session::id(), [
+                        'title' => Request::file('image')['name'],
+                        'slug' => $imageSlug . '-' . rand(1000, 9999),
+                        'cat' => 'image',
+                        'image' => $mediaUrl,
+                        'content' => '',
+                        'tag' => 'upload'
+                    ]);
+                } catch (\Exception $ex) {
+                    // Ignore
+                }
             }
-        }
 
-        Response::json(['url' => $mediaUrl]);
+            Response::json(['url' => $mediaUrl]);
+        } catch (\Exception $e) {
+            Response::json(['error' => $e->getMessage()], 400);
+        }
     }
 
     public function registerRoutes()

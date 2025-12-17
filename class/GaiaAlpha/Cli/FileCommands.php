@@ -4,6 +4,7 @@ namespace GaiaAlpha\Cli;
 
 use Exception;
 use GaiaAlpha\Env;
+use GaiaAlpha\Cli\Input;
 
 class FileCommands
 {
@@ -41,14 +42,12 @@ class FileCommands
 
     public static function handleWrite(): void
     {
-        global $argv;
-        $args = $argv;
-        if (!isset($args[2]) || !isset($args[3])) {
+        if (!Input::has(0) || !Input::has(1)) {
             die("Usage: file:write <path> <content>\n");
         }
 
-        $path = $args[2];
-        $content = $args[3];
+        $path = Input::get(0);
+        $content = Input::get(1);
         $fullPath = self::validatePath($path);
 
         // Create directory if it doesn't exist
@@ -63,13 +62,11 @@ class FileCommands
 
     public static function handleRead(): void
     {
-        global $argv;
-        $args = $argv;
-        if (!isset($args[2])) {
+        if (!Input::has(0)) {
             die("Usage: file:read <path>\n");
         }
 
-        $path = $args[2];
+        $path = Input::get(0);
         $fullPath = self::validatePath($path);
 
         if (!file_exists($fullPath)) {
@@ -85,9 +82,7 @@ class FileCommands
 
     public static function handleList(): void
     {
-        global $argv;
-        $args = $argv;
-        $subPath = $args[2] ?? '';
+        $subPath = Input::get(0, '');
         $basePath = self::getDataPath();
         $fullPath = $subPath ? self::validatePath($subPath) : $basePath;
 
@@ -113,13 +108,11 @@ class FileCommands
 
     public static function handleDelete(): void
     {
-        global $argv;
-        $args = $argv;
-        if (!isset($args[2])) {
+        if (!Input::has(0)) {
             die("Usage: file:delete <path>\n");
         }
 
-        $path = $args[2];
+        $path = Input::get(0);
         $fullPath = self::validatePath($path);
 
         if (!file_exists($fullPath)) {
@@ -136,14 +129,12 @@ class FileCommands
 
     public static function handleMove(): void
     {
-        global $argv;
-        $args = $argv;
-        if (!isset($args[2]) || !isset($args[3])) {
+        if (!Input::has(0) || !Input::has(1)) {
             die("Usage: file:move <source> <destination>\n");
         }
 
-        $source = $args[2];
-        $destination = $args[3];
+        $source = Input::get(0);
+        $destination = Input::get(1);
 
         $sourcePath = self::validatePath($source);
         $destPath = self::validatePath($destination);

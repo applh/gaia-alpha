@@ -21,7 +21,7 @@ class DB
             return self::$instance;
         }
 
-        $dataPath = \GaiaAlpha\Env::get('path_data');
+        $dataPath = Env::get('path_data');
         // Resolve path logic similar to how DSN is built
         $dbPath = defined('GAIA_DB_PATH') ? GAIA_DB_PATH : $dataPath . '/database.sqlite';
 
@@ -175,7 +175,7 @@ class DB
 
     public static function getTables()
     {
-        return self::fetchAll("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name", [], \PDO::FETCH_COLUMN);
+        return self::fetchAll("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name", [], PDO::FETCH_COLUMN);
     }
 
     public static function getTableSchema($tableName)

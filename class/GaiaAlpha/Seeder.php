@@ -3,7 +3,7 @@
 namespace GaiaAlpha;
 
 use GaiaAlpha\Model\Page;
-use GaiaAlpha\Model\Todo;
+use Todo\Model\Todo;
 use GaiaAlpha\Model\DB;
 use GaiaAlpha\Env;
 
@@ -72,7 +72,7 @@ class Seeder
             }
         }
 
-        // 3. Menus
+        // 4. Menus
         $menusFile = $seedDir . '/menus.json';
         if (file_exists($menusFile)) {
             $menus = json_decode(file_get_contents($menusFile), true);
@@ -84,7 +84,7 @@ class Seeder
             }
         }
 
-        // 4. Forms & Submissions
+        // 5. Forms & Submissions
         $formsFile = $seedDir . '/forms.json';
         if (file_exists($formsFile)) {
             $forms = json_decode(file_get_contents($formsFile), true);
@@ -99,8 +99,9 @@ class Seeder
                     $form['submit_label'] ?? 'Submit'
                 ]);
 
+                $formId = DB::lastInsertId();
+
                 if (!empty($form['submissions'])) {
-                    $formId = DB::lastInsertId();
                     foreach ($form['submissions'] as $sub) {
                         DB::execute(
                             "INSERT INTO form_submissions (form_id, data, ip_address, user_agent) VALUES (?, ?, ?, ?)",

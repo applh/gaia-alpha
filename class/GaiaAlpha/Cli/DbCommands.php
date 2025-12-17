@@ -4,6 +4,7 @@ namespace GaiaAlpha\Cli;
 
 use Exception;
 use GaiaAlpha\Env;
+use GaiaAlpha\Cli\Input;
 
 class DbCommands
 {
@@ -35,8 +36,7 @@ class DbCommands
 
     public static function handleExport(): void
     {
-        global $argv;
-        $outputFile = $argv[2] ?? null;
+        $outputFile = Input::get(0);
 
         if (!$outputFile) {
             echo "Usage: php cli.php db:export <file.sql>\n";
@@ -59,8 +59,7 @@ class DbCommands
 
     public static function handleImport(): void
     {
-        global $argv;
-        $inputFile = $argv[2] ?? null;
+        $inputFile = Input::get(0);
 
         if (!$inputFile) {
             echo "Usage: php cli.php db:import <file.sql>\n";
@@ -93,6 +92,7 @@ class DbCommands
 
         echo "Database imported from $inputFile\n";
     }
+
     public static function handleMigrate(): void
     {
         echo "Running database migrations...\n";

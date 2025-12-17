@@ -3,12 +3,13 @@
 namespace GaiaAlpha\Cli;
 
 use GaiaAlpha\Env;
+use GaiaAlpha\Cli\Output;
 
 class VendorCommands
 {
     public static function handleUpdate(): void
     {
-        echo "Updating vendor libraries...\n";
+        Output::info("Updating vendor libraries...");
         $rootDir = Env::get('root_dir');
         $leafletDir = $rootDir . '/www/js/vendor/leaflet';
         $imagesDir = $leafletDir . '/images';
@@ -34,15 +35,15 @@ class VendorCommands
         ];
 
         foreach ($files as $url => $path) {
-            echo "Downloading " . basename($path) . "...\n";
+            Output::writeln("Downloading " . basename($path) . "...");
             $content = file_get_contents($url);
             if ($content === false) {
-                echo "Error downloading $url\n";
+                Output::error("Failed to download $url");
                 continue;
             }
             \GaiaAlpha\Filesystem::write($path, $content);
         }
 
-        echo "Vendor update complete.\n";
+        Output::success("Vendor update complete.");
     }
 }

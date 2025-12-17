@@ -2,22 +2,22 @@
 
 namespace GaiaAlpha\Cli;
 
-use Exception;
 use GaiaAlpha\Env;
 use GaiaAlpha\Cli\Input;
+use GaiaAlpha\Cli\Output;
 
 class DbCommands
 {
     private static function runExport(string $outputFile): void
     {
         if (!defined('GAIA_DB_PATH')) {
-            echo "Error: GAIA_DB_PATH is not defined.\n";
+            Output::error("GAIA_DB_PATH is not defined.");
             exit(1);
         }
 
         $dbPath = GAIA_DB_PATH;
         if (!\GaiaAlpha\Filesystem::exists($dbPath)) {
-            echo "Error: Database file does not exist at $dbPath\n";
+            Output::error("Database file does not exist at $dbPath");
             exit(1);
         }
 
@@ -27,11 +27,11 @@ class DbCommands
         passthru($cmd, $returnVar);
 
         if ($returnVar !== 0) {
-            echo "Error: Database export failed.\n";
+            Output::error("Database export failed.");
             exit(1);
         }
 
-        echo "Database exported to $outputFile\n";
+        Output::success("Database exported to $outputFile");
     }
 
     public static function handleExport(): void
@@ -39,7 +39,7 @@ class DbCommands
         $outputFile = Input::get(0);
 
         if (!$outputFile) {
-            echo "Usage: php cli.php db:export <file.sql>\n";
+            Output::writeln("Usage: php cli.php db:export <file.sql>");
             exit(1);
         }
 
@@ -62,42 +62,39 @@ class DbCommands
         $inputFile = Input::get(0);
 
         if (!$inputFile) {
-            echo "Usage: php cli.php db:import <file.sql>\n";
+            Output::writeln("Usage: php cli.php db:import <file.sql>");
             exit(1);
         }
 
         if (!\GaiaAlpha\Filesystem::exists($inputFile)) {
-            echo "Error: Input file does not exist: $inputFile\n";
+            Output::error("Input file does not exist: $inputFile");
             exit(1);
         }
 
         if (!defined('GAIA_DB_PATH')) {
-            echo "Error: GAIA_DB_PATH is not defined.\n";
+            Output::error("GAIA_DB_PATH is not defined.");
             exit(1);
         }
 
         $dbPath = GAIA_DB_PATH;
-        // Verify we can write to the directory appropriately or file exists
-        // sqlite3 will create it if not exists, but let's check basic permissions conceptually?
-        // Actually, just let sqlite3 handle it.
 
         $cmd = "sqlite3 " . escapeshellarg($dbPath) . " < " . escapeshellarg($inputFile);
 
         passthru($cmd, $returnVar);
 
         if ($returnVar !== 0) {
-            echo "Error: Database import failed.\n";
+            Output::error("Database import failed.");
             exit(1);
         }
 
-        echo "Database imported from $inputFile\n";
+        Output::success("Database imported from $inputFile");
     }
 
     public static function handleMigrate(): void
     {
-        echo "Running database migrations...\n";
+        Output::info("Running database migrations...");
         $db = \GaiaAlpha\Model\DB::connect();
         $db->ensureSchema();
-        echo "Migrations completed.\n";
+        Output::success("Migrations completed.");
     }
 }

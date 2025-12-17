@@ -5,6 +5,7 @@ namespace GaiaAlpha\Cli;
 use Exception;
 use GaiaAlpha\Env;
 use GaiaAlpha\Cli\Input;
+use GaiaAlpha\Cli\Output;
 
 class FileCommands
 {
@@ -43,113 +44,152 @@ class FileCommands
     public static function handleWrite(): void
     {
         if (!Input::has(0) || !Input::has(1)) {
-            die("Usage: file:write <path> <content>\n");
+            Output::writeln("Usage: file:write <path> <content>");
+            exit(1);
         }
 
         $path = Input::get(0);
         $content = Input::get(1);
-        $fullPath = self::validatePath($path);
+        try {
+            $fullPath = self::validatePath($path);
 
-        // Create directory if it doesn't exist
-        $dir = dirname($fullPath);
-        if (!is_dir($dir)) {
-            mkdir($dir, 0755, true);
+            // Create directory if it doesn't exist
+            $dir = dirname($fullPath);
+            if (!is_dir($dir)) {
+                mkdir($dir, 0755, true);
+            }
+
+            file_put_contents($fullPath, $content);
+            Output::success("File written: $path");
+        } catch (Exception $e) {
+            Output::error($e->getMessage());
+            exit(1);
         }
-
-        file_put_contents($fullPath, $content);
-        echo "File written: $path\n";
     }
 
     public static function handleRead(): void
     {
         if (!Input::has(0)) {
-            die("Usage: file:read <path>\n");
+            Output::writeln("Usage: file:read <path>");
+            exit(1);
         }
 
         $path = Input::get(0);
-        $fullPath = self::validatePath($path);
+        try {
+            $fullPath = self::validatePath($path);
 
-        if (!file_exists($fullPath)) {
-            die("File not found: $path\n");
+            if (!file_exists($fullPath)) {
+                Output::error("File not found: $path");
+                exit(1);
+            }
+
+            if (!is_file($fullPath)) {
+                Output::error("Not a file: $path");
+                exit(1);
+            }
+
+            echo file_get_contents($fullPath);
+        } catch (Exception $e) {
+            Output::error($e->getMessage());
+            exit(1);
         }
-
-        if (!is_file($fullPath)) {
-            die("Not a file: $path\n");
-        }
-
-        echo file_get_contents($fullPath);
     }
 
     public static function handleList(): void
     {
         $subPath = Input::get(0, '');
         $basePath = self::getDataPath();
-        $fullPath = $subPath ? self::validatePath($subPath) : $basePath;
+        try {
+            $fullPath = $subPath ? self::validatePath($subPath) : $basePath;
 
-        if (!is_dir($fullPath)) {
-            die("Not a directory: $subPath\n");
-        }
+            if (!is_dir($fullPath)) {
+                Output::error("Not a directory: $subPath");
+                exit(1);
+            }
 
-        $items = scandir($fullPath);
-        echo "Contents of " . ($subPath ?: '/') . ":\n";
-        echo "--------------------\n";
+            $items = scandir($fullPath);
+            Output::title("Contents of " . ($subPath ?: '/'));
 
-        foreach ($items as $item) {
-            if ($item === '.' || $item === '..')
-                continue;
+            $headers = ["Type", "Name", "Size"];
+            $rows = [];
 
-            $itemPath = $fullPath . '/' . $item;
-            $type = is_dir($itemPath) ? 'DIR ' : 'FILE';
-            $size = is_file($itemPath) ? self::formatBytes(filesize($itemPath)) : '';
+            foreach ($items as $item) {
+                if ($item === '.' || $item === '..')
+                    continue;
 
-            echo sprintf("%-5s %-20s %s\n", $type, $item, $size);
+                $itemPath = $fullPath . '/' . $item;
+                $type = is_dir($itemPath) ? 'DIR' : 'FILE';
+                $size = is_file($itemPath) ? self::formatBytes(filesize($itemPath)) : '';
+
+                $rows[] = [$type, $item, $size];
+            }
+
+            Output::table($headers, $rows);
+        } catch (Exception $e) {
+            Output::error($e->getMessage());
+            exit(1);
         }
     }
 
     public static function handleDelete(): void
     {
         if (!Input::has(0)) {
-            die("Usage: file:delete <path>\n");
+            Output::writeln("Usage: file:delete <path>");
+            exit(1);
         }
 
         $path = Input::get(0);
-        $fullPath = self::validatePath($path);
+        try {
+            $fullPath = self::validatePath($path);
 
-        if (!file_exists($fullPath)) {
-            die("File not found: $path\n");
+            if (!file_exists($fullPath)) {
+                Output::error("File not found: $path");
+                exit(1);
+            }
+
+            if (is_dir($fullPath)) {
+                Output::error("Cannot delete directories. Use file:delete on individual files.");
+                exit(1);
+            }
+
+            unlink($fullPath);
+            Output::success("File deleted: $path");
+        } catch (Exception $e) {
+            Output::error($e->getMessage());
+            exit(1);
         }
-
-        if (is_dir($fullPath)) {
-            die("Cannot delete directories. Use file:delete on individual files.\n");
-        }
-
-        unlink($fullPath);
-        echo "File deleted: $path\n";
     }
 
     public static function handleMove(): void
     {
         if (!Input::has(0) || !Input::has(1)) {
-            die("Usage: file:move <source> <destination>\n");
+            Output::writeln("Usage: file:move <source> <destination>");
+            exit(1);
         }
 
         $source = Input::get(0);
         $destination = Input::get(1);
 
-        $sourcePath = self::validatePath($source);
-        $destPath = self::validatePath($destination);
+        try {
+            $sourcePath = self::validatePath($source);
+            $destPath = self::validatePath($destination);
 
-        if (!file_exists($sourcePath)) {
-            die("Source file not found: $source\n");
+            if (!file_exists($sourcePath)) {
+                Output::error("Source file not found: $source");
+                exit(1);
+            }
+
+            // Create destination directory if needed
+            $destDir = dirname($destPath);
+            if (!is_dir($destDir)) {
+                mkdir($destDir, 0755, true);
+            }
+
+            rename($sourcePath, $destPath);
+            Output::success("File moved: $source -> $destination");
+        } catch (Exception $e) {
+            Output::error($e->getMessage());
+            exit(1);
         }
-
-        // Create destination directory if needed
-        $destDir = dirname($destPath);
-        if (!is_dir($destDir)) {
-            mkdir($destDir, 0755, true);
-        }
-
-        rename($sourcePath, $destPath);
-        echo "File moved: $source -> $destination\n";
     }
 }

@@ -4,13 +4,14 @@ namespace GaiaAlpha\Cli;
 
 use GaiaAlpha\Model\Page;
 use GaiaAlpha\Cli\Input;
+use GaiaAlpha\Cli\Output;
 
 class CmsCommands
 {
     public static function handleCreatePage(): void
     {
         if (Input::count() < 2) {
-            echo "Usage: cms:create-page <slug> <template> [title]\n";
+            Output::writeln("Usage: cms:create-page <slug> <template> [title]");
             exit(1);
         }
 
@@ -25,15 +26,15 @@ class CmsCommands
         $existing = Page::findBySlug($slug);
 
         if ($existing) {
-            echo "Page '{$slug}' already exists. Updating template and title...\n";
+            Output::info("Page '{$slug}' already exists. Updating template and title...");
             $data = [
                 'template_slug' => $template,
                 'title' => $title
             ];
             Page::update($existing['id'], $existing['user_id'], $data);
-            echo "Page '{$slug}' updated.\n";
+            Output::success("Page '{$slug}' updated.");
         } else {
-            echo "Creating new page '{$slug}'...\n";
+            Output::info("Creating new page '{$slug}'...");
             $data = [
                 'slug' => $slug,
                 'template_slug' => $template,
@@ -43,7 +44,7 @@ class CmsCommands
             ];
             // Assign to admin (ID 1) by default for CLI actions
             Page::create(1, $data);
-            echo "Page '{$slug}' created.\n";
+            Output::success("Page '{$slug}' created.");
         }
     }
 }

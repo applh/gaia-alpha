@@ -5,6 +5,7 @@ namespace GaiaAlpha\Cli;
 use GaiaAlpha\Database;
 use GaiaAlpha\Model\User;
 use GaiaAlpha\Cli\Input;
+use GaiaAlpha\Cli\Output;
 
 class UserCommands
 {
@@ -13,28 +14,27 @@ class UserCommands
         $users = User::findAll();
 
         if (empty($users)) {
-            echo "No users found.\n";
+            Output::info("No users found.");
             return;
         }
 
-        echo sprintf("%-5s %-20s %-10s %-20s\n", "ID", "Username", "Level", "Created At");
-        echo str_repeat("-", 60) . "\n";
-
-        foreach ($users as $user) {
-            echo sprintf(
-                "%-5d %-20s %-10d %-20s\n",
+        $headers = ["ID", "Username", "Level", "Created At"];
+        $rows = array_map(function ($user) {
+            return [
                 $user['id'],
                 $user['username'],
                 $user['level'],
                 $user['created_at']
-            );
-        }
+            ];
+        }, $users);
+
+        Output::table($headers, $rows);
     }
 
     public static function handleCreate(): void
     {
         if (Input::count() < 2) {
-            echo "Usage: user:create <username> <password> [level]\n";
+            Output::writeln("Usage: user:create <username> <password> [level]");
             exit(1);
         }
 
@@ -44,18 +44,18 @@ class UserCommands
 
         // Check if user exists
         if (User::findByUsername($username)) {
-            echo "Error: User '$username' already exists.\n";
+            Output::error("User '$username' already exists.");
             exit(1);
         }
 
         $id = User::create($username, $password, $level);
-        echo "User created successfully with ID: $id\n";
+        Output::success("User created successfully with ID: $id");
     }
 
     public static function handleUpdatePassword(): void
     {
         if (Input::count() < 2) {
-            echo "Usage: user:update-password <username> <new_password>\n";
+            Output::writeln("Usage: user:update-password <username> <new_password>");
             exit(1);
         }
 
@@ -65,18 +65,18 @@ class UserCommands
         $user = User::findByUsername($username);
 
         if (!$user) {
-            echo "Error: User '$username' not found.\n";
+            Output::error("User '$username' not found.");
             exit(1);
         }
 
         User::update($user['id'], ['password' => $password]);
-        echo "Password updated for user '$username'.\n";
+        Output::success("Password updated for user '$username'.");
     }
 
     public static function handleDelete(): void
     {
         if (Input::count() < 1) {
-            echo "Usage: user:delete <username>\n";
+            Output::writeln("Usage: user:delete <username>");
             exit(1);
         }
 
@@ -85,11 +85,11 @@ class UserCommands
         $user = User::findByUsername($username);
 
         if (!$user) {
-            echo "Error: User '$username' not found.\n";
+            Output::error("User '$username' not found.");
             exit(1);
         }
 
         User::delete($user['id']);
-        echo "User '$username' deleted.\n";
+        Output::success("User '$username' deleted.");
     }
 }

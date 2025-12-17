@@ -49,11 +49,11 @@ class Cli
 
             if ($command === 'sql') {
                 $className = TableCommands::class;
-                $action = 'handleSql';
+                $action = 'handleQuery'; // handleSql was not found in TableCommands earlier
             } else {
                 $parts = explode(':', $command);
                 if (count($parts) !== 2) {
-                    echo "Unknown command format: $command\n";
+                    \GaiaAlpha\Cli\Output::error("Unknown command format: $command");
                     self::showHelp();
                     exit(1);
                 }
@@ -65,13 +65,13 @@ class Cli
             }
 
             if (!class_exists($className)) {
-                echo "Unknown command group: {$parts[0]}\n";
+                \GaiaAlpha\Cli\Output::error("Unknown command group: {$parts[0]}");
                 self::showHelp();
                 exit(1);
             }
 
             if (!method_exists($className, $action)) {
-                echo "Unknown action: {$parts[1]} for group {$parts[0]}\n";
+                \GaiaAlpha\Cli\Output::error("Unknown action: {$parts[1]} for group {$parts[0]}");
                 self::showHelp();
                 exit(1);
             }
@@ -84,7 +84,7 @@ class Cli
 
         } catch (Exception $e) {
             Hook::run('cli_exception', $e);
-            echo "Error: " . $e->getMessage() . "\n";
+            \GaiaAlpha\Cli\Output::error($e->getMessage());
             exit(1);
         }
     }
@@ -93,9 +93,9 @@ class Cli
     {
         $templatePath = Env::get('root_dir') . '/templates/cli_help.txt';
         if (file_exists($templatePath)) {
-            echo file_get_contents($templatePath) . "\n";
+            \GaiaAlpha\Cli\Output::writeln(file_get_contents($templatePath));
         } else {
-            echo "Help template not found.\n";
+            \GaiaAlpha\Cli\Output::error("Help template not found.");
         }
     }
 }

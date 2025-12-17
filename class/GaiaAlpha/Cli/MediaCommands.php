@@ -6,6 +6,7 @@ use GaiaAlpha\Media;
 use GaiaAlpha\Env;
 use GaiaAlpha\System;
 use GaiaAlpha\Cli\Input;
+use GaiaAlpha\Cli\Output;
 
 class MediaCommands
 {
@@ -27,22 +28,23 @@ class MediaCommands
     public static function handleStats(): void
     {
         $stats = self::getMedia()->getStats();
-        echo "Media Storage Stats:\n";
-        echo "--------------------\n";
-        echo "Uploads: " . $stats['uploads']['count'] . " files (" . self::formatBytes($stats['uploads']['size']) . ")\n";
-        echo "Cache:   " . $stats['cache']['count'] . " files (" . self::formatBytes($stats['cache']['size']) . ")\n";
+        Output::title("Media Storage Stats");
+        Output::table(["Category", "Count", "Size"], [
+            ["Uploads", $stats['uploads']['count'], self::formatBytes($stats['uploads']['size'])],
+            ["Cache", $stats['cache']['count'], self::formatBytes($stats['cache']['size'])]
+        ]);
     }
 
     public static function handleClearCache(): void
     {
         $count = self::getMedia()->clearCache();
-        echo "Cache cleared. Deleted $count files.\n";
+        Output::success("Cache cleared. Deleted $count files.");
     }
 
     public static function handleProcess(): void
     {
         if (Input::count() < 2) {
-            echo "Usage: php cli.php media:process <input_file> <output_file> [width] [height] [quality] [fit] [rotate] [flip] [filter]\n";
+            Output::writeln("Usage: php cli.php media:process <input_file> <output_file> [width] [height] [quality] [fit] [rotate] [flip] [filter]");
             exit(1);
         }
 
@@ -57,12 +59,12 @@ class MediaCommands
         $filter = Input::get(8, '');
 
         if (!\GaiaAlpha\Filesystem::exists($input)) {
-            echo "Error: Input file not found: $input\n";
+            Output::error("Input file not found: $input");
             exit(1);
         }
 
         self::getMedia()->processImage($input, $output, $width, $height, $quality, $fit, $rotate, $flip, $filter);
-        echo "Image processed and saved to $output\n";
+        Output::success("Image processed and saved to $output");
     }
 
     public static function handleBatchProcess(): void

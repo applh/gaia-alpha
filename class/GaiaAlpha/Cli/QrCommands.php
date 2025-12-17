@@ -4,17 +4,18 @@ namespace GaiaAlpha\Cli;
 
 use GaiaAlpha\System;
 use GaiaAlpha\Cli\Input;
+use GaiaAlpha\Cli\Output;
 
 class QrCommands
 {
     public static function handleGenerate(): void
     {
         if (Input::count() < 2) {
-            echo "Usage: php cli.php qr:generate <text> <output_file> [size] [margin]\n";
-            echo "  text: Text to encode\n";
-            echo "  output_file: Path to save the PNG image\n";
-            echo "  size: Module size in pixels (default: 3)\n";
-            echo "  margin: Margin width in modules (default: 4)\n";
+            Output::writeln("Usage: php cli.php qr:generate <text> <output_file> [size] [margin]");
+            Output::writeln("  text: Text to encode");
+            Output::writeln("  output_file: Path to save the PNG image");
+            Output::writeln("  size: Module size in pixels (default: 3)");
+            Output::writeln("  margin: Margin width in modules (default: 4)");
             exit(1);
         }
 
@@ -25,7 +26,7 @@ class QrCommands
 
         // Check if qrencode is available
         if (!System::isAvailable('qrencode')) {
-            echo "Error: 'qrencode' tool is not found in the system PATH. Please install it.\n";
+            Output::error("'qrencode' tool is not found in the system PATH. Please install it.");
             exit(1);
         }
 
@@ -42,13 +43,13 @@ class QrCommands
         System::exec($command, $output, $returnVar);
 
         if ($returnVar !== 0) {
-            echo "Error: Failed to generate QR code.\n";
+            Output::error("Failed to generate QR code.");
             if (!empty($output)) {
-                echo implode("\n", $output) . "\n";
+                Output::writeln(implode("\n", $output));
             }
             exit(1);
         }
 
-        echo "QR code generated successfully at: $outputFile\n";
+        Output::success("QR code generated successfully at: $outputFile");
     }
 }

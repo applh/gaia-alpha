@@ -24,7 +24,11 @@ gaia-alpha/
 │       ├── Router.php  # Request Routing
 │       ├── Database.php# Database Wrapper
 │       ├── Media.php   # Image Processing API
-│       ├── Cli.php     # CLI Tool Logic (Static)
+│       ├── Cli.php     # CLI Runner Logic (Static)
+│       ├── Cli/        # CLI Command Groups & IO
+│       │   ├── Input.php # CLI Input Helper
+│       │   ├── Output.php# CLI Output Helper
+│       │   └── ...Commands.php # Specific command groups
 │       ├── Controller/ # Request Controllers (Auth, Cms, etc.)
 │       └── Model/      # Data Models (User, Page, etc.)
 │           └── DB.php  # Database Helper (Static Methods)

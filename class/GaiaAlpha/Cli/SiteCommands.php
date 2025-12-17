@@ -6,6 +6,7 @@ use GaiaAlpha\Database;
 use GaiaAlpha\Env;
 use GaiaAlpha\SiteManager;
 use GaiaAlpha\Cli\Input;
+use GaiaAlpha\Cli\Output;
 
 class SiteCommands
 {
@@ -14,13 +15,13 @@ class SiteCommands
         $domain = Input::get(0);
 
         if (!$domain) {
-            echo "Usage: php cli.php site:create <domain>\n";
+            Output::writeln("Usage: php cli.php site:create <domain>");
             exit(1);
         }
 
         // Validate domain
         if (!preg_match('/^[a-zA-Z0-9.-]+$/', $domain)) {
-            echo "Error: Invalid domain format.\n";
+            Output::error("Invalid domain format.");
             exit(1);
         }
 
@@ -32,11 +33,11 @@ class SiteCommands
         $dbPath = $sitesDir . '/' . $domain . '.sqlite';
 
         if (\GaiaAlpha\Filesystem::exists($dbPath)) {
-            echo "Error: Site '$domain' already exists.\n";
+            Output::error("Site '$domain' already exists.");
             exit(1);
         }
 
-        echo "Creating site '$domain'...\n";
+        Output::info("Creating site '$domain'...");
 
         // Create DB
         try {
@@ -44,20 +45,15 @@ class SiteCommands
             $dsn = 'sqlite:' . $dbPath;
             $db = new Database($dsn);
 
-            echo "Initializing schema...\n";
+            Output::writeln("Initializing schema...");
             $db->ensureSchema();
 
-            // Should we seed it?
-            // Maybe just default user?
-            // Let's invoke UserCommands::handleCreate if we can, or just insert a default user manually?
-            // For now, empty Schema is good.
-
-            echo "Site '$domain' created successfully.\n";
-            echo "Database: $dbPath\n";
-            echo "To manage this site, use: php cli.php --site=$domain <command>\n";
+            Output::success("Site '$domain' created successfully.");
+            Output::writeln("Database: $dbPath");
+            Output::writeln("To manage this site, use: php cli.php --site=$domain <command>", 'cyan');
 
         } catch (\Exception $e) {
-            echo "Error creating site: " . $e->getMessage() . "\n";
+            Output::error("Failed to create site: " . $e->getMessage());
             if (\GaiaAlpha\Filesystem::exists($dbPath)) {
                 \GaiaAlpha\Filesystem::delete($dbPath); // Cleanup
             }
@@ -70,28 +66,36 @@ class SiteCommands
         $rootDir = Env::get('root_dir');
         $sitesDir = $rootDir . '/my-data/sites';
 
-        if (!\GaiaAlpha\Filesystem::isDirectory($sitesDir)) {
-            echo "No sites directory found.\n";
-            return;
+        $sites = [];
+
+        // 1. Add Default
+        $defaultDb = $rootDir . '/my-data/database.sqlite';
+        if (\GaiaAlpha\Filesystem::exists($defaultDb)) {
+            $sites[] = [
+                'Domain' => '(default)',
+                'Size' => number_format(filesize($defaultDb) / 1024, 2) . " KB",
+                'Path' => './my-data/database.sqlite'
+            ];
         }
 
-        $files = \GaiaAlpha\Filesystem::glob($sitesDir . '/*.sqlite');
-
-        echo "Managed Sites:\n";
-        if (empty($files)) {
-            echo "  (No sites found)\n";
-        } else {
+        // 2. Add sub-sites
+        if (\GaiaAlpha\Filesystem::isDirectory($sitesDir)) {
+            $files = \GaiaAlpha\Filesystem::glob($sitesDir . '/*.sqlite');
             foreach ($files as $file) {
-                $domain = basename($file, '.sqlite');
-                $size = filesize($file);
-                echo "  - $domain (" . number_format($size / 1024, 2) . " KB)\n";
+                $sites[] = [
+                    'Domain' => basename($file, '.sqlite'),
+                    'Size' => number_format(filesize($file) / 1024, 2) . " KB",
+                    'Path' => str_replace($rootDir . '/', '', $file)
+                ];
             }
         }
 
-        // Also mention default?
-        $defaultDb = $rootDir . '/my-data/database.sqlite';
-        if (\GaiaAlpha\Filesystem::exists($defaultDb)) {
-            echo "  - (default) (" . number_format(filesize($defaultDb) / 1024, 2) . " KB)\n";
+        if (empty($sites)) {
+            Output::info("No sites found.");
+            return;
         }
+
+        Output::title("Managed Sites");
+        Output::table(['Domain', 'Size', 'Path'], $sites);
     }
 }

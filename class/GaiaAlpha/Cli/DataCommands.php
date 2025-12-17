@@ -3,21 +3,22 @@
 namespace GaiaAlpha\Cli;
 
 use GaiaAlpha\Seeder;
+use GaiaAlpha\Cli\Output;
 
 class DataCommands
 {
     public static function handleSeed(): void
     {
-        echo "🌱 Seeding database...\n";
+        Output::info("🌱 Seeding database...");
 
         // Initialize database connection
         \GaiaAlpha\Model\DB::connect();
 
         // Get first admin user
-        $user = \GaiaAlpha\Model\DB::fetch("SELECT * FROM users WHERE level = 10 LIMIT 1");
+        $user = \GaiaAlpha\Model\DB::fetch("SELECT * FROM users WHERE level = 100 LIMIT 1");
 
         if (!$user) {
-            echo "❌ Error: No admin user found. Please create an admin user first.\n";
+            Output::error("No admin user found. Please create an admin user first.");
             exit(1);
         }
 
@@ -25,9 +26,9 @@ class DataCommands
 
         try {
             Seeder::run($userId);
-            echo "✅ Database seeded successfully!\n";
+            Output::success("Database seeded successfully!");
         } catch (\Exception $e) {
-            echo "❌ Error seeding database: " . $e->getMessage() . "\n";
+            Output::error("Error seeding database: " . $e->getMessage());
             exit(1);
         }
     }

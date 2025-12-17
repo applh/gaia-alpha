@@ -5,6 +5,7 @@ namespace GaiaAlpha\Cli;
 use GaiaAlpha\Database;
 use GaiaAlpha\Router;
 use GaiaAlpha\Env;
+use GaiaAlpha\Cli\Output;
 use PDO;
 
 class BenchCommands
@@ -12,22 +13,20 @@ class BenchCommands
     public static function handleAll()
     {
         self::handleBoot();
-        echo "\n";
         self::handleRouter();
-        echo "\n";
         self::handleDb();
-        echo "\n";
         self::handleTemplate();
     }
 
     public static function handleBoot()
     {
-        echo "Running Boot Benchmark...\n";
+        Output::title("Benchmark: Boot Overhead");
+        Output::info("Measuring CLI boot overhead...");
+
         $start = microtime(true);
-        $iterations = 10;
+        $iterations = 5; // Reduced from 10 to be faster
 
         for ($i = 0; $i < $iterations; $i++) {
-            // Benchmark the CLI boot overhead by running a no-op command
             $cliPath = Env::get('root_dir') . '/cli.php';
             $cmd = 'php ' . escapeshellarg($cliPath) . ' help > /dev/null';
             exec($cmd);
@@ -37,12 +36,13 @@ class BenchCommands
         $total = $end - $start;
         $avg = ($total / $iterations) * 1000;
 
-        echo "Boot Average: " . number_format($avg, 2) . "ms (over $iterations iterations)\n";
+        Output::success("Boot Average: " . number_format($avg, 2) . "ms (over $iterations iterations)");
     }
 
     public static function handleRouter()
     {
-        echo "Running Router Benchmark...\n";
+        Output::title("Benchmark: Router Dispatch");
+        Output::info("Benchmarking 1000 routes with 10000 matches...");
 
         // Setup many routes
         $routeCount = 1000;
@@ -65,17 +65,16 @@ class BenchCommands
         $avg = ($total / $iterations) * 1000;
         $rps = $iterations / $total;
 
-        echo "Router Check: " . number_format($avg, 4) . "ms per match\n";
-        echo "Router RPS: " . number_format($rps, 2) . " req/sec\n";
+        Output::success("Router Check: " . number_format($avg, 4) . "ms per match");
+        Output::writeln("Router RPS: " . number_format($rps, 2) . " req/sec", 'cyan');
     }
 
     public static function handleDb()
     {
-        echo "Running Database Benchmark...\n";
+        Output::title("Benchmark: Database Queries");
+        Output::info("Executing 1000 SELECT 1 queries...");
 
         try {
-            // Benchmark the application's DB layer (BaseModel)
-            // This includes connection (if not already connected) and logging overhead
             $start = microtime(true);
             $iterations = 1000;
 
@@ -88,17 +87,18 @@ class BenchCommands
             $avg = ($total / $iterations) * 1000;
             $qps = $iterations / $total;
 
-            echo "Database Query (BaseModel): " . number_format($avg, 4) . "ms per query\n";
-            echo "Database QPS (BaseModel): " . number_format($qps, 2) . " queries/sec\n";
+            Output::success("Database Query: " . number_format($avg, 4) . "ms per query");
+            Output::writeln("Database QPS: " . number_format($qps, 2) . " queries/sec", 'cyan');
 
         } catch (\Exception $e) {
-            echo "Database Benchmark Failed: " . $e->getMessage() . "\n";
+            Output::error("Database Benchmark Failed: " . $e->getMessage());
         }
     }
 
     public static function handleTemplate()
     {
-        echo "Running Template Benchmark...\n";
+        Output::title("Benchmark: Template Rendering");
+        Output::info("Rendering simple PHP template 10000 times...");
 
         $templateFile = sys_get_temp_dir() . '/bench_template.php';
         \GaiaAlpha\Filesystem::write($templateFile, '<h1>Hello <?= $name ?></h1>');
@@ -119,8 +119,8 @@ class BenchCommands
         $avg = ($total / $iterations) * 1000;
         $ops = $iterations / $total;
 
-        echo "Template Render: " . number_format($avg, 5) . "ms per render\n";
-        echo "Template OPS: " . number_format($ops, 2) . " renders/sec\n";
+        Output::success("Template Render: " . number_format($avg, 5) . "ms per render");
+        Output::writeln("Template OPS: " . number_format($ops, 2) . " renders/sec", 'cyan');
 
         \GaiaAlpha\Filesystem::delete($templateFile);
     }

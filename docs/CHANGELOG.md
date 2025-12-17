@@ -1,5 +1,19 @@
 # Changelog
 
+## [v0.51.0] - 2025-12-17
+### Added
+- **CLI**: Standardized `Input` and `Output` classes for better command line interface management.
+  - `GaiaAlpha\Cli\Input`: Centralized argument parsing and management.
+  - `GaiaAlpha\Cli\Output`: Standardized, colored output with support for success, error, info, warning messages, and formatted tables.
+### Refactored
+- **CLI**: Refactored all CLI command groups to use the new `Input` and `Output` classes:
+  - `UserCommands`, `FileCommands`, `TableCommands`, `CmsCommands`, `MediaCommands`, `SiteCommands`, `DbCommands`, `VendorCommands`, `SaveCommands`, `QrCommands`, `BenchCommands`, `DataCommands`.
+- **CLI**: Improved `site:list` to show a formatted table of all managed sites.
+- **CLI**: Improved benchmark output with clear sectioning and colored results.
+- **CLI**: Updated the main `Cli` runner to use `Output` for errors and help display.
+### Fixed
+- **CLI**: Fixed `sql` command mapping in `Cli.php` (it now correctly maps to `TableCommands::handleQuery`).
+
 ## [v0.50.0] - 2025-12-17
 ### Refactored
 - **Admin**: God Class Decomposition. Split `AdminController` into specialized controllers for better maintainability:

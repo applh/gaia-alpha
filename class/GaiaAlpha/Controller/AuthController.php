@@ -14,9 +14,7 @@ class AuthController extends BaseController
             return;
         }
 
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
+        \GaiaAlpha\Session::start();
     }
 
     public function login()
@@ -25,9 +23,7 @@ class AuthController extends BaseController
         $user = User::findByUsername($data['username'] ?? '');
 
         if ($user && password_verify($data['password'] ?? '', $user['password_hash'])) {
-            $_SESSION['user_id'] = $user['id'];
-            $_SESSION['username'] = $user['username'];
-            $_SESSION['level'] = (int) $user['level'];
+            \GaiaAlpha\Session::login($user);
 
             $this->jsonResponse([
                 'success' => true,
@@ -58,17 +54,17 @@ class AuthController extends BaseController
 
     public function logout()
     {
-        session_destroy();
+        \GaiaAlpha\Session::logout();
         $this->jsonResponse(['success' => true]);
     }
 
     public function me()
     {
-        if (isset($_SESSION['user_id'])) {
+        if (\GaiaAlpha\Session::isLoggedIn()) {
             $data = [
                 'user' => [
-                    'username' => $_SESSION['username'],
-                    'level' => $_SESSION['level'] ?? 10
+                    'username' => \GaiaAlpha\Session::get('username'),
+                    'level' => \GaiaAlpha\Session::level()
                 ]
             ];
 

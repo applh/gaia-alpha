@@ -7,7 +7,7 @@ class FormController extends BaseController
     public function index()
     {
         // Auth Check (Any logged in user can have forms? Or just Admin? "Users can build" implies logged in users.)
-        if (!isset($_SESSION['user_id'])) {
+        if (!\GaiaAlpha\Session::isLoggedIn()) {
             $this->jsonResponse(['error' => 'Unauthorized'], 401);
             return;
         }
@@ -15,7 +15,7 @@ class FormController extends BaseController
         $userId = $_SESSION['user_id'];
 
         // Fetch user's forms
-        $forms = \GaiaAlpha\Model\DB::fetchAll("SELECT * FROM forms WHERE user_id = ? ORDER BY created_at DESC", [$_SESSION['user_id']]);
+        $forms = \GaiaAlpha\Model\DB::fetchAll("SELECT * FROM forms WHERE user_id = ? ORDER BY created_at DESC", [\GaiaAlpha\Session::id()]);
 
         // Decode schema for convenience? Or leave as string.
         // Frontend might expect objects.
@@ -28,12 +28,12 @@ class FormController extends BaseController
 
     public function show($id)
     {
-        if (!isset($_SESSION['user_id'])) {
+        if (!\GaiaAlpha\Session::isLoggedIn()) {
             $this->jsonResponse(['error' => 'Unauthorized'], 401);
             return;
         }
 
-        $form = \GaiaAlpha\Model\DB::fetch("SELECT * FROM forms WHERE id = ? AND user_id = ?", [$id, $_SESSION['user_id']]);
+        $form = \GaiaAlpha\Model\DB::fetch("SELECT * FROM forms WHERE id = ? AND user_id = ?", [$id, \GaiaAlpha\Session::id()]);
 
         if (!$form) {
             $this->jsonResponse(['error' => 'Form not found'], 404);
@@ -41,7 +41,7 @@ class FormController extends BaseController
         }
 
         // Ownership check
-        if ($form['user_id'] != $_SESSION['user_id']) {
+        if ($form['user_id'] != \GaiaAlpha\Session::id()) {
             $this->jsonResponse(['error' => 'Forbidden'], 403);
             return;
         }
@@ -52,7 +52,7 @@ class FormController extends BaseController
 
     public function store()
     {
-        if (!isset($_SESSION['user_id'])) {
+        if (!\GaiaAlpha\Session::isLoggedIn()) {
             $this->jsonResponse(['error' => 'Unauthorized'], 401);
             return;
         }
@@ -64,7 +64,7 @@ class FormController extends BaseController
             return;
         }
 
-        $userId = $_SESSION['user_id'];
+        $userId = \GaiaAlpha\Session::id();
         $title = $data['title'];
         $description = $data['description'] ?? '';
         $submitLabel = $data['submit_label'] ?? 'Submit';
@@ -93,7 +93,7 @@ class FormController extends BaseController
 
     public function update($id)
     {
-        if (!isset($_SESSION['user_id'])) {
+        if (!\GaiaAlpha\Session::isLoggedIn()) {
             $this->jsonResponse(['error' => 'Unauthorized'], 401);
             return;
         }
@@ -103,7 +103,7 @@ class FormController extends BaseController
         // Ownership Check
         $form = \GaiaAlpha\Model\DB::fetch("SELECT user_id FROM forms WHERE id = ?", [$id]);
 
-        if (!$form || $form['user_id'] != $_SESSION['user_id']) {
+        if (!$form || $form['user_id'] != \GaiaAlpha\Session::id()) {
             $this->jsonResponse(['error' => 'Forbidden'], 403);
             return;
         }
@@ -148,19 +148,19 @@ class FormController extends BaseController
 
     public function destroy($id)
     {
-        if (!isset($_SESSION['user_id'])) {
+        if (!\GaiaAlpha\Session::isLoggedIn()) {
             $this->jsonResponse(['error' => 'Unauthorized'], 401);
             return;
         }
 
         $form = \GaiaAlpha\Model\DB::fetch("SELECT user_id FROM forms WHERE id = ?", [$id]);
 
-        if (!$form || $form['user_id'] != $_SESSION['user_id']) {
+        if (!$form || $form['user_id'] != \GaiaAlpha\Session::id()) {
             $this->jsonResponse(['error' => 'Forbidden'], 403);
             return;
         }
 
-        \GaiaAlpha\Model\DB::execute("DELETE FROM forms WHERE id = ? AND user_id = ?", [$id, $_SESSION['user_id']]);
+        \GaiaAlpha\Model\DB::execute("DELETE FROM forms WHERE id = ? AND user_id = ?", [$id, \GaiaAlpha\Session::id()]);
         $this->jsonResponse(['success' => true]);
     }
 
@@ -207,14 +207,14 @@ class FormController extends BaseController
 
     public function submissions($id)
     {
-        if (!isset($_SESSION['user_id'])) {
+        if (!\GaiaAlpha\Session::isLoggedIn()) {
             $this->jsonResponse(['error' => 'Unauthorized'], 401);
             return;
         }
 
         $form = \GaiaAlpha\Model\DB::fetch("SELECT user_id FROM forms WHERE id = ?", [$id]);
 
-        if (!$form || $form['user_id'] != $_SESSION['user_id']) {
+        if (!$form || $form['user_id'] != \GaiaAlpha\Session::id()) {
             $this->jsonResponse(['error' => 'Forbidden'], 403);
             return;
         }

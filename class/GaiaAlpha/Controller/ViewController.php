@@ -64,11 +64,9 @@ class ViewController extends BaseController
 
         // Inject Debug Toolbar if Admin
         // Check session safely
-        if (session_status() == PHP_SESSION_NONE) {
-            session_start();
-        }
+        \GaiaAlpha\Session::start();
 
-        $isAdmin = isset($_SESSION['level']) && $_SESSION['level'] >= 100;
+        $isAdmin = \GaiaAlpha\Session::isAdmin();
 
         if ($isAdmin) {
             $content = $this->injectDebugToolbar($content);

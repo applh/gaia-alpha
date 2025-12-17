@@ -33,11 +33,7 @@ class Debug
     public static function injectHeader($context = null)
     {
         // Only inject for Admins
-        if (session_status() == PHP_SESSION_NONE) {
-            session_start(); // Ensure session is open to check level
-        }
-
-        if (!isset($_SESSION['level']) || $_SESSION['level'] < 100) {
+        if (!\GaiaAlpha\Session::isAdmin()) {
             return;
         }
 
@@ -179,8 +175,8 @@ class Debug
             'post' => $_POST,
             'get' => $_GET,
             'user' => [
-                'username' => $_SESSION['username'] ?? 'Guest',
-                'level' => $_SESSION['level'] ?? 0
+                'username' => \GaiaAlpha\Session::get('username', 'Guest'),
+                'level' => \GaiaAlpha\Session::level()
             ]
         ];
     }

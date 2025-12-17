@@ -11,7 +11,7 @@ class CmsController extends BaseController
     {
         $this->requireAuth();
         $cat = isset($_GET['cat']) ? $_GET['cat'] : 'page';
-        $this->jsonResponse(Page::findAllByUserId($_SESSION['user_id'], $cat));
+        $this->jsonResponse(Page::findAllByUserId(\GaiaAlpha\Session::id(), $cat));
     }
 
     public function create()
@@ -29,7 +29,7 @@ class CmsController extends BaseController
         }
 
         try {
-            $id = Page::create($_SESSION['user_id'], $data);
+            $id = Page::create(\GaiaAlpha\Session::id(), $data);
             $this->jsonResponse(['success' => true, 'id' => $id]);
         } catch (\PDOException $e) {
             $this->jsonResponse(['error' => 'Slug already exists'], 400);
@@ -40,14 +40,14 @@ class CmsController extends BaseController
     {
         $this->requireAuth();
         $data = $this->getJsonInput();
-        Page::update($id, $_SESSION['user_id'], $data);
+        Page::update($id, \GaiaAlpha\Session::id(), $data);
         $this->jsonResponse(['success' => true]);
     }
 
     public function delete($id)
     {
         $this->requireAuth();
-        Page::delete($id, $_SESSION['user_id']);
+        Page::delete($id, \GaiaAlpha\Session::id());
         $this->jsonResponse(['success' => true]);
     }
 
@@ -67,7 +67,7 @@ class CmsController extends BaseController
             $this->jsonResponse(['error' => 'Invalid file type. Allowed: JPG, PNG, WEBP, AVIF'], 400);
         }
 
-        $userDir = (defined('GAIA_DATA_PATH') ? GAIA_DATA_PATH : \GaiaAlpha\Env::get('root_dir') . '/my-data') . '/uploads/' . $_SESSION['user_id'];
+        $userDir = (defined('GAIA_DATA_PATH') ? GAIA_DATA_PATH : \GaiaAlpha\Env::get('root_dir') . '/my-data') . '/uploads/' . \GaiaAlpha\Session::id();
         if (!is_dir($userDir)) {
             mkdir($userDir, 0755, true);
         }
@@ -125,14 +125,14 @@ class CmsController extends BaseController
             imagewebp($src, $outputPath, 80);
         }
 
-        $mediaUrl = '/media/' . $_SESSION['user_id'] . '/' . $filename;
+        $mediaUrl = '/media/' . \GaiaAlpha\Session::id() . '/' . $filename;
 
         // Auto-create a CMS page entry for this image locally
         // cat="image", title=filename, slug=uniqid, image=url
         $imageSlug = 'img-' . pathinfo($filename, PATHINFO_FILENAME);
         // Ensure slug uniqueness simple logic or just try/catch
         try {
-            Page::create($_SESSION['user_id'], [
+            Page::create(\GaiaAlpha\Session::id(), [
                 'title' => $file['name'],
                 'slug' => $imageSlug,
                 'cat' => 'image',
@@ -145,7 +145,7 @@ class CmsController extends BaseController
             // For now, let's just ignore if insertion fails, but we should probably try to succeed.
             // But main purpose is tracking.
             try {
-                Page::create($_SESSION['user_id'], [
+                Page::create(\GaiaAlpha\Session::id(), [
                     'title' => $file['name'],
                     'slug' => $imageSlug . '-' . rand(1000, 9999),
                     'cat' => 'image',
@@ -179,7 +179,7 @@ class CmsController extends BaseController
     public function getTemplates()
     {
         $this->requireAuth();
-        $this->jsonResponse(Template::findAllByUserId($_SESSION['user_id']));
+        $this->jsonResponse(Template::findAllByUserId(\GaiaAlpha\Session::id()));
     }
 
     public function createTemplate()
@@ -192,7 +192,7 @@ class CmsController extends BaseController
         }
 
         try {
-            $id = Template::create($_SESSION['user_id'], $data);
+            $id = Template::create(\GaiaAlpha\Session::id(), $data);
             $this->jsonResponse(['success' => true, 'id' => $id]);
         } catch (\PDOException $e) {
             $this->jsonResponse(['error' => 'Slug already exists'], 400);
@@ -203,14 +203,14 @@ class CmsController extends BaseController
     {
         $this->requireAuth();
         $data = $this->getJsonInput();
-        Template::update($id, $_SESSION['user_id'], $data);
+        Template::update($id, \GaiaAlpha\Session::id(), $data);
         $this->jsonResponse(['success' => true]);
     }
 
     public function deleteTemplate($id)
     {
         $this->requireAuth();
-        Template::delete($id, $_SESSION['user_id']);
+        Template::delete($id, \GaiaAlpha\Session::id());
         $this->jsonResponse(['success' => true]);
     }
 

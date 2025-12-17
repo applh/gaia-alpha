@@ -7,31 +7,14 @@ use GaiaAlpha\Response;
 use GaiaAlpha\Model\DataStore;
 use GaiaAlpha\Controller\DbController;
 
-class SettingsController
+class SettingsController extends BaseController
 {
-    private function requireAuth()
-    {
-        if (session_status() == PHP_SESSION_NONE) {
-            session_start();
-        }
-        if (!isset($_SESSION['user_id'])) {
-            http_response_code(401);
-            echo json_encode(['error' => 'Unauthorized']);
-            exit;
-        }
-    }
-
-    private function jsonResponse($data, $code = 200)
-    {
-        Response::json($data, $code);
-    }
-
     public function index()
     {
         $this->requireAuth();
 
         // We currently only store user preferences under type 'user_pref'
-        $settings = DataStore::getAll($_SESSION['user_id'], 'user_pref');
+        $settings = DataStore::getAll(\GaiaAlpha\Session::id(), 'user_pref');
 
         $this->jsonResponse(['settings' => $settings]);
     }
@@ -39,13 +22,13 @@ class SettingsController
     public function update()
     {
         $this->requireAuth();
-        $data = json_decode(file_get_contents('php://input'), true);
+        $data = $this->getJsonInput();
 
         if (!isset($data['key']) || !isset($data['value'])) {
             $this->jsonResponse(['error' => 'Missing key or value'], 400);
         }
 
-        $success = DataStore::set($_SESSION['user_id'], 'user_pref', $data['key'], $data['value']);
+        $success = DataStore::set(\GaiaAlpha\Session::id(), 'user_pref', $data['key'], $data['value']);
 
         if ($success) {
             $this->jsonResponse(['success' => true]);
@@ -67,15 +50,6 @@ class SettingsController
 
     }
 
-    private function requireAdmin()
-    {
-        $this->requireAuth();
-        if ($_SESSION['level'] < 100) {
-            $this->jsonResponse(['error' => 'Forbidden'], 403);
-            exit;
-        }
-    }
-
     public function getGlobal()
     {
         $this->requireAdmin();
@@ -86,7 +60,7 @@ class SettingsController
     public function updateGlobal()
     {
         $this->requireAdmin();
-        $data = json_decode(file_get_contents('php://input'), true);
+        $data = $this->getJsonInput();
 
         if (!isset($data['key']) || !isset($data['value'])) {
             $this->jsonResponse(['error' => 'Missing key or value'], 400);

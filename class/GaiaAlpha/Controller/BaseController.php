@@ -20,7 +20,7 @@ abstract class BaseController
 
     protected function requireAuth()
     {
-        if (!isset($_SESSION['user_id'])) {
+        if (!\GaiaAlpha\Session::isLoggedIn()) {
             $this->jsonResponse(['error' => 'Unauthorized'], 401);
         }
     }
@@ -28,7 +28,7 @@ abstract class BaseController
     protected function requireAdmin()
     {
         $this->requireAuth();
-        if (!isset($_SESSION['level']) || $_SESSION['level'] < 100) {
+        if (!\GaiaAlpha\Session::isAdmin()) {
             $this->jsonResponse(['error' => 'Forbidden'], 403);
         }
     }

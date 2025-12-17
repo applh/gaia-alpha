@@ -1,11 +1,12 @@
 <?php
 
-namespace GaiaAlpha\Controller;
+namespace ApiBuilder\Controller;
 
 use GaiaAlpha\Env;
 use GaiaAlpha\Router;
 use GaiaAlpha\Response;
 use GaiaAlpha\Controller\DbController;
+use GaiaAlpha\Controller\BaseController;
 
 class ApiBuilderController extends BaseController
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace GaiaAlpha\Controller;
+namespace ApiBuilder\Controller;
 
 use GaiaAlpha\Env;
 use GaiaAlpha\Router;
@@ -8,6 +8,7 @@ use GaiaAlpha\Database;
 use GaiaAlpha\Response;
 use GaiaAlpha\Request;
 use \PDO;
+use GaiaAlpha\Controller\BaseController;
 
 class DynamicApiController extends BaseController
 {

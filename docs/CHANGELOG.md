@@ -1,6 +1,13 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+## [v0.45.0] - 2025-12-17
+### Refactored
+- **API Builder**: Full Modularization. Moved `ApiBuilderController`, `DynamicApiController` and `ApiManager.js` to `plugins/ApiBuilder/`.
+- **API Builder**: Namespace Update. Updated namespaces to `ApiBuilder\Controller`.
+- **API Builder**: Dynamic Menu. "APIs" menu item is now injected by the plugin.
+- **Fixed**: Import path for plugin assets in `site.js` (AssetController auto-mapping).
+
 ## [v0.44.0] - 2025-12-17
 ### Refactored
 - **Map Plugin**: Full Modularization. Moved `MapController.php`, `MapMarker.php`, and `MapPanel.js` to `plugins/Map/`.

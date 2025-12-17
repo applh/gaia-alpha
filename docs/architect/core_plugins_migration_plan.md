@@ -33,7 +33,7 @@ Based on the current codebase analysis, the following features are prime candida
 | **Media Manager** | `MediaController` | (Media UI components) | Medium | [ ] |
 | **Multi-Site** | `SiteController` | `MultiSitePanel.js` | Medium | [x] |
 | **Database Manager** | `DbController` | `DatabaseManager.js` | High | [x] |
-| **API Builder** | `ApiBuilderController`, `DynamicApiController` | `ApiManager.js` | High | [ ] |
+| **API Builder** | `ApiBuilderController`, `DynamicApiController` | `ApiManager.js` | High | [x] |
 | **Component Builder** | `AdminComponentBuilderController` | `builders/*` | High | [ ] |
 | **CMS/Pages** | `CmsController`, `ViewController` | (Page Editors) | Very High | [ ] |
 

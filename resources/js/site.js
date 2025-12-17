@@ -10,7 +10,7 @@ const DatabaseManager = defineAsyncComponent(() => import('plugins/DatabaseManag
 const UserSettings = defineAsyncComponent(() => import('components/admin/settings/UserSettings.js'));
 const SiteSettings = defineAsyncComponent(() => import('components/admin/settings/SiteSettings.js'));
 const FormsAdmin = defineAsyncComponent(() => import('components/cms/FormsAdmin.js'));
-const ApiManager = defineAsyncComponent(() => import('components/admin/settings/ApiManager.js'));
+const ApiManager = defineAsyncComponent(() => import('plugins/ApiBuilder/ApiManager.js'));
 const MapPanel = defineAsyncComponent(() => import('plugins/Map/MapPanel.js'));
 const ConsolePanel = defineAsyncComponent(() => import('plugins/Console/ConsolePanel.js'));
 const ChatPanel = defineAsyncComponent(() => import('plugins/Chat/ChatPanel.js'));
@@ -253,7 +253,7 @@ const App = {
                 label: 'System', icon: 'settings-2', id: 'grp-system', adminOnly: true, children: [
                     { label: 'Users', view: 'users', icon: 'users' },
 
-                    { label: 'APIs', view: 'api-builder', icon: 'zap' },
+                    // APIs injected via plugin
                     // Console injected via plugin
                     // Sites injected via plugin
                     { label: 'Site Settings', view: 'site-settings', icon: 'globe' },

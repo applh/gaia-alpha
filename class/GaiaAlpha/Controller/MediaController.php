@@ -17,7 +17,7 @@ class MediaController extends BaseController
 
     public function serve($userId, $filename)
     {
-        $params = $_GET; // Using superglobal as in original usage context (App.php passed $_GET)
+        $params = \GaiaAlpha\Request::query(); // Using superglobal as in original usage context (App.php passed $_GET)
 
         // Sanitize path to prevent directory traversal
         $filename = basename($filename);

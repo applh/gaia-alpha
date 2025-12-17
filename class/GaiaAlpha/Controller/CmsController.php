@@ -10,7 +10,7 @@ class CmsController extends BaseController
     public function index()
     {
         $this->requireAuth();
-        $cat = isset($_GET['cat']) ? $_GET['cat'] : 'page';
+        $cat = \GaiaAlpha\Request::query('cat', 'page');
         $this->jsonResponse(Page::findAllByUserId(\GaiaAlpha\Session::id(), $cat));
     }
 

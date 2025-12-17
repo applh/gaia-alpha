@@ -1,5 +1,13 @@
 # Changelog
 
+## [v0.52.0] - 2025-12-17
+### Refactored
+- **Core**: Centralized all `$_SERVER` access into the `GaiaAlpha\Request` class with new helper methods: `host()`, `uri()`, `path()`, `isSecure()`, `scheme()`, `userAgent()`, `ip()`, and `server()`.
+- **Core**: Refactored `Seeder` and `SiteManager` to use the `GaiaAlpha\Filesystem` helper for all file operations (replacing native `file_exists`, `is_dir`, `glob`, etc.).
+- **CLI**: Improved `GaiaAlpha\Cli\Input` to support retrieving options/flags (e.g., `--site=`) via `getOption()`.
+- **SiteManager**: Integrated with `Input::getOption('site')` for CLI site detection.
+- **Architectural Cleanup**: Updated `AuthController`, `PublicController`, `ViewController`, `FormController`, `InstallController`, and `Router` to use the new `Request` helper methods instead of direct global superglobal access.
+
 ## [v0.51.0] - 2025-12-17
 ### Added
 - **CLI**: Standardized `Input` and `Output` classes for better command line interface management.

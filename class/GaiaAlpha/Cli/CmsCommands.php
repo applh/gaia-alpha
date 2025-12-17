@@ -3,7 +3,6 @@
 namespace GaiaAlpha\Cli;
 
 use GaiaAlpha\Model\Page;
-use GaiaAlpha\Controller\DbController;
 
 class CmsCommands
 {
@@ -20,7 +19,7 @@ class CmsCommands
         $title = $argv[4] ?? ucfirst($slug);
 
         // Ensure database connection
-        DbController::connect();
+        \GaiaAlpha\Model\DB::connect();
 
         // Check if page exists
         $existing = Page::findBySlug($slug);

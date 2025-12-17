@@ -4,18 +4,12 @@ namespace GaiaAlpha\Cli;
 
 use GaiaAlpha\Database;
 use GaiaAlpha\Model\User;
-use GaiaAlpha\Controller\DbController;
 
 class UserCommands
 {
-    private static function getUserModel(): User
-    {
-        return new User(DbController::connect());
-    }
-
     public static function handleList(): void
     {
-        $users = self::getUserModel()->findAll();
+        $users = User::findAll();
 
         if (empty($users)) {
             echo "No users found.\n";
@@ -48,15 +42,13 @@ class UserCommands
         $password = $argv[3];
         $level = isset($argv[4]) ? (int) $argv[4] : 10;
 
-        $userModel = self::getUserModel();
-
         // Check if user exists
-        if ($userModel->findByUsername($username)) {
+        if (User::findByUsername($username)) {
             echo "Error: User '$username' already exists.\n";
             exit(1);
         }
 
-        $id = $userModel->create($username, $password, $level);
+        $id = User::create($username, $password, $level);
         echo "User created successfully with ID: $id\n";
     }
 
@@ -71,15 +63,14 @@ class UserCommands
         $username = $argv[2];
         $password = $argv[3];
 
-        $userModel = self::getUserModel();
-        $user = $userModel->findByUsername($username);
+        $user = User::findByUsername($username);
 
         if (!$user) {
             echo "Error: User '$username' not found.\n";
             exit(1);
         }
 
-        $userModel->update($user['id'], ['password' => $password]);
+        User::update($user['id'], ['password' => $password]);
         echo "Password updated for user '$username'.\n";
     }
 
@@ -93,15 +84,14 @@ class UserCommands
 
         $username = $argv[2];
 
-        $userModel = self::getUserModel();
-        $user = $userModel->findByUsername($username);
+        $user = User::findByUsername($username);
 
         if (!$user) {
             echo "Error: User '$username' not found.\n";
             exit(1);
         }
 
-        $userModel->delete($user['id']);
+        User::delete($user['id']);
         echo "User '$username' deleted.\n";
     }
 }

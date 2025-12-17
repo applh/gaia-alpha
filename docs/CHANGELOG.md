@@ -1,6 +1,14 @@
 # Changelog
 
-## [0.46.0] - 2025-12-17
+## [v0.47.0] - 2025-12-17
+### Refactored
+- **Database**: Core Architecture Update. Moved connection management and singleton logic from `DbController` to `DB` class.
+- **Database**: Standardized Access. All database operations now use `DB::connect()` and `DB::getPdo()`.
+- **Cleanup**: Removed redundant `getTables()` and `getTableSchema()` methods from `DbController`.
+- **Cleanup**: Removed unused `$db` property from `BaseController`.
+- **Refactor**: Updated all CLI commands (`UserCommands`, `DbCommands`) and Controllers (`FormController`, `AdminController`) to use the new static `DB` API.
+
+## [v0.46.0] - 2025-12-17
 
 ### Added
 - **Component Builder Plugin**: Migrated Component Builder feature to a core plugin

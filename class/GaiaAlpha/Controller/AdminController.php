@@ -242,7 +242,7 @@ class AdminController extends BaseController
     {
         $this->requireAdmin();
         $data = $this->getJsonInput();
-        $pdo = \GaiaAlpha\Controller\DbController::getPdo();
+        $pdo = \GaiaAlpha\Model\DB::getPdo();
 
         $fields = [];
         $values = [];

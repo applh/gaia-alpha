@@ -98,7 +98,7 @@ class DbCommands
     public static function handleMigrate(): void
     {
         echo "Running database migrations...\n";
-        $db = \GaiaAlpha\Controller\DbController::connect();
+        $db = \GaiaAlpha\Model\DB::connect();
         $db->ensureSchema();
         echo "Migrations completed.\n";
     }

@@ -33,7 +33,6 @@ class FormController extends BaseController
             return;
         }
 
-        $pdo = $this->db->getPdo();
         $form = \GaiaAlpha\Model\DB::fetch("SELECT * FROM forms WHERE id = ? AND user_id = ?", [$id, $_SESSION['user_id']]);
 
         if (!$form) {
@@ -154,7 +153,6 @@ class FormController extends BaseController
             return;
         }
 
-        $pdo = $this->db->getPdo();
         $form = \GaiaAlpha\Model\DB::fetch("SELECT user_id FROM forms WHERE id = ?", [$id]);
 
         if (!$form || $form['user_id'] != $_SESSION['user_id']) {

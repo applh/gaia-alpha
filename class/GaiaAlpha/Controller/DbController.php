@@ -8,55 +8,8 @@ use GaiaAlpha\Env;
 
 class DbController extends BaseController
 {
-    private static ?Database $instance = null;
-
-    public static function connect(): Database
-    {
-        if (self::$instance !== null) {
-            return self::$instance;
-        }
-
-        $dataPath = Env::get('path_data');
-        // Resolve path logic similar to how DSN is built
-        $dbPath = defined('GAIA_DB_PATH') ? GAIA_DB_PATH : $dataPath . '/database.sqlite';
-
-        // Check if DB exists before PDO potentially creates it
-        $installNeeded = !file_exists($dbPath) || filesize($dbPath) === 0;
-
-        $dsn = defined('GAIA_DB_DSN') ? GAIA_DB_DSN : 'sqlite:' . $dbPath;
-
-        $db = new Database($dsn);
-
-        if ($installNeeded) {
-            $db->ensureSchema();
-        }
-
-        self::$instance = $db;
-        return $db;
-    }
-
-    public static function getPdo()
-    {
-        return self::connect()->getPdo();
-    }
-
-    public static function getTables(): array
-    {
-        $db = self::connect();
-        $pdo = $db->getPdo();
-        $stmt = $pdo->query("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name");
-        return $stmt->fetchAll(\PDO::FETCH_COLUMN);
-    }
-
-    public static function getTableSchema(string $table): array
-    {
-        $db = self::connect();
-        $pdo = $db->getPdo();
-        // Sanitize table name somewhat, though this is intended for admin use
-        $table = preg_replace('/[^a-zA-Z0-9_]/', '', $table);
-        $stmt = $pdo->query("PRAGMA table_info($table)");
-        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
-    }
+    // Note: Connection management has been moved to GaiaAlpha\Model\DB class
+    // This controller now focuses only on HTTP route handling for admin database interface
 
     // Assuming these route definitions belong to a method that registers routes,
     // or are placed directly in a routing configuration section.

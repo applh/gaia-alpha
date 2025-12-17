@@ -2,20 +2,11 @@
 
 namespace GaiaAlpha\Controller;
 
-use GaiaAlpha\Database;
 use GaiaAlpha\Response;
 use GaiaAlpha\Request;
 
-use GaiaAlpha\Controller\DbController;
-
 abstract class BaseController
 {
-    protected Database $db;
-
-    public function __construct()
-    {
-        $this->db = DbController::connect();
-    }
 
     protected function jsonResponse($data, int $status = 200)
     {

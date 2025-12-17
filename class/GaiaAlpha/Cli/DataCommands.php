@@ -3,7 +3,6 @@
 namespace GaiaAlpha\Cli;
 
 use GaiaAlpha\Seeder;
-use GaiaAlpha\Controller\DbController;
 
 class DataCommands
 {
@@ -12,7 +11,7 @@ class DataCommands
         echo "🌱 Seeding database...\n";
 
         // Initialize database connection
-        DbController::connect();
+        \GaiaAlpha\Model\DB::connect();
 
         // Get first admin user
         $user = \GaiaAlpha\Model\DB::fetch("SELECT * FROM users WHERE level = 10 LIMIT 1");

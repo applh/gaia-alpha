@@ -3,20 +3,51 @@
 namespace GaiaAlpha\Model;
 
 use GaiaAlpha\Database;
+use GaiaAlpha\Env;
 use GaiaAlpha\Hook;
 use PDO;
 
 class DB
 {
-
+    private static ?Database $instance = null;
 
     // Instance DB removed. Static access only.
     protected static $table;
     protected static $fillable = [];
 
+    public static function connect(): Database
+    {
+        if (self::$instance !== null) {
+            return self::$instance;
+        }
+
+        $dataPath = \GaiaAlpha\Env::get('path_data');
+        // Resolve path logic similar to how DSN is built
+        $dbPath = defined('GAIA_DB_PATH') ? GAIA_DB_PATH : $dataPath . '/database.sqlite';
+
+        // Check if DB exists before PDO potentially creates it
+        $installNeeded = !file_exists($dbPath) || filesize($dbPath) === 0;
+
+        $dsn = defined('GAIA_DB_DSN') ? GAIA_DB_DSN : 'sqlite:' . $dbPath;
+
+        $db = new Database($dsn);
+
+        if ($installNeeded) {
+            $db->ensureSchema();
+        }
+
+        self::$instance = $db;
+        return $db;
+    }
+
+    public static function getPdo(): PDO
+    {
+        return self::connect()->getPdo();
+    }
+
     public static function query(string $sql, array $params = [])
     {
-        $db = \GaiaAlpha\Controller\DbController::getPdo();
+        $db = self::getPdo();
         $start = microtime(true);
 
         // Check if it's a SELECT (query) or INSERT/UPDATE/DELETE (prepare+execute)
@@ -54,12 +85,12 @@ class DB
 
     public static function lastInsertId()
     {
-        return \GaiaAlpha\Controller\DbController::getPdo()->lastInsertId();
+        return self::getPdo()->lastInsertId();
     }
 
     public static function all()
     {
-        $db = \GaiaAlpha\Controller\DbController::getPdo();
+        $db = self::getPdo();
         $table = static::$table;
         $stmt = self::query("SELECT * FROM $table ORDER BY id DESC");
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -67,7 +98,7 @@ class DB
 
     public static function find($id)
     {
-        $db = \GaiaAlpha\Controller\DbController::getPdo();
+        $db = self::getPdo();
         $table = static::$table;
         $stmt = self::query("SELECT * FROM $table WHERE id = ?", [$id]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
@@ -75,7 +106,7 @@ class DB
 
     public static function create($data)
     {
-        $db = \GaiaAlpha\Controller\DbController::getPdo();
+        $db = self::getPdo();
         $table = static::$table;
         $fillable = static::$fillable;
 
@@ -107,7 +138,7 @@ class DB
 
     public static function update($id, $data)
     {
-        $db = \GaiaAlpha\Controller\DbController::getPdo();
+        $db = self::getPdo();
         $table = static::$table;
         $fillable = static::$fillable;
 
@@ -136,7 +167,7 @@ class DB
 
     public static function delete($id)
     {
-        $db = \GaiaAlpha\Controller\DbController::getPdo();
+        $db = self::getPdo();
         $table = static::$table;
         $stmt = self::query("DELETE FROM $table WHERE id = ?", [$id]);
         return true;

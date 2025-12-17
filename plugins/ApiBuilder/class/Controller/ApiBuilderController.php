@@ -5,7 +5,7 @@ namespace ApiBuilder\Controller;
 use GaiaAlpha\Env;
 use GaiaAlpha\Router;
 use GaiaAlpha\Response;
-use GaiaAlpha\Controller\DbController;
+use GaiaAlpha\Model\DB;
 use GaiaAlpha\Controller\BaseController;
 
 class ApiBuilderController extends BaseController
@@ -19,7 +19,7 @@ class ApiBuilderController extends BaseController
     public function handleListTables()
     {
         $this->requireAdmin();
-        $tables = DbController::getTables();
+        $tables = DB::getTables();
         $config = $this->loadConfig();
 
         $result = [];
@@ -51,7 +51,7 @@ class ApiBuilderController extends BaseController
         $tableConfig = $data['config'];
 
         // Validate table exists to be safe
-        $tables = DbController::getTables();
+        $tables = DB::getTables();
         if (!in_array($tableName, $tables)) {
             Response::json(['error' => 'Table not found'], 404);
             return;

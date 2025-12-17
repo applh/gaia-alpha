@@ -241,7 +241,7 @@ HTML;
 
         // 2. Lookup Page
         // Need to ensure DB connection if not already
-        \GaiaAlpha\Controller\DbController::connect();
+        \GaiaAlpha\Model\DB::connect();
         $page = \GaiaAlpha\Model\Page::findBySlug($slug);
 
         if ($page) {

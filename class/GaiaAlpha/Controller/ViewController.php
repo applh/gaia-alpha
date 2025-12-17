@@ -57,6 +57,14 @@ class ViewController extends BaseController
         // Fetch Global Settings
         $globalSettings = \GaiaAlpha\Model\DataStore::getAll(0, 'global_config');
 
+        // Inject Active Plugins
+        $pathData = Env::get('path_data');
+        if (file_exists($pathData . '/active_plugins.json')) {
+            $globalSettings['active_plugins'] = json_decode(file_get_contents($pathData . '/active_plugins.json'), true);
+        } else {
+            $globalSettings['active_plugins'] = [];
+        }
+
         // Start output buffering
         ob_start();
         include $templatePath;

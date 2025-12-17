@@ -16,6 +16,7 @@ const ConsolePanel = defineAsyncComponent(() => import('plugins/Console/ConsoleP
 const ChatPanel = defineAsyncComponent(() => import('plugins/Chat/ChatPanel.js'));
 const MultiSitePanel = defineAsyncComponent(() => import('plugins/MultiSite/MultiSitePanel.js'));
 const ComponentBuilder = defineAsyncComponent(() => import('plugins/ComponentBuilder/ComponentBuilder.js'));
+const MailPanel = defineAsyncComponent(() => import('plugins/Mail/MailPanel.js'));
 const PluginsAdmin = defineAsyncComponent(() => import('components/admin/settings/PluginsAdmin.js'));
 
 const ToastContainer = {
@@ -327,6 +328,7 @@ const App = {
                 case 'site-settings': return SiteSettings;
                 case 'sites': return isAdmin.value ? MultiSitePanel : TodoList;
                 case 'component-builder': return isAdmin.value ? ComponentBuilder : TodoList;
+                case 'mail/inbox': return isAdmin.value ? MailPanel : TodoList;
                 case 'plugins': return isAdmin.value ? PluginsAdmin : TodoList;
 
                 case 'todos': return TodoList;
@@ -346,6 +348,11 @@ const App = {
         const customComponents = ref({});
         const loadCustomComponents = async () => {
             if (!isAdmin.value) return;
+
+            // Check if ComponentBuilder plugin is active
+            const activePlugins = (window.siteConfig && window.siteConfig.active_plugins) ? window.siteConfig.active_plugins : [];
+            if (!activePlugins.includes('ComponentBuilder')) return;
+
             try {
                 const res = await fetch('/@/admin/component-builder/list');
                 const components = await res.json();

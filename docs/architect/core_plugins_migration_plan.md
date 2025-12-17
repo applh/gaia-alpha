@@ -35,6 +35,7 @@ Based on the current codebase analysis, the following features are prime candida
 | **Database Manager** | `DbController` | `DatabaseManager.js` | High | [x] |
 | **API Builder** | `ApiBuilderController`, `DynamicApiController` | `ApiManager.js` | High | [x] |
 | **Component Builder** | `AdminComponentBuilderController` | `builders/*` | High | [x] |
+| **Mail Management** | `MailController`, `Mail` | `MailPanel.js` | Medium | [x] |
 | **CMS/Pages** | `CmsController`, `ViewController` | (Page Editors) | Very High | [ ] |
 
 ## 4. Migration Strategy

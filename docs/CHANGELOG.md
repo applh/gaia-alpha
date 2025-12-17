@@ -1,5 +1,17 @@
 # Changelog
 
+## [v0.48.0] - 2025-12-17
+### Added
+- **Mail Plugin**: New Core Plugin for managing system emails.
+  - Implemented `plugins/Mail` structure with `LogDriver` (Fake) and `PHPMailerDriver` (Real).
+  - Included PHPMailer as a vendored dependency for self-contained functionality.
+  - Added "Inbox" (Fake Mailer) UI to Admin Panel for viewing logged emails in development.
+  - Replaced native alerts/confirms with Toasts and inline UI states.
+
+### Fixed
+- **Admin**: Fixed CSS layout collision where `MailPanel` (and other plugins) using `<header>` tags were incorrectly styled as fixed sidebars.
+- **Frontend**: Fixed 404 error caused by fetching Component Builder list when the plugin is disabled.
+
 ## [v0.47.0] - 2025-12-17
 ### Refactored
 - **Database**: Core Architecture Update. Moved connection management and singleton logic from `DbController` to `DB` class.

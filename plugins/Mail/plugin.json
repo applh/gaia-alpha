@@ -1,0 +1,27 @@
+{
+    "name": "Mail",
+    "description": "Core Mail Management System with Fake/Real drivers",
+    "version": "1.0.0",
+    "type": "core",
+    "author": "Gaia Alpha",
+    "main_class": "GaiaAlpha\\Plugins\\Mail\\Controller\\MailController",
+    "routes": {
+        "admin": [
+            {
+                "path": "/mail/inbox",
+                "method": "GET",
+                "action": "inbox"
+            },
+            {
+                "path": "/mail/send-test",
+                "method": "POST",
+                "action": "sendTest"
+            },
+            {
+                "path": "/mail/clear",
+                "method": "POST",
+                "action": "clearInbox"
+            }
+        ]
+    }
+}

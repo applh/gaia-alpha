@@ -8,6 +8,10 @@ class User
 {
 
 
+    /**
+     * Find a user by username
+     * @return array|false 
+     */
     public static function findByUsername(string $username)
     {
         return DB::fetch("SELECT * FROM users WHERE username = ?", [$username]);

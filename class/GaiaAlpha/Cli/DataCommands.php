@@ -11,9 +11,6 @@ class DataCommands
     {
         Output::info("🌱 Seeding database...");
 
-        // Initialize database connection
-        \GaiaAlpha\Model\DB::connect();
-
         // Get first admin user
         $user = \GaiaAlpha\Model\DB::fetch("SELECT * FROM users WHERE level = 100 LIMIT 1");
 

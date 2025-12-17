@@ -45,14 +45,13 @@ class DB
         return self::connect()->getPdo();
     }
 
-    public static function query(string $sql, array $params = [])
+    /**
+     * Execute a raw SQL query and return the statement
+     */
+    public static function query(string $sql, array $params = []): \PDOStatement
     {
         $db = self::getPdo();
         $start = microtime(true);
-
-        // Check if it's a SELECT (query) or INSERT/UPDATE/DELETE (prepare+execute)
-        // Actually, prepare+execute works for SELECT too and is safer.
-        // Consistency: implementation plan said "return PDOStatement".
 
         $stmt = $db->prepare($sql);
         $stmt->execute($params);
@@ -63,7 +62,7 @@ class DB
         return $stmt;
     }
 
-    public static function fetchAll(string $sql, array $params = [], int $mode = PDO::FETCH_ASSOC)
+    public static function fetchAll(string $sql, array $params = [], int $mode = PDO::FETCH_ASSOC): array
     {
         return self::query($sql, $params)->fetchAll($mode);
     }

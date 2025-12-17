@@ -1,6 +1,8 @@
 <?php
 
-namespace GaiaAlpha\Model;
+namespace Map\Model;
+
+use GaiaAlpha\Model\DB;
 
 class MapMarker
 {

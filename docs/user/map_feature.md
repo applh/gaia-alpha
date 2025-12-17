@@ -13,15 +13,15 @@ The Map feature allows users to view a collaborative map and add markers to it. 
 ## Architecture
 
 ### Frontend
-- **Component**: `www/js/components/MapPanel.js`
+- **Component**: `plugins/Map/resources/js/MapPanel.js`
 - **Library**: [Leaflet.js](https://leafletjs.com/) (v1.9.4) hosted locally in `www/js/vendor/leaflet/`.
 - **Loading Strategy**: CSS and JS are lazy-loaded on demand when the Map panel is initialized.
 
 ### Backend
-- **Controller**: `GaiaAlpha\Controller\MapController`
-  - `GET /api/markers`: Returns all markers for the current user.
-  - `POST /api/markers`: Creates a new marker.
-- **Model**: `GaiaAlpha\Model\MapMarker`
+- **Controller**: `Map\Controller\MapController`
+  - `GET /@/markers`: Returns all markers for the current user.
+  - `POST /@/markers`: Creates a new marker.
+- **Model**: `Map\Model\MapMarker`
   - Handles database interactions using PDO prepared statements.
 - **Database**: `map_markers` table.
   - Columns: `id`, `user_id`, `label`, `lat`, `lng`, `created_at`.

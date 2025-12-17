@@ -11,7 +11,7 @@ const UserSettings = defineAsyncComponent(() => import('components/admin/setting
 const SiteSettings = defineAsyncComponent(() => import('components/admin/settings/SiteSettings.js'));
 const FormsAdmin = defineAsyncComponent(() => import('components/cms/FormsAdmin.js'));
 const ApiManager = defineAsyncComponent(() => import('components/admin/settings/ApiManager.js'));
-const MapPanel = defineAsyncComponent(() => import('components/views/MapPanel.js'));
+const MapPanel = defineAsyncComponent(() => import('plugins/Map/MapPanel.js'));
 const ConsolePanel = defineAsyncComponent(() => import('plugins/Console/ConsolePanel.js'));
 const ChatPanel = defineAsyncComponent(() => import('plugins/Chat/ChatPanel.js'));
 const MultiSitePanel = defineAsyncComponent(() => import('plugins/MultiSite/MultiSitePanel.js'));
@@ -246,8 +246,7 @@ const App = {
                     { label: 'CMS', view: 'cms', icon: 'file-text' },
                     { label: 'Templates', view: 'cms-templates', icon: 'layout-template', adminOnly: true },
                     { label: 'Components', view: 'cms-components', icon: 'puzzle', adminOnly: true },
-                    { label: 'Forms', view: 'forms', icon: 'clipboard-list' },
-                    { label: 'Maps', view: 'map', icon: 'map' }
+                    { label: 'Forms', view: 'forms', icon: 'clipboard-list' }
                 ]
             },
             {

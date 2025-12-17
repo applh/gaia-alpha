@@ -1,8 +1,9 @@
 <?php
 
-namespace GaiaAlpha\Controller;
+namespace Map\Controller;
 
-use GaiaAlpha\Model\MapMarker;
+use GaiaAlpha\Controller\BaseController;
+use Map\Model\MapMarker;
 
 class MapController extends BaseController
 {

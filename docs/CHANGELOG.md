@@ -1,6 +1,14 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+## [v0.44.0] - 2025-12-17
+### Refactored
+- **Map Plugin**: Full Modularization. Moved `MapController.php`, `MapMarker.php`, and `MapPanel.js` to `plugins/Map/`.
+- **Map Plugin**: Namespace Update. Aligned namespaces to `Map\...` to match autoloader convention.
+- **Map Plugin**: Dynamic Menu. Content/Maps menu item is now injected by the plugin.
+### Fixed
+- **Map UI**: Resolved `properties of null` error in `MapPanel.js` by using `shallowRef` for map instances.
+
 ## [v0.43.0] - 2025-12-17
 ### Refactored
 - **Database Manager**: Full Modularization. Moved backend logic to `plugins/DatabaseManager/class/Controller/DatabaseController.php`.

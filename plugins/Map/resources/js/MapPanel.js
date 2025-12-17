@@ -1,5 +1,5 @@
 
-import { ref, onMounted, nextTick } from 'vue';
+import { ref, onMounted, nextTick, shallowRef, markRaw } from 'vue';
 import { useSorting } from 'composables/useSorting.js';
 import SortTh from 'ui/SortTh.js';
 import Icon from 'ui/Icon.js';
@@ -87,8 +87,8 @@ export default {
     </div>
     `,
     setup() {
-        const map = ref(null);
-        const globe = ref(null);
+        const map = shallowRef(null);
+        const globe = shallowRef(null);
         const markers = ref([]);
         const { sortColumn, sortDirection, sortBy, sortedData: sortedMarkers } = useSorting(markers, 'id', 'desc');
         const showModal = ref(false);

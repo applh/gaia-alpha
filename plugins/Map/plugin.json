@@ -1,0 +1,29 @@
+{
+    "name": "Map Manager",
+    "version": "1.0.0",
+    "description": "Manage map markers and locations.",
+    "type": "core",
+    "identifier": "map-manager",
+    "main": "Map\\Controller\\MapController",
+    "routes": {
+        "api": [
+            "/markers"
+        ],
+        "admin": [
+            "/map"
+        ]
+    },
+    "assets": {
+        "js": [
+            "resources/js/MapPanel.js"
+        ]
+    },
+    "hooks": {
+        "admin_menu": {
+            "title": "Map",
+            "icon": "map",
+            "path": "/admin/map",
+            "component": "MapPanel"
+        }
+    }
+}

@@ -1,5 +1,24 @@
 # Changelog
 
+## [v0.50.0] - 2025-12-17
+### Refactored
+- **Admin**: God Class Decomposition. Split `AdminController` into specialized controllers for better maintainability:
+    - `UserController`: User management CRUD.
+    - `TemplateController`: CMS Template management.
+    - `PartialController`: CMS Partial management.
+    - `PluginController`: Plugin lifecycle and installation.
+    - `AdminController`: Now focused solely on dashboard statistics.
+- **Architecture**: Improved Single Responsibility Principle (SRP) compliance in the controller layer.
+
+## [v0.49.0] - 2025-12-17
+### Refactored
+- **Controller Layer**: Removed redundant `jsonResponse` and `getJsonInput` wrappers from `BaseController`.
+- **Controller Layer**: Updated all controllers to use `GaiaAlpha\Response::json()` and `GaiaAlpha\Request::input()` directly, reducing indirection.
+- **Filesystem**: Added `deleteDirectory` and `move` helpers to `GaiaAlpha\Filesystem`.
+- **Admin**: Refactored `AdminController` to use `Filesystem` helpers for operations like plugin installation and deletion.
+### Docs
+- **Architecture**: Updated code volume statistics (PHP ~13,200 LOC, JS ~9,400 LOC).
+
 ## [v0.48.0] - 2025-12-17
 ### Added
 - **Mail Plugin**: New Core Plugin for managing system emails.

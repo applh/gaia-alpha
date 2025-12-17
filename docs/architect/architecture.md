@@ -141,17 +141,21 @@ The response lifecycle includes hooks to modify output:
 
 | Controller | Use Case | Prefix | Key Routes |
 | :--- | :--- | :--- | :--- |
-| **Admin** | System Management | `/api/admin` | `/users`, `/db`, `/stats` |
+| **Admin** | Dashboard Stats | `/api/admin` | `/stats` |
 | **ApiBuilder** | Dynamic APIs | `/api/admin` | `/api-builder` |
 | **Auth** | Authentication | `/api` | `/login`, `/register`, `/logout`, `/user` |
-| **CMS** | Content Management | `/api/cms` | `/pages`, `/templates`, `/upload` |
+| **CMS** | Page Management | `/api/cms` | `/pages`, `/upload` |
 | **Dynamic** | Generated CRUD | `/api/v1` | `/{table}` |
 | **Form** | Form Builder | `/api/forms` | `/forms`, `/public/form` |
 | **Map** | Maps & Markers | `/api` | `/markers` |
 | **Media** | File Serving | `/media` | `/{userId}/{filename}` |
 | **Menu** | Navigation | `/api` | `/menus` |
+| **Partial** | Partial Management | `/api/cms` | `/partials` |
+| **Plugin** | Plugin Management | `/api/admin` | `/plugins` |
 | **Settings** | User Preferences | `/api/user` | `/settings` |
+| **Template** | Template Management | `/api/cms` | `/templates` |
 | **Todo** | Tasks | `/api` | `/todos` |
+| **User** | User Management | `/api/admin` | `/users` |
 | **View** | Frontend Display | `/` | `/app`, `/f/`, `/page/`, `Home` |
 
 ## Media Handling

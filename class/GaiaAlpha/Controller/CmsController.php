@@ -4,6 +4,8 @@ namespace GaiaAlpha\Controller;
 
 use GaiaAlpha\Model\Page;
 use GaiaAlpha\Model\Template;
+use GaiaAlpha\Response;
+use GaiaAlpha\Request;
 
 class CmsController extends BaseController
 {
@@ -11,16 +13,16 @@ class CmsController extends BaseController
     {
         $this->requireAuth();
         $cat = \GaiaAlpha\Request::query('cat', 'page');
-        $this->jsonResponse(Page::findAllByUserId(\GaiaAlpha\Session::id(), $cat));
+        Response::json(Page::findAllByUserId(\GaiaAlpha\Session::id(), $cat));
     }
 
     public function create()
     {
         $this->requireAuth();
-        $data = $this->getJsonInput();
+        $data = Request::input();
 
         if (empty($data['title']) || empty($data['slug'])) {
-            $this->jsonResponse(['error' => 'Missing title or slug'], 400);
+            Response::json(['error' => 'Missing title or slug'], 400);
         }
 
         // Default cat to 'page' if not provided
@@ -30,32 +32,32 @@ class CmsController extends BaseController
 
         try {
             $id = Page::create(\GaiaAlpha\Session::id(), $data);
-            $this->jsonResponse(['success' => true, 'id' => $id]);
+            Response::json(['success' => true, 'id' => $id]);
         } catch (\PDOException $e) {
-            $this->jsonResponse(['error' => 'Slug already exists'], 400);
+            Response::json(['error' => 'Slug already exists'], 400);
         }
     }
 
     public function update($id)
     {
         $this->requireAuth();
-        $data = $this->getJsonInput();
+        $data = Request::input();
         Page::update($id, \GaiaAlpha\Session::id(), $data);
-        $this->jsonResponse(['success' => true]);
+        Response::json(['success' => true]);
     }
 
     public function delete($id)
     {
         $this->requireAuth();
         Page::delete($id, \GaiaAlpha\Session::id());
-        $this->jsonResponse(['success' => true]);
+        Response::json(['success' => true]);
     }
 
     public function upload()
     {
         $this->requireAuth();
         if (!isset($_FILES['image']) || $_FILES['image']['error'] !== UPLOAD_ERR_OK) {
-            $this->jsonResponse(['error' => 'No image uploaded or upload error'], 400);
+            Response::json(['error' => 'No image uploaded or upload error'], 400);
         }
 
         $file = $_FILES['image'];
@@ -64,7 +66,7 @@ class CmsController extends BaseController
         $mime = $finfo->file($file['tmp_name']);
 
         if (!in_array($mime, $allowedTypes)) {
-            $this->jsonResponse(['error' => 'Invalid file type. Allowed: JPG, PNG, WEBP, AVIF'], 400);
+            Response::json(['error' => 'Invalid file type. Allowed: JPG, PNG, WEBP, AVIF'], 400);
         }
 
         $userDir = (defined('GAIA_DATA_PATH') ? GAIA_DATA_PATH : \GaiaAlpha\Env::get('root_dir') . '/my-data') . '/uploads/' . \GaiaAlpha\Session::id();
@@ -92,7 +94,7 @@ class CmsController extends BaseController
         }
 
         if (!$src) {
-            $this->jsonResponse(['error' => 'Failed to process image'], 400);
+            Response::json(['error' => 'Failed to process image'], 400);
         }
 
         $width = imagesx($src);
@@ -156,7 +158,7 @@ class CmsController extends BaseController
             }
         }
 
-        $this->jsonResponse(['url' => $mediaUrl]);
+        Response::json(['url' => $mediaUrl]);
     }
 
     public function registerRoutes()
@@ -177,39 +179,39 @@ class CmsController extends BaseController
     public function getTemplates()
     {
         $this->requireAuth();
-        $this->jsonResponse(Template::findAllByUserId(\GaiaAlpha\Session::id()));
+        Response::json(Template::findAllByUserId(\GaiaAlpha\Session::id()));
     }
 
     public function createTemplate()
     {
         $this->requireAuth();
-        $data = $this->getJsonInput();
+        $data = Request::input();
 
         if (empty($data['title']) || empty($data['slug'])) {
-            $this->jsonResponse(['error' => 'Missing title or slug'], 400);
+            Response::json(['error' => 'Missing title or slug'], 400);
         }
 
         try {
             $id = Template::create(\GaiaAlpha\Session::id(), $data);
-            $this->jsonResponse(['success' => true, 'id' => $id]);
+            Response::json(['success' => true, 'id' => $id]);
         } catch (\PDOException $e) {
-            $this->jsonResponse(['error' => 'Slug already exists'], 400);
+            Response::json(['error' => 'Slug already exists'], 400);
         }
     }
 
     public function updateTemplate($id)
     {
         $this->requireAuth();
-        $data = $this->getJsonInput();
+        $data = Request::input();
         Template::update($id, \GaiaAlpha\Session::id(), $data);
-        $this->jsonResponse(['success' => true]);
+        Response::json(['success' => true]);
     }
 
     public function deleteTemplate($id)
     {
         $this->requireAuth();
         Template::delete($id, \GaiaAlpha\Session::id());
-        $this->jsonResponse(['success' => true]);
+        Response::json(['success' => true]);
     }
 
 }

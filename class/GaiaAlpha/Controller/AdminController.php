@@ -4,13 +4,16 @@ namespace GaiaAlpha\Controller;
 
 use GaiaAlpha\Model\User;
 use GaiaAlpha\Model\Page;
+use GaiaAlpha\Filesystem;
+use GaiaAlpha\Response;
+use GaiaAlpha\Request;
 
 class AdminController extends BaseController
 {
     public function index()
     {
         $this->requireAdmin();
-        $this->jsonResponse(User::findAll());
+        Response::json(User::findAll());
     }
 
     public function stats()
@@ -60,43 +63,43 @@ class AdminController extends BaseController
         // Usage: Hook::add('admin_dashboard_cards', function($cards) { $cards[] = ['label' => '...', 'value' => ..., 'icon' => '...']; return $cards; });
         $cards = \GaiaAlpha\Hook::filter('admin_dashboard_cards', $cards);
 
-        $this->jsonResponse(['cards' => $cards]);
+        Response::json(['cards' => $cards]);
     }
 
     public function create()
     {
         $this->requireAdmin();
-        $data = $this->getJsonInput();
+        $data = Request::input();
 
         if (empty($data['username']) || empty($data['password'])) {
-            $this->jsonResponse(['error' => 'Missing username or password'], 400);
+            Response::json(['error' => 'Missing username or password'], 400);
         }
 
         try {
             $id = User::create($data['username'], $data['password'], $data['level'] ?? 10);
-            $this->jsonResponse(['success' => true, 'id' => $id]);
+            Response::json(['success' => true, 'id' => $id]);
         } catch (\PDOException $e) {
-            $this->jsonResponse(['error' => 'Username already exists'], 400);
+            Response::json(['error' => 'Username already exists'], 400);
         }
     }
 
     public function update($id)
     {
         $this->requireAdmin();
-        $data = $this->getJsonInput();
+        $data = Request::input();
         User::update($id, $data);
-        $this->jsonResponse(['success' => true]);
+        Response::json(['success' => true]);
     }
 
     public function delete($id)
     {
         $this->requireAdmin();
         if ($id == $_SESSION['user_id']) {
-            $this->jsonResponse(['error' => 'Cannot delete yourself'], 400);
+            Response::json(['error' => 'Cannot delete yourself'], 400);
         }
 
         User::delete($id);
-        $this->jsonResponse(['success' => true]);
+        Response::json(['success' => true]);
     }
 
 
@@ -112,7 +115,7 @@ class AdminController extends BaseController
 
         // Get File Templates
         $fileTemplates = [];
-        $files = glob(dirname(__DIR__, 3) . '/templates/*.php');
+        $files = Filesystem::glob(dirname(__DIR__, 3) . '/templates/*.php');
         foreach ($files as $file) {
             $slug = basename($file, '.php');
             // Skip if slug exists in DB (DB overrides file? or separate?)
@@ -138,7 +141,7 @@ class AdminController extends BaseController
             return $t;
         }, $dbTemplates);
 
-        $this->jsonResponse(array_merge($dbTemplsFormatted, $fileTemplates));
+        Response::json(array_merge($dbTemplsFormatted, $fileTemplates));
     }
 
     public function getTemplate($id)
@@ -148,16 +151,16 @@ class AdminController extends BaseController
         if (strpos($id, 'file_') === 0) {
             $slug = substr($id, 5);
             $path = dirname(__DIR__, 3) . '/templates/' . $slug . '.php';
-            if (file_exists($path)) {
-                $this->jsonResponse([
+            if (Filesystem::exists($path)) {
+                Response::json([
                     'slug' => $slug,
                     'title' => ucfirst(str_replace('_', ' ', $slug)),
-                    'content' => file_get_contents($path),
+                    'content' => Filesystem::read($path),
                     'type' => 'file',
                     'readonly' => true // Prevent editing files for now for safety
                 ]);
             } else {
-                $this->jsonResponse(['error' => 'Template file not found'], 404);
+                Response::json(['error' => 'Template file not found'], 404);
             }
         } else {
             // DB Template
@@ -169,9 +172,9 @@ class AdminController extends BaseController
             $tmpl = $stmt->fetch(\PDO::FETCH_ASSOC);
             if ($tmpl) {
                 $tmpl['type'] = 'db';
-                $this->jsonResponse($tmpl);
+                Response::json($tmpl);
             } else {
-                $this->jsonResponse(['error' => 'Template not found'], 404);
+                Response::json(['error' => 'Template not found'], 404);
             }
         }
     }
@@ -179,34 +182,34 @@ class AdminController extends BaseController
     public function createTemplate()
     {
         $this->requireAdmin();
-        $data = $this->getJsonInput();
+        $data = Request::input();
 
         if (empty($data['title']) || empty($data['slug'])) {
-            $this->jsonResponse(['error' => 'Title and slug are required'], 400);
+            Response::json(['error' => 'Title and slug are required'], 400);
             return;
         }
 
         try {
             $id = \GaiaAlpha\Model\Template::create($_SESSION['user_id'], $data);
-            $this->jsonResponse(['success' => true, 'id' => $id]);
+            Response::json(['success' => true, 'id' => $id]);
         } catch (\PDOException $e) {
-            $this->jsonResponse(['error' => 'Slug already exists'], 400);
+            Response::json(['error' => 'Slug already exists'], 400);
         }
     }
 
     public function updateTemplate($id)
     {
         $this->requireAdmin();
-        $data = $this->getJsonInput();
+        $data = Request::input();
         \GaiaAlpha\Model\Template::update($id, $_SESSION['user_id'], $data);
-        $this->jsonResponse(['success' => true]);
+        Response::json(['success' => true]);
     }
 
     public function deleteTemplate($id)
     {
         $this->requireAdmin();
         \GaiaAlpha\Model\Template::delete($id, $_SESSION['user_id']);
-        $this->jsonResponse(['success' => true]);
+        Response::json(['success' => true]);
     }
 
     // Partial Management
@@ -215,15 +218,15 @@ class AdminController extends BaseController
     {
         $this->requireAdmin();
         $stmt = \GaiaAlpha\Model\DB::query("SELECT * FROM cms_partials ORDER BY name ASC");
-        $this->jsonResponse($stmt->fetchAll(\PDO::FETCH_ASSOC));
+        Response::json($stmt->fetchAll(\PDO::FETCH_ASSOC));
     }
 
     public function createPartial()
     {
         $this->requireAdmin();
-        $data = $this->getJsonInput();
+        $data = Request::input();
         if (empty($data['name'])) {
-            $this->jsonResponse(['error' => 'Name is required'], 400);
+            Response::json(['error' => 'Name is required'], 400);
             return;
         }
 
@@ -232,16 +235,16 @@ class AdminController extends BaseController
                 "INSERT INTO cms_partials (user_id, name, content, created_at, updated_at) VALUES (?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)",
                 [$_SESSION['user_id'], $data['name'], $data['content'] ?? '']
             );
-            $this->jsonResponse(['success' => true, 'id' => \GaiaAlpha\Model\DB::lastInsertId()]);
+            Response::json(['success' => true, 'id' => \GaiaAlpha\Model\DB::lastInsertId()]);
         } catch (\PDOException $e) {
-            $this->jsonResponse(['error' => 'Name already exists'], 400);
+            Response::json(['error' => 'Name already exists'], 400);
         }
     }
 
     public function updatePartial($id)
     {
         $this->requireAdmin();
-        $data = $this->getJsonInput();
+        $data = Request::input();
         $pdo = \GaiaAlpha\Model\DB::getPdo();
 
         $fields = [];
@@ -257,7 +260,7 @@ class AdminController extends BaseController
         }
 
         if (empty($fields)) {
-            $this->jsonResponse(['success' => true]);
+            Response::json(['success' => true]);
             return;
         }
 
@@ -266,14 +269,14 @@ class AdminController extends BaseController
 
         $sql = "UPDATE cms_partials SET " . implode(', ', $fields) . " WHERE id = ?";
         \GaiaAlpha\Model\DB::execute($sql, $values);
-        $this->jsonResponse(['success' => true]);
+        Response::json(['success' => true]);
     }
 
     public function deletePartial($id)
     {
         $this->requireAdmin();
         \GaiaAlpha\Model\DB::execute("DELETE FROM cms_partials WHERE id = ? AND user_id = ?", [$id, $_SESSION['user_id']]);
-        $this->jsonResponse(['success' => true]);
+        Response::json(['success' => true]);
     }
 
     // Plugin Management
@@ -293,8 +296,8 @@ class AdminController extends BaseController
         $activePluginsFile = $pathData . '/active_plugins.json';
 
         $activePlugins = [];
-        if (file_exists($activePluginsFile)) {
-            $activePlugins = json_decode(file_get_contents($activePluginsFile), true);
+        if (Filesystem::exists($activePluginsFile)) {
+            $activePlugins = json_decode(Filesystem::read($activePluginsFile), true);
         } else {
             // If file doesn't exist, all found plugins are implicitly active
             $allActive = true;
@@ -302,11 +305,11 @@ class AdminController extends BaseController
 
         $plugins = [];
         foreach ($pluginDirs as $pluginsDir) {
-            if (is_dir($pluginsDir)) {
-                foreach (glob($pluginsDir . '/*', GLOB_ONLYDIR) as $dir) {
+            if (Filesystem::isDirectory($pluginsDir)) {
+                foreach (Filesystem::glob($pluginsDir . '/*', GLOB_ONLYDIR) as $dir) {
                     $name = basename($dir);
                     // Check if index.php exists
-                    if (file_exists($dir . '/index.php')) {
+                    if (Filesystem::exists($dir . '/index.php')) {
                         // Avoid duplicates if same name exists in both (though unlikely/bad practice)
                         // If priority matters, we might want to key by name.
                         // For display, just list them.
@@ -320,13 +323,13 @@ class AdminController extends BaseController
             }
         }
 
-        $this->jsonResponse($plugins);
+        Response::json($plugins);
     }
 
     public function togglePlugin()
     {
         $this->requireAdmin();
-        $data = $this->getJsonInput();
+        $data = Request::input();
 
         $name = $data['name'] ?? null;
         $active = $data['active'] ?? false;
@@ -335,7 +338,7 @@ class AdminController extends BaseController
         // For now, I will keep it but `savePlugins` is the new way.
 
         if (!$name) {
-            $this->jsonResponse(['error' => 'Plugin name required'], 400);
+            Response::json(['error' => 'Plugin name required'], 400);
             return;
         }
 
@@ -343,20 +346,20 @@ class AdminController extends BaseController
         $rootDir = \GaiaAlpha\Env::get('root_dir');
 
         $exists = false;
-        if (is_dir($pathData . '/plugins/' . $name) || is_dir($rootDir . '/plugins/' . $name)) {
+        if (Filesystem::isDirectory($pathData . '/plugins/' . $name) || Filesystem::isDirectory($rootDir . '/plugins/' . $name)) {
             $exists = true;
         }
 
         if (!$exists) {
-            $this->jsonResponse(['error' => 'Plugin does not exist'], 404);
+            Response::json(['error' => 'Plugin does not exist'], 404);
             return;
         }
 
         $activePluginsFile = $pathData . '/active_plugins.json';
         $activePlugins = [];
 
-        if (file_exists($activePluginsFile)) {
-            $activePlugins = json_decode(file_get_contents($activePluginsFile), true);
+        if (Filesystem::exists($activePluginsFile)) {
+            $activePlugins = json_decode(Filesystem::read($activePluginsFile), true);
         } else {
             // First time toggling logic...
             // ...
@@ -370,37 +373,37 @@ class AdminController extends BaseController
     public function savePlugins()
     {
         $this->requireAdmin();
-        $data = $this->getJsonInput();
+        $data = Request::input();
         $activePlugins = $data['active_plugins'] ?? [];
 
         if (!is_array($activePlugins)) {
-            $this->jsonResponse(['error' => 'Invalid input'], 400);
+            Response::json(['error' => 'Invalid input'], 400);
             return;
         }
 
         $pathData = \GaiaAlpha\Env::get('path_data');
         $activePluginsFile = $pathData . '/active_plugins.json';
 
-        file_put_contents($activePluginsFile, json_encode($activePlugins, JSON_PRETTY_PRINT));
-        $this->jsonResponse(['success' => true]);
+        Filesystem::write($activePluginsFile, json_encode($activePlugins, JSON_PRETTY_PRINT));
+        Response::json(['success' => true]);
     }
 
     public function installPlugin()
     {
         $this->requireAdmin();
-        $input = $this->getJsonInput();
+        $input = Request::input();
         $url = $input['url'] ?? '';
         $isRaw = $input['is_raw'] ?? false;
 
         if (!filter_var($url, FILTER_VALIDATE_URL)) {
-            $this->jsonResponse(['error' => 'Invalid URL'], 400);
+            Response::json(['error' => 'Invalid URL'], 400);
             return;
         }
 
         $pathData = \GaiaAlpha\Env::get('path_data');
         $tmpDir = $pathData . '/cache/tmp';
-        if (!is_dir($tmpDir)) {
-            mkdir($tmpDir, 0777, true);
+        if (!Filesystem::isDirectory($tmpDir)) {
+            Filesystem::makeDirectory($tmpDir, 0777, true);
         }
 
         $tmpFile = $tmpDir . '/plugin_install_' . uniqid() . '.zip';
@@ -416,16 +419,16 @@ class AdminController extends BaseController
         // 2. Download
         $content = @file_get_contents($url);
         if ($content === false) {
-            $this->jsonResponse(['error' => 'Failed to download file from URL.'], 400);
+            Response::json(['error' => 'Failed to download file from URL.'], 400);
             return;
         }
-        file_put_contents($tmpFile, $content);
+        Filesystem::write($tmpFile, $content);
 
         // 2. Unzip
         $zip = new \ZipArchive;
         if ($zip->open($tmpFile) === TRUE) {
             $extractPath = $tmpDir . '/extract_' . uniqid();
-            mkdir($extractPath);
+            Filesystem::makeDirectory($extractPath);
             $zip->extractTo($extractPath);
             $zip->close();
 
@@ -438,16 +441,16 @@ class AdminController extends BaseController
             $items = array_diff($files, ['.', '..']);
 
             // If only one directory, go inside
-            if (count($items) === 1 && is_dir($extractPath . '/' . reset($items))) {
+            if (count($items) === 1 && Filesystem::isDirectory($extractPath . '/' . reset($items))) {
                 $pluginRoot = $extractPath . '/' . reset($items);
             }
 
             // 4. Validate index.php
-            if (!file_exists($pluginRoot . '/index.php')) {
+            if (!Filesystem::exists($pluginRoot . '/index.php')) {
                 // Cleanup
-                $this->recursiveRmDir($extractPath);
-                unlink($tmpFile);
-                $this->jsonResponse(['error' => 'Invalid Plugin: index.php not found in root.'], 400);
+                Filesystem::deleteDirectory($extractPath);
+                Filesystem::delete($tmpFile);
+                Response::json(['error' => 'Invalid Plugin: index.php not found in root.'], 400);
                 return;
             }
 
@@ -472,42 +475,28 @@ class AdminController extends BaseController
             $targetDir = $pathData . '/plugins/' . $repoName;
 
             // Avoid overwrite collision
-            if (is_dir($targetDir)) {
+            if (Filesystem::isDirectory($targetDir)) {
                 $targetDir .= '_' . uniqid();
             }
 
-            rename($pluginRoot, $targetDir);
+            Filesystem::move($pluginRoot, $targetDir);
 
             // Cleanup
-            $this->recursiveRmDir($extractPath); // Only removes empty parent if we moved the child
+            Filesystem::deleteDirectory($extractPath); // Only removes empty parent if we moved the child
             // Actually if we simply renamed $pluginRoot, the parent $extractPath might still exist (if we went down one level)
-            if (is_dir($extractPath)) {
-                $this->recursiveRmDir($extractPath);
+            if (Filesystem::isDirectory($extractPath)) {
+                Filesystem::deleteDirectory($extractPath);
             }
-            unlink($tmpFile);
+            Filesystem::delete($tmpFile);
 
-            $this->jsonResponse(['success' => true, 'dir' => basename($targetDir)]);
+            Response::json(['success' => true, 'dir' => basename($targetDir)]);
         } else {
-            unlink($tmpFile);
-            $this->jsonResponse(['error' => 'Failed to unzip file.'], 500);
+            Filesystem::delete($tmpFile);
+            Response::json(['error' => 'Failed to unzip file.'], 500);
         }
     }
 
-    private function recursiveRmDir($dir)
-    {
-        if (is_dir($dir)) {
-            $objects = scandir($dir);
-            foreach ($objects as $object) {
-                if ($object != "." && $object != "..") {
-                    if (is_dir($dir . "/" . $object) && !is_link($dir . "/" . $object))
-                        $this->recursiveRmDir($dir . "/" . $object);
-                    else
-                        unlink($dir . "/" . $object);
-                }
-            }
-            rmdir($dir);
-        }
-    }
+
 
     public function registerRoutes()
     {

@@ -3,6 +3,8 @@
 namespace GaiaAlpha\Controller;
 
 use GaiaAlpha\Model\User;
+use GaiaAlpha\Response;
+use GaiaAlpha\Request;
 
 class AuthController extends BaseController
 {
@@ -19,13 +21,13 @@ class AuthController extends BaseController
 
     public function login()
     {
-        $data = $this->getJsonInput();
+        $data = Request::input();
         $user = User::findByUsername($data['username'] ?? '');
 
         if ($user && password_verify($data['password'] ?? '', $user['password_hash'])) {
             \GaiaAlpha\Session::login($user);
 
-            $this->jsonResponse([
+            Response::json([
                 'success' => true,
                 'user' => [
                     'username' => $user['username'],
@@ -33,29 +35,29 @@ class AuthController extends BaseController
                 ]
             ]);
         } else {
-            $this->jsonResponse(['error' => 'Invalid credentials'], 401);
+            Response::json(['error' => 'Invalid credentials'], 401);
         }
     }
 
     public function register()
     {
-        $data = $this->getJsonInput();
+        $data = Request::input();
         if (empty($data['username']) || empty($data['password'])) {
-            $this->jsonResponse(['error' => 'Missing credentials'], 400);
+            Response::json(['error' => 'Missing credentials'], 400);
         }
 
         try {
             User::create($data['username'], $data['password']);
-            $this->jsonResponse(['success' => true]);
+            Response::json(['success' => true]);
         } catch (\PDOException $e) {
-            $this->jsonResponse(['error' => 'Username already exists'], 400);
+            Response::json(['error' => 'Username already exists'], 400);
         }
     }
 
     public function logout()
     {
         \GaiaAlpha\Session::logout();
-        $this->jsonResponse(['success' => true]);
+        Response::json(['success' => true]);
     }
 
     public function me()
@@ -71,9 +73,9 @@ class AuthController extends BaseController
             // Allow plugins to inject data (e.g. menu items)
             $data = \GaiaAlpha\Hook::filter('auth_session_data', $data);
 
-            $this->jsonResponse($data);
+            Response::json($data);
         } else {
-            $this->jsonResponse(['user' => null]);
+            Response::json(['user' => null]);
         }
     }
 

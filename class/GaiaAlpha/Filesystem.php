@@ -41,6 +41,32 @@ class Filesystem
     }
 
     /**
+     * Recursively delete a directory.
+     */
+    public static function deleteDirectory(string $dir): bool
+    {
+        if (!is_dir($dir)) {
+            return false;
+        }
+
+        $items = array_diff(scandir($dir), ['.', '..']);
+        foreach ($items as $item) {
+            $path = $dir . DIRECTORY_SEPARATOR . $item;
+            (is_dir($path) && !is_link($path)) ? self::deleteDirectory($path) : unlink($path);
+        }
+
+        return rmdir($dir);
+    }
+
+    /**
+     * Move a file or directory.
+     */
+    public static function move(string $path, string $target): bool
+    {
+        return rename($path, $target);
+    }
+
+    /**
      * Check if file or directory exists.
      */
     public static function exists(string $path): bool
@@ -89,5 +115,34 @@ class Filesystem
     public static function lines(string $path): array
     {
         return file_exists($path) ? file($path, FILE_IGNORE_NEW_LINES) : [];
+    }
+    /**
+     * Get MIME type based on file extension.
+     */
+    public static function mimeType(string $path): string
+    {
+        $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+
+        $mimeTypes = [
+            'png' => 'image/png',
+            'jpg' => 'image/jpeg',
+            'jpeg' => 'image/jpeg',
+            'gif' => 'image/gif',
+            'svg' => 'image/svg+xml',
+            'webp' => 'image/webp',
+            'css' => 'text/css',
+            'js' => 'application/javascript',
+            'woff' => 'font/woff',
+            'woff2' => 'font/woff2',
+            'ttf' => 'font/ttf',
+            'eot' => 'application/vnd.ms-fontobject',
+            'otf' => 'font/otf',
+            'html' => 'text/html',
+            'json' => 'application/json',
+            'xml' => 'application/xml',
+            'txt' => 'text/plain',
+        ];
+
+        return $mimeTypes[$ext] ?? 'application/octet-stream';
     }
 }

@@ -5,6 +5,7 @@ namespace GaiaAlpha\Controller;
 use GaiaAlpha\Env;
 use GaiaAlpha\Media;
 use GaiaAlpha\Router;
+use GaiaAlpha\Response;
 
 class MediaController extends BaseController
 {
@@ -74,7 +75,7 @@ class MediaController extends BaseController
             }
         }
 
-        $this->jsonResponse([
+        Response::json([
             'count' => $count,
             'size' => $size,
             'size_formatted' => $this->formatBytes($size)
@@ -91,7 +92,7 @@ class MediaController extends BaseController
                 unlink($file);
             }
         }
-        $this->jsonResponse(['success' => true, 'message' => 'Cache cleared']);
+        Response::json(['success' => true, 'message' => 'Cache cleared']);
     }
 
     private function formatBytes($bytes, $precision = 2)

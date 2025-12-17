@@ -40,13 +40,21 @@ class Response
      * Send final response content
      * Called by App::run at the end of lifecycle
      */
-    public static function send($content)
+    public static function send($content, int $status = 200, bool $exit = false)
     {
+        if ($status !== 200) {
+            http_response_code($status);
+        }
+
         // Hook for global modification (e.g. Debug Headers, Compression)
-        $context = ['content' => &$content];
+        $context = ['content' => &$content, 'status' => $status];
         Hook::run('response_send', $context);
 
         echo $content;
+
+        if ($exit) {
+            exit;
+        }
     }
 
     /**
@@ -71,5 +79,41 @@ class Response
             $content = '';
         }
         self::send($content);
+    }
+
+    /**
+     * Clear all active output buffers.
+     * Useful when serving binary files or non-HTML content where previous output should be discarded.
+     */
+    public static function clearBuffer()
+    {
+        while (ob_get_level()) {
+            ob_end_clean();
+        }
+    }
+
+    /**
+     * Set a raw HTTP header
+     */
+    public static function header(string $string, bool $replace = true, int $response_code = 0)
+    {
+        if ($response_code) {
+            header($string, $replace, $response_code);
+        } else {
+            header($string, $replace);
+        }
+    }
+
+
+    /**
+     * Send a file directly to output
+     */
+    public static function file(string $path, bool $exit = false)
+    {
+        readfile($path);
+
+        if ($exit) {
+            exit;
+        }
     }
 }

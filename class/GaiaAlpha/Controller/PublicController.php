@@ -4,6 +4,7 @@ namespace GaiaAlpha\Controller;
 
 use GaiaAlpha\Model\Page;
 use GaiaAlpha\Hook;
+use GaiaAlpha\Response;
 
 class PublicController extends BaseController
 {
@@ -11,7 +12,7 @@ class PublicController extends BaseController
     {
         $pages = Page::getLatestPublic();
         $pages = Hook::filter('public_pages_index', $pages);
-        $this->jsonResponse($pages);
+        Response::json($pages);
     }
 
     public function show($slug)
@@ -19,12 +20,12 @@ class PublicController extends BaseController
         $page = Page::findBySlug($slug);
 
         if (!$page) {
-            $this->jsonResponse(['error' => 'Page not found'], 404);
+            Response::json(['error' => 'Page not found'], 404);
             return;
         }
 
         $page = Hook::filter('public_page_show', $page, $slug);
-        $this->jsonResponse($page);
+        Response::json($page);
     }
 
     public function render($slug)

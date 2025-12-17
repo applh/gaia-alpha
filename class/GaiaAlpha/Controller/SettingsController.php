@@ -4,6 +4,7 @@ namespace GaiaAlpha\Controller;
 
 use GaiaAlpha\Database;
 use GaiaAlpha\Response;
+use GaiaAlpha\Request;
 use GaiaAlpha\Model\DataStore;
 use GaiaAlpha\Controller\DbController;
 
@@ -16,24 +17,24 @@ class SettingsController extends BaseController
         // We currently only store user preferences under type 'user_pref'
         $settings = DataStore::getAll(\GaiaAlpha\Session::id(), 'user_pref');
 
-        $this->jsonResponse(['settings' => $settings]);
+        Response::json(['settings' => $settings]);
     }
 
     public function update()
     {
         $this->requireAuth();
-        $data = $this->getJsonInput();
+        $data = Request::input();
 
         if (!isset($data['key']) || !isset($data['value'])) {
-            $this->jsonResponse(['error' => 'Missing key or value'], 400);
+            Response::json(['error' => 'Missing key or value'], 400);
         }
 
         $success = DataStore::set(\GaiaAlpha\Session::id(), 'user_pref', $data['key'], $data['value']);
 
         if ($success) {
-            $this->jsonResponse(['success' => true]);
+            Response::json(['success' => true]);
         } else {
-            $this->jsonResponse(['error' => 'Failed to update setting'], 500);
+            Response::json(['error' => 'Failed to update setting'], 500);
         }
     }
 
@@ -54,25 +55,25 @@ class SettingsController extends BaseController
     {
         $this->requireAdmin();
         $settings = DataStore::getAll(0, 'global_config'); // user_id 0 = system/global
-        $this->jsonResponse(['settings' => $settings]);
+        Response::json(['settings' => $settings]);
     }
 
     public function updateGlobal()
     {
         $this->requireAdmin();
-        $data = $this->getJsonInput();
+        $data = Request::input();
 
         if (!isset($data['key']) || !isset($data['value'])) {
-            $this->jsonResponse(['error' => 'Missing key or value'], 400);
+            Response::json(['error' => 'Missing key or value'], 400);
         }
 
         // user_id 0 = system/global
         $success = DataStore::set(0, 'global_config', $data['key'], $data['value']);
 
         if ($success) {
-            $this->jsonResponse(['success' => true]);
+            Response::json(['success' => true]);
         } else {
-            $this->jsonResponse(['error' => 'Failed to update setting'], 500);
+            Response::json(['error' => 'Failed to update setting'], 500);
         }
     }
 }

@@ -8,20 +8,12 @@ use GaiaAlpha\Request;
 abstract class BaseController
 {
 
-    protected function jsonResponse($data, int $status = 200)
-    {
-        Response::json($data, $status);
-    }
 
-    protected function getJsonInput()
-    {
-        return Request::input();
-    }
 
     protected function requireAuth()
     {
         if (!\GaiaAlpha\Session::isLoggedIn()) {
-            $this->jsonResponse(['error' => 'Unauthorized'], 401);
+            Response::json(['error' => 'Unauthorized'], 401);
         }
     }
 
@@ -29,7 +21,7 @@ abstract class BaseController
     {
         $this->requireAuth();
         if (!\GaiaAlpha\Session::isAdmin()) {
-            $this->jsonResponse(['error' => 'Forbidden'], 403);
+            Response::json(['error' => 'Forbidden'], 403);
         }
     }
 

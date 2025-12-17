@@ -5,6 +5,8 @@ namespace GaiaAlpha\Controller;
 use GaiaAlpha\Model\User;
 use GaiaAlpha\Router;
 use GaiaAlpha\Env;
+use GaiaAlpha\Response;
+use GaiaAlpha\Request;
 
 class InstallController extends BaseController
 {
@@ -24,14 +26,14 @@ class InstallController extends BaseController
     {
         // If already installed, forbid
         if (self::isInstalled()) {
-            $this->jsonResponse(['error' => 'Application already installed'], 403);
+            Response::json(['error' => 'Application already installed'], 403);
             return;
         }
 
-        $data = $this->getJsonInput();
+        $data = Request::input();
 
         if (empty($data['username']) || empty($data['password'])) {
-            $this->jsonResponse(['error' => 'Missing username or password'], 400);
+            Response::json(['error' => 'Missing username or password'], 400);
             return;
         }
 
@@ -71,9 +73,9 @@ class InstallController extends BaseController
             // Auto login? For now let client handle redirect.
 
             $this->markInstalled();
-            $this->jsonResponse(['success' => true]);
+            Response::json(['success' => true]);
         } catch (\PDOException $e) {
-            $this->jsonResponse(['error' => 'Failed to create user: ' . $e->getMessage()], 400);
+            Response::json(['error' => 'Failed to create user: ' . $e->getMessage()], 400);
         }
     }
 

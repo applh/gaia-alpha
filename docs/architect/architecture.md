@@ -417,8 +417,8 @@ The frontend is a lightweight, bundle-free Vue 3 application that relies on nati
 ## Code Statistics
 *Approximate counts as of v0.34.0*
 
-- **PHP**: ~12,900 lines
-- **JavaScript (Application)**: ~9,300 lines
-- **JavaScript (Vendor)**: ~28,000 lines
-- **CSS**: ~4,000 lines
+- **PHP**: ~13,200 lines
+- **JavaScript (Application)**: ~9,400 lines
+- **JavaScript (Vendor)**: ~28,100 lines
+- **CSS**: ~3,300 lines
 

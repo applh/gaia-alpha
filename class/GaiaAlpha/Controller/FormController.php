@@ -2,13 +2,18 @@
 
 namespace GaiaAlpha\Controller;
 
+use GaiaAlpha\Response;
+use GaiaAlpha\Request;
+
 class FormController extends BaseController
 {
+
+
     public function index()
     {
         // Auth Check (Any logged in user can have forms? Or just Admin? "Users can build" implies logged in users.)
         if (!\GaiaAlpha\Session::isLoggedIn()) {
-            $this->jsonResponse(['error' => 'Unauthorized'], 401);
+            Response::json(['error' => 'Unauthorized'], 401);
             return;
         }
 
@@ -23,44 +28,44 @@ class FormController extends BaseController
             $form['schema'] = json_decode($form['schema']);
         }
 
-        $this->jsonResponse($forms);
+        Response::json($forms);
     }
 
     public function show($id)
     {
         if (!\GaiaAlpha\Session::isLoggedIn()) {
-            $this->jsonResponse(['error' => 'Unauthorized'], 401);
+            Response::json(['error' => 'Unauthorized'], 401);
             return;
         }
 
         $form = \GaiaAlpha\Model\DB::fetch("SELECT * FROM forms WHERE id = ? AND user_id = ?", [$id, \GaiaAlpha\Session::id()]);
 
         if (!$form) {
-            $this->jsonResponse(['error' => 'Form not found'], 404);
+            Response::json(['error' => 'Form not found'], 404);
             return;
         }
 
         // Ownership check
         if ($form['user_id'] != \GaiaAlpha\Session::id()) {
-            $this->jsonResponse(['error' => 'Forbidden'], 403);
+            Response::json(['error' => 'Forbidden'], 403);
             return;
         }
 
         $form['schema'] = json_decode($form['schema']);
-        $this->jsonResponse($form);
+        Response::json($form);
     }
 
     public function store()
     {
         if (!\GaiaAlpha\Session::isLoggedIn()) {
-            $this->jsonResponse(['error' => 'Unauthorized'], 401);
+            Response::json(['error' => 'Unauthorized'], 401);
             return;
         }
 
-        $data = $this->getJsonInput();
+        $data = Request::input();
 
         if (empty($data['title'])) {
-            $this->jsonResponse(['error' => 'Title is required'], 400);
+            Response::json(['error' => 'Title is required'], 400);
             return;
         }
 
@@ -81,30 +86,30 @@ class FormController extends BaseController
             $sql = "INSERT INTO forms (user_id, title, slug, description, submit_label, schema) VALUES (?, ?, ?, ?, ?, ?)";
             \GaiaAlpha\Model\DB::execute($sql, [$userId, $title, $slug, $description, $submitLabel, $schema]);
 
-            $this->jsonResponse([
+            Response::json([
                 'success' => true,
                 'id' => \GaiaAlpha\Model\DB::lastInsertId(),
                 'slug' => $slug
             ]);
         } catch (\PDOException $e) {
-            $this->jsonResponse(['error' => "Create failed: " . $e->getMessage()], 400);
+            Response::json(['error' => "Create failed: " . $e->getMessage()], 400);
         }
     }
 
     public function update($id)
     {
         if (!\GaiaAlpha\Session::isLoggedIn()) {
-            $this->jsonResponse(['error' => 'Unauthorized'], 401);
+            Response::json(['error' => 'Unauthorized'], 401);
             return;
         }
 
-        $data = $this->getJsonInput();
+        $data = Request::input();
 
         // Ownership Check
         $form = \GaiaAlpha\Model\DB::fetch("SELECT user_id FROM forms WHERE id = ?", [$id]);
 
         if (!$form || $form['user_id'] != \GaiaAlpha\Session::id()) {
-            $this->jsonResponse(['error' => 'Forbidden'], 403);
+            Response::json(['error' => 'Forbidden'], 403);
             return;
         }
 
@@ -131,7 +136,7 @@ class FormController extends BaseController
         $fields[] = "updated_at = CURRENT_TIMESTAMP";
 
         if (empty($values)) {
-            $this->jsonResponse(['success' => true]); // Nothing to update
+            Response::json(['success' => true]); // Nothing to update
             return;
         }
 
@@ -140,28 +145,28 @@ class FormController extends BaseController
 
         try {
             \GaiaAlpha\Model\DB::execute($sql, $values);
-            $this->jsonResponse(['success' => true]);
+            Response::json(['success' => true]);
         } catch (\PDOException $e) {
-            $this->jsonResponse(['error' => "Update failed: " . $e->getMessage()], 400);
+            Response::json(['error' => "Update failed: " . $e->getMessage()], 400);
         }
     }
 
     public function destroy($id)
     {
         if (!\GaiaAlpha\Session::isLoggedIn()) {
-            $this->jsonResponse(['error' => 'Unauthorized'], 401);
+            Response::json(['error' => 'Unauthorized'], 401);
             return;
         }
 
         $form = \GaiaAlpha\Model\DB::fetch("SELECT user_id FROM forms WHERE id = ?", [$id]);
 
         if (!$form || $form['user_id'] != \GaiaAlpha\Session::id()) {
-            $this->jsonResponse(['error' => 'Forbidden'], 403);
+            Response::json(['error' => 'Forbidden'], 403);
             return;
         }
 
         \GaiaAlpha\Model\DB::execute("DELETE FROM forms WHERE id = ? AND user_id = ?", [$id, \GaiaAlpha\Session::id()]);
-        $this->jsonResponse(['success' => true]);
+        Response::json(['success' => true]);
     }
 
     // Public Get Schema
@@ -170,23 +175,23 @@ class FormController extends BaseController
         $form = \GaiaAlpha\Model\DB::fetch("SELECT title, description, schema, submit_label FROM forms WHERE slug = ?", [$slug]);
 
         if (!$form) {
-            $this->jsonResponse(['error' => 'Form not found'], 404);
+            Response::json(['error' => 'Form not found'], 404);
             return;
         }
 
         $form['schema'] = json_decode($form['schema']);
-        $this->jsonResponse($form);
+        Response::json($form);
     }
 
     // Public Submission Endpoint
     public function submit($slug)
     {
-        $data = $this->getJsonInput();
+        $data = Request::input();
 
         $form = \GaiaAlpha\Model\DB::fetch("SELECT id FROM forms WHERE slug = ?", [$slug]);
 
         if (!$form) {
-            $this->jsonResponse(['error' => 'Form not found'], 404);
+            Response::json(['error' => 'Form not found'], 404);
             return;
         }
 
@@ -199,23 +204,23 @@ class FormController extends BaseController
                 "INSERT INTO form_submissions (form_id, data, ip_address, user_agent, created_at) VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)",
                 [$form['id'], $formData, $ip, $ua]
             );
-            $this->jsonResponse(['success' => true]);
+            Response::json(['success' => true]);
         } catch (\PDOException $e) {
-            $this->jsonResponse(['error' => 'Submission failed'], 500);
+            Response::json(['error' => 'Submission failed'], 500);
         }
     }
 
     public function submissions($id)
     {
         if (!\GaiaAlpha\Session::isLoggedIn()) {
-            $this->jsonResponse(['error' => 'Unauthorized'], 401);
+            Response::json(['error' => 'Unauthorized'], 401);
             return;
         }
 
         $form = \GaiaAlpha\Model\DB::fetch("SELECT user_id FROM forms WHERE id = ?", [$id]);
 
         if (!$form || $form['user_id'] != \GaiaAlpha\Session::id()) {
-            $this->jsonResponse(['error' => 'Forbidden'], 403);
+            Response::json(['error' => 'Forbidden'], 403);
             return;
         }
 
@@ -225,7 +230,7 @@ class FormController extends BaseController
             $sub['data'] = json_decode($sub['data']);
         }
 
-        $this->jsonResponse($submissions);
+        Response::json($submissions);
     }
 
     public function registerRoutes()

@@ -4,6 +4,7 @@ namespace GaiaAlpha\Controller;
 
 use GaiaAlpha\Router;
 use GaiaAlpha\Env;
+use GaiaAlpha\Request;
 use GaiaAlpha\Controller\BaseController;
 
 class ViewController extends BaseController
@@ -235,9 +236,9 @@ HTML;
     public function home()
     {
         // 1. Determine slug
-        $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+        $uriPath = Request::path();
         // Remove leading slash
-        $slug = ltrim($uri, '/');
+        $slug = ltrim($uriPath, '/');
 
         // Handle root
         if ($slug === '' || $slug === 'index.php') {

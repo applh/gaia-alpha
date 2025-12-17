@@ -2,6 +2,10 @@
 
 namespace GaiaAlpha;
 
+use GaiaAlpha\Filesystem;
+use GaiaAlpha\Cli\Input;
+use GaiaAlpha\Request;
+
 class SiteManager
 {
     private static ?string $currentSite = null;
@@ -16,26 +20,23 @@ class SiteManager
         $sitesDir = $rootDir . '/my-data/sites';
 
         // Ensure sites directory exists
-        if (!is_dir($sitesDir)) {
-            mkdir($sitesDir, 0755, true);
+        if (!Filesystem::isDirectory($sitesDir)) {
+            Filesystem::makeDirectory($sitesDir);
         }
 
         // 1. CLI Override Logic
         if (php_sapi_name() === 'cli') {
             // Check for --site=domain.com argument
-            global $argv;
-            foreach ($argv as $arg) {
-                if (str_starts_with($arg, '--site=')) {
-                    $domain = substr($arg, 7);
-                    self::setSite($domain, $sitesDir);
-                    return;
-                }
+            $domain = Input::getOption('site');
+            if ($domain) {
+                self::setSite($domain, $sitesDir);
+                return;
             }
         }
 
         // 2. HTTP Host Logic
-        if (isset($_SERVER['HTTP_HOST'])) {
-            $host = $_SERVER['HTTP_HOST'];
+        $host = Request::host();
+        if ($host) {
             // Remove port if present
             $parts = explode(':', $host);
             $domain = $parts[0];
@@ -66,7 +67,7 @@ class SiteManager
         $siteDb = $sitesDir . '/' . $domain . '.sqlite';
 
         // Check if specific site DB exists
-        if (file_exists($siteDb)) {
+        if (Filesystem::exists($siteDb)) {
             self::$currentSite = $domain;
             self::$dbPath = $siteDb;
             // Define Constant for DbController to pick up

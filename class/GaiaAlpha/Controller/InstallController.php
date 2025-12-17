@@ -93,16 +93,16 @@ class InstallController extends BaseController
             return;
         }
 
-        $uri = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
+        $uri = Request::path();
 
         // Allow static assets, install page, and install API
         // Also allow debug/min paths if needed?
         if (
             $uri === '/install' ||
             $uri === '/@/install' ||
-            strpos($uri, '/assets/') === 0 ||
-            strpos($uri, '/min/') === 0 ||
-            strpos($uri, '/favicon.ico') === 0
+            str_starts_with($uri, '/assets/') ||
+            str_starts_with($uri, '/min/') ||
+            str_starts_with($uri, '/favicon.ico')
         ) {
             return;
         }

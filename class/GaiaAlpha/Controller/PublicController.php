@@ -5,6 +5,7 @@ namespace GaiaAlpha\Controller;
 use GaiaAlpha\Model\Page;
 use GaiaAlpha\Hook;
 use GaiaAlpha\Response;
+use GaiaAlpha\Request;
 
 class PublicController extends BaseController
 {
@@ -426,7 +427,7 @@ HTML;
         echo '<?xml version="1.0" encoding="UTF-8"?>';
         echo '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
 
-        $baseUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]";
+        $baseUrl = Request::scheme() . "://" . Request::host();
 
         // Add Home
         echo '<url><loc>' . $baseUrl . '/</loc><changefreq>daily</changefreq></url>';

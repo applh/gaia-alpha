@@ -95,12 +95,87 @@ class Request
     }
 
     /**
+     * Get the HTTP Host (domain)
+     */
+    public static function host(): ?string
+    {
+        return $_SERVER['HTTP_HOST'] ?? null;
+    }
+
+    /**
+     * Get the Request URI
+     */
+    public static function uri(): string
+    {
+        return $_SERVER['REQUEST_URI'] ?? '/';
+    }
+
+    /**
+     * Get the Request Path (URI without query string)
+     */
+    public static function path(): string
+    {
+        return parse_url(self::uri(), PHP_URL_PATH) ?? '/';
+    }
+
+    /**
+     * Check if the request is over HTTPS
+     */
+    public static function isSecure(): bool
+    {
+        return (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on')
+            || (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https');
+    }
+
+    /**
+     * Get the request scheme (http or https)
+     */
+    public static function scheme(): string
+    {
+        return self::isSecure() ? 'https' : 'http';
+    }
+
+    /**
+     * Get the User Agent string
+     */
+    public static function userAgent(): ?string
+    {
+        return $_SERVER['HTTP_USER_AGENT'] ?? null;
+    }
+
+    /**
+     * Get an item from $_SERVER
+     */
+    public static function server(string $key, $default = null)
+    {
+        return $_SERVER[$key] ?? $default;
+    }
+
+    /**
+     * Get a specific request header
+     */
+    public static function header(string $key, $default = null)
+    {
+        $serverKey = 'HTTP_' . strtoupper(str_replace('-', '_', $key));
+        return $_SERVER[$serverKey] ?? $default;
+    }
+
+    /**
+     * Get the client IP address
+     */
+    public static function ip(): string
+    {
+        return $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
+    }
+
+    /**
      * Helper for testing/mocking
      */
-    public static function mock(array $data = [], array $query = [], array $files = [])
+    public static function mock(array $data = [], array $query = [], array $files = [], array $server = [])
     {
         self::$jsonBody = $data;
         $_GET = $query;
         $_FILES = $files;
+        $_SERVER = array_merge($_SERVER, $server);
     }
 }

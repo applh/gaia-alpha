@@ -3,6 +3,7 @@
 namespace GaiaAlpha;
 
 use GaiaAlpha\Env;
+use GaiaAlpha\Request;
 
 class Router
 {
@@ -77,8 +78,8 @@ class Router
 
     public static function handle()
     {
-        $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-        $method = $_SERVER['REQUEST_METHOD'];
+        $uri = Request::path();
+        $method = Request::server('REQUEST_METHOD', 'GET');
 
         $handled = self::dispatch($method, $uri);
 

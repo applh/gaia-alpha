@@ -196,8 +196,8 @@ class FormController extends BaseController
         }
 
         $formData = json_encode($data['data'] ?? []); // The user submitted values
-        $ip = $_SERVER['REMOTE_ADDR'] ?? null;
-        $ua = $_SERVER['HTTP_USER_AGENT'] ?? null;
+        $ip = Request::ip();
+        $ua = Request::userAgent();
 
         try {
             \GaiaAlpha\Model\DB::execute(

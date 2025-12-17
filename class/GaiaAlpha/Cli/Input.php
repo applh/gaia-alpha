@@ -5,6 +5,7 @@ namespace GaiaAlpha\Cli;
 class Input
 {
     private static ?array $args = null;
+    private static ?array $rawArgs = null;
 
     /**
      * Get argument by index (0-based, starting after the command name)
@@ -13,6 +14,21 @@ class Input
     {
         self::init();
         return self::$args[$index] ?? $default;
+    }
+
+    /**
+     * Get a flag/option value (e.g. --site=domain.com)
+     */
+    public static function getOption(string $key, $default = null)
+    {
+        self::init();
+        $prefix = "--{$key}=";
+        foreach (self::$rawArgs as $arg) {
+            if (str_starts_with($arg, $prefix)) {
+                return substr($arg, strlen($prefix));
+            }
+        }
+        return $default;
     }
 
     /**
@@ -47,6 +63,7 @@ class Input
      */
     public static function initFromArgv(array $args): void
     {
+        self::init(); // Ensure rawArgs is captured from global first
         self::$args = self::filterFlags($args);
     }
 
@@ -65,12 +82,18 @@ class Input
      */
     private static function init(): void
     {
-        if (self::$args !== null) {
+        if (self::$rawArgs !== null) {
             return;
         }
 
         global $argv;
         $args = $argv ?? [];
+        self::$rawArgs = $args;
+
+        if (self::$args !== null) {
+            return;
+        }
+
         $commandIndex = -1;
 
         // Find the first argument that is NOT a flag (the command)

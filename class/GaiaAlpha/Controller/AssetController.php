@@ -4,7 +4,7 @@ namespace GaiaAlpha\Controller;
 
 use GaiaAlpha\Router;
 use GaiaAlpha\Env;
-use GaiaAlpha\Filesystem;
+use GaiaAlpha\File;
 use GaiaAlpha\Response;
 
 class AssetController extends BaseController
@@ -16,7 +16,7 @@ class AssetController extends BaseController
         $site = \GaiaAlpha\SiteManager::getCurrentSite() ?? 'default';
         $this->cacheDir = Env::get('path_data') . '/cache/min/' . $site;
 
-        Filesystem::makeDirectory($this->cacheDir);
+        File::makeDirectory($this->cacheDir);
     }
 
     public function serveCss($path)
@@ -59,19 +59,19 @@ class AssetController extends BaseController
         // BUT we need to send correct headers.
 
         if ($isImage) {
-            $content = Filesystem::read($sourceFile);
-            $contentType = Filesystem::mimeType($sourceFile);
+            $content = File::read($sourceFile);
+            $contentType = File::mimeType($sourceFile);
         } else {
             // Normal Minification Flow
             $cacheFile = $this->cacheDir . '/' . md5($path) . '.' . $type;
             $fileMtime = filemtime($sourceFile);
 
             // If cache exists and is fresh
-            if (Filesystem::exists($cacheFile) && filemtime($cacheFile) >= $fileMtime) {
-                $content = Filesystem::read($cacheFile);
+            if (File::exists($cacheFile) && filemtime($cacheFile) >= $fileMtime) {
+                $content = File::read($cacheFile);
             } else {
                 // Minify and cache
-                $content = Filesystem::read($sourceFile);
+                $content = File::read($sourceFile);
                 if ($type === 'css') {
                     if (strpos($path, '.min.') === false && strpos($sourceFile, '.min.') === false) {
                         $content = $this->minifyCss($content);
@@ -81,7 +81,7 @@ class AssetController extends BaseController
                         $content = $this->minifyJs($content);
                     }
                 }
-                Filesystem::write($cacheFile, $content);
+                File::write($cacheFile, $content);
             }
 
             // Determine Content-Type
@@ -152,12 +152,12 @@ class AssetController extends BaseController
         $rootDir = Env::get('root_dir');
         $sourceFile = $rootDir . '/resources/assets/' . $path;
 
-        if (!Filesystem::exists($sourceFile)) {
+        if (!File::exists($sourceFile)) {
             Response::send("File not found", 404);
             exit;
         }
 
-        $contentType = Filesystem::mimeType($sourceFile);
+        $contentType = File::mimeType($sourceFile);
 
         // Clear any output buffers to ensure clean output
         Response::clearBuffer();
@@ -194,21 +194,21 @@ class AssetController extends BaseController
         // 1. Special handling for custom components moved to my-data
         if ($type === 'js' && strpos($path, 'components/custom/') === 0) {
             $customPath = Env::get('path_data') . '/' . $path;
-            if (Filesystem::exists($customPath)) {
+            if (File::exists($customPath)) {
                 return $customPath;
             }
         }
 
         // 2. Standard Resource Path
         $sourceFile = $rootDir . '/resources/' . $type . '/' . $path;
-        if (Filesystem::exists($sourceFile)) {
+        if (File::exists($sourceFile)) {
             return $sourceFile;
         }
 
         // 3. Fallback: Check if CSS is hidden in JS folder (common for vendor libs)
         if ($type === 'css') {
             $altSource = $rootDir . '/resources/js/' . $path;
-            if (Filesystem::exists($altSource)) {
+            if (File::exists($altSource)) {
                 return $altSource;
             }
         }
@@ -221,7 +221,7 @@ class AssetController extends BaseController
             $rest = implode('/', $parts);
 
             $pluginSource = $rootDir . '/plugins/' . $pluginName . '/resources/js/' . $rest;
-            if (Filesystem::exists($pluginSource)) {
+            if (File::exists($pluginSource)) {
                 return $pluginSource;
             }
         }
@@ -232,7 +232,7 @@ class AssetController extends BaseController
             $basename = basename($path, '.js');
             $aceName = 'ace-' . $basename . '.min.js';
             $aceSource = $rootDir . '/resources/js/vendor/' . $aceName;
-            if (Filesystem::exists($aceSource)) {
+            if (File::exists($aceSource)) {
                 return $aceSource;
             }
         }

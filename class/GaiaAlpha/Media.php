@@ -12,7 +12,7 @@ class Media
         $this->uploadsDir = $dataDir . '/uploads';
         $this->cacheDir = $dataDir . '/cache';
 
-        \GaiaAlpha\Filesystem::makeDirectory($this->cacheDir);
+        \GaiaAlpha\File::makeDirectory($this->cacheDir);
     }
 
     public function getUploadsDir(): string
@@ -313,7 +313,7 @@ class Media
         }
 
         $userDir = $this->uploadsDir . '/' . $userId;
-        \GaiaAlpha\Filesystem::makeDirectory($userDir);
+        \GaiaAlpha\File::makeDirectory($userDir);
 
         $useAvif = function_exists('imageavif');
         $ext = $useAvif ? '.avif' : '.webp';
@@ -335,7 +335,7 @@ class Media
         $count = 0;
         $size = 0;
 
-        if (!\GaiaAlpha\Filesystem::isDirectory($dir)) {
+        if (!\GaiaAlpha\File::isDirectory($dir)) {
             return ['count' => 0, 'size' => 0];
         }
 
@@ -354,7 +354,7 @@ class Media
     private function deleteDirContents(string $dir): int
     {
         $count = 0;
-        if (!\GaiaAlpha\Filesystem::isDirectory($dir)) {
+        if (!\GaiaAlpha\File::isDirectory($dir)) {
             return 0;
         }
 
@@ -365,7 +365,7 @@ class Media
 
         foreach ($iterator as $file) {
             if ($file->isFile()) {
-                \GaiaAlpha\Filesystem::delete($file->getRealPath());
+                \GaiaAlpha\File::delete($file->getRealPath());
                 $count++;
             }
         }

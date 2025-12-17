@@ -4,6 +4,7 @@ namespace GaiaAlpha\Cli;
 
 use Exception;
 use GaiaAlpha\Env;
+use GaiaAlpha\File;
 use GaiaAlpha\Cli\Input;
 use GaiaAlpha\Cli\Output;
 
@@ -55,11 +56,11 @@ class FileCommands
 
             // Create directory if it doesn't exist
             $dir = dirname($fullPath);
-            if (!is_dir($dir)) {
-                mkdir($dir, 0755, true);
+            if (!File::isDirectory($dir)) {
+                File::makeDirectory($dir);
             }
 
-            file_put_contents($fullPath, $content);
+            File::write($fullPath, $content);
             Output::success("File written: $path");
         } catch (Exception $e) {
             Output::error($e->getMessage());
@@ -78,17 +79,17 @@ class FileCommands
         try {
             $fullPath = self::validatePath($path);
 
-            if (!file_exists($fullPath)) {
+            if (!File::exists($fullPath)) {
                 Output::error("File not found: $path");
                 exit(1);
             }
 
-            if (!is_file($fullPath)) {
+            if (!File::isFile($fullPath)) {
                 Output::error("Not a file: $path");
                 exit(1);
             }
 
-            echo file_get_contents($fullPath);
+            echo File::read($fullPath);
         } catch (Exception $e) {
             Output::error($e->getMessage());
             exit(1);
@@ -102,7 +103,7 @@ class FileCommands
         try {
             $fullPath = $subPath ? self::validatePath($subPath) : $basePath;
 
-            if (!is_dir($fullPath)) {
+            if (!File::isDirectory($fullPath)) {
                 Output::error("Not a directory: $subPath");
                 exit(1);
             }
@@ -118,8 +119,8 @@ class FileCommands
                     continue;
 
                 $itemPath = $fullPath . '/' . $item;
-                $type = is_dir($itemPath) ? 'DIR' : 'FILE';
-                $size = is_file($itemPath) ? self::formatBytes(filesize($itemPath)) : '';
+                $type = File::isDirectory($itemPath) ? 'DIR' : 'FILE';
+                $size = File::isFile($itemPath) ? self::formatBytes(File::size($itemPath)) : '';
 
                 $rows[] = [$type, $item, $size];
             }
@@ -142,17 +143,17 @@ class FileCommands
         try {
             $fullPath = self::validatePath($path);
 
-            if (!file_exists($fullPath)) {
+            if (!File::exists($fullPath)) {
                 Output::error("File not found: $path");
                 exit(1);
             }
 
-            if (is_dir($fullPath)) {
+            if (File::isDirectory($fullPath)) {
                 Output::error("Cannot delete directories. Use file:delete on individual files.");
                 exit(1);
             }
 
-            unlink($fullPath);
+            File::delete($fullPath);
             Output::success("File deleted: $path");
         } catch (Exception $e) {
             Output::error($e->getMessage());
@@ -174,18 +175,18 @@ class FileCommands
             $sourcePath = self::validatePath($source);
             $destPath = self::validatePath($destination);
 
-            if (!file_exists($sourcePath)) {
+            if (!File::exists($sourcePath)) {
                 Output::error("Source file not found: $source");
                 exit(1);
             }
 
             // Create destination directory if needed
             $destDir = dirname($destPath);
-            if (!is_dir($destDir)) {
-                mkdir($destDir, 0755, true);
+            if (!File::isDirectory($destDir)) {
+                File::makeDirectory($destDir);
             }
 
-            rename($sourcePath, $destPath);
+            File::move($sourcePath, $destPath);
             Output::success("File moved: $source -> $destination");
         } catch (Exception $e) {
             Output::error($e->getMessage());

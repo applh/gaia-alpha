@@ -2,7 +2,7 @@
 
 namespace GaiaAlpha\Controller;
 
-use GaiaAlpha\Filesystem;
+use GaiaAlpha\File;
 use GaiaAlpha\Response;
 use GaiaAlpha\Request;
 use GaiaAlpha\Model\Template;
@@ -18,7 +18,7 @@ class TemplateController extends BaseController
 
         // Get File Templates
         $fileTemplates = [];
-        $files = Filesystem::glob(dirname(__DIR__, 3) . '/templates/*.php');
+        $files = File::glob(dirname(__DIR__, 3) . '/templates/*.php');
         foreach ($files as $file) {
             $slug = basename($file, '.php');
             $fileTemplates[] = [
@@ -47,11 +47,11 @@ class TemplateController extends BaseController
         if (strpos($id, 'file_') === 0) {
             $slug = substr($id, 5);
             $path = dirname(__DIR__, 3) . '/templates/' . $slug . '.php';
-            if (Filesystem::exists($path)) {
+            if (File::exists($path)) {
                 Response::json([
                     'slug' => $slug,
                     'title' => ucfirst(str_replace('_', ' ', $slug)),
-                    'content' => Filesystem::read($path),
+                    'content' => File::read($path),
                     'type' => 'file',
                     'readonly' => true // Prevent editing files for now for safety
                 ]);

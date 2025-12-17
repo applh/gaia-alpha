@@ -3,7 +3,7 @@
 ## [v0.52.0] - 2025-12-17
 ### Refactored
 - **Core**: Centralized all `$_SERVER` access into the `GaiaAlpha\Request` class with new helper methods: `host()`, `uri()`, `path()`, `isSecure()`, `scheme()`, `userAgent()`, `ip()`, and `server()`.
-- **Core**: Refactored `Seeder` and `SiteManager` to use the `GaiaAlpha\Filesystem` helper for all file operations (replacing native `file_exists`, `is_dir`, `glob`, etc.).
+- **Core**: Refactored `Seeder` and `SiteManager` to use the `GaiaAlpha\File` helper for all file operations (replacing native `file_exists`, `is_dir`, `glob`, etc.).
 - **CLI**: Improved `GaiaAlpha\Cli\Input` to support retrieving options/flags (e.g., `--site=`) via `getOption()`.
 - **SiteManager**: Integrated with `Input::getOption('site')` for CLI site detection.
 - **Architectural Cleanup**: Updated `AuthController`, `PublicController`, `ViewController`, `FormController`, `InstallController`, and `Router` to use the new `Request` helper methods instead of direct global superglobal access.
@@ -36,8 +36,8 @@
 ### Refactored
 - **Controller Layer**: Removed redundant `jsonResponse` and `getJsonInput` wrappers from `BaseController`.
 - **Controller Layer**: Updated all controllers to use `GaiaAlpha\Response::json()` and `GaiaAlpha\Request::input()` directly, reducing indirection.
-- **Filesystem**: Added `deleteDirectory` and `move` helpers to `GaiaAlpha\Filesystem`.
-- **Admin**: Refactored `AdminController` to use `Filesystem` helpers for operations like plugin installation and deletion.
+- **File**: Added `deleteDirectory` and `move` helpers to `GaiaAlpha\File`.
+- **Admin**: Refactored `AdminController` to use `File` helpers for operations like plugin installation and deletion.
 ### Docs
 - **Architecture**: Updated code volume statistics (PHP ~13,200 LOC, JS ~9,400 LOC).
 

@@ -2,7 +2,7 @@
 
 namespace GaiaAlpha\Controller;
 
-use GaiaAlpha\Filesystem;
+use GaiaAlpha\File;
 use GaiaAlpha\Response;
 use GaiaAlpha\Request;
 use GaiaAlpha\Env;
@@ -24,8 +24,8 @@ class PluginController extends BaseController
         $activePluginsFile = $pathData . '/active_plugins.json';
 
         $activePlugins = [];
-        if (Filesystem::exists($activePluginsFile)) {
-            $activePlugins = json_decode(Filesystem::read($activePluginsFile), true);
+        if (File::exists($activePluginsFile)) {
+            $activePlugins = json_decode(File::read($activePluginsFile), true);
         } else {
             // If file doesn't exist, all found plugins are implicitly active
             $allActive = true;
@@ -33,10 +33,10 @@ class PluginController extends BaseController
 
         $plugins = [];
         foreach ($pluginDirs as $pluginsDir) {
-            if (Filesystem::isDirectory($pluginsDir)) {
-                foreach (Filesystem::glob($pluginsDir . '/*', GLOB_ONLYDIR) as $dir) {
+            if (File::isDirectory($pluginsDir)) {
+                foreach (File::glob($pluginsDir . '/*', GLOB_ONLYDIR) as $dir) {
                     $name = basename($dir);
-                    if (Filesystem::exists($dir . '/index.php')) {
+                    if (File::exists($dir . '/index.php')) {
                         $plugins[] = [
                             'name' => $name,
                             'active' => isset($allActive) ? true : in_array($name, $activePlugins),
@@ -64,7 +64,7 @@ class PluginController extends BaseController
         $pathData = Env::get('path_data');
         $rootDir = Env::get('root_dir');
 
-        $exists = Filesystem::isDirectory($pathData . '/plugins/' . $name) || Filesystem::isDirectory($rootDir . '/plugins/' . $name);
+        $exists = File::isDirectory($pathData . '/plugins/' . $name) || File::isDirectory($rootDir . '/plugins/' . $name);
 
         if (!$exists) {
             Response::json(['error' => 'Plugin does not exist'], 404);
@@ -90,7 +90,7 @@ class PluginController extends BaseController
         $pathData = Env::get('path_data');
         $activePluginsFile = $pathData . '/active_plugins.json';
 
-        Filesystem::write($activePluginsFile, json_encode($activePlugins, JSON_PRETTY_PRINT));
+        File::write($activePluginsFile, json_encode($activePlugins, JSON_PRETTY_PRINT));
         Response::json(['success' => true]);
     }
 
@@ -108,8 +108,8 @@ class PluginController extends BaseController
 
         $pathData = Env::get('path_data');
         $tmpDir = $pathData . '/cache/tmp';
-        if (!Filesystem::isDirectory($tmpDir)) {
-            Filesystem::makeDirectory($tmpDir, 0777, true);
+        if (!File::isDirectory($tmpDir)) {
+            File::makeDirectory($tmpDir, 0777, true);
         }
 
         $tmpFile = $tmpDir . '/plugin_install_' . uniqid() . '.zip';
@@ -123,12 +123,12 @@ class PluginController extends BaseController
             Response::json(['error' => 'Failed to download file from URL.'], 400);
             return;
         }
-        Filesystem::write($tmpFile, $content);
+        File::write($tmpFile, $content);
 
         $zip = new \ZipArchive;
         if ($zip->open($tmpFile) === TRUE) {
             $extractPath = $tmpDir . '/extract_' . uniqid();
-            Filesystem::makeDirectory($extractPath);
+            File::makeDirectory($extractPath);
             $zip->extractTo($extractPath);
             $zip->close();
 
@@ -136,13 +136,13 @@ class PluginController extends BaseController
             $pluginRoot = $extractPath;
             $items = array_diff($files, ['.', '..']);
 
-            if (count($items) === 1 && Filesystem::isDirectory($extractPath . '/' . reset($items))) {
+            if (count($items) === 1 && File::isDirectory($extractPath . '/' . reset($items))) {
                 $pluginRoot = $extractPath . '/' . reset($items);
             }
 
-            if (!Filesystem::exists($pluginRoot . '/index.php')) {
-                Filesystem::deleteDirectory($extractPath);
-                Filesystem::delete($tmpFile);
+            if (!File::exists($pluginRoot . '/index.php')) {
+                File::deleteDirectory($extractPath);
+                File::delete($tmpFile);
                 Response::json(['error' => 'Invalid Plugin: index.php not found in root.'], 400);
                 return;
             }
@@ -153,21 +153,21 @@ class PluginController extends BaseController
             }
 
             $targetDir = $pathData . '/plugins/' . $repoName;
-            if (Filesystem::isDirectory($targetDir)) {
+            if (File::isDirectory($targetDir)) {
                 $targetDir .= '_' . uniqid();
             }
 
-            Filesystem::move($pluginRoot, $targetDir);
+            File::move($pluginRoot, $targetDir);
 
-            Filesystem::deleteDirectory($extractPath);
-            if (Filesystem::isDirectory($extractPath)) {
-                Filesystem::deleteDirectory($extractPath);
+            File::deleteDirectory($extractPath);
+            if (File::isDirectory($extractPath)) {
+                File::deleteDirectory($extractPath);
             }
-            Filesystem::delete($tmpFile);
+            File::delete($tmpFile);
 
             Response::json(['success' => true, 'dir' => basename($targetDir)]);
         } else {
-            Filesystem::delete($tmpFile);
+            File::delete($tmpFile);
             Response::json(['error' => 'Failed to unzip file.'], 500);
         }
     }

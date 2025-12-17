@@ -2,7 +2,7 @@
 
 namespace GaiaAlpha;
 
-class Filesystem
+class File
 {
     /**
      * Read file content.
@@ -80,6 +80,14 @@ class Filesystem
     public static function isDirectory(string $path): bool
     {
         return is_dir($path);
+    }
+
+    /**
+     * Check if path is a regular file.
+     */
+    public static function isFile(string $path): bool
+    {
+        return is_file($path);
     }
 
     /**

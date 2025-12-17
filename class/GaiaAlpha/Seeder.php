@@ -6,7 +6,7 @@ use GaiaAlpha\Model\Page;
 use Todo\Model\Todo;
 use GaiaAlpha\Model\DB;
 use GaiaAlpha\Env;
-use GaiaAlpha\Filesystem;
+use GaiaAlpha\File;
 
 class Seeder
 {
@@ -17,8 +17,8 @@ class Seeder
 
         // echo "1. Seeding Todos...\n";
         $todosFile = $seedDir . '/todos.json';
-        if (Filesystem::exists($todosFile)) {
-            $todos = json_decode(Filesystem::read($todosFile), true);
+        if (File::exists($todosFile)) {
+            $todos = json_decode(File::read($todosFile), true);
             $getDate = fn($d) => $d ? date('Y-m-d', strtotime($d)) : null;
 
             foreach ($todos as $todo) {
@@ -42,8 +42,8 @@ class Seeder
         // echo "2. Seeding Partials...\n";
         // Copy actual header/footer files as partials
         $rootDir = Env::get('root_dir');
-        $headerContent = Filesystem::read($rootDir . '/templates/layout/header.php');
-        $footerContent = Filesystem::read($rootDir . '/templates/layout/footer.php');
+        $headerContent = File::read($rootDir . '/templates/layout/header.php');
+        $footerContent = File::read($rootDir . '/templates/layout/footer.php');
 
         $partialsData = [
             [
@@ -66,17 +66,17 @@ class Seeder
 
         // echo "3. Seeding Pages...\n";
         $pagesDir = $seedDir . '/pages';
-        if (Filesystem::isDirectory($pagesDir)) {
-            foreach (Filesystem::glob($pagesDir . '/*.json') as $pageFile) {
-                $pageData = json_decode(Filesystem::read($pageFile), true);
+        if (File::isDirectory($pagesDir)) {
+            foreach (File::glob($pagesDir . '/*.json') as $pageFile) {
+                $pageData = json_decode(File::read($pageFile), true);
                 Page::create($userId, $pageData);
             }
         }
 
         // 4. Menus
         $menusFile = $seedDir . '/menus.json';
-        if (Filesystem::exists($menusFile)) {
-            $menus = json_decode(Filesystem::read($menusFile), true);
+        if (File::exists($menusFile)) {
+            $menus = json_decode(File::read($menusFile), true);
             foreach ($menus as $menu) {
                 DB::execute(
                     "INSERT INTO menus (title, location, items, created_at, updated_at) VALUES (?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)",
@@ -87,8 +87,8 @@ class Seeder
 
         // 5. Forms & Submissions
         $formsFile = $seedDir . '/forms.json';
-        if (Filesystem::exists($formsFile)) {
-            $forms = json_decode(Filesystem::read($formsFile), true);
+        if (File::exists($formsFile)) {
+            $forms = json_decode(File::read($formsFile), true);
             foreach ($forms as $form) {
                 $sql = "INSERT INTO forms (user_id, title, slug, description, schema, submit_label) VALUES (?, ?, ?, ?, ?, ?)";
                 DB::execute($sql, [
@@ -115,8 +115,8 @@ class Seeder
 
         // 6. Map Markers
         $markersFile = $seedDir . '/markers.json';
-        if (Filesystem::exists($markersFile)) {
-            $markers = json_decode(Filesystem::read($markersFile), true);
+        if (File::exists($markersFile)) {
+            $markers = json_decode(File::read($markersFile), true);
             $sql = "INSERT INTO map_markers (user_id, label, lat, lng) VALUES (?, ?, ?, ?)";
             foreach ($markers as $m) {
                 DB::execute($sql, [$userId, $m['label'], $m['lat'], $m['lng']]);
@@ -125,7 +125,7 @@ class Seeder
 
         // echo "7. Seeding Templates...\n";
         // Copy the home_template content (between header and footer)
-        $homeTemplateContent = Filesystem::read($seedDir . '/default_template_fallback.php');
+        $homeTemplateContent = File::read($seedDir . '/default_template_fallback.php');
 
         $defaultTemplate = [
             'title' => 'Default Site Template',
@@ -141,12 +141,12 @@ class Seeder
 
         // Also seed from files if they exist
         $tplDir = $seedDir . '/templates';
-        if (Filesystem::isDirectory($tplDir)) {
+        if (File::isDirectory($tplDir)) {
             $sql = "INSERT INTO cms_templates (user_id, title, slug, content) VALUES (?, ?, ?, ?)";
-            foreach (Filesystem::glob($tplDir . '/*.html') as $tplFile) {
+            foreach (File::glob($tplDir . '/*.html') as $tplFile) {
                 $slug = pathinfo($tplFile, PATHINFO_FILENAME);
                 $title = ucwords(str_replace(['_', '-'], ' ', $slug));
-                $content = Filesystem::read($tplFile);
+                $content = File::read($tplFile);
                 DB::execute($sql, [$userId, $title, $slug, $content]);
             }
         }
@@ -158,8 +158,8 @@ class Seeder
 
         // 9. Messages
         $msgsFile = $seedDir . '/messages.json';
-        if (Filesystem::exists($msgsFile)) {
-            $msgs = json_decode(Filesystem::read($msgsFile), true);
+        if (File::exists($msgsFile)) {
+            $msgs = json_decode(File::read($msgsFile), true);
             $sql = "INSERT INTO messages (sender_id, receiver_id, content, is_read) VALUES (?, ?, ?, ?)";
             foreach ($msgs as $msg) {
                 DB::execute($sql, [$userId, $userId, $msg['content'], $msg['is_read']]);

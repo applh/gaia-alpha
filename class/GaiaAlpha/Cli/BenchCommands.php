@@ -101,7 +101,7 @@ class BenchCommands
         Output::info("Rendering simple PHP template 10000 times...");
 
         $templateFile = sys_get_temp_dir() . '/bench_template.php';
-        \GaiaAlpha\Filesystem::write($templateFile, '<h1>Hello <?= $name ?></h1>');
+        \GaiaAlpha\File::write($templateFile, '<h1>Hello <?= $name ?></h1>');
 
         $name = "World";
 
@@ -122,6 +122,6 @@ class BenchCommands
         Output::success("Template Render: " . number_format($avg, 5) . "ms per render");
         Output::writeln("Template OPS: " . number_format($ops, 2) . " renders/sec", 'cyan');
 
-        \GaiaAlpha\Filesystem::delete($templateFile);
+        \GaiaAlpha\File::delete($templateFile);
     }
 }

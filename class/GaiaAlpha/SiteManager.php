@@ -2,7 +2,7 @@
 
 namespace GaiaAlpha;
 
-use GaiaAlpha\Filesystem;
+use GaiaAlpha\File;
 use GaiaAlpha\Cli\Input;
 use GaiaAlpha\Request;
 
@@ -20,8 +20,8 @@ class SiteManager
         $sitesDir = $rootDir . '/my-data/sites';
 
         // Ensure sites directory exists
-        if (!Filesystem::isDirectory($sitesDir)) {
-            Filesystem::makeDirectory($sitesDir);
+        if (!File::isDirectory($sitesDir)) {
+            File::makeDirectory($sitesDir);
         }
 
         // 1. CLI Override Logic
@@ -67,7 +67,7 @@ class SiteManager
         $siteDb = $sitesDir . '/' . $domain . '.sqlite';
 
         // Check if specific site DB exists
-        if (Filesystem::exists($siteDb)) {
+        if (File::exists($siteDb)) {
             self::$currentSite = $domain;
             self::$dbPath = $siteDb;
             // Define Constant for DbController to pick up

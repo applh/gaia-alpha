@@ -1,6 +1,7 @@
 <?php
 namespace GaiaAlpha\Helper;
 
+use GaiaAlpha\File;
 use GaiaAlpha\Controller\DbController;
 use GaiaAlpha\Env;
 
@@ -18,7 +19,7 @@ class Part
         $cacheDir = Env::get('path_data') . '/cache/partials';
         $cacheFile = $cacheDir . '/' . $name . '.php';
 
-        if (!\GaiaAlpha\File::exists($cacheFile)) {
+        if (!File::exists($cacheFile)) {
             // Fetch from DB
             $content = \GaiaAlpha\Model\DB::fetchColumn("SELECT content FROM cms_partials WHERE name = ?", [$name]);
 
@@ -27,8 +28,8 @@ class Part
                 return;
             }
 
-            \GaiaAlpha\File::makeDirectory($cacheDir);
-            \GaiaAlpha\File::write($cacheFile, $content);
+            File::makeDirectory($cacheDir);
+            File::write($cacheFile, $content);
         }
 
         // Make $page available if it exists in the global scope? 

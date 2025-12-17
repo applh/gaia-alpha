@@ -2,6 +2,7 @@
 
 namespace ApiBuilder\Controller;
 
+use GaiaAlpha\File;
 use GaiaAlpha\Env;
 use GaiaAlpha\Router;
 use GaiaAlpha\Database;
@@ -72,7 +73,7 @@ class DynamicApiController extends BaseController
     private function loadConfig()
     {
         $path = Env::get('path_data') . '/api-config.json';
-        $content = \GaiaAlpha\File::read($path);
+        $content = File::read($path);
         if ($content !== false) {
             $this->config = json_decode($content, true) ?? [];
         }

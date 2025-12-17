@@ -2,6 +2,7 @@
 
 namespace MultiSite;
 
+use GaiaAlpha\File;
 use GaiaAlpha\Controller\BaseController;
 use GaiaAlpha\Router;
 use GaiaAlpha\Env;
@@ -30,10 +31,10 @@ class SiteController extends BaseController
         $sitesDir = $rootDir . '/my-data/sites';
 
         $sites = [];
-        if (\GaiaAlpha\File::isDirectory($sitesDir)) {
-            foreach (\GaiaAlpha\File::glob($sitesDir . '/*.sqlite') as $dbFile) {
+        if (File::isDirectory($sitesDir)) {
+            foreach (File::glob($sitesDir . '/*.sqlite') as $dbFile) {
                 $domain = basename($dbFile, '.sqlite');
-                $size = \GaiaAlpha\File::size($dbFile);
+                $size = File::size($dbFile);
                 $sites[] = [
                     'domain' => $domain,
                     'size' => $size,
@@ -60,13 +61,13 @@ class SiteController extends BaseController
         $rootDir = Env::get('root_dir');
         $sitesDir = $rootDir . '/my-data/sites';
 
-        if (!\GaiaAlpha\File::isDirectory($sitesDir)) {
-            \GaiaAlpha\File::makeDirectory($sitesDir);
+        if (!File::isDirectory($sitesDir)) {
+            File::makeDirectory($sitesDir);
         }
 
         $dbPath = $sitesDir . '/' . $domain . '.sqlite';
 
-        if (\GaiaAlpha\File::exists($dbPath)) {
+        if (File::exists($dbPath)) {
             Response::json(['error' => 'Site already exists'], 409);
             return;
         }
@@ -101,8 +102,8 @@ class SiteController extends BaseController
         $rootDir = Env::get('root_dir');
         $file = $rootDir . '/my-data/sites/' . $domain . '.sqlite';
 
-        if (\GaiaAlpha\File::exists($file)) {
-            if (\GaiaAlpha\File::delete($file)) {
+        if (File::exists($file)) {
+            if (File::delete($file)) {
                 Response::json(['success' => true]);
             } else {
                 Response::json(['error' => 'Failed to delete file'], 500);

@@ -2,6 +2,7 @@
 
 namespace ApiBuilder\Controller;
 
+use GaiaAlpha\File;
 use GaiaAlpha\Env;
 use GaiaAlpha\Router;
 use GaiaAlpha\Response;
@@ -73,7 +74,7 @@ class ApiBuilderController extends BaseController
     private function loadConfig()
     {
         $path = $this->getConfigPath();
-        $content = \GaiaAlpha\File::read($path);
+        $content = File::read($path);
         if ($content !== false) {
             return json_decode($content, true) ?? [];
         }
@@ -83,6 +84,6 @@ class ApiBuilderController extends BaseController
     private function saveConfig(array $config)
     {
         $path = $this->getConfigPath();
-        \GaiaAlpha\File::write($path, json_encode($config, JSON_PRETTY_PRINT));
+        File::write($path, json_encode($config, JSON_PRETTY_PRINT));
     }
 }

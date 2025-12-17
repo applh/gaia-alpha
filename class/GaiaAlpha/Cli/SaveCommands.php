@@ -2,6 +2,7 @@
 
 namespace GaiaAlpha\Cli;
 
+use GaiaAlpha\File;
 use GaiaAlpha\Env;
 use GaiaAlpha\Cli\DbCommands;
 use GaiaAlpha\Cli\Output;
@@ -23,7 +24,7 @@ class SaveCommands
 
         // Ensure root-level backups directory exists
         $backupDir = $rootDir . '/backups';
-        \GaiaAlpha\File::makeDirectory($backupDir);
+        File::makeDirectory($backupDir);
 
         $zipFile = $backupDir . '/my-data_' . $timestamp . '.zip';
 

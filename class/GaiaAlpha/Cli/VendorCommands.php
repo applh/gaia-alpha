@@ -2,6 +2,7 @@
 
 namespace GaiaAlpha\Cli;
 
+use GaiaAlpha\File;
 use GaiaAlpha\Env;
 use GaiaAlpha\Cli\Output;
 
@@ -14,7 +15,7 @@ class VendorCommands
         $leafletDir = $rootDir . '/www/js/vendor/leaflet';
         $imagesDir = $leafletDir . '/images';
 
-        \GaiaAlpha\File::makeDirectory($imagesDir);
+        File::makeDirectory($imagesDir);
 
         $files = [
             'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js' => $leafletDir . '/leaflet.js',
@@ -41,7 +42,7 @@ class VendorCommands
                 Output::error("Failed to download $url");
                 continue;
             }
-            \GaiaAlpha\File::write($path, $content);
+            File::write($path, $content);
         }
 
         Output::success("Vendor update complete.");

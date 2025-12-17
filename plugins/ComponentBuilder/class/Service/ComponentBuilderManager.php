@@ -3,6 +3,7 @@
 
 namespace ComponentBuilder\Service;
 
+use GaiaAlpha\File;
 use ComponentBuilder\Model\ComponentBuilderModel;
 
 
@@ -62,9 +63,9 @@ class ComponentBuilderManager
         $path = $baseDir . '/' . $filename;
 
         // Ensure directory exists
-        \GaiaAlpha\File::makeDirectory($baseDir);
+        File::makeDirectory($baseDir);
 
-        \GaiaAlpha\File::write($path, $code);
+        File::write($path, $code);
 
         return $code;
     }

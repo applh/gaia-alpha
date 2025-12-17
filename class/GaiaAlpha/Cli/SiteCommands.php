@@ -2,6 +2,7 @@
 
 namespace GaiaAlpha\Cli;
 
+use GaiaAlpha\File;
 use GaiaAlpha\Database;
 use GaiaAlpha\Env;
 use GaiaAlpha\SiteManager;
@@ -28,11 +29,11 @@ class SiteCommands
         $rootDir = Env::get('root_dir');
         $sitesDir = $rootDir . '/my-data/sites';
 
-        \GaiaAlpha\File::makeDirectory($sitesDir);
+        File::makeDirectory($sitesDir);
 
         $dbPath = $sitesDir . '/' . $domain . '.sqlite';
 
-        if (\GaiaAlpha\File::exists($dbPath)) {
+        if (File::exists($dbPath)) {
             Output::error("Site '$domain' already exists.");
             exit(1);
         }
@@ -54,8 +55,8 @@ class SiteCommands
 
         } catch (\Exception $e) {
             Output::error("Failed to create site: " . $e->getMessage());
-            if (\GaiaAlpha\File::exists($dbPath)) {
-                \GaiaAlpha\File::delete($dbPath); // Cleanup
+            if (File::exists($dbPath)) {
+                File::delete($dbPath); // Cleanup
             }
             exit(1);
         }
@@ -70,7 +71,7 @@ class SiteCommands
 
         // 1. Add Default
         $defaultDb = $rootDir . '/my-data/database.sqlite';
-        if (\GaiaAlpha\File::exists($defaultDb)) {
+        if (File::exists($defaultDb)) {
             $sites[] = [
                 'Domain' => '(default)',
                 'Size' => number_format(filesize($defaultDb) / 1024, 2) . " KB",
@@ -79,8 +80,8 @@ class SiteCommands
         }
 
         // 2. Add sub-sites
-        if (\GaiaAlpha\File::isDirectory($sitesDir)) {
-            $files = \GaiaAlpha\File::glob($sitesDir . '/*.sqlite');
+        if (File::isDirectory($sitesDir)) {
+            $files = File::glob($sitesDir . '/*.sqlite');
             foreach ($files as $file) {
                 $sites[] = [
                     'Domain' => basename($file, '.sqlite'),

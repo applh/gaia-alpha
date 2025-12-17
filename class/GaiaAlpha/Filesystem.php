@@ -1,0 +1,93 @@
+<?php
+
+namespace GaiaAlpha;
+
+class Filesystem
+{
+    /**
+     * Read file content.
+     */
+    public static function read(string $path)
+    {
+        return file_exists($path) ? file_get_contents($path) : false;
+    }
+
+    /**
+     * Write content to file.
+     */
+    public static function write(string $path, string $content, bool $append = false)
+    {
+        $flags = $append ? FILE_APPEND : 0;
+        return file_put_contents($path, $content, $flags);
+    }
+
+    /**
+     * Append content to file.
+     */
+    public static function append(string $path, string $content)
+    {
+        return self::write($path, $content, true);
+    }
+
+    /**
+     * Delete file or directory (if empty/unlinkable).
+     */
+    public static function delete(string $path): bool
+    {
+        if (!file_exists($path)) {
+            return true;
+        }
+        return unlink($path);
+    }
+
+    /**
+     * Check if file or directory exists.
+     */
+    public static function exists(string $path): bool
+    {
+        return file_exists($path);
+    }
+
+    /**
+     * Check if path is a directory.
+     */
+    public static function isDirectory(string $path): bool
+    {
+        return is_dir($path);
+    }
+
+    /**
+     * Create directory (recursively by default).
+     */
+    public static function makeDirectory(string $path, int $mode = 0755, bool $recursive = true): bool
+    {
+        if (is_dir($path)) {
+            return true;
+        }
+        return mkdir($path, $mode, $recursive);
+    }
+
+    /**
+     * Find path names matching a pattern.
+     */
+    public static function glob(string $pattern, int $flags = 0): array
+    {
+        return glob($pattern, $flags) ?: [];
+    }
+
+    /**
+     * Get file size.
+     */
+    public static function size(string $path): int
+    {
+        return file_exists($path) ? filesize($path) : 0;
+    }
+
+    /**
+     * Read file into an array.
+     */
+    public static function lines(string $path): array
+    {
+        return file_exists($path) ? file($path, FILE_IGNORE_NEW_LINES) : [];
+    }
+}

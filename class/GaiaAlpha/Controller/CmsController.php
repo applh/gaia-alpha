@@ -68,9 +68,7 @@ class CmsController extends BaseController
         }
 
         $userDir = (defined('GAIA_DATA_PATH') ? GAIA_DATA_PATH : \GaiaAlpha\Env::get('root_dir') . '/my-data') . '/uploads/' . \GaiaAlpha\Session::id();
-        if (!is_dir($userDir)) {
-            mkdir($userDir, 0755, true);
-        }
+        \GaiaAlpha\Filesystem::makeDirectory($userDir);
 
         $useAvif = function_exists('imageavif');
         $ext = $useAvif ? '.avif' : '.webp';

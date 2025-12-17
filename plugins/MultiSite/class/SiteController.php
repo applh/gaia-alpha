@@ -13,10 +13,7 @@ class SiteController extends BaseController
 {
     protected function requireAdmin()
     {
-        if (!Framework::checkAuth(100)) {
-            Response::json(['error' => 'Unauthorized'], 401);
-            exit;
-        }
+        \GaiaAlpha\Session::requireLevel(100);
     }
 
     public function registerRoutes()
@@ -33,10 +30,10 @@ class SiteController extends BaseController
         $sitesDir = $rootDir . '/my-data/sites';
 
         $sites = [];
-        if (is_dir($sitesDir)) {
-            foreach (glob($sitesDir . '/*.sqlite') as $dbFile) {
+        if (\GaiaAlpha\Filesystem::isDirectory($sitesDir)) {
+            foreach (\GaiaAlpha\Filesystem::glob($sitesDir . '/*.sqlite') as $dbFile) {
                 $domain = basename($dbFile, '.sqlite');
-                $size = filesize($dbFile);
+                $size = \GaiaAlpha\Filesystem::size($dbFile);
                 $sites[] = [
                     'domain' => $domain,
                     'size' => $size,
@@ -63,13 +60,13 @@ class SiteController extends BaseController
         $rootDir = Env::get('root_dir');
         $sitesDir = $rootDir . '/my-data/sites';
 
-        if (!is_dir($sitesDir)) {
-            mkdir($sitesDir, 0755, true);
+        if (!\GaiaAlpha\Filesystem::isDirectory($sitesDir)) {
+            \GaiaAlpha\Filesystem::makeDirectory($sitesDir);
         }
 
         $dbPath = $sitesDir . '/' . $domain . '.sqlite';
 
-        if (file_exists($dbPath)) {
+        if (\GaiaAlpha\Filesystem::exists($dbPath)) {
             Response::json(['error' => 'Site already exists'], 409);
             return;
         }
@@ -104,8 +101,8 @@ class SiteController extends BaseController
         $rootDir = Env::get('root_dir');
         $file = $rootDir . '/my-data/sites/' . $domain . '.sqlite';
 
-        if (file_exists($file)) {
-            if (unlink($file)) {
+        if (\GaiaAlpha\Filesystem::exists($file)) {
+            if (\GaiaAlpha\Filesystem::delete($file)) {
                 Response::json(['success' => true]);
             } else {
                 Response::json(['error' => 'Failed to delete file'], 500);

@@ -62,11 +62,9 @@ class ComponentBuilderManager
         $path = $baseDir . '/' . $filename;
 
         // Ensure directory exists
-        if (!is_dir($baseDir)) {
-            mkdir($baseDir, 0755, true);
-        }
+        \GaiaAlpha\Filesystem::makeDirectory($baseDir);
 
-        file_put_contents($path, $code);
+        \GaiaAlpha\Filesystem::write($path, $code);
 
         return $code;
     }

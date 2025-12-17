@@ -22,13 +22,13 @@ class ConsoleController extends BaseController
 
     public function run()
     {
-        Framework::checkAuth(100);
+        \GaiaAlpha\Session::requireLevel(100);
 
-        $input = Framework::decodeBody();
+        $input = Request::input();
         $rawCommand = $input['command'] ?? '';
 
         if (empty($rawCommand)) {
-            Framework::json(['error' => 'No command provided'], 400);
+            Response::json(['error' => 'No command provided'], 400);
             return;
         }
 
@@ -38,7 +38,7 @@ class ConsoleController extends BaseController
 
         $parts = $this->parseCommand($rawCommand);
         if (empty($parts)) {
-            Framework::json(['error' => 'Invalid command'], 400);
+            Response::json(['error' => 'Invalid command'], 400);
             return;
         }
 
@@ -59,7 +59,7 @@ class ConsoleController extends BaseController
         // Use System::exec for consistent behavior and hooks
         System::exec($fullCommand . ' 2>&1', $output, $returnVar);
 
-        Framework::json([
+        Response::json([
             'command' => $rawCommand,
             'output' => implode("\n", $output),
             'status' => $returnVar

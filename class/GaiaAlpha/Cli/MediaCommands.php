@@ -56,7 +56,7 @@ class MediaCommands
         $flip = isset($argv[9]) ? $argv[9] : '';
         $filter = isset($argv[10]) ? $argv[10] : '';
 
-        if (!file_exists($input)) {
+        if (!\GaiaAlpha\Filesystem::exists($input)) {
             echo "Error: Input file not found: $input\n";
             exit(1);
         }
@@ -85,19 +85,20 @@ class MediaCommands
         $filter = isset($argv[10]) ? $argv[10] : '';
         $ext = isset($argv[11]) ? $argv[11] : 'webp';
 
-        if (!is_dir($inputDir)) {
+        if (!\GaiaAlpha\Filesystem::isDirectory($inputDir)) {
             echo "Error: Input directory not found: $inputDir\n";
             exit(1);
         }
 
-        if (!is_dir($outputDir)) {
-            if (!mkdir($outputDir, 0755, true)) {
+
+        if (!\GaiaAlpha\Filesystem::isDirectory($outputDir)) {
+            if (!\GaiaAlpha\Filesystem::makeDirectory($outputDir)) {
                 echo "Error: Failed to create output directory: $outputDir\n";
                 exit(1);
             }
         }
 
-        $files = glob($inputDir . '/*.{jpg,jpeg,png,webp}', GLOB_BRACE);
+        $files = \GaiaAlpha\Filesystem::glob($inputDir . '/*.{jpg,jpeg,png,webp}', GLOB_BRACE);
         if (empty($files)) {
             echo "No images found in $inputDir\n";
             return;
@@ -147,7 +148,7 @@ class MediaCommands
             hexdec(substr($hex, 4, 2))
         ];
 
-        if (!file_exists($input)) {
+        if (!\GaiaAlpha\Filesystem::exists($input)) {
             echo "Error: Input file not found: $input\n";
             exit(1);
         }
@@ -175,7 +176,7 @@ class MediaCommands
             exit(1);
         }
 
-        if (!file_exists($video)) {
+        if (!\GaiaAlpha\Filesystem::exists($video)) {
             echo "Error: Video file not found: $video\n";
             exit(1);
         }
@@ -196,7 +197,7 @@ class MediaCommands
             exit(1);
         }
 
-        if (!file_exists($output)) {
+        if (!\GaiaAlpha\Filesystem::exists($output)) {
             echo "Error: Output file was not created.\n";
             exit(1);
         }
@@ -225,7 +226,7 @@ class MediaCommands
             exit(1);
         }
 
-        if (!file_exists($video)) {
+        if (!\GaiaAlpha\Filesystem::exists($video)) {
             echo "Error: Video file not found: $video\n";
             exit(1);
         }
@@ -262,7 +263,7 @@ class MediaCommands
             exit(1);
         }
 
-        if (!file_exists($output)) {
+        if (!\GaiaAlpha\Filesystem::exists($output)) {
             echo "Error: Output file was not created.\n";
             exit(1);
         }
@@ -292,13 +293,14 @@ class MediaCommands
             exit(1);
         }
 
-        if (!file_exists($video)) {
+        if (!\GaiaAlpha\Filesystem::exists($video)) {
             echo "Error: Video file not found: $video\n";
             exit(1);
         }
 
-        if (!is_dir($outputDir)) {
-            if (!mkdir($outputDir, 0755, true)) {
+
+        if (!\GaiaAlpha\Filesystem::isDirectory($outputDir)) {
+            if (!\GaiaAlpha\Filesystem::makeDirectory($outputDir)) {
                 echo "Error: Failed to create output directory: $outputDir\n";
                 exit(1);
             }
@@ -346,7 +348,7 @@ class MediaCommands
             $ret = 0;
             System::exec($command, $outLines, $ret);
 
-            if ($ret === 0 && file_exists($outputFile)) {
+            if ($ret === 0 && \GaiaAlpha\Filesystem::exists($outputFile)) {
                 echo "Extracted frame " . ($i + 1) . " at $timeStr\n";
             } else {
                 echo "Failed to extract frame " . ($i + 1) . " at $timeStr\n";
@@ -388,7 +390,7 @@ class MediaCommands
             exit(1);
         }
 
-        if (!file_exists($video)) {
+        if (!\GaiaAlpha\Filesystem::exists($video)) {
             echo "Error: Video file not found: $video\n";
             exit(1);
         }
@@ -423,7 +425,7 @@ class MediaCommands
             exit(1);
         }
 
-        if (!file_exists($output)) {
+        if (!\GaiaAlpha\Filesystem::exists($output)) {
             echo "Error: Output file was not created.\n";
             exit(1);
         }
@@ -452,13 +454,13 @@ class MediaCommands
             exit(1);
         }
 
-        if (!file_exists($video)) {
+        if (!\GaiaAlpha\Filesystem::exists($video)) {
             echo "Error: Video file not found: $video\n";
             exit(1);
         }
 
-        if (!is_dir($outputDir)) {
-            if (!mkdir($outputDir, 0755, true)) {
+        if (!\GaiaAlpha\Filesystem::isDirectory($outputDir)) {
+            if (!\GaiaAlpha\Filesystem::makeDirectory($outputDir)) {
                 echo "Error: Failed to create output directory: $outputDir\n";
                 exit(1);
             }
@@ -511,7 +513,7 @@ class MediaCommands
             exit(1);
         }
 
-        if (!file_exists($playlistPath)) {
+        if (!\GaiaAlpha\Filesystem::exists($playlistPath)) {
             echo "Error: Playlist file was not created.\n";
             exit(1);
         }
@@ -536,7 +538,7 @@ class MediaCommands
             exit(1);
         }
 
-        if (!file_exists($input)) {
+        if (!\GaiaAlpha\Filesystem::exists($input)) {
             echo "Error: Input video not found: $input\n";
             exit(1);
         }
@@ -566,7 +568,7 @@ class MediaCommands
             exit(1);
         }
 
-        if (!file_exists($output)) {
+        if (!\GaiaAlpha\Filesystem::exists($output)) {
             echo "Error: Output file was not created.\n";
             exit(1);
         }
@@ -591,7 +593,7 @@ class MediaCommands
             exit(1);
         }
 
-        if (!file_exists($input)) {
+        if (!\GaiaAlpha\Filesystem::exists($input)) {
             echo "Error: Input file not found: $input\n";
             exit(1);
         }
@@ -673,7 +675,7 @@ class MediaCommands
             exit(1);
         }
 
-        if (!file_exists($video)) {
+        if (!\GaiaAlpha\Filesystem::exists($video)) {
             echo "Error: Video file not found: $video\n";
             exit(1);
         }
@@ -711,7 +713,7 @@ class MediaCommands
             exit(1);
         }
 
-        if (!file_exists($output)) {
+        if (!\GaiaAlpha\Filesystem::exists($output)) {
             echo "Error: Output GIF was not created.\n";
             exit(1);
         }
@@ -741,12 +743,12 @@ class MediaCommands
             exit(1);
         }
 
-        if (!file_exists($video)) {
+        if (!\GaiaAlpha\Filesystem::exists($video)) {
             echo "Error: Video file not found: $video\n";
             exit(1);
         }
 
-        if (!file_exists($watermark)) {
+        if (!\GaiaAlpha\Filesystem::exists($watermark)) {
             echo "Error: Watermark image not found: $watermark\n";
             exit(1);
         }
@@ -799,7 +801,7 @@ class MediaCommands
             exit(1);
         }
 
-        if (!file_exists($output)) {
+        if (!\GaiaAlpha\Filesystem::exists($output)) {
             echo "Error: Output video was not created.\n";
             exit(1);
         }
@@ -826,7 +828,7 @@ class MediaCommands
             exit(1);
         }
 
-        if (!file_exists($video)) {
+        if (!\GaiaAlpha\Filesystem::exists($video)) {
             echo "Error: Video file not found: $video\n";
             exit(1);
         }
@@ -862,7 +864,7 @@ class MediaCommands
             exit(1);
         }
 
-        if (!file_exists($output)) {
+        if (!\GaiaAlpha\Filesystem::exists($output)) {
             echo "Error: Output video was not created.\n";
             exit(1);
         }

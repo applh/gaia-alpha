@@ -73,8 +73,8 @@ class ApiBuilderController extends BaseController
     private function loadConfig()
     {
         $path = $this->getConfigPath();
-        if (file_exists($path)) {
-            $content = file_get_contents($path);
+        $content = \GaiaAlpha\Filesystem::read($path);
+        if ($content !== false) {
             return json_decode($content, true) ?? [];
         }
         return [];
@@ -83,6 +83,6 @@ class ApiBuilderController extends BaseController
     private function saveConfig(array $config)
     {
         $path = $this->getConfigPath();
-        file_put_contents($path, json_encode($config, JSON_PRETTY_PRINT));
+        \GaiaAlpha\Filesystem::write($path, json_encode($config, JSON_PRETTY_PRINT));
     }
 }

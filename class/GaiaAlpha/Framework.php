@@ -113,27 +113,6 @@ class Framework
             $controller->registerRoutes();
         }
     }
-    public static function checkAuth($level = 0)
-    {
-        if (session_status() == PHP_SESSION_NONE)
-            session_start();
 
-        // Check if user is logged in (user_id exists) and has sufficient level
-        if (!isset($_SESSION['user_id']) || !isset($_SESSION['level']) || $_SESSION['level'] < $level) {
-            http_response_code(403);
-            echo json_encode(['error' => 'Unauthorized']);
-            exit;
-        }
-        return true;
-    }
 
-    public static function json($data, $status = 200)
-    {
-        return Response::json($data, $status);
-    }
-
-    public static function decodeBody()
-    {
-        return Request::input();
-    }
 }

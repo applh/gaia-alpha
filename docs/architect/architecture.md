@@ -10,7 +10,9 @@ The application follows a strict separation between public-facing code and priva
 gaia-alpha/
 ├── www/                # Public Web Root (Served by Web Server)
 │   ├── index.php       # Frontend Entry Point
-│   ├── js/             # Vue.js Application
+│
+├── resources/          # Source Assets (Served via AssetController)
+│   ├── js/             # Vue.js Application & Components
 │   └── css/            # Stylesheets
 │
 ├── class/              # Private PHP Classes (Autoloaded)
@@ -411,3 +413,12 @@ The frontend is a lightweight, bundle-free Vue 3 application that relies on nati
 #### 5. Theming
 - **CSS Variables**: All coloring uses variables defined in `www/css/site.css` (e.g., `var(--bg-color)`, `var(--text-primary)`).
 - **Dark/Light Mode**: The app supports dynamic theme switching by toggling a `.light-theme` class on the `<body>` tag, which redefines these variables.
+
+## Code Statistics
+*Approximate counts as of v0.34.0*
+
+- **PHP**: ~12,900 lines
+- **JavaScript (Application)**: ~9,300 lines
+- **JavaScript (Vendor)**: ~28,000 lines
+- **CSS**: ~4,000 lines
+

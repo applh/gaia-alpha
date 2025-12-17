@@ -12,9 +12,7 @@ class Media
         $this->uploadsDir = $dataDir . '/uploads';
         $this->cacheDir = $dataDir . '/cache';
 
-        if (!is_dir($this->cacheDir)) {
-            mkdir($this->cacheDir, 0755, true);
-        }
+        \GaiaAlpha\Filesystem::makeDirectory($this->cacheDir);
     }
 
     public function getUploadsDir(): string
@@ -309,7 +307,7 @@ class Media
         $count = 0;
         $size = 0;
 
-        if (!is_dir($dir)) {
+        if (!\GaiaAlpha\Filesystem::isDirectory($dir)) {
             return ['count' => 0, 'size' => 0];
         }
 
@@ -328,7 +326,7 @@ class Media
     private function deleteDirContents(string $dir): int
     {
         $count = 0;
-        if (!is_dir($dir)) {
+        if (!\GaiaAlpha\Filesystem::isDirectory($dir)) {
             return 0;
         }
 
@@ -339,7 +337,7 @@ class Media
 
         foreach ($iterator as $file) {
             if ($file->isFile()) {
-                unlink($file->getRealPath());
+                \GaiaAlpha\Filesystem::delete($file->getRealPath());
                 $count++;
             }
         }

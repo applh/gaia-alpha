@@ -15,7 +15,7 @@ class DbCommands
         }
 
         $dbPath = GAIA_DB_PATH;
-        if (!file_exists($dbPath)) {
+        if (!\GaiaAlpha\Filesystem::exists($dbPath)) {
             echo "Error: Database file does not exist at $dbPath\n";
             exit(1);
         }
@@ -49,9 +49,7 @@ class DbCommands
     public static function handleSave(): void
     {
         $backupDir = Env::get('root_dir') . '/my-data/backups';
-        if (!file_exists($backupDir)) {
-            mkdir($backupDir, 0755, true);
-        }
+        \GaiaAlpha\Filesystem::makeDirectory($backupDir);
 
         $timestamp = date('Y-m-d_H-i-s');
         $outputFile = $backupDir . '/db_' . $timestamp . '.sql';
@@ -69,7 +67,7 @@ class DbCommands
             exit(1);
         }
 
-        if (!file_exists($inputFile)) {
+        if (!\GaiaAlpha\Filesystem::exists($inputFile)) {
             echo "Error: Input file does not exist: $inputFile\n";
             exit(1);
         }

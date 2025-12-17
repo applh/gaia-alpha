@@ -98,4 +98,18 @@ class Session
         self::start();
         return (int) ($_SESSION['level'] ?? 0);
     }
+
+    /**
+     * Require a specific user level. Exits with 403 if not met.
+     */
+    public static function requireLevel(int $level = 0): void
+    {
+        self::start();
+
+        if (!isset($_SESSION['user_id']) || !isset($_SESSION['level']) || $_SESSION['level'] < $level) {
+            http_response_code(403);
+            echo json_encode(['error' => 'Unauthorized']);
+            exit;
+        }
+    }
 }

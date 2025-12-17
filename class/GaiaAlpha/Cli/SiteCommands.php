@@ -27,13 +27,11 @@ class SiteCommands
         $rootDir = Env::get('root_dir');
         $sitesDir = $rootDir . '/my-data/sites';
 
-        if (!is_dir($sitesDir)) {
-            mkdir($sitesDir, 0755, true);
-        }
+        \GaiaAlpha\Filesystem::makeDirectory($sitesDir);
 
         $dbPath = $sitesDir . '/' . $domain . '.sqlite';
 
-        if (file_exists($dbPath)) {
+        if (\GaiaAlpha\Filesystem::exists($dbPath)) {
             echo "Error: Site '$domain' already exists.\n";
             exit(1);
         }
@@ -60,8 +58,8 @@ class SiteCommands
 
         } catch (\Exception $e) {
             echo "Error creating site: " . $e->getMessage() . "\n";
-            if (file_exists($dbPath)) {
-                unlink($dbPath); // Cleanup
+            if (\GaiaAlpha\Filesystem::exists($dbPath)) {
+                \GaiaAlpha\Filesystem::delete($dbPath); // Cleanup
             }
             exit(1);
         }
@@ -72,12 +70,12 @@ class SiteCommands
         $rootDir = Env::get('root_dir');
         $sitesDir = $rootDir . '/my-data/sites';
 
-        if (!is_dir($sitesDir)) {
+        if (!\GaiaAlpha\Filesystem::isDirectory($sitesDir)) {
             echo "No sites directory found.\n";
             return;
         }
 
-        $files = glob($sitesDir . '/*.sqlite');
+        $files = \GaiaAlpha\Filesystem::glob($sitesDir . '/*.sqlite');
 
         echo "Managed Sites:\n";
         if (empty($files)) {
@@ -92,7 +90,7 @@ class SiteCommands
 
         // Also mention default?
         $defaultDb = $rootDir . '/my-data/database.sqlite';
-        if (file_exists($defaultDb)) {
+        if (\GaiaAlpha\Filesystem::exists($defaultDb)) {
             echo "  - (default) (" . number_format(filesize($defaultDb) / 1024, 2) . " KB)\n";
         }
     }

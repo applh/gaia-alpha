@@ -20,8 +20,7 @@ class ChatController extends BaseController
 
     public function getUsers()
     {
-        if (!Framework::checkAuth())
-            return;
+        \GaiaAlpha\Session::requireLevel();
 
         $currentUserId = $_SESSION['user_id'];
         $users = User::findAll();
@@ -45,8 +44,7 @@ class ChatController extends BaseController
 
     public function getMessages($otherUserId)
     {
-        if (!Framework::checkAuth())
-            return;
+        \GaiaAlpha\Session::requireLevel();
 
         $currentUserId = $_SESSION['user_id'];
         $limit = isset($_GET['limit']) ? (int) $_GET['limit'] : 100;
@@ -65,10 +63,9 @@ class ChatController extends BaseController
 
     public function sendMessage()
     {
-        if (!Framework::checkAuth())
-            return;
+        \GaiaAlpha\Session::requireLevel();
 
-        $data = Framework::decodeBody();
+        $data = \GaiaAlpha\Request::input();
         $currentUserId = $_SESSION['user_id'];
 
         if (empty($data['to']) || empty($data['content'])) {
@@ -86,8 +83,7 @@ class ChatController extends BaseController
 
     public function markRead($senderId)
     {
-        if (!Framework::checkAuth())
-            return;
+        \GaiaAlpha\Session::requireLevel();
         $currentUserId = $_SESSION['user_id'];
 
         Message::markAsRead($senderId, $currentUserId);

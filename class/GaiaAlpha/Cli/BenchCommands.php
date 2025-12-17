@@ -101,7 +101,7 @@ class BenchCommands
         echo "Running Template Benchmark...\n";
 
         $templateFile = sys_get_temp_dir() . '/bench_template.php';
-        file_put_contents($templateFile, '<h1>Hello <?= $name ?></h1>');
+        \GaiaAlpha\Filesystem::write($templateFile, '<h1>Hello <?= $name ?></h1>');
 
         $name = "World";
 
@@ -122,6 +122,6 @@ class BenchCommands
         echo "Template Render: " . number_format($avg, 5) . "ms per render\n";
         echo "Template OPS: " . number_format($ops, 2) . " renders/sec\n";
 
-        unlink($templateFile);
+        \GaiaAlpha\Filesystem::delete($templateFile);
     }
 }

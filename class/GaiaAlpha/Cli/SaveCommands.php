@@ -20,9 +20,7 @@ class SaveCommands
 
         // Ensure root-level backups directory exists
         $backupDir = $rootDir . '/backups';
-        if (!file_exists($backupDir)) {
-            mkdir($backupDir, 0755, true);
-        }
+        \GaiaAlpha\Filesystem::makeDirectory($backupDir);
 
         $zipFile = $backupDir . '/my-data_' . $timestamp . '.zip';
 

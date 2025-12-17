@@ -20,16 +20,14 @@ class MenuController
 
     public function list()
     {
-        if (!Framework::checkAuth(100))
-            return; // Admin only
+        \GaiaAlpha\Session::requireLevel(100);
         $menus = Menu::all();
         Response::json($menus);
     }
 
     public function get($id)
     {
-        if (!Framework::checkAuth(100))
-            return;
+        \GaiaAlpha\Session::requireLevel(100);
         $menu = Menu::find($id);
         if (!$menu) {
             Response::json(['error' => 'Not found'], 404);
@@ -40,9 +38,8 @@ class MenuController
 
     public function create()
     {
-        if (!Framework::checkAuth(100))
-            return;
-        $data = Framework::decodeBody();
+        \GaiaAlpha\Session::requireLevel(100);
+        $data = \GaiaAlpha\Request::input();
 
         if (empty($data['title'])) {
             Response::json(['error' => 'Title is required'], 400);
@@ -60,15 +57,14 @@ class MenuController
 
     public function update($id)
     {
-        if (!Framework::checkAuth(100))
-            return;
+        \GaiaAlpha\Session::requireLevel(100);
         $menu = Menu::find($id);
         if (!$menu) {
             Response::json(['error' => 'Not found'], 404);
             return;
         }
 
-        $data = Framework::decodeBody();
+        $data = \GaiaAlpha\Request::input();
 
         // Prevent items from being double-encoded if passed as array
         if (isset($data['items']) && is_array($data['items'])) {
@@ -81,8 +77,7 @@ class MenuController
 
     public function delete($id)
     {
-        if (!Framework::checkAuth(100))
-            return;
+        \GaiaAlpha\Session::requireLevel(100);
         Menu::delete($id);
         Response::json(['message' => 'Menu deleted']);
     }

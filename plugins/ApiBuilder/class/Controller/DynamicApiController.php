@@ -72,8 +72,8 @@ class DynamicApiController extends BaseController
     private function loadConfig()
     {
         $path = Env::get('path_data') . '/api-config.json';
-        if (file_exists($path)) {
-            $content = file_get_contents($path);
+        $content = \GaiaAlpha\Filesystem::read($path);
+        if ($content !== false) {
             $this->config = json_decode($content, true) ?? [];
         }
     }

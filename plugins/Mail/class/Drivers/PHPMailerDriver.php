@@ -27,21 +27,19 @@ class PHPMailerDriver implements MailerInterface
         }
 
         $mail = new \PHPMailer\PHPMailer\PHPMailer(true);
-        $config = App::config();
-
         try {
             // Server settings
             $mail->isSMTP();
-            $mail->Host = $config['mail_host'] ?? '';
+            $mail->Host = \GaiaAlpha\Env::get('mail_host', '');
             $mail->SMTPAuth = true;
-            $mail->Username = $config['mail_user'] ?? '';
-            $mail->Password = $config['mail_pass'] ?? '';
-            $mail->SMTPSecure = \PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS; // or ENCRYPTION_SMTPS
-            $mail->Port = $config['mail_port'] ?? 587;
+            $mail->Username = \GaiaAlpha\Env::get('mail_user', '');
+            $mail->Password = \GaiaAlpha\Env::get('mail_pass', '');
+            $mail->SMTPSecure = \PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
+            $mail->Port = \GaiaAlpha\Env::get('mail_port', 587);
 
             // Recipients
-            $from = $config['mail_from'] ?? 'noreply@example.com';
-            $fromName = $config['mail_from_name'] ?? 'Gaia Alpha System';
+            $from = \GaiaAlpha\Env::get('mail_from', 'noreply@example.com');
+            $fromName = \GaiaAlpha\Env::get('mail_from_name', 'Gaia Alpha System');
             $mail->setFrom($from, $fromName);
             $mail->addAddress($to);
 

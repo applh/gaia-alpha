@@ -28,8 +28,7 @@ class Mail
             return self::$instance;
         }
 
-        $config = App::config();
-        $driverName = $config['mail_driver'] ?? 'log'; // Default to log
+        $driverName = \GaiaAlpha\Env::get('mail_driver', 'log');
 
         switch ($driverName) {
             case 'smtp':

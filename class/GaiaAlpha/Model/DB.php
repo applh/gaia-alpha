@@ -40,6 +40,11 @@ class DB
         return $db;
     }
 
+    public static function setConnection(Database $db)
+    {
+        self::$instance = $db;
+    }
+
     public static function getPdo(): PDO
     {
         return self::connect()->getPdo();

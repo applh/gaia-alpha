@@ -58,6 +58,9 @@ Commands:
   db:import <file>                    Import database from SQL file
   db:save                             Snapshot database to my-data/backups/
   save:all                            Save DB snapshot then zip my-data folder
+  site:create <domain> [--import=dir] Create a new site (optionally importing content)
+  site:delete <domain>                Delete a site database
+  site:list                           List all managed sites
   help                                Show this help message
 ```
 

@@ -12,6 +12,7 @@ CREATE TABLE IF NOT EXISTS cms_pages (
     template_slug VARCHAR(255) DEFAULT NULL,
     meta_description TEXT,
     meta_keywords TEXT,
+    content_format TEXT DEFAULT 'html',
     FOREIGN KEY(user_id) REFERENCES users(id),
     UNIQUE(slug)
 );

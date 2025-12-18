@@ -14,9 +14,10 @@ class SiteCommands
     public static function handleCreate()
     {
         $domain = Input::get(0);
+        $importPath = Input::getOption('import');
 
         if (!$domain) {
-            Output::writeln("Usage: php cli.php site:create <domain>");
+            Output::writeln("Usage: php cli.php site:create <domain> [--import=<path>]");
             exit(1);
         }
 
@@ -38,6 +39,11 @@ class SiteCommands
             exit(1);
         }
 
+        if ($importPath && !File::isDirectory($importPath)) {
+            Output::error("Import path not found: $importPath");
+            exit(1);
+        }
+
         Output::info("Creating site '$domain'...");
 
         // Create DB
@@ -51,12 +57,30 @@ class SiteCommands
 
             Output::success("Site '$domain' created successfully.");
             Output::writeln("Database: $dbPath");
+
+            // Handle Import
+            if ($importPath) {
+                Output::writeln("Importing site package from: $importPath");
+
+                // Inject the new DB connection into global Model DB
+                // This ensures all models (Page, Template, etc.) use this new database
+                \GaiaAlpha\Model\DB::setConnection($db);
+
+                // Assuming default admin user ID 1 for now
+                $userId = 1;
+
+                $importer = new \GaiaAlpha\ImportExport\WebsiteImporter($importPath, $userId);
+                $importer->import();
+
+                Output::success("Site package imported successfully.");
+            }
+
             Output::writeln("To manage this site, use: php cli.php --site=$domain <command>", 'cyan');
 
         } catch (\Exception $e) {
             Output::error("Failed to create site: " . $e->getMessage());
             if (File::exists($dbPath)) {
-                File::delete($dbPath); // Cleanup
+                // File::delete($dbPath); // Cleanup? Maybe keep for debugging if partial failure
             }
             exit(1);
         }
@@ -98,5 +122,42 @@ class SiteCommands
 
         Output::title("Managed Sites");
         Output::table(['Domain', 'Size', 'Path'], $sites);
+    }
+
+    public static function handleDelete()
+    {
+        $domain = Input::get(0);
+
+        if (!$domain) {
+            Output::writeln("Usage: php cli.php site:delete <domain>");
+            exit(1);
+        }
+
+        $rootDir = Env::get('root_dir');
+        $dbPath = $rootDir . '/my-data/sites/' . $domain . '.sqlite';
+
+        if (!File::exists($dbPath)) {
+            Output::error("Site '$domain' not found.");
+            exit(1);
+        }
+
+        Output::warning("You are about to DELETE the site '$domain'.");
+        Output::warning("Database: $dbPath");
+        Output::writeln("This action cannot be undone. All data will be lost.", 'red');
+
+        echo "Are you sure? [y/N] ";
+        $handle = fopen("php://stdin", "r");
+        $line = fgets($handle);
+        if (trim(strtolower($line)) != 'y') {
+            Output::writeln("Aborted.");
+            return;
+        }
+        fclose($handle);
+
+        if (File::delete($dbPath)) {
+            Output::success("Site '$domain' deleted successfully.");
+        } else {
+            Output::error("Failed to delete site database.");
+        }
     }
 }

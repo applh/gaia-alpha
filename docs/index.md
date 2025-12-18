@@ -37,6 +37,7 @@ Welcome to the official documentation for Gaia Alpha, organized by role to help 
 ## 👤 For Users
 *Guides for end-users.*
 - **[Map Feature](user/map_feature.md)**: Using the maps.
+- **[Testing Site Packages](user/testing_site_packages.md)**: Validate site packages locally.
 
 ---
 **[Contributing](../CONTRIBUTING.md)** | **[Code of Conduct](../CODE_OF_CONDUCT.md)**

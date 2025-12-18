@@ -38,10 +38,31 @@ class WebsiteExporter
         // 6. Export Assets
         $this->exportAssets();
 
-        // 7. Generate site.json
+        // 7. Export Menus
+        $this->exportMenus();
+
+        // 8. Generate site.json
         $this->generateSiteJson();
 
         return true;
+    }
+
+    private function exportMenus()
+    {
+        $menus = \GaiaAlpha\Model\Menu::all();
+        $exportData = [];
+
+        foreach ($menus as $menu) {
+            $exportData[] = [
+                'title' => $menu['title'],
+                'location' => $menu['location'],
+                'items' => json_decode($menu['items'], true) ?? []
+            ];
+        }
+
+        if (!empty($exportData)) {
+            File::write($this->outDir . '/menus.json', json_encode($exportData, JSON_PRETTY_PRINT));
+        }
     }
 
     private function prepareDirectories()

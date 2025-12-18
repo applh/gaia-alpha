@@ -42,7 +42,49 @@ class WebsiteImporter
         // 6. Import Pages & Media
         $this->importPages();
 
+        // 7. Import Menus
+        $this->importMenus();
+
         return true;
+    }
+
+    private function importMenus()
+    {
+        $path = $this->inDir . '/menus.json';
+        if (!File::exists($path)) {
+            return;
+        }
+
+        $menus = json_decode(File::read($path), true);
+        if (!$menus) {
+            return;
+        }
+
+        foreach ($menus as $menuData) {
+            // Check if menu exists by location or title to avoid duplicates
+            // Prefer location as it's often unique per theme slot
+            $existing = null;
+            if (!empty($menuData['location'])) {
+                $existing = \GaiaAlpha\Model\Menu::findByLocation($menuData['location']);
+            }
+
+            $items = json_encode($menuData['items'] ?? []);
+
+            if ($existing) {
+                // Update existing menu
+                \GaiaAlpha\Model\Menu::update($existing['id'], [
+                    'title' => $menuData['title'],
+                    'items' => $items
+                ]);
+            } else {
+                // Create new menu
+                \GaiaAlpha\Model\Menu::create([
+                    'title' => $menuData['title'],
+                    'location' => $menuData['location'],
+                    'items' => $items
+                ]);
+            }
+        }
     }
 
     private function checkManifest()

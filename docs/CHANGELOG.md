@@ -1,5 +1,10 @@
 # Changelog
 
+## [v0.53.0] - 2025-12-19
+### Added
+- **Import/Export**: Added Menu support. `export:site` and `site:create --import` now include navigation menus (`menus.json`).
+- **Docs**: Added `docs/user/site_packages_import_export.md` covering the full Import/Export workflow coverage.
+
 ## [v0.52.0] - 2025-12-17
 ### Refactored
 - **Core**: Centralized all `$_SERVER` access into the `GaiaAlpha\Request` class with new helper methods: `host()`, `uri()`, `path()`, `isSecure()`, `scheme()`, `userAgent()`, `ip()`, and `server()`.

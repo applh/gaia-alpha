@@ -22,4 +22,6 @@ Commands:
   db:import <file>                    Import database from SQL file
   db:save                             Snapshot database to my-data/backups/
   save:all                            Save DB snapshot then zip my-data folder
+  export:site --out=<path>            Export site content to a folder
+  import:site --in=<path>             Import site content from a folder
   help                                Show this help message

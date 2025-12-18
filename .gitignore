@@ -7,3 +7,5 @@ vendor/
 *.log
 my-*
 cookies_*.txt
+export*/
+*.zip

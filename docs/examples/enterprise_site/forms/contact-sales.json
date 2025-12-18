@@ -1,0 +1,25 @@
+{
+    "title": "Contact Sales",
+    "slug": "contact-sales",
+    "description": "Get in touch with our enterprise sales team.",
+    "submit_label": "Request Demo",
+    "schema": [
+        {
+            "type": "textfield",
+            "key": "companyName",
+            "label": "Company Name",
+            "required": true
+        },
+        {
+            "type": "email",
+            "key": "email",
+            "label": "Work Email",
+            "required": true
+        },
+        {
+            "type": "textarea",
+            "key": "needs",
+            "label": "Project Needs"
+        }
+    ]
+}

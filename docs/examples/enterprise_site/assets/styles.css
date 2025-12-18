@@ -1,0 +1,6 @@
+/* Enterprise Theme */
+body { font-family: sans-serif; color: #333; line-height: 1.6; }
+header { padding: 20px; background: #f4f4f4; display: flex; align-items: center; justify-content: space-between; }
+nav a { margin-left: 15px; text-decoration: none; color: #0044cc; }
+main { padding: 40px 20px; max-width: 1200px; margin: 0 auto; }
+footer { margin-top: 50px; padding: 20px; text-align: center; border-top: 1px solid #ddd; }

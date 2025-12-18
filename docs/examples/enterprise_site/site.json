@@ -1,0 +1,13 @@
+{
+    "name": "Acme Corp Enterprise Site",
+    "version": "1.0.0",
+    "plugins": [
+        "contact-form",
+        "seo-pack",
+        "analytics"
+    ],
+    "config": {
+        "theme": "enterprise-blue",
+        "homepage": "home"
+    }
+}

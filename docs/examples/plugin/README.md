@@ -12,7 +12,7 @@ This is a simple plugin to demonstrate how to extend Gaia Alpha.
    Copy this entire folder (`example_plugin`) to your `my-data/plugins/` directory.
    
    ```bash
-   cp -r docs/example_plugin my-data/plugins/simple_demo
+   cp -r docs/examples/plugin my-data/plugins/simple_demo
    ```
 
 2. **Activate the Plugin**:

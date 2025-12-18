@@ -1,0 +1,14 @@
+{
+    "title": "Newsletter Signup",
+    "slug": "newsletter",
+    "description": "Subscribe to our monthly updates.",
+    "submit_label": "Subscribe",
+    "schema": [
+        {
+            "type": "email",
+            "key": "email",
+            "label": "Email Address",
+            "required": true
+        }
+    ]
+}

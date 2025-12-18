@@ -56,3 +56,31 @@ Here are things the AI frequently gets wrong in this specific codebase. **Correc
 *   **The AI thinks:** `App\Controllers`...
 *   **The Reality:** `PluginName\Controller` mapped to `plugins/PluginName/class/Controller`.
 *   **Fix:** Invoke the **Plugin Pattern**.
+
+## 7. Context Management & New Tasks
+When starting a new objective, **start a new conversation**.
+
+*   **Fresh Context**: Clears noise and old code snippets, allowing the AI to focus entirely on the new goal.
+*   **Performance**: Smaller context windows result in faster and more accurate reasoning.
+*   **Knowledge Persistence**: Improvements to docs (like this file) are persistent. The new agent effectively "learns" what the previous one documented.
+
+**When to stay:** Only keep the conversation for direct follow-ups or immediate iteration on the specific task.
+
+## 8. Plugin Architecture Best Practices
+To keep the codebase maintainable, follow these strict rules for Plugins:
+
+### Glue vs Logic
+*   **`index.php` is Glue**: It should ONLY contain `Hook::add` calls and basic setup.
+*   **Logic belongs in Classes**: Move all business logic, HTML generation, and complex data handling into `class/Controller/` or `class/Model/`.
+
+### Directory Structure
+*   `plugins/MyPlugin/`
+    *   `plugin.json` (Manifest & Menu Config)
+    *   `index.php` (Hooks & Registration)
+    *   `class/` (PHP Classes, mapped to `MyPlugin\` namespace automatically)
+    *   `resources/` (JS, CSS, Vue components)
+
+### Registration Order
+*   Always register controllers in the `framework_load_controllers_after` hook.
+*   Always register API routes inside your Controller's `registerRoutes` method.
+*   **Never** use a custom autoloader if your classes follow the standard `MyPlugin\Namespace` -> `plugins/MyPlugin/class/Namespace.php` map.

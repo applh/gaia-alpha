@@ -4,6 +4,7 @@
 ![PHP Version](https://img.shields.io/badge/php-%3E%3D8.0-777bb4.svg?logo=php)
 ![Vue Version](https://img.shields.io/badge/vue-3.x-4FC08D.svg?logo=vue.js)
 ![Status](https://img.shields.io/badge/status-active-success.svg)
+> **Built by Antigravity with a Senior Software Engineer.**
 
 **Gaia Alpha** is a lightweight, self-contained web application framework that bridges the gap between simple PHP scripts and complex modern web apps. It features a robust PHP backend, a reactive Vue.js frontend, and zero-configuration SQLite persistence.
 
@@ -35,6 +36,16 @@
 
 ---
 
+## 🤖 The No-Code / Low-Code Revolution
+
+With Gaia Alpha, you don't just write code; you orchestrate it. Our structured **Site Packages** allow you to export, modify, and re-import entire sites using simple AI prompts.
+
+- **[AI Prompts Guide](docs/user/ai_prompts_guide.md)**: Learn how to use LLMs to build features in minutes.
+- **Site Packages**: Standardized structure for portable, reusable website definitions.
+- **Enterprise Ready**: Comes with a full [Enterprise Site Example](docs/user/example_enterprise_site.md) out of the box.
+
+---
+
 ## 📖 Documentation
 
 Everything you need to know about using and extending Gaia Alpha.
@@ -53,6 +64,9 @@ Everything you need to know about using and extending Gaia Alpha.
 
 ## ✨ Key Features
 
+- **Enterprise Site Starter Kit**: Ready-to-use 10-page corporate site structure.
+- **Core Plugin Architecture**: Modular design with migrated Console, Map, and Multi-Site plugins.
+- **Declarative Menu System**: JSON-based menu configuration for ease of use.
 - **Zero-Config Database**: Auto-migrating SQLite setup.
 - **Reactive UI**: Vue 3 frontend without a build step (ES Modules).
 - **CLI Power**: Comprehensive command-line tools for DB, Media, and Files.

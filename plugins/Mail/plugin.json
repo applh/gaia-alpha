@@ -23,5 +23,34 @@
                 "action": "clearInbox"
             }
         ]
-    }
+    },
+    "admin": [
+        {
+            "path": "/mail/inbox",
+            "method": "GET",
+            "action": "inbox"
+        },
+        {
+            "path": "/mail/send-test",
+            "method": "POST",
+            "action": "sendTest"
+        },
+        {
+            "path": "/mail/clear",
+            "method": "POST",
+            "action": "clearInbox"
+        }
+    ]
+},
+"menu": {
+    "items": [
+        {
+            "label": "Mail Inbox",
+            "view": "mail/inbox",
+            "icon": "mail",
+            "group": "grp-system",
+            "adminOnly": true
+        }
+    ]
+}
 }

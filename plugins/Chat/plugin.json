@@ -3,5 +3,15 @@
     "version": "1.0.0",
     "description": "System Chat for internal messaging.",
     "type": "core",
-    "author": "Gaia Alpha"
+    "author": "Gaia Alpha",
+    "menu": {
+        "items": [
+            {
+                "label": "Chat",
+                "view": "chat",
+                "icon": "message-square",
+                "group": "grp-projects"
+            }
+        ]
+    }
 }

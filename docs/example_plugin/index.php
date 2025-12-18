@@ -35,3 +35,21 @@ Hook::add('app_boot', function () {
         // echo "Example Plugin Booted in CLI\n";
     }
 });
+
+// 4. Hook into Admin Menu (New!)
+Hook::add('auth_session_data', function ($data) {
+    if (isset($data['user'])) {
+        // Add a new item to the "System" group
+        $data['user']['menu_items'][] = [
+            'id' => 'grp-system',
+            'children' => [
+                [
+                    'label' => 'Example Plugin', 
+                    'view' => 'example-plugin-view', 
+                    'icon' => 'star'
+                ]
+            ]
+        ];
+    }
+    return $data;
+});

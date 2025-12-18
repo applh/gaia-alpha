@@ -3,5 +3,23 @@
     "description": "Admin Component Builder Core Plugin",
     "version": "1.0.0",
     "type": "core",
-    "enabled": true
+    "enabled": true,
+    "menu": {
+        "items": [
+            {
+                "label": "Component Builder",
+                "view": "component-builder",
+                "icon": "puzzle",
+                "group": "grp-system",
+                "adminOnly": true
+            },
+            {
+                "label": "Components",
+                "view": "cms-components",
+                "icon": "puzzle",
+                "group": "grp-content",
+                "adminOnly": true
+            }
+        ]
+    }
 }

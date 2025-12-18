@@ -33,17 +33,4 @@ Hook::add('admin_dashboard_cards', function ($cards) {
 });
 
 // Inject Menu
-Hook::add('auth_session_data', function ($data) {
-    if (isset($data['user'])) {
-        $data['user']['menu_items'][] = [
-            'label' => 'Projects', // Group
-            'icon' => 'check-square',
-            'id' => 'grp-projects',
-            'children' => [
-                ['label' => 'Tasks', 'view' => 'todos', 'icon' => 'list-todo'],
-                // Chat should ideally be here too if we want to merge, or we let Chat panel stay if it's in base
-            ]
-        ];
-    }
-    return $data;
-});
+

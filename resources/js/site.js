@@ -246,7 +246,7 @@ const App = {
                 label: 'Content', icon: 'folder', id: 'grp-content', children: [
                     { label: 'CMS', view: 'cms', icon: 'file-text' },
                     { label: 'Templates', view: 'cms-templates', icon: 'layout-template', adminOnly: true },
-                    { label: 'Components', view: 'cms-components', icon: 'puzzle', adminOnly: true },
+                    // { label: 'Components', view: 'cms-components', icon: 'puzzle', adminOnly: true }, // Injected by Plugin
                     { label: 'Forms', view: 'forms', icon: 'clipboard-list' }
                 ]
             },
@@ -267,17 +267,32 @@ const App = {
             const admin = isAdmin.value;
             const dynamicItems = (store.state.user && store.state.user.menu_items) ? store.state.user.menu_items : [];
 
+            // Validation helper
+            const validateMenuItem = (item) => {
+                if (!item.label && !item.id) {
+                    console.warn('Invalid menu item (missing label or id):', item);
+                    return false;
+                }
+                if (!item.id && !item.view && (!item.children || item.children.length === 0)) {
+                    console.warn('Invalid menu item (missing view, id, or children):', item);
+                    return false;
+                }
+                return true;
+            };
+
             // Deep clone base items to avoid mutation issues
             let items = JSON.parse(JSON.stringify(baseMenuItems));
 
             // Merge dynamic items
             dynamicItems.forEach(dItem => {
-                const existingIndex = items.findIndex(i => i.id === dItem.id || i.label === dItem.label);
+                if (!validateMenuItem(dItem)) return;
+
+                const existingIndex = items.findIndex(i => i.id === dItem.id || (i.label && i.label === dItem.label));
                 if (existingIndex > -1) {
                     // Merge children
                     if (dItem.children) {
                         if (!items[existingIndex].children) items[existingIndex].children = [];
-                        items[existingIndex].children.push(...dItem.children);
+                        items[existingIndex].children.push(...dItem.children.filter(validateMenuItem));
                     }
                 } else {
                     // Add new item

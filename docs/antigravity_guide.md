@@ -10,14 +10,14 @@ Before asking for code, **open the relevant files**.
 
 ## 2. Invoke the Patterns
 Instead of saying "Build a feature", say:
-> "Build the 'Tags' feature **following the Plugin Pattern** and the **Controller Pattern**."
+> "Build the 'Tags' feature **following the Plugin Pattern** and the **Declarative Menu Pattern**."
 
-This forces the AI to look up `docs/patterns/*` and aligns the output with your standards instantly.
+This forces the AI to look up `docs/developer/*` and aligns the output with your standards instantly.
 
 ## 3. The "Golden Sample" Strategy
 If you want something done in a specific style that isn't documented yet:
 1.  Find a file that does it right.
-2.  Tell the AI: **"Use `plugins/Map/index.php` as the Golden Sample for this new plugin."**
+2.  Tell the AI: **"Use `plugins/Todo/plugin.json` as the Golden Sample for declarative menu config."**
 
 ## 4. Workflows & Iteration
 *   **Plan First**: Ask the AI to "Draft a plan" before writing code.
@@ -26,7 +26,7 @@ If you want something done in a specific style that isn't documented yet:
 
 ## 5. When I get "Stuck"
 If the AI seems to be "re-discovering" the framework:
-*   Remind it to read `docs/patterns`.
+*   Remind it to read `docs/developer/*.md`.
 
 ## 6. Common Pitfalls & Anti-Patterns
 
@@ -46,6 +46,11 @@ Here are things the AI frequently gets wrong in this specific codebase. **Correc
 *   **The AI thinks:** "If I create a controller file, it works."
 *   **The Reality:** You MUST manually register the controller in the plugin's `index.php` hook.
 *   **Fix:** Check `index.php` whenever a 404 appears.
+
+### ❌ "Use Manual Menu Hooks"
+*   **The AI thinks:** "I need to write PHP code to add a menu item."
+*   **The Reality:** We now use **Declarative Config** in `plugin.json` for menu items.
+*   **Fix:** Check `plugin.json` and use the `menu` key.
 
 ### ❌ "Use standard Namespaces"
 *   **The AI thinks:** `App\Controllers`...

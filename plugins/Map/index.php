@@ -21,20 +21,4 @@ Hook::add('framework_load_controllers_after', function ($controllers) {
     }
 });
 
-Hook::add('auth_session_data', function ($data) {
-    if (isset($data['user'])) {
-        // Inject into existing Content group if possible, or add as new
-        $data['user']['menu_items'][] = [
-            'id' => 'grp-content', // Match existing group ID
-            'children' => [
-                [
-                    'label' => 'Maps', // Changed back to Maps to match user expectation of "Content / Maps"
-                    'view' => 'map',
-                    'icon' => 'map',
-                    'path' => '/admin/map'
-                ]
-            ]
-        ];
-    }
-    return $data;
-});
+

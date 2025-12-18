@@ -3,8 +3,6 @@
     "version": "1.0.0",
     "description": "Manage map markers and locations.",
     "type": "core",
-    "identifier": "map-manager",
-    "main": "Map\\Controller\\MapController",
     "routes": {
         "api": [
             "/markers"
@@ -18,12 +16,14 @@
             "resources/js/MapPanel.js"
         ]
     },
-    "hooks": {
-        "admin_menu": {
-            "title": "Map",
-            "icon": "map",
-            "path": "/admin/map",
-            "component": "MapPanel"
-        }
+    "menu": {
+        "items": [
+            {
+                "label": "Maps",
+                "view": "map",
+                "icon": "map",
+                "group": "grp-content"
+            }
+        ]
     }
 }

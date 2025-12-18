@@ -28,11 +28,21 @@ class Framework
             }
 
             foreach (glob($pluginsDir . '/*/index.php') as $plugin) {
-                $pluginDirName = basename(dirname($plugin));
+                $pluginDir = dirname($plugin);
+                $pluginDirName = basename($pluginDir);
 
                 // If active_plugins.json exists, only load if in list
                 if ($activePlugins !== null && !in_array($pluginDirName, $activePlugins)) {
                     continue;
+                }
+
+                // Check for declarative menu config
+                $configFile = $pluginDir . '/plugin.json';
+                if (file_exists($configFile)) {
+                    $config = json_decode(file_get_contents($configFile), true);
+                    if (is_array($config) && isset($config['menu'])) {
+                        self::registerPluginMenuItems($config['menu'], $pluginDirName);
+                    }
                 }
 
                 include_once $plugin;
@@ -40,6 +50,47 @@ class Framework
         }
 
         Hook::run('plugins_loaded');
+    }
+
+    /**
+     * Register menu items from plugin.json configuration
+     */
+    private static function registerPluginMenuItems($menuConfig, $pluginName)
+    {
+        if (!isset($menuConfig['items']) || !is_array($menuConfig['items'])) {
+            return;
+        }
+
+        $priority = $menuConfig['priority'] ?? 10;
+
+        Hook::add('auth_session_data', function ($data) use ($menuConfig) {
+            foreach ($menuConfig['items'] as $item) {
+                // Check admin-only permission
+                if (isset($item['adminOnly']) && $item['adminOnly']) {
+                    if (!isset($data['user']) || $data['user']['level'] < 100) {
+                        continue;
+                    }
+                }
+
+                // Build menu item
+                $menuItem = [
+                    'label' => $item['label'],
+                    'view' => $item['view'] ?? null,
+                    'icon' => $item['icon'] ?? 'circle'
+                ];
+
+                // Add to group or create new group
+                if (isset($item['group'])) {
+                    $data['user']['menu_items'][] = [
+                        'id' => $item['group'],
+                        'children' => [$menuItem]
+                    ];
+                } else {
+                    $data['user']['menu_items'][] = $menuItem;
+                }
+            }
+            return $data;
+        }, $priority);
     }
 
     public static function appBoot()

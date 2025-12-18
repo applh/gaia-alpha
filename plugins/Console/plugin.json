@@ -3,5 +3,16 @@
     "version": "1.0.0",
     "description": "System Console for executing commands.",
     "type": "core",
-    "author": "Gaia Alpha"
+    "author": "Gaia Alpha",
+    "menu": {
+        "items": [
+            {
+                "label": "Console",
+                "view": "console",
+                "icon": "terminal",
+                "group": "grp-system",
+                "adminOnly": true
+            }
+        ]
+    }
 }

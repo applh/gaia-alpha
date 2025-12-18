@@ -17,15 +17,4 @@ Hook::add('framework_load_controllers_after', function ($controllers) {
 });
 
 // Inject Menu
-Hook::add('auth_session_data', function ($data) {
-    if (isset($data['user'])) {
-        $data['user']['menu_items'][] = [
-            'label' => 'Projects',
-            'id' => 'grp-projects',
-            'children' => [
-                ['label' => 'Chat', 'view' => 'chat', 'icon' => 'message-square']
-            ]
-        ];
-    }
-    return $data;
-});
+

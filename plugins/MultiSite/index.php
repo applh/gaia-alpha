@@ -21,16 +21,4 @@ Hook::add('framework_load_controllers_after', function ($controllers) {
     }
 });
 
-// Inject Menu
-Hook::add('auth_session_data', function ($data) {
-    if (isset($data['user']) && $data['user']['level'] >= 100) {
-        $data['user']['menu_items'][] = [
-            'label' => 'System',
-            'id' => 'grp-system',
-            'children' => [
-                ['label' => 'Sites', 'view' => 'sites', 'icon' => 'server']
-            ]
-        ];
-    }
-    return $data;
-});
+

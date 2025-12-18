@@ -6,5 +6,16 @@
     "enabled": true,
     "routes": [
         "MultiSite\\SiteController::registerRoutes"
-    ]
+    ],
+    "menu": {
+        "items": [
+            {
+                "label": "Sites",
+                "view": "sites",
+                "icon": "server",
+                "group": "grp-system",
+                "adminOnly": true
+            }
+        ]
+    }
 }

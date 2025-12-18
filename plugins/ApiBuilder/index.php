@@ -31,18 +31,4 @@ Hook::add('framework_load_controllers_after', function ($controllers) {
     Env::set('controllers', $controllers);
 });
 
-// Inject Menu
-Hook::add('auth_session_data', function ($data) {
-    // Check if user has admin level
-    if (isset($data['user']) && isset($data['user']['level']) && $data['user']['level'] >= 100) {
-        // Inject into System group
-        $data['user']['menu_items'][] = [
-            'label' => 'System', // Target existing group
-            'id' => 'grp-system',
-            'children' => [
-                ['label' => 'APIs', 'view' => 'api-builder', 'icon' => 'zap']
-            ]
-        ];
-    }
-    return $data;
-});
+

@@ -4,5 +4,15 @@
     "description": "A simple task management plugin with color coding, lists, and calendar views.",
     "author": "Gaia Alpha",
     "type": "standard",
-    "license": "MIT"
+    "license": "MIT",
+    "menu": {
+        "items": [
+            {
+                "label": "Tasks",
+                "view": "todos",
+                "icon": "list-todo",
+                "group": "grp-projects"
+            }
+        ]
+    }
 }

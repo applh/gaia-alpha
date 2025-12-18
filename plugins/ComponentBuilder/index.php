@@ -30,17 +30,5 @@ Hook::add('framework_load_controllers_after', function () {
     }
 });
 
-// Inject Menu
-Hook::add('auth_session_data', function ($data) {
-    if (isset($data['user']) && $data['user']['level'] >= 100) {
-        $data['user']['menu_items'][] = [
-            'label' => 'System',
-            'id' => 'grp-system',
-            'children' => [
-                ['label' => 'Component Builder', 'view' => 'component-builder', 'icon' => 'puzzle']
-            ]
-        ];
-    }
-    return $data;
-});
+
 

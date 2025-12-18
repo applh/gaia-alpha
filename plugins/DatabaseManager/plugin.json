@@ -3,5 +3,16 @@
     "version": "1.0.0",
     "description": "Core Database Management Plugin",
     "author": "Gaia Alpha",
-    "is_core": true
+    "is_core": true,
+    "menu": {
+        "items": [
+            {
+                "label": "Databases",
+                "view": "database",
+                "icon": "database",
+                "group": "grp-system",
+                "adminOnly": true
+            }
+        ]
+    }
 }

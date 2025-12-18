@@ -2,5 +2,16 @@
     "name": "ApiBuilder",
     "version": "1.0.0",
     "type": "core",
-    "description": "Dynamic API Builder for database tables"
+    "description": "Dynamic API Builder for database tables",
+    "menu": {
+        "items": [
+            {
+                "label": "APIs",
+                "view": "api-builder",
+                "icon": "zap",
+                "group": "grp-system",
+                "adminOnly": true
+            }
+        ]
+    }
 }

@@ -55,19 +55,33 @@ class SiteCommands
             Output::writeln("Initializing schema...");
             $db->ensureSchema();
 
+            // Inject the new DB connection into global Model DB
+            // This ensures all models (User, Page, etc.) use this new database
+            \GaiaAlpha\Model\DB::setConnection($db);
+
+            // Bootstrap Site
+            // 1. Create Admin User
+            $adminUser = 'admin';
+            $adminPass = 'admin';
+            $userId = \GaiaAlpha\Model\User::create($adminUser, $adminPass, 100);
+
+            Output::success("Created default admin user: $adminUser / $adminPass");
+
+            // 2. Create Dashboard Page
+            \GaiaAlpha\Model\Page::create($userId, [
+                'title' => 'App Dashboard',
+                'slug' => 'app',
+                'content' => '',
+                'cat' => 'page',
+                'template_slug' => 'app'
+            ]);
+
             Output::success("Site '$domain' created successfully.");
             Output::writeln("Database: $dbPath");
 
             // Handle Import
             if ($importPath) {
                 Output::writeln("Importing site package from: $importPath");
-
-                // Inject the new DB connection into global Model DB
-                // This ensures all models (Page, Template, etc.) use this new database
-                \GaiaAlpha\Model\DB::setConnection($db);
-
-                // Assuming default admin user ID 1 for now
-                $userId = 1;
 
                 $importer = new \GaiaAlpha\ImportExport\WebsiteImporter($importPath, $userId);
                 $importer->import();
@@ -76,6 +90,7 @@ class SiteCommands
             }
 
             Output::writeln("To manage this site, use: php cli.php --site=$domain <command>", 'cyan');
+            Output::writeln("Login at: http://$domain:8000/app", 'cyan');
 
         } catch (\Exception $e) {
             Output::error("Failed to create site: " . $e->getMessage());

@@ -37,3 +37,4 @@ We will break the reconstruction into 4 distinct phases for the AI.
 1. Navigate to `docs/prompts/03_execution_prompts.md` and copy/paste the prompts sequentially into your AI chat window.
 2. For even better results using Archives (ZIP) or Database files as context, see [Advanced Prompting Tips](file:///Users/lh/Downloads/antig/gaia-alpha/docs/prompts/04_advanced_prompting.md).
 3. To understand how the AI perceives the complexity of this repo, see the [AI Capability Evaluation](file:///Users/lh/Downloads/antig/gaia-alpha/docs/prompts/05_ai_evaluation.md).
+4. For details on how the AI builds and manages portable site packages, see the [Site Packages Guide](file:///Users/lh/Downloads/antig/gaia-alpha/docs/prompts/06_site_packages_guide.md).

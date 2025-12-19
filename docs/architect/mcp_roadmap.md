@@ -13,17 +13,17 @@ This document outlines the planned expansion of the Model Context Protocol (MCP)
 
 ### Phase 1: Advanced Content Operations
 Focus on making the AI a more powerful content editor.
-- **[ ] SEO Analysis Tool**: Automatically analyze a page's SEO score and suggest improvements based on a target keyword.
+- **[x] SEO Analysis Tool**: Automatically analyze a page's SEO score and suggest improvements based on a target keyword. (Implemented as `analyze_seo` tool)
 - **[ ] AI Image Generation Tool**: Integrated tool to generate assets via external APIs (DALL-E, Stable Diffusion) and save them directly to the site's assets.
 - **[ ] Bulk Content Importer**: Tool to import content from external formats (JSON, CSV, or another CMS) into Gaia Alpha pages.
 - **[ ] Content Versioning Resource**: Access historical versions of a page for comparison.
 
 ### Phase 2: Enhanced Administrative Control
 Empower AI agents to handle routine DevOps and management tasks.
-- **[ ] User Management Tools**: `create_user`, `update_user_permissions`, `list_users`.
+- **[x] User Management Tools**: `create_user`, `update_user_permissions`, `list_users`. (Implemented)
 - **[ ] Plugin marketplace/Search**: Tool to search for available (but not yet installed) plugins from a remote repository.
-- **[ ] Site Package Explorer**: Resource to list available site packages in `docs/examples` or a dedicated repository.
-- **[ ] Health Check Automation**: A prompt that runs `verify_system_health` and `read_log` to summarize the current system status and any active errors.
+- **[x] Site Package Explorer**: Resource to list available site packages in `docs/examples` or a dedicated repository. (Implemented as `cms://sites/packages`)
+- **[x] Health Check Automation**: A prompt that runs `verify_system_health` and `read_log` to summarize the current system status and any active errors. (Implemented as `summarize_health` prompt)
 
 ### Phase 3: Developer & Theme Experience
 Assist developers in building and customizing the platform.
@@ -43,4 +43,5 @@ Develop standardized prompts for specific roles.
 ## Technical Considerations
 - **Security**: As tools become more powerful (e.g., user management), strict RBAC (Role-Based Access Control) must be enforced within the `McpServer` class.
 - **SSE Transport**: Implementation of the SSE transport layer to support web-based AI agents (e.g., a custom admin dashboard tool).
-- **Tool Discovery**: Improving how tools are registered so plugins can dynamically add MCP capabilities to the core server.
+- **Tool Discovery**: Gaia Alpha uses convention-based dynamic class loading for tool discovery, allowing zero-build extension by AI agents.
+- **Documentation**: Use `docs/patterns/mcp_tool.md` for guidance on extending the server.

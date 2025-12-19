@@ -174,3 +174,21 @@ echo "Response: " . stream_get_contents($tmpOut) . "\n\n";
 
 // 15. Prompt Get
 testPrompt($server, 'summarize_page', ['slug' => 'mcp-test']);
+
+// 16. User Management
+testTool($server, 'list_users', ['site' => $testDomain]);
+testTool($server, 'create_user', [
+    'site' => $testDomain,
+    'username' => 'testuser',
+    'password' => 'testpass',
+    'level' => 10
+]);
+testTool($server, 'update_user_permissions', [
+    'site' => $testDomain,
+    'user_id' => 2, // Assuming first user is ID 1 (admin)
+    'level' => 50
+]);
+
+// 17. Resources
+testResource($server, "cms://system/logs");
+testResource($server, "cms://sites/packages");

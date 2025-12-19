@@ -65,6 +65,31 @@ Hook::add('auth_session_data', function ($data) {
     }
     return $data;
 });
+
+// 3. Expose MCP Tools (Optional)
+// Allows AI agents to interact with your plugin's features.
+Hook::add('mcp_tools', function ($result) {
+    $result['tools'][] = [
+        'name' => 'your_plugin_tool',
+        'description' => 'Perform a specific action from Your Plugin',
+        'inputSchema' => [
+            'type' => 'object',
+            'properties' => [
+                'id' => ['type' => 'integer']
+            ],
+            'required' => ['id']
+        ]
+    ];
+    return $result;
+});
+
+Hook::add('mcp_tool_call', function ($null, $name, $arguments) {
+    if ($name === 'your_plugin_tool') {
+        // ... logic (e.g., call a method in YourController) ...
+        return ['content' => [['type' => 'text', 'text' => 'Success!']]];
+    }
+    return $null;
+});
 ```
 
 ## Checklist

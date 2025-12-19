@@ -77,3 +77,4 @@ class YourController extends BaseController
     *   `$this->requireAdmin()`: returns 403 if not admin.
     *   `$this->jsonResponse($data, $status)`: Sends JSON headers and exits.
     *   `$this->getJsonInput()`: Decodes `php://input` JSON.
+4.  **MCP Integration**: Controller methods are often used as backends for MCP Tools. Ensure methods called by MCP are either public or can be easily invoked from `McpServer\Server`.

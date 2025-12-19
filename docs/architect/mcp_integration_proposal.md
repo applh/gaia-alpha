@@ -71,10 +71,14 @@ As a PHP application, Gaia Alpha can implement MCP via:
 ```
 plugins/McpServer/
 ├── plugin.json
-├── src/
-│   ├── Server.php          # Main MCP Server logic
-│   ├── Tools/              # Tool definitions (wrappers around Controllers)
-│   ├── Resources/          # Resource providers
+├── class/
+│   ├── Server.php          # Main MCP Server logic & tool dispatcher
+│   ├── Tool/               # Individual Tool classes (dynamic loading)
+│   │   ├── BaseTool.php    # Shared logic
+│   │   └── GetPage.php     # Example tool
 │   └── Transport/          # Stdio/SSE handling
-└── server.php              # Entry point for Stdio
+└── verify_mcp.php          # verification script
 ```
+
+### Dynamic Powers
+Gaia Alpha leverages PHP's dynamic nature to provide a "Zero-Build" extension model. New MCP tools are implemented as standalone classes and are automatically discovered and instantiated by the `Server` at runtime, ensuring strict isolation and rapid iteration.

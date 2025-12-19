@@ -39,3 +39,4 @@ We will break the reconstruction into 4 distinct phases for the AI.
 3. To understand how the AI perceives the complexity of this repo, see the [AI Capability Evaluation](file:///Users/lh/Downloads/antig/gaia-alpha/docs/prompts/05_ai_evaluation.md).
 4. For details on how the AI builds and manages portable site packages, see the [Site Packages Guide](file:///Users/lh/Downloads/antig/gaia-alpha/docs/prompts/06_site_packages_guide.md).
 5. For perspectives on working in mixed AI-Human development teams, see [AI & Human Teams](file:///Users/lh/Downloads/antig/gaia-alpha/docs/prompts/07_ai_human_collaboration.md).
+6. To see how companies should evolve their team structures and project timelines, see the [AI Organizational Strategy](file:///Users/lh/Downloads/antig/gaia-alpha/docs/prompts/08_ai_organizational_strategy.md).

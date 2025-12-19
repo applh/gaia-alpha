@@ -1,0 +1,9 @@
+CREATE TABLE IF NOT EXISTS cms_page_versions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    page_id INTEGER NOT NULL,
+    title TEXT NOT NULL,
+    content TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    user_id INTEGER,
+    FOREIGN KEY(page_id) REFERENCES cms_pages(id) ON DELETE CASCADE
+);

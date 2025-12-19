@@ -3,8 +3,8 @@
 This document outlines the planned expansion of the Model Context Protocol (MCP) integration for Gaia Alpha. The goal is to evolve the CMS from a simple content store into a fully tool-integrated platform for AI-assisted development and management.
 
 ## Current Capabilities (v1.1.0)
-- **Tools**: `system_info`, `list_sites`, `create_site`, `list_pages`, `get_page`, `upsert_page`, `db_query`, `list_media`, `read_log`, `verify_system_health`, `backup_site`, `install_plugin`.
-- **Resources**: `cms://sites/list`, `cms://system/logs`, `cms://sites/{site}/database/tables`.
+- **Tools**: `system_info`, `list_sites`, `create_site`, `list_pages`, `get_page`, `upsert_page`, `db_query`, `list_media`, `read_log`, `verify_system_health`, `backup_site`, `install_plugin`, `analyze_seo`, `bulk_import_pages`, `ai_generate_image`, `search_plugins`, `generate_template_schema`.
+- **Resources**: `cms://sites/list`, `cms://system/logs`, `cms://sites/{site}/database/tables`, `cms://sites/packages`, `cms://templates/list`, `cms://components/list`, `cms://sites/{site}/pages/{slug}/versions`.
 - **Prompts**: `summarize_page`.
 
 ---
@@ -14,21 +14,21 @@ This document outlines the planned expansion of the Model Context Protocol (MCP)
 ### Phase 1: Advanced Content Operations
 Focus on making the AI a more powerful content editor.
 - **[x] SEO Analysis Tool**: Automatically analyze a page's SEO score and suggest improvements based on a target keyword. (Implemented as `analyze_seo` tool)
-- **[ ] AI Image Generation Tool**: Integrated tool to generate assets via external APIs (DALL-E, Stable Diffusion) and save them directly to the site's assets.
-- **[ ] Bulk Content Importer**: Tool to import content from external formats (JSON, CSV, or another CMS) into Gaia Alpha pages.
-- **[ ] Content Versioning Resource**: Access historical versions of a page for comparison.
+- **[x] AI Image Generation Tool**: Integrated tool to generate assets via external APIs (DALL-E, Stable Diffusion) and save them directly to the site's assets. (Implemented as `ai_generate_image` tool)
+- **[x] Bulk Content Importer**: Tool to import content from external formats (JSON, CSV, or another CMS) into Gaia Alpha pages. (Implemented as `bulk_import_pages` tool)
+- **[x] Content Versioning Resource**: Access historical versions of a page for comparison. (Implemented as `cms://sites/{site}/pages/{slug}/versions` resource)
 
 ### Phase 2: Enhanced Administrative Control
 Empower AI agents to handle routine DevOps and management tasks.
 - **[x] User Management Tools**: `create_user`, `update_user_permissions`, `list_users`. (Implemented)
-- **[ ] Plugin marketplace/Search**: Tool to search for available (but not yet installed) plugins from a remote repository.
+- **[x] Plugin marketplace/Search**: Tool to search for available (but not yet installed) plugins from a remote repository. (Implemented as `search_plugins` tool)
 - **[x] Site Package Explorer**: Resource to list available site packages in `docs/examples` or a dedicated repository. (Implemented as `cms://sites/packages`)
 - **[x] Health Check Automation**: A prompt that runs `verify_system_health` and `read_log` to summarize the current system status and any active errors. (Implemented as `summarize_health` prompt)
 
 ### Phase 3: Developer & Theme Experience
 Assist developers in building and customizing the platform.
 - **[x] Theme/Component Introspection**: Resources to read the source code of active themes and components (`cms://templates/list`, `cms://components/list`). (Implemented)
-- **[ ] Template Schema Generator**: Tool to generate or suggest template metadata and configurations based on a natural language description.
+- **[x] Template Schema Generator**: Tool to generate or suggest template metadata and configurations based on a natural language description. (Implemented as `generate_template_schema` tool)
 - **[ ] Real-time Log Stream**: SSE-based resource for streaming logs to a developer assistant.
 - **[ ] DB Migration Assistant**: Tool to generate SQL migration scripts based on changes to a table's schema description.
 

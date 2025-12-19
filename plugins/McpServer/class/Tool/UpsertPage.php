@@ -32,11 +32,21 @@ class UpsertPage extends BaseTool
         }
 
         $existing = Page::findBySlug($slug);
-        // We use first user (admin) for MCP operations by default for now
-        $userId = 1;
+        $userId = 1; // MCP default user
+
         if ($existing) {
+            // Save current state as version before update
+            $pdo = \GaiaAlpha\Model\DB::getPdo();
+            $stmt = $pdo->prepare("INSERT INTO cms_page_versions (page_id, title, content, user_id) VALUES (?, ?, ?, ?)");
+            $stmt->execute([
+                $existing['id'],
+                $existing['title'],
+                $existing['content'],
+                $existing['user_id']
+            ]);
+
             Page::update($existing['id'], $userId, $arguments);
-            return $this->resultText("Page '$slug' updated.");
+            return $this->resultText("Page '$slug' updated and current version archived.");
         } else {
             Page::create($userId, $arguments);
             return $this->resultText("Page '$slug' created.");

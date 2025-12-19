@@ -77,11 +77,37 @@ For agents that connect via HTTP (SSE), you will need to expose the web server e
 
 ## Available Tools
 
-The server currently exposes the following tools:
+The server currently exposes the following tools for content and system management:
 
--   `system_info`: Returns the current CMS version and PHP version.
+- **System**:
+  - `system_info`: Returns the current CMS version and PHP version.
+  - `verify_system_health`: Checks directory permissions and database connectivity.
+- **Sites**:
+  - `list_sites`: Lists all managed sites (default and sub-sites).
+  - `create_site`: Creates a new site domain with a pre-configured admin user.
+  - `backup_site`: Generates a ZIP backup of a site's database and assets.
+- **Content**:
+  - `list_pages`: Lists pages for a specific site.
+  - `get_page`: Retrieves full content and metadata for a page by slug.
+  - `upsert_page`: Creates or updates a page.
+  - `list_media`: Lists files in a site's media directory.
+- **Data & Ops**:
+  - `db_query`: Executes read-only SQL queries on a site's database.
+  - `read_log`: Reads the latest system log entries.
+  - `install_plugin`: Installs a new plugin.
 
-*(More tools like `site_list`, `page_read`, and `db_query` will be added in upcoming releases.)*
+## Available Resources
+
+Agents can access real-time data through these resources:
+
+- `cms://sites/list`: JSON list of all available sites.
+- `cms://system/logs`: Full content of the system log.
+- `cms://sites/{site}/database/tables`: Complete table definitions and record counts for any site.
+
+## Prompts
+
+Reusable prompt templates are available via the `prompts/list` and `prompts/get` MCP endpoints. 
+- Example: `summarize_page(slug)` - Instructs the agent to provide a professional summary of a specific page.
 
 ## Troubleshooting
 

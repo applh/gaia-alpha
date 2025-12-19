@@ -95,4 +95,44 @@ class SiteManager
     {
         return self::$dbPath;
     }
+
+    /**
+     * Get a list of all managed sites.
+     * 
+     * @return array List of sites with keys: domain, size_bytes, db_path, is_default
+     */
+    public static function getAllSites(): array
+    {
+        $rootDir = Env::get('root_dir');
+        $sitesDir = $rootDir . '/my-data/sites';
+        $sites = [];
+
+        // 1. Add Default
+        $defaultDb = $rootDir . '/my-data/database.sqlite';
+        if (File::exists($defaultDb)) {
+            $sites[] = [
+                'domain' => 'default',
+                'size_bytes' => filesize($defaultDb),
+                'db_path' => './my-data/database.sqlite',
+                'is_default' => true
+            ];
+        }
+
+        // 2. Add sub-sites
+        if (File::isDirectory($sitesDir)) {
+            $dirs = File::glob($sitesDir . '/*', GLOB_ONLYDIR);
+            foreach ($dirs as $dir) {
+                // Check if database exists inside
+                if (File::exists($dir . '/database.sqlite')) {
+                    $sites[] = [
+                        'domain' => basename($dir),
+                        'size_bytes' => filesize($dir . '/database.sqlite'),
+                        'db_path' => str_replace($rootDir . '/', '', $dir . '/database.sqlite'),
+                        'is_default' => false
+                    ];
+                }
+            }
+        }
+        return $sites;
+    }
 }

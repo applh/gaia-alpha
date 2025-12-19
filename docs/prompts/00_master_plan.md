@@ -38,3 +38,4 @@ We will break the reconstruction into 4 distinct phases for the AI.
 2. For even better results using Archives (ZIP) or Database files as context, see [Advanced Prompting Tips](file:///Users/lh/Downloads/antig/gaia-alpha/docs/prompts/04_advanced_prompting.md).
 3. To understand how the AI perceives the complexity of this repo, see the [AI Capability Evaluation](file:///Users/lh/Downloads/antig/gaia-alpha/docs/prompts/05_ai_evaluation.md).
 4. For details on how the AI builds and manages portable site packages, see the [Site Packages Guide](file:///Users/lh/Downloads/antig/gaia-alpha/docs/prompts/06_site_packages_guide.md).
+5. For perspectives on working in mixed AI-Human development teams, see [AI & Human Teams](file:///Users/lh/Downloads/antig/gaia-alpha/docs/prompts/07_ai_human_collaboration.md).

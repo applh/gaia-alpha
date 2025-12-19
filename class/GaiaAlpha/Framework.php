@@ -31,18 +31,23 @@ class Framework
                 $pluginDir = dirname($plugin);
                 $pluginDirName = basename($pluginDir);
 
-                // If active_plugins.json exists, only load if in list
-                if ($activePlugins !== null && !in_array($pluginDirName, $activePlugins)) {
+                // Read config to check for type="core"
+                $configFile = $pluginDir . '/plugin.json';
+                $config = [];
+                if (file_exists($configFile)) {
+                    $config = json_decode(file_get_contents($configFile), true);
+                }
+
+                // If active_plugins.json exists, ONLY whitelist if NOT core
+                $isCore = isset($config['type']) && $config['type'] === 'core';
+
+                if ($activePlugins !== null && !$isCore && !in_array($pluginDirName, $activePlugins)) {
                     continue;
                 }
 
                 // Check for declarative menu config
-                $configFile = $pluginDir . '/plugin.json';
-                if (file_exists($configFile)) {
-                    $config = json_decode(file_get_contents($configFile), true);
-                    if (is_array($config) && isset($config['menu'])) {
-                        self::registerPluginMenuItems($config['menu'], $pluginDirName);
-                    }
+                if (is_array($config) && isset($config['menu'])) {
+                    self::registerPluginMenuItems($config['menu'], $pluginDirName);
                 }
 
                 include_once $plugin;

@@ -64,6 +64,14 @@ class Cli
                 $className = "GaiaAlpha\\Cli\\{$group}Commands";
             }
 
+            // Hook for plugins to resolve commands
+            if (!class_exists($className)) {
+                $resolved = \GaiaAlpha\Hook::filter('cli_resolve_command', null, $parts[0], $parts);
+                if ($resolved && class_exists($resolved)) {
+                    $className = $resolved;
+                }
+            }
+
             if (!class_exists($className)) {
                 \GaiaAlpha\Cli\Output::error("Unknown command group: {$parts[0]}");
                 self::showHelp();

@@ -1,0 +1,8 @@
+{
+    "name": "McpServer",
+    "version": "1.0.0",
+    "description": "Model Context Protocol Server for external AI agents.",
+    "type": "core",
+    "author": "Gaia Alpha",
+    "menu": {}
+}

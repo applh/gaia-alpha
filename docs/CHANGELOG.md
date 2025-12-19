@@ -1,5 +1,16 @@
 # Changelog
 
+## [v0.55.0] - 2025-12-19
+### Added
+- **Plugin**: MCP Server. New Core Plugin implementing the **Model Context Protocol** (MCP).
+  - Enables external AI agents (Claude Desktop, Cursor, Antigravity) to control the CMS.
+  - Adds `mcp:server` CLI command via `plugins/McpServer`.
+  - Exposes `system_info` tool (with more to come).
+- **Core**: Added `cli_resolve_command` hook to `GaiaAlpha\Cli` to allow plugins to register custom CLI commands.
+- **Core**: Updated `GaiaAlpha\Framework` to always load plugins marked as `"type": "core"`, ensuring system plugins are always available.
+- **Docs**: Added `docs/user/mcp_server.md` guide and tutorials.
+- **Docs**: Added `docs/architect/mcp_integration_proposal.md` and `docs/implementation_plan.md` (Implementation Artifacts).
+
 ## [v0.54.0] - 2025-12-19
 ### Added
 - **Import/Export**: Added `site:verify-export` CLI command for verification.

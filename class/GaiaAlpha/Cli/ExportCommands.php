@@ -45,7 +45,13 @@ class ExportCommands
 
             Output::writeln("Exporting site to: $outDir");
 
-            $exporter = new WebsiteExporter($outDir, $userId);
+            $assetsDir = null;
+            if ($currentSite) {
+                $rootDir = Env::get('root_dir');
+                $assetsDir = $rootDir . '/my-data/sites/' . $currentSite . '/assets';
+            }
+
+            $exporter = new WebsiteExporter($outDir, $userId, $assetsDir);
             $exporter->export();
 
             Output::success("Site exported successfully.");

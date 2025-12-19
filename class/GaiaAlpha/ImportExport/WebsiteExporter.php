@@ -11,11 +11,13 @@ class WebsiteExporter
 {
     private string $outDir;
     private int $userId;
+    private ?string $assetsDir;
 
-    public function __construct(string $outDir, int $userId)
+    public function __construct(string $outDir, int $userId, ?string $assetsDir = null)
     {
         $this->outDir = rtrim($outDir, '/');
         $this->userId = $userId;
+        $this->assetsDir = $assetsDir;
     }
 
     public function export()
@@ -106,7 +108,7 @@ class WebsiteExporter
                 'cat' => $page['cat'],
                 'meta_description' => $page['meta_description'],
                 'meta_keywords' => $page['meta_keywords'],
-                'image' => $page['image'] // This might need processing if it's a local path
+                'image' => $this->exportMediaItem($page['image'])
             ];
 
             // Build File Content
@@ -198,12 +200,16 @@ class WebsiteExporter
 
     private function exportAssets()
     {
-        $rootDir = dirname(__DIR__, 3);
-        $assetsDir = $rootDir . '/www/assets';
+        if ($this->assetsDir && File::isDirectory($this->assetsDir)) {
+            $srcDir = $this->assetsDir;
+        } else {
+            $rootDir = dirname(__DIR__, 3);
+            $srcDir = $rootDir . '/www/assets';
+        }
 
-        if (File::isDirectory($assetsDir)) {
+        if (File::isDirectory($srcDir)) {
             // Recursive copy
-            $this->copyDirectory($assetsDir, $this->outDir . '/assets');
+            $this->copyDirectory($srcDir, $this->outDir . '/assets');
         }
     }
 
@@ -248,5 +254,35 @@ class WebsiteExporter
             }
         }
         closedir($dir);
+    }
+
+    private function exportMediaItem(?string $path): ?string
+    {
+        if (empty($path)) {
+            return null;
+        }
+
+        // Match local media path: /media/USER_ID/FILENAME
+        if (preg_match('#^/media/(\d+)/([\w\-\.]+)$#', $path, $matches)) {
+            $userId = $matches[1];
+            $filename = $matches[2];
+
+            // Only export if file exists in our uploads
+            $sourcePath = $_SERVER['DOCUMENT_ROOT'] . '/../my-data/uploads/' . $userId . '/' . $filename;
+
+            if (!file_exists($sourcePath)) {
+                $rootDir = dirname(__DIR__, 3);
+                $sourcePath = $rootDir . '/my-data/uploads/' . $userId . '/' . $filename;
+            }
+
+            if (file_exists($sourcePath)) {
+                // Copy to export media folder
+                copy($sourcePath, $this->outDir . '/media/' . $filename);
+                // Return relative link
+                return './media/' . $filename;
+            }
+        }
+
+        return $path;
     }
 }

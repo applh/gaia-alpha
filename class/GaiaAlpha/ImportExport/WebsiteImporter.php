@@ -6,16 +6,19 @@ use GaiaAlpha\File;
 use GaiaAlpha\Model\Page;
 use GaiaAlpha\Model\Template;
 use GaiaAlpha\Model\DB;
+use GaiaAlpha\Model\DataStore;
 
 class WebsiteImporter
 {
     private string $inDir;
     private int $userId;
+    private ?string $targetAssetsDir;
 
-    public function __construct(string $inDir, int $userId)
+    public function __construct(string $inDir, int $userId, ?string $targetAssetsDir = null)
     {
         $this->inDir = rtrim($inDir, '/');
         $this->userId = $userId;
+        $this->targetAssetsDir = $targetAssetsDir;
     }
 
     public function import()
@@ -24,8 +27,9 @@ class WebsiteImporter
             throw new \Exception("Import directory not found: " . $this->inDir);
         }
 
-        // 1. Check Manifest
+        // 1. Check Manifest & Config
         $this->checkManifest();
+        $this->processConfig();
 
         // 2. Import Assets (First to ensure available)
         $this->importAssets();
@@ -117,8 +121,24 @@ class WebsiteImporter
             return;
         }
 
-        $rootDir = dirname(__DIR__, 3);
-        $dstDir = $rootDir . '/www/assets';
+        if ($this->targetAssetsDir) {
+            $dstDir = $this->targetAssetsDir;
+        } else {
+            // Fallback for default site or legacy
+            $rootDir = dirname(__DIR__, 3);
+            $dstDir = $rootDir . '/www/assets';
+
+            // However, we deprecated using www/assets for sites.
+            // But if no targetAssetsDir is passed (e.g. importing into default site),
+            // maybe we should infer from userId? 
+            // Currently SiteCommands passed it explicitly.
+            // If strictly following new plan, we should always try my-data/assets for default site?
+            // Let's keep www/assets as fallback for now to avoid breaking default if not migrated.
+        }
+
+        if (!File::isDirectory($dstDir)) {
+            File::makeDirectory($dstDir); // Ensure it exists
+        }
 
         $this->copyDirectory($srcDir, $dstDir);
     }
@@ -255,7 +275,8 @@ class WebsiteImporter
                 'cat' => $meta['cat'] ?? 'page',
                 'template_slug' => $meta['template_slug'] ?? null,
                 'meta_description' => $meta['meta_description'] ?? null,
-                'meta_keywords' => $meta['meta_keywords'] ?? null
+                'meta_keywords' => $meta['meta_keywords'] ?? null,
+                'image' => isset($meta['image']) ? $this->importMediaItem($meta['image']) : null
             ];
 
             $existing = Page::findBySlug($slug);
@@ -313,5 +334,38 @@ class WebsiteImporter
             }
         }
         closedir($dir);
+    }
+
+    private function processConfig()
+    {
+        $path = $this->inDir . '/site.json';
+        if (File::exists($path)) {
+            $manifest = json_decode(File::read($path), true);
+            $config = $manifest['config'] ?? [];
+            foreach ($config as $key => $val) {
+                // Store in user_pref for now
+                if ($key === 'theme' || $key === 'homepage') {
+                    DataStore::set($this->userId, 'user_pref', $key, $val);
+                }
+            }
+        }
+    }
+
+    private function importMediaItem($path)
+    {
+        if (strpos($path, './media/') === 0) {
+            $filename = substr($path, 8); // remove ./media/
+            $srcPath = $this->inDir . '/media/' . $filename;
+            if (File::exists($srcPath)) {
+                // Copy to uploads
+                $rootDir = dirname(__DIR__, 3);
+                $uploadDir = $rootDir . '/my-data/uploads/' . $this->userId;
+                if (!File::isDirectory($uploadDir))
+                    File::makeDirectory($uploadDir);
+                copy($srcPath, $uploadDir . '/' . $filename);
+                return '/media/' . $this->userId . '/' . $filename;
+            }
+        }
+        return $path;
     }
 }

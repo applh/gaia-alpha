@@ -40,7 +40,7 @@ class DB
         return $db;
     }
 
-    public static function setConnection(Database $db)
+    public static function setConnection(?Database $db)
     {
         self::$instance = $db;
     }

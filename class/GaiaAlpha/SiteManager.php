@@ -64,7 +64,7 @@ class SiteManager
         // Sanitize
         $domain = preg_replace('/[^a-zA-Z0-9.-]/', '', $domain);
 
-        $siteDb = $sitesDir . '/' . $domain . '.sqlite';
+        $siteDb = $sitesDir . '/' . $domain . '/database.sqlite';
 
         // Check if specific site DB exists
         if (File::exists($siteDb)) {

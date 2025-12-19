@@ -150,7 +150,27 @@ class AssetController extends BaseController
         }
 
         $rootDir = Env::get('root_dir');
-        $sourceFile = $rootDir . '/resources/assets/' . $path;
+
+        // 1. Try Site-Specific Assets
+        $site = \GaiaAlpha\SiteManager::getCurrentSite();
+        if ($site) {
+            $siteAssets = $rootDir . '/my-data/sites/' . $site . '/assets/' . $path;
+            if (File::exists($siteAssets)) {
+                $sourceFile = $siteAssets;
+            }
+        }
+
+        // 2. Fallback to Global
+        if (!isset($sourceFile)) {
+            // Check www/assets (legacy/shared)
+            $wwwAssets = $rootDir . '/www/assets/' . $path;
+            if (File::exists($wwwAssets)) {
+                $sourceFile = $wwwAssets;
+            } else {
+                // Check resources/assets (framework default)
+                $sourceFile = $rootDir . '/resources/assets/' . $path;
+            }
+        }
 
         if (!File::exists($sourceFile)) {
             Response::send("File not found", 404);

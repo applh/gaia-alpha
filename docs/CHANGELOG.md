@@ -1,5 +1,15 @@
 # Changelog
 
+## [v0.54.0] - 2025-12-19
+### Added
+- **Import/Export**: Added `site:verify-export` CLI command for verification.
+- **Import/Export**: Media Handling. Cover images and other media in Frontmatter are now correctly imported/exported and paths rewritten.
+- **Import/Export**: Config Support. Site configuration (theme, homepage) from `site.json` is now applied on import.
+
+### Refactored
+- **Asset Storage**: Moved asset storage from `www/assets` to `my-data/sites/<domain>/assets`.
+- **Architecture**: Sites are now fully isolated directories in `my-data/sites/` containing both database and assets.
+
 ## [v0.53.0] - 2025-12-19
 ### Added
 - **Import/Export**: Added Menu support. `export:site` and `site:create --import` now include navigation menus (`menus.json`).

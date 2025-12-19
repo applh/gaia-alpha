@@ -46,7 +46,19 @@ With Gaia Alpha, you don't just write code; you orchestrate it. Our structured *
 
 ---
 
-## 📖 Documentation
+## � The AI Handbook
+
+The **[AI Handbook](docs/ai-handbook/00_master_plan.md)** is your essential guide to building, managing, and evolving Gaia Alpha with AI collaboration.
+
+- **[Master Plan](docs/ai-handbook/00_master_plan.md)**: The roadmap for re-creating current CMS features.
+- **[Advanced Prompting](docs/ai-handbook/04_advanced_prompting.md)**: Using ZIPs and Databases for hyper-accurate AI context.
+- **[Site Packages Guide](docs/ai-handbook/06_site_packages_guide.md)**: How the AI builds and manages portable site bundles.
+- **[Human-AI Synergy](docs/ai-handbook/07_ai_human_collaboration.md)**: New team dynamics for Junior and Senior engineers.
+- **[The AI Triad](docs/ai-handbook/10_the_ai_triad_synergy.md)**: How AI, Open Source, and Companies work together.
+
+---
+
+## �📖 Documentation
 
 Everything you need to know about using and extending Gaia Alpha.
 

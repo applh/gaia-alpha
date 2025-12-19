@@ -7,6 +7,20 @@ use GaiaAlpha\File;
 
 class ReadLog extends BaseTool
 {
+    public function getDefinition(): array
+    {
+        return [
+            'name' => 'read_log',
+            'description' => 'Read system logs',
+            'inputSchema' => [
+                'type' => 'object',
+                'properties' => [
+                    'lines' => ['type' => 'integer', 'description' => 'Number of last lines to read', 'default' => 50]
+                ]
+            ]
+        ];
+    }
+
     public function execute(array $arguments): array
     {
         $lines = $arguments['lines'] ?? 50;

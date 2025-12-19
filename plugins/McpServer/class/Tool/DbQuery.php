@@ -6,6 +6,22 @@ use GaiaAlpha\Model\DB;
 
 class DbQuery extends BaseTool
 {
+    public function getDefinition(): array
+    {
+        return [
+            'name' => 'db_query',
+            'description' => 'Execute a read-only SQL query on the selected site database',
+            'inputSchema' => [
+                'type' => 'object',
+                'properties' => [
+                    'sql' => ['type' => 'string', 'description' => 'SQL query (must be a SELECT statement)'],
+                    'site' => ['type' => 'string', 'description' => 'Site domain (default: default)']
+                ],
+                'required' => ['sql']
+            ]
+        ];
+    }
+
     public function execute(array $arguments): array
     {
         $sql = $arguments['sql'] ?? null;

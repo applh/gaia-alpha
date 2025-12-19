@@ -13,6 +13,33 @@ Env::set('root_dir', realpath(__DIR__ . '/../../'));
 Env::set('path_data', Env::get('root_dir') . '/my-data');
 Env::set('version', '1.0.0-test');
 
+function testToolsList($server)
+{
+    echo "Testing tools/list\n";
+    $request = [
+        'jsonrpc' => '2.0',
+        'id' => uniqid(),
+        'method' => 'tools/list'
+    ];
+
+    $tmpIn = fopen('php://memory', 'r+');
+    fwrite($tmpIn, json_encode($request) . "\n");
+    rewind($tmpIn);
+
+    $tmpOut = fopen('php://memory', 'r+');
+
+    $s = new Server($tmpIn, $tmpOut);
+    $s->runStdio();
+
+    rewind($tmpOut);
+    $response = stream_get_contents($tmpOut);
+    echo "Response: " . $response . "\n\n";
+    $data = json_decode($response, true);
+    $toolsCount = count($data['result']['tools'] ?? []);
+    echo "Total tools registered: $toolsCount\n";
+    return $data;
+}
+
 function testTool($server, $name, $args = [])
 {
     echo "Testing tool: $name\n";
@@ -101,6 +128,9 @@ function testPrompt($server, $name, $args = [])
 }
 
 $server = new Server();
+
+// 0. Test dynamic tool discovery
+testToolsList($server);
 
 // 1. List Sites
 testTool($server, 'list_sites');

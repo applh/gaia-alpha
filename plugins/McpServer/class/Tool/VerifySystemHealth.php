@@ -6,6 +6,15 @@ use GaiaAlpha\Env;
 
 class VerifySystemHealth extends BaseTool
 {
+    public function getDefinition(): array
+    {
+        return [
+            'name' => 'verify_system_health',
+            'description' => 'Check system health and directory permissions',
+            'inputSchema' => ['type' => 'object', 'properties' => (object) []]
+        ];
+    }
+
     public function execute(array $arguments): array
     {
         $rootDir = Env::get('root_dir');

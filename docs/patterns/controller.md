@@ -1,7 +1,12 @@
-
 # Controller Pattern
 
-This pattern is based on `GaiaAlpha\Controller\BaseController`.
+Controllers are the core of the framework's logic. They reside in `YourPlugin/class/Controller/` and are automatically loaded via **PSR-4 Autoloading**.
+
+## Architectural Role
+
+1.  **Request Handling**: Controllers bridge HTTP requests to Model/Service logic.
+2.  **Modular Logic**: To keep controllers clean, offload complex logic to specialized Service or Model classes within the same PSR-4 namespace.
+3.  **Dynamic Integration**: Controllers can be discovered by the framework or other plugins (like `McpServer`) to expose features dynamically.
 
 ## Golden Sample
 
@@ -16,53 +21,25 @@ use GaiaAlpha\Router;
 class YourController extends BaseController
 {
     /**
-     * Optional: Hook for initialization logic.
-     * Called by index.php immediately after instantiation.
-     */
-    public function init()
-    {
-        // ...
-    }
-
-    /**
      * Required: Register your routes here.
-     * This method is called by the framework during the controller loading phase (if manually invoked in index.php).
      */
     public function registerRoutes()
     {
-        // Public Route
         Router::add('GET', '/@/your-plugin/items', [$this, 'index']);
-        
-        // Secured Route (POST)
         Router::add('POST', '/@/your-plugin/items', [$this, 'create']);
-        
-        // Dynamic Route
-        Router::add('POST', '/@/your-plugin/items/(\d+)', [$this, 'update']);
     }
 
     public function index()
     {
-        $this->requireAuth(); // Enforce authentication
-        
-        // ... Logic using Models ...
-        $data = ['items' => []];
-
-        $this->jsonResponse($data);
+        $this->requireAuth();
+        $this->jsonResponse(['items' => []]);
     }
     
     public function create()
     {
         $this->requireAuth();
-        
-        // Get JSON body automatically
         $input = $this->getJsonInput();
-        
-        if (empty($input['name'])) {
-            $this->jsonResponse(['error' => 'Name required'], 400);
-        }
-
         // ... Logic ...
-
         $this->jsonResponse(['success' => true]);
     }
 }
@@ -70,11 +47,17 @@ class YourController extends BaseController
 
 ## Key Features
 
-1.  **Inheritance**: Must extend `GaiaAlpha\Controller\BaseController`.
-2.  **Routing**: Routes are defined in `registerRoutes()`. Note that in `index.php`, you usually have to manually instantiate the controller and call `registerRoutes()` or let the framework do it if it detects the method.
+1.  **Autoloading**: No need to manually `include` or `require` controller files. The framework uses the namespace to find the file in `class/Controller/`.
+2.  **Inheritance**: Must extend `GaiaAlpha\Controller\BaseController`.
 3.  **Helpers**:
-    *   `$this->requireAuth()`: returns 401 if not logged in.
-    *   `$this->requireAdmin()`: returns 403 if not admin.
-    *   `$this->jsonResponse($data, $status)`: Sends JSON headers and exits.
-    *   `$this->getJsonInput()`: Decodes `php://input` JSON.
-4.  **MCP Integration**: Controller methods are often used as backends for MCP Tools. Ensure methods called by MCP are either public or can be easily invoked from `McpServer\Server`.
+    *   `$this->requireAuth()`: Enforces a logged-in session.
+    *   `$this->jsonResponse($data, $status)`: Sends a JSON response and terminates execution.
+    *   `$this->getJsonInput()`: Safely retrieves and decodes JSON request bodies.
+4.  **MCP Integration**: Controller methods are the ideal backend for MCP Tools. By keeping your controller logic modular, you can easily expose it to AI agents via the MCP server.
+
+## Checklist
+
+- [x] Resides in `YourPlugin/class/Controller/`.
+- [x] Uses the correct PSR-4 namespace.
+- [x] Extends `BaseController`.
+- [x] Routes are registered and follow the `/@/` prefix convention for API calls.

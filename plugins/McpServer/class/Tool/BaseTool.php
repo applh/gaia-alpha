@@ -5,6 +5,13 @@ namespace McpServer\Tool;
 abstract class BaseTool
 {
     /**
+     * Get the tool definition for tools/list
+     * 
+     * @return array
+     */
+    abstract public function getDefinition(): array;
+
+    /**
      * Execute the tool logic
      * 
      * @param array $arguments

@@ -6,6 +6,23 @@ use GaiaAlpha\Model\Page;
 
 class AnalyzeSeo extends BaseTool
 {
+    public function getDefinition(): array
+    {
+        return [
+            'name' => 'analyze_seo',
+            'description' => 'Analyze SEO for a specific page',
+            'inputSchema' => [
+                'type' => 'object',
+                'properties' => [
+                    'slug' => ['type' => 'string', 'description' => 'Page slug'],
+                    'site' => ['type' => 'string', 'description' => 'Site domain (default: default)'],
+                    'keyword' => ['type' => 'string', 'description' => 'Target keyword (optional)']
+                ],
+                'required' => ['slug']
+            ]
+        ];
+    }
+
     public function execute(array $arguments): array
     {
         $slug = $arguments['slug'] ?? null;

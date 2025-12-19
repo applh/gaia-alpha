@@ -6,6 +6,24 @@ use GaiaAlpha\Model\User;
 
 class CreateUser extends BaseTool
 {
+    public function getDefinition(): array
+    {
+        return [
+            'name' => 'create_user',
+            'description' => 'Create a new user',
+            'inputSchema' => [
+                'type' => 'object',
+                'properties' => [
+                    'username' => ['type' => 'string'],
+                    'password' => ['type' => 'string'],
+                    'level' => ['type' => 'integer', 'description' => 'Access level (10=member, 100=admin)'],
+                    'site' => ['type' => 'string', 'description' => 'Site domain (default: default)']
+                ],
+                'required' => ['username', 'password']
+            ]
+        ];
+    }
+
     public function execute(array $arguments): array
     {
         $username = $arguments['username'] ?? null;

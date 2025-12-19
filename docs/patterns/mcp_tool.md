@@ -1,61 +1,36 @@
 # MCP Tool Pattern
 
-This document outlines how to standardly add tools to the Model Context Protocol (MCP) server. Tools allow AI agents to interact with the CMS by executing functions.
+This document outlines how to standardly add tools to the Model Context Protocol (MCP) server. Gaia Alpha uses a fully dynamic discovery mechanism that allows the system to be extended without modifying core files.
 
 ## Architectural Overview
 
-MCP tools are registered in the `McpServer\Server` class. They typically wrap existing Controller or Model logic to provide a clean interface for AI.
+MCP tools are individual classes residing in the `McpServer\Tool` namespace. The `McpServer\Server` class dynamically discovers these tools and provides them to the AI agent.
 
-- **Tools**: Defined in `tools/list`. Each tool has a name, description, and an `inputSchema` (JSON Schema).
-- **Tool Handling**: Implemented in `handleToolCall`. This matches the tool name and executes the corresponding logic.
-- **Site Isolation**: Always use `$this->switchSite($site)` if the tool interacts with site-specific data (pages, database, assets).
+- **Dynamic Discovery**: The `tools/list` response is built by scanning the `plugins/McpServer/class/Tool/` directory.
+- **Self-Documenting**: Each tool class provides its own metadata (name, description, schema) via the `getDefinition()` method.
+- **Dynamic Resolution**: Tool calls are automatically routed to the corresponding class based on the tool name.
 
 ## AI-Assisted Development & Dynamic Powers
 
-PHP is an exceptionally dynamic language, and Gaia Alpha leverages this to enable "Zero-Build" AI-assisted development. By using **PSR-4 Autoloading** and **Dynamic Class Instantiation**, AI agents can extend the system without touching core files.
+PHP is an exceptionally dynamic language, and Gaia Alpha leverages this to enable "Zero-Build" AI-assisted development. By using **PSR-4 Autoloading** and **Dynamic Class Instantiation**, AI agents can extend the system by simply creating a new file.
 
-### 1. Dynamic Tool Resolution
-The MCP server uses a convention-based approach to resolve tools. A tool named `create_site` is automatically mapped to the class `McpServer\Tool\CreateSite`.
+### 1. Dynamic Tool Discovery & Resolution
+The MCP server uses a convention-based approach. A tool named `create_site` is automatically mapped to the class `McpServer\Tool\CreateSite`.
 
-```php
-// In Server.php: handleToolCall
-$className = 'McpServer\\Tool\\' . str_replace(' ', '', ucwords(str_replace('_', ' ', $name)));
-if (class_exists($className)) {
-    $tool = new $className();
-    return $tool->execute($arguments);
-}
-```
+- **Listing**: The server instantiates each class in `Tool/` and calls `getDefinition()` to build the tool registry.
+- **Execution**: When a tool is called, the server dynamically instantiates the class and calls `execute()`.
 
 ### 2. Zero-Build Extensibility
 Because PHP loads files at runtime, an AI agent can:
 - **Create a new file**: `plugins/McpServer/class/Tool/NewFeature.php`
-- **Immediate Availability**: The tool is instantly ready to be called by the MCP server.
+- **Immediate Availability**: The tool is instantly ready to be listed and called.
 - **Isolation**: New code resides in its own class, avoiding side effects on the `Server` class or other tools.
-- **Safety**: Errors are localized. A syntax error in a new tool won't crash the entire MCP server unless that specific tool is invoked.
 
-New tools can be added directly to `Server.php` or via the `mcp_tools` filter hook for plugins.
+## Implementing a Tool Class
 
-### In Server.php (`tools/list` case)
+All tools should extend `McpServer\Tool\BaseTool` and implement two required methods: `getDefinition()` and `execute()`.
 
-```php
-[
-    'name' => 'analyze_seo',
-    'description' => 'Analyze SEO for a specific page',
-    'inputSchema' => [
-        'type' => 'object',
-        'properties' => [
-            'slug' => ['type' => 'string', 'description' => 'Page slug'],
-            'site' => ['type' => 'string', 'description' => 'Site domain (default: default)'],
-            'keyword' => ['type' => 'string', 'description' => 'Target keyword (optional)']
-        ],
-        'required' => ['slug']
-    ]
-]
-```
-
-### Implementing a Tool Class
-
-All tools should extend `McpServer\Tool\BaseTool`.
+### Example: AnalyzeSeo.php
 
 ```php
 <?php
@@ -66,12 +41,35 @@ use GaiaAlpha\Model\Page;
 
 class AnalyzeSeo extends BaseTool
 {
+    /**
+     * Define the tool's metadata for tools/list
+     */
+    public function getDefinition(): array
+    {
+        return [
+            'name' => 'analyze_seo',
+            'description' => 'Analyze SEO for a specific page',
+            'inputSchema' => [
+                'type' => 'object',
+                'properties' => [
+                    'slug' => ['type' => 'string', 'description' => 'Page slug'],
+                    'site' => ['type' => 'string', 'description' => 'Site domain (default: default)'],
+                    'keyword' => ['type' => 'string', 'description' => 'Target keyword (optional)']
+                ],
+                'required' => ['slug']
+            ]
+        ];
+    }
+
+    /**
+     * Handle the tool execution
+     */
     public function execute(array $arguments): array
     {
         $slug = $arguments['slug'] ?? null;
         
-        // Ensure site context if necessary
-        // $this->switchSite($arguments['site'] ?? 'default'); // Handled by Server.php
+        // Site context corresponds to the 'site' argument and is switched by Server.php
+        // before calling execute(), making Page::findBySlug($slug) multi-site aware.
 
         $page = Page::findBySlug($slug);
         if (!$page) {
@@ -85,35 +83,25 @@ class AnalyzeSeo extends BaseTool
 }
 ```
 
-## Plugin-defined Tools
+## Plugin-defined Tools (Legacy/External)
 
-Plugins should use hooks to avoid modifying core code.
+While the default pattern is to add classes to `Tool/`, plugins can still contribute tools via hooks.
 
 ```php
-// In your plugin's index.php
+// In your external plugin's index.php
 
 Hook::add('mcp_tools', function ($result) {
     $result['tools'][] = [
         'name' => 'your_plugin_tool',
-        'description' => 'Description of your tool',
-        'inputSchema' => [
-            'type' => 'object',
-            'properties' => [
-                'param' => ['type' => 'string']
-            ]
-        ]
+        // ... metadata ...
     ];
     return $result;
 });
 
 Hook::add('mcp_tool_call', function ($null, $name, $arguments) {
     if ($name === 'your_plugin_tool') {
-        // ... logic ...
-        return [
-            'content' => [
-                ['type' => 'text', 'text' => 'Tool executed successfully.']
-            ]
-        ];
+        // ... execution ...
+        return $this->resultText("Done.");
     }
     return $null;
 });
@@ -121,17 +109,129 @@ Hook::add('mcp_tool_call', function ($null, $name, $arguments) {
 
 ## Key Guidelines
 
-1.  **JSON Schema**: Always provide a clear `inputSchema`. It is the only way the AI knows how to call your tool.
-2.  **Explicit Errors**: Throw `\Exception` with clear messages. These are passed back to the AI.
-3.  **Standard Responses**: Use `$this->resultText($text)` or `$this->resultJson($data)` for consistency.
-4.  **Read-Only Safety**: For `db_query` style tools, strictly enforce `SELECT` queries to prevent accidental data corruption.
-5.  **Site Context**: Always consider `site` as an optional argument so the AI can operate across different managed sites.
+1.  **Unique Class Names**: Class names must correspond to the tool name (CamelCase of snake_case).
+2.  **JSON Schema**: Always provide a clear `inputSchema` in `getDefinition()`. It is how the AI knows how to call your tool.
+3.  **Explicit Errors**: Throw `\Exception` with clear messages. These are passed back to the AI.
+4.  **Standard Responses**: Use `$this->resultText($text)` or `$this->resultJson($data)` for consistency.
+5.  **Site Isolation**: Always consider `site` as an optional argument. The `Server` class handles the context switch automatically.
 
 ## Checklist
 
-- [ ] Tool is registered in `tools/list` or via `mcp_tools` hook.
-- [ ] `inputSchema` accurately describes all parameters.
-- [ ] Tool logic is handled in `handleToolCall` or via `mcp_tool_call` hook.
-- [ ] `switchSite()` is called if site-specific data is accessed.
-- [ ] Errors are thrown with descriptive messages.
-- [ ] Returns structured content using standard helpers.
+- [x] Class extends `BaseTool`.
+- [x] `getDefinition()` returns valid JSON Schema.
+- [x] `execute()` handles arguments and performs the action.
+- [x] Errors are thrown with descriptive messages.
+- [x] Returns structured content using standard helpers.
+
+## MCP Prompt Pattern
+
+MCP prompts follow the same dynamic discovery pattern as tools but reside in the `McpServer\Prompt` namespace.
+
+### Architectural Overview
+
+- **Dynamic Discovery**: The `prompts/list` response is built by scanning the `plugins/McpServer/class/Prompt/` directory.
+- **Self-Documenting**: Each prompt class provides its own metadata via `getDefinition()`.
+- **Dynamic Resolution**: Prompt retrieval (`prompts/get`) is automatically routed to the corresponding class.
+
+### Implementing a Prompt Class
+
+All prompts should extend `McpServer\Prompt\BasePrompt`.
+
+```php
+<?php
+
+namespace McpServer\Prompt;
+
+class SummarizePage extends BasePrompt
+{
+    public function getDefinition(): array
+    {
+        return [
+            'name' => 'summarize_page',
+            'description' => 'Summarize the content of a page',
+            'arguments' => [
+                [
+                    'name' => 'slug',
+                    'description' => 'Slug of the page to summarize',
+                    'required' => true
+                ]
+            ]
+        ];
+    }
+
+    public function getPrompt(array $arguments): array
+    {
+        $slug = $arguments['slug'] ?? 'home';
+        return [
+            'description' => 'Summarize the content of a page',
+            'messages' => [
+                [
+                    'role' => 'user',
+                    'content' => [
+                        'type' => 'text',
+                        'text' => "Please summarize the content of the page with slug '$slug'."
+                    ]
+                ]
+            ]
+        ];
+    }
+}
+```
+
+## Checklist (Prompts)
+
+- [x] Class extends `BasePrompt`.
+- [x] `getDefinition()` returns valid prompt metadata.
+- [x] `getPrompt()` returns the required messages and description.
+
+## MCP Resource Pattern
+
+MCP resources also follow the dynamic discovery pattern and reside in the `McpServer\Resource` namespace.
+
+### Architectural Overview
+
+- **Dynamic Discovery**: The `resources/list` response is built by scanning the `plugins/McpServer/class/Resource/` directory.
+- **URI Matching**: Each resource class determines if it handles a specific URI via the `matches(string $uri)` method, which can return regex matches for parameterized URIs like `cms://sites/{site}/database/tables`.
+- **Dynamic Reading**: `resources/read` calls are routed to the matching resource class.
+
+### Implementing a Resource Class
+
+All resources should extend `McpServer\Resource\BaseResource`.
+
+```php
+<?php
+
+namespace McpServer\Resource;
+
+use GaiaAlpha\SiteManager;
+
+class SitesList extends BaseResource
+{
+    public function getDefinition(): array
+    {
+        return [
+            'uri' => 'cms://sites/list',
+            'name' => 'All Sites',
+            'mimeType' => 'application/json'
+        ];
+    }
+
+    public function matches(string $uri): ?array
+    {
+        return $uri === 'cms://sites/list' ? [] : null;
+    }
+
+    public function read(string $uri, array $matches): array
+    {
+        $sites = SiteManager::getAllSites();
+        return $this->contents($uri, json_encode($sites, JSON_PRETTY_PRINT));
+    }
+}
+```
+
+## Checklist (Resources)
+
+- [x] Class extends `BaseResource`.
+- [x] `getDefinition()` returns valid resource metadata.
+- [x] `matches(string $uri)` correctly identifies handled URIs and extracts parameters.
+- [x] `read(string $uri, array $matches)` returns structured content via `$this->contents()`.

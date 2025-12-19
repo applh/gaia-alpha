@@ -7,6 +7,21 @@ use GaiaAlpha\File;
 
 class InstallPlugin extends BaseTool
 {
+    public function getDefinition(): array
+    {
+        return [
+            'name' => 'install_plugin',
+            'description' => 'Install a new plugin (simulated)',
+            'inputSchema' => [
+                'type' => 'object',
+                'properties' => [
+                    'name' => ['type' => 'string', 'description' => 'Plugin name']
+                ],
+                'required' => ['name']
+            ]
+        ];
+    }
+
     public function execute(array $arguments): array
     {
         $name = $arguments['name'] ?? null;

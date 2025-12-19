@@ -7,6 +7,20 @@ use GaiaAlpha\File;
 
 class ListMedia extends BaseTool
 {
+    public function getDefinition(): array
+    {
+        return [
+            'name' => 'list_media',
+            'description' => 'List all media files for a specific site',
+            'inputSchema' => [
+                'type' => 'object',
+                'properties' => [
+                    'site' => ['type' => 'string', 'description' => 'Site domain (default: default)']
+                ]
+            ]
+        ];
+    }
+
     public function execute(array $arguments): array
     {
         $site = $arguments['site'] ?? 'default';

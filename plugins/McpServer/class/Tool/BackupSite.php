@@ -7,6 +7,20 @@ use GaiaAlpha\File;
 
 class BackupSite extends BaseTool
 {
+    public function getDefinition(): array
+    {
+        return [
+            'name' => 'backup_site',
+            'description' => 'Create a backup of a site including database and assets',
+            'inputSchema' => [
+                'type' => 'object',
+                'properties' => [
+                    'site' => ['type' => 'string', 'description' => 'Site domain (default: default)']
+                ]
+            ]
+        ];
+    }
+
     public function execute(array $arguments): array
     {
         $site = $arguments['site'] ?? 'default';

@@ -9,6 +9,21 @@ use GaiaAlpha\Model\Page;
 
 class CreateSite extends BaseTool
 {
+    public function getDefinition(): array
+    {
+        return [
+            'name' => 'create_site',
+            'description' => 'Create a new site with a domain name',
+            'inputSchema' => [
+                'type' => 'object',
+                'properties' => [
+                    'domain' => ['type' => 'string', 'description' => 'The domain name (e.g. example.com)']
+                ],
+                'required' => ['domain']
+            ]
+        ];
+    }
+
     public function execute(array $arguments): array
     {
         $domain = $arguments['domain'] ?? null;

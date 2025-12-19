@@ -1,13 +1,18 @@
-
 # UI Component Pattern (Vue 3)
 
-The framework uses Vue 3 with a mix of Options API wrapper and Composition API `setup()`. Components are loaded via ES Modules.
+The Gaia Alpha frontend is built with **ES Modules** and **Vue 3**. This allows for a modular, build-less architecture where components are loaded dynamically by the browser.
+
+## Architectural Principles
+
+1.  **ES Module Modularity**: Each component is a standalone `.js` module. No bundling is required during development.
+2.  **Explicit Dependencies**: Components use standard `import` statements. The browser resolves these via the **Import Map** defined in the main layout.
+3.  **Dynamic Loading**: Views are loaded on demand by the frontend router, keeping the initial page load lightweight.
 
 ## Golden Sample: Admin Panel
 
 ```javascript
 import { ref, onMounted, shallowRef } from 'vue';
-import Icon from 'ui/Icon.js'; // Mapped import
+import Icon from 'ui/Icon.js'; // Resolved via Import Map
 
 export default {
     // 1. Register sub-components
@@ -76,7 +81,14 @@ export default {
 
 ## Key Rules
 
-1.  **Imports**: Use absolute-style imports mapped by the Import Map (e.g., `ui/Icon.js`, `composables/useSorting.js`).
-2.  **No .vue files**: Components are `.js` files exporting an object.
-3.  **Styles**: Scoped styles are not supported directly. Use standard BEM or utility classes defined in global CSS.
-4.  **Icons**: Use `LucideIcon` wrapper.
+1.  **Imports**: Always use absolute-style imports mapped by the Import Map (e.g., `ui/Icon.js`). This ensures consistency even when files are moved.
+2.  **No .vue files**: Components are `.js` files exporting an object. This allows for native browser execution without a build step.
+3.  **Modularity**: Keep components focused. If a setup function gets too large, refactor logic into a separate "composable" file in `resources/js/composables/`.
+4.  **Global Integration**: Plugins register their main views via the `auth_session_data` hook in PHP, which the frontend router then uses to dynamically load the corresponding module.
+
+## Checklist
+
+- [x] Resides in `resources/js/`.
+- [x] Exports a valid Vue 3 component object.
+- [x] Uses `import` for dependencies.
+- [x] Template is defined as a string or template literal.

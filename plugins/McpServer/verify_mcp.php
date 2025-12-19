@@ -222,3 +222,9 @@ testTool($server, 'update_user_permissions', [
 // 17. Resources
 testResource($server, "cms://system/logs");
 testResource($server, "cms://sites/packages");
+
+// 18. Theme/Component Introspection
+testResource($server, "cms://components/list");
+testResource($server, "cms://components/ui/Icon.js");
+testResource($server, "cms://templates/list");
+testResource($server, "cms://templates/home_template");

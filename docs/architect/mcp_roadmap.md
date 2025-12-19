@@ -27,7 +27,7 @@ Empower AI agents to handle routine DevOps and management tasks.
 
 ### Phase 3: Developer & Theme Experience
 Assist developers in building and customizing the platform.
-- **[ ] Theme/Component Introspection**: Resources to read the source code of active themes and components (`cms://themes/{theme}/components/{name}`).
+- **[x] Theme/Component Introspection**: Resources to read the source code of active themes and components (`cms://templates/list`, `cms://components/list`). (Implemented)
 - **[ ] Template Schema Generator**: Tool to generate or suggest template metadata and configurations based on a natural language description.
 - **[ ] Real-time Log Stream**: SSE-based resource for streaming logs to a developer assistant.
 - **[ ] DB Migration Assistant**: Tool to generate SQL migration scripts based on changes to a table's schema description.

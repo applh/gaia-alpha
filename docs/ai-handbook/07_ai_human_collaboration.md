@@ -32,7 +32,7 @@ While AI is the "Engine," humans remain the "Navigator." The following skills ar
 In a modern team, a "Developer" is no longer just a coder; they are an **AI Supervisor**. 
 
 - **Code Reviews**: Will evolve into "Schema Reviews." We focus on the *shape* of the data and the *intent* of the logic, while the AI ensures the syntax is correct.
-- **Communication**: Documentation like the `docs/prompts` folder becomes the "Institutional Memory." It captures how to *ask* for results, not just the results themselves.
+- **Communication**: Documentation like the `docs/ai-handbook` folder becomes the "Institutional Memory." It captures how to *ask* for results, not just the results themselves.
 
 ## 5. Conclusion: The "Centaur" Engineer
 The winners in this new era aren't just the best coders, but the "Centaur" engineers—those who seamlessly merge their human intuition and strategic taste with the raw efficiency and speed of AI.

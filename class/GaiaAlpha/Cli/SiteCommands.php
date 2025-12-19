@@ -87,7 +87,7 @@ class SiteCommands
             if ($importPath) {
                 Output::writeln("Importing site package from: $importPath");
 
-                $importer = new \GaiaAlpha\ImportExport\WebsiteImporter($importPath, $userId);
+                $importer = new \GaiaAlpha\ImportExport\WebsiteImporter($importPath, $userId, $sitePath . '/assets');
                 $importer->import();
 
                 Output::success("Site package imported successfully.");

@@ -41,3 +41,4 @@ We will break the reconstruction into 4 distinct phases for the AI.
 5. For perspectives on working in mixed AI-Human development teams, see [AI & Human Teams](file:///Users/lh/Downloads/antig/gaia-alpha/docs/prompts/07_ai_human_collaboration.md).
 6. To see how companies should evolve their team structures and project timelines, see the [AI Organizational Strategy](file:///Users/lh/Downloads/antig/gaia-alpha/docs/prompts/08_ai_organizational_strategy.md).
 7. For the synergy between AI and open-source human communities, see [AI & Open Source](file:///Users/lh/Downloads/antig/gaia-alpha/docs/prompts/09_ai_open_source_collaboration.md).
+8. To understand the intersection of AI, Open Source, and Corporate teams, see [The AI Triad Synergy](file:///Users/lh/Downloads/antig/gaia-alpha/docs/prompts/10_the_ai_triad_synergy.md).

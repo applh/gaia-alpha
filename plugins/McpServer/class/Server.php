@@ -108,7 +108,7 @@ class Server
                             'description' => 'Get system version and status',
                             'inputSchema' => [
                                 'type' => 'object',
-                                'properties' => []
+                                'properties' => new \stdClass()
                             ]
                         ]
                     ]

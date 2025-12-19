@@ -276,6 +276,7 @@ class WebsiteImporter
                 'template_slug' => $meta['template_slug'] ?? null,
                 'meta_description' => $meta['meta_description'] ?? null,
                 'meta_keywords' => $meta['meta_keywords'] ?? null,
+                'content_format' => 'markdown',
                 'image' => isset($meta['image']) ? $this->importMediaItem($meta['image']) : null
             ];
 

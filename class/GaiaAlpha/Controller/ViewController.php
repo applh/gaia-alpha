@@ -242,14 +242,19 @@ HTML;
 
         // Handle root
         if ($slug === '' || $slug === 'index.php') {
-            // Try to find a page named 'home'
-            $slug = 'home';
+            $slug = '/';
         }
 
         // 2. Lookup Page
         // Need to ensure DB connection if not already
         \GaiaAlpha\Model\DB::connect();
+
         $page = \GaiaAlpha\Model\Page::findBySlug($slug);
+
+        // Fallback for home/index
+        if (!$page && $slug === '/') {
+            $page = \GaiaAlpha\Model\Page::findBySlug('home');
+        }
 
         if ($page) {
             // 3. Render Template
@@ -261,6 +266,12 @@ HTML;
             // Ensure .php extension
             if (substr($template, -4) !== '.php') {
                 $template .= '.php';
+            }
+
+            // If markdown, parse it
+            if (isset($page['content_format']) && $page['content_format'] === 'markdown') {
+                $parsedown = new \GaiaAlpha\Helper\Parsedown();
+                $page['content'] = $parsedown->text($page['content']);
             }
 
             // Render

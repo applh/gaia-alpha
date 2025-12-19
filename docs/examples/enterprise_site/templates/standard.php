@@ -24,25 +24,45 @@
 
 <body class="template-standard">
     <header>
-        <img src="/assets/logo.svg" alt="Acme Corp">
-        <nav>
-            <a href="/">Home</a>
-            <a href="/about-us">About</a>
-            <a href="/services">Services</a>
-            <a href="/contact">Contact</a>
-        </nav>
+        <div class="container">
+            <img src="/assets/logo.svg" alt="SportFlow">
+            <nav>
+                <a href="/">Home</a>
+                <a href="/about-us">About</a>
+                <a href="/services">Technology</a>
+                <a href="/contact">Get Started</a>
+            </nav>
+        </div>
     </header>
-    <div class="content-wrapper">
-        <aside>
-            <!-- Sidebar content -->
-        </aside>
-        <main>
-            <h1><?php echo $page['title']; ?></h1>
-            <?php echo $page['content']; ?>
-        </main>
-    </div>
+    <main>
+        <?php if (!empty($page['image'])): ?>
+            <section class="hero" style="--hero-image: url('<?php echo $page['image']; ?>')">
+                <div class="hero-content container">
+                    <h1><?php echo ucwords($page['title']); ?></h1>
+                </div>
+            </section>
+        <?php endif; ?>
+        <div class="content-section container">
+            <div class="grid grid-md-12">
+                <article class="glass-card col-12 col-md-8">
+                    <div class="markdown-body">
+                        <?php echo $page['content']; ?>
+                    </div>
+                </article>
+                <aside class="col-12 col-md-4">
+                    <div class="glass-card" style="border-left: 4px solid var(--primary);">
+                        <h3>Performance Hub</h3>
+                        <p>Unlock elite insights with our specialized sports analytics platform.</p>
+                        <a href="/contact" class="cta-button">Consult an Expert</a>
+                    </div>
+                </aside>
+            </div>
+        </div>
+    </main>
     <footer>
-        &copy; <?php echo date('Y'); ?> Acme Corp.
+        <div class="container">
+            <p>&copy; <?php echo date('Y'); ?> SportFlow. Driven by Data.</p>
+        </div>
     </footer>
 </body>
 

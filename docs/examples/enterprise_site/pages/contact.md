@@ -1,15 +1,17 @@
 ---
-title: "Contact Us"
+title: "Get in Touch"
 slug: "contact"
-template_slug: "landing"
+template_slug: "standard"
+image: "./media/contact-hq.png"
+meta_description: "Connect with our elite performance consultants today."
 ---
 
-# Get In Touch
+# Connect with SportFlow
 
-We'd love to hear from you.
+Ready to optimize your team's performance? Our consultants are ready to discuss your custom tech integration.
 
 ## Headquarters
 123 Innovation Dr, Tech City
 
 ## Sales
-Call us at 555-0100
+{{ ... }}

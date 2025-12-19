@@ -1,17 +1,31 @@
 ---
-title: "Home"
+title: "The Future of Athletic Performance"
 slug: "home"
 template_slug: "landing"
-meta_description: "Acme Corp provides world-class enterprise solutions."
-meta_keywords: "enterprise, scalable, solutions, business"
-image: "./media/office-hq.webp"
+meta_description: "SportFlow delivers elite-level performance analytics for professional athletes and teams."
+meta_keywords: "sports tech, analytics, performance, data"
+image: "./media/sport-hero.png"
 lang: "en"
 locale: "en_US"
 ---
 
-# Building the Future of Enterprise
+# Beyond Physical Limits
 
-We help Fortune 500 companies scale.
+At **SportFlow**, we don't just track data; we decode the DNA of elite performance. Our platform integrates real-time biomechanics, predictive injury modeling, and cognitive load assessment.
 
-## Our Services
-Check out our services to see how we can help you.
+<div class="grid grid-md-3" style="margin-top: 4rem;">
+    <div class="feature-box">
+        <h3>Real-time HUD</h3>
+        <p>Live performance overlays for training and professional broadcast synergy.</p>
+    </div>
+    <div class="feature-box">
+        <h3>Neural Sync</h3>
+        <p>Cognitive training tools designed for high-pressure competitive environments.</p>
+    </div>
+    <div class="feature-box">
+        <h3>Smart Stadium</h3>
+        <p>Fully connected athletic environments capturing every movement in 4K.</p>
+    </div>
+</div>
+
+[Explore Technology](/services){.cta-button}

@@ -28,21 +28,37 @@
     <link rel="stylesheet" href="/assets/styles.css">
 </head>
 
-<body class="template-landing">
+<body class="template-landing" style="--hero-image: url('<?php echo $page['image'] ?? '/assets/logo.svg'; ?>')">
     <header>
-        <img src="/assets/logo.svg" alt="Acme Corp">
-        <nav>
-            <a href="/">Home</a>
-            <a href="/about-us">About</a>
-            <a href="/services">Services</a>
-            <a href="/contact">Contact</a>
-        </nav>
+        <div class="container">
+            <img src="/assets/logo.svg" alt="SportFlow">
+            <nav>
+                <a href="/">Home</a>
+                <a href="/about-us">About</a>
+                <a href="/services">Technology</a>
+                <a href="/contact">Get Started</a>
+            </nav>
+        </div>
     </header>
     <main>
-        <?php echo $page['content']; ?>
+        <section class="hero">
+            <div class="hero-content container">
+                <h1><?php echo $page['title']; ?></h1>
+                <p><?php echo $page['meta_description'] ?? 'Redefining athletic performance through data-driven innovation.'; ?>
+                </p>
+                <a href="/services" class="cta-button">Explore Tech</a>
+            </div>
+        </section>
+        <div class="content-section container">
+            <div class="glass-card">
+                <?php echo $page['content']; ?>
+            </div>
+        </div>
     </main>
     <footer>
-        &copy; <?php echo date('Y'); ?> Acme Corp.
+        <div class="container">
+            <p>&copy; <?php echo date('Y'); ?> SportFlow. Elite Performance Analytics.</p>
+        </div>
     </footer>
 </body>
 

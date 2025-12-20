@@ -53,6 +53,17 @@ class Server
         fwrite(STDERR, "[MCP] " . $message . "\n");
     }
 
+    /**
+     * Handle a JSON-RPC request
+     * Made public to support SSE transport
+     * @param array $request JSON-RPC request
+     * @return array|null JSON-RPC response
+     */
+    public function handleRequestPublic($request)
+    {
+        return $this->handleRequest($request);
+    }
+
     private function handleRequest($request)
     {
         if (!isset($request['jsonrpc']) || $request['jsonrpc'] !== '2.0') {

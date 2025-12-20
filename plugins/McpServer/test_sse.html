@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCP SSE Test Client</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            padding: 2rem;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            color: #60a5fa;
+        }
+
+        .subtitle {
+            color: #94a3b8;
+            margin-bottom: 2rem;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            margin-bottom: 2rem;
+        }
+
+        .status.connected {
+            background: #10b981;
+            color: white;
+        }
+
+        .status.disconnected {
+            background: #ef4444;
+            color: white;
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        button {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: #3b82f6;
+            color: white;
+        }
+
+        button:hover {
+            background: #2563eb;
+            transform: translateY(-2px);
+        }
+
+        button:disabled {
+            background: #475569;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .output {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            min-height: 400px;
+            max-height: 600px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+        }
+
+        .log-entry {
+            margin-bottom: 0.5rem;
+            padding: 0.5rem;
+            border-radius: 0.25rem;
+        }
+
+        .log-entry.info {
+            color: #60a5fa;
+        }
+
+        .log-entry.success {
+            color: #10b981;
+        }
+
+        .log-entry.error {
+            color: #ef4444;
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .log-entry.data {
+            color: #a78bfa;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        .timestamp {
+            color: #64748b;
+            font-size: 0.75rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>🚀 MCP SSE Test Client</h1>
+        <p class="subtitle">Test the Model Context Protocol Server-Sent Events transport</p>
+
+        <div class="status disconnected" id="status">Disconnected</div>
+
+        <div class="controls">
+            <button onclick="connect()" id="connectBtn">Connect</button>
+            <button onclick="disconnect()" id="disconnectBtn" disabled>Disconnect</button>
+            <button onclick="testToolsList()" id="toolsBtn" disabled>List Tools</button>
+            <button onclick="testListPages()" id="pagesBtn" disabled>List Pages</button>
+            <button onclick="testResourcesList()" id="resourcesBtn" disabled>List Resources</button>
+            <button onclick="clearOutput()">Clear Output</button>
+        </div>
+
+        <div class="output" id="output"></div>
+    </div>
+
+    <script src="/min/js/mcp-client.js"></script>
+    <script>
+        let client = null;
+
+        function log(message, type = 'info') {
+            const output = document.getElementById('output');
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+
+            const timestamp = new Date().toLocaleTimeString();
+            entry.innerHTML = `<span class="timestamp">[${timestamp}]</span> ${message}`;
+
+            output.appendChild(entry);
+            output.scrollTop = output.scrollHeight;
+        }
+
+        function updateStatus(connected) {
+            const status = document.getElementById('status');
+            const connectBtn = document.getElementById('connectBtn');
+            const disconnectBtn = document.getElementById('disconnectBtn');
+            const toolsBtn = document.getElementById('toolsBtn');
+            const pagesBtn = document.getElementById('pagesBtn');
+            const resourcesBtn = document.getElementById('resourcesBtn');
+
+            if (connected) {
+                status.textContent = 'Connected';
+                status.className = 'status connected';
+                connectBtn.disabled = true;
+                disconnectBtn.disabled = false;
+                toolsBtn.disabled = false;
+                pagesBtn.disabled = false;
+                resourcesBtn.disabled = false;
+            } else {
+                status.textContent = 'Disconnected';
+                status.className = 'status disconnected';
+                connectBtn.disabled = false;
+                disconnectBtn.disabled = true;
+                toolsBtn.disabled = true;
+                pagesBtn.disabled = true;
+                resourcesBtn.disabled = true;
+            }
+        }
+
+        async function connect() {
+            try {
+                log('Connecting to MCP server...', 'info');
+                client = new McpClient();
+                await client.connect();
+                log('✓ Connected successfully!', 'success');
+                updateStatus(true);
+            } catch (error) {
+                log(`✗ Connection failed: ${error.message}`, 'error');
+                updateStatus(false);
+            }
+        }
+
+        function disconnect() {
+            if (client) {
+                client.disconnect();
+                log('Disconnected from server', 'info');
+                updateStatus(false);
+            }
+        }
+
+        async function testToolsList() {
+            try {
+                log('Calling tools/list...', 'info');
+                const result = await client.call('tools/list');
+                log('✓ Tools list received:', 'success');
+                log(JSON.stringify(result, null, 2), 'data');
+            } catch (error) {
+                log(`✗ Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testListPages() {
+            try {
+                log('Calling tools/call (list_pages)...', 'info');
+                const result = await client.call('tools/call', {
+                    name: 'list_pages',
+                    arguments: { site: 'default' }
+                });
+                log('✓ Pages list received:', 'success');
+                log(JSON.stringify(result, null, 2), 'data');
+            } catch (error) {
+                log(`✗ Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testResourcesList() {
+            try {
+                log('Calling resources/list...', 'info');
+                const result = await client.call('resources/list');
+                log('✓ Resources list received:', 'success');
+                log(JSON.stringify(result, null, 2), 'data');
+            } catch (error) {
+                log(`✗ Error: ${error.message}`, 'error');
+            }
+        }
+
+        function clearOutput() {
+            document.getElementById('output').innerHTML = '';
+        }
+
+        // Initialize
+        log('MCP SSE Test Client ready', 'info');
+        log('Click "Connect" to establish SSE connection', 'info');
+    </script>
+</body>
+
+</html>

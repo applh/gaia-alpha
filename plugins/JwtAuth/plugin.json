@@ -1,0 +1,19 @@
+{
+    "name": "JwtAuth",
+    "description": "JSON Web Token (JWT) management for authentication and stateless APIs.",
+    "version": "1.0.0",
+    "author": "Antigravity",
+    "type": "core",
+    "enabled": true,
+    "menu": {
+        "items": [
+            {
+                "label": "JWT Settings",
+                "view": "jwt-settings",
+                "icon": "key",
+                "group": "grp-system",
+                "adminOnly": true
+            }
+        ]
+    }
+}

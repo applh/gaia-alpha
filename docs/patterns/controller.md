@@ -55,9 +55,17 @@ class YourController extends BaseController
     *   `$this->getJsonInput()`: Safely retrieves and decodes JSON request bodies.
 4.  **MCP Integration**: Controller methods are the ideal backend for MCP Tools. By keeping your controller logic modular, you can easily expose it to AI agents via the MCP server.
 
+## Documentation Requirement
+
+Any new controller logic **must** be documented within the relevant plugin or feature documentation (e.g., `docs/plugins/YourPlugin.md`). Documentation should include:
+1.  **Routes**: List of all registered routes and their methods.
+2.  **Input/Output**: Describe expected JSON request bodies and response structures.
+3.  **Authentication**: Specify whether `requireAuth` or `requireAdmin` is used.
+
 ## Checklist
 
 - [x] Resides in `YourPlugin/class/Controller/`.
 - [x] Uses the correct PSR-4 namespace.
 - [x] Extends `BaseController`.
 - [x] Routes are registered and follow the `/@/` prefix convention for API calls.
+- [x] Routes and API logic are documented in the plugin's documentation file.

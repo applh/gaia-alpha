@@ -18,6 +18,7 @@ const MultiSitePanel = defineAsyncComponent(() => import('plugins/MultiSite/Mult
 const ComponentBuilder = defineAsyncComponent(() => import('plugins/ComponentBuilder/ComponentBuilder.js'));
 const MailPanel = defineAsyncComponent(() => import('plugins/Mail/MailPanel.js'));
 const PluginsAdmin = defineAsyncComponent(() => import('components/admin/settings/PluginsAdmin.js'));
+const JwtSettings = defineAsyncComponent(() => import('plugins/JwtAuth/JwtSettings.js'));
 
 const ToastContainer = {
     setup() {
@@ -345,6 +346,7 @@ const App = {
                 case 'component-builder': return isAdmin.value ? ComponentBuilder : TodoList;
                 case 'mail/inbox': return isAdmin.value ? MailPanel : TodoList;
                 case 'plugins': return isAdmin.value ? PluginsAdmin : TodoList;
+                case 'jwt-settings': return isAdmin.value ? JwtSettings : TodoList;
 
                 case 'todos': return TodoList;
             }

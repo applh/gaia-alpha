@@ -107,13 +107,11 @@ Hook::add('mcp_tool_call', function ($null, $name, $arguments) {
 });
 ```
 
-## Key Guidelines
+## Documentation Requirement
 
-1.  **Unique Class Names**: Class names must correspond to the tool name (CamelCase of snake_case).
-2.  **JSON Schema**: Always provide a clear `inputSchema` in `getDefinition()`. It is how the AI knows how to call your tool.
-3.  **Explicit Errors**: Throw `\Exception` with clear messages. These are passed back to the AI.
-4.  **Standard Responses**: Use `$this->resultText($text)` or `$this->resultJson($data)` for consistency.
-5.  **Site Isolation**: Always consider `site` as an optional argument. The `Server` class handles the context switch automatically.
+New MCP tools, prompts, or resources **must** be documented in:
+1.  **`docs/architect/mcp_roadmap.md`**: Update the status and add the new tool to the relevant roadmap phase.
+2.  **Plugin/Tool specific docs**: Document the tool's specific purpose and complex behaviors if they exceed the standard metadata description.
 
 ## Checklist
 
@@ -122,6 +120,7 @@ Hook::add('mcp_tool_call', function ($null, $name, $arguments) {
 - [x] `execute()` handles arguments and performs the action.
 - [x] Errors are thrown with descriptive messages.
 - [x] Returns structured content using standard helpers.
+- [x] Roadmap and tool-specific documentation are updated.
 
 ## MCP Prompt Pattern
 

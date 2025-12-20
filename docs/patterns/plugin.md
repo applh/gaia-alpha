@@ -69,8 +69,15 @@ Hook::add('auth_session_data', function ($data) {
 Instead of hardcoding tools in `index.php`, the MCP server uses **Dynamic Discovery**. If you create a class in `plugins/YourPlugin/class/Tool/`, it will be automatically discovered if it extends the base tool class and follows the naming convention.
 
 ```php
-// Standard pattern: keep index.php for "wiring" and classes for "doing".
-```
+## Documentation Requirement
+
+All plugins **must** be accompanied by a dedicated documentation file in `docs/plugins/YourPlugin.md`. This file should cover:
+1.  **Objective**: What does the plugin solve?
+2.  **Configuration**: Any `Env` variables or `plugin.json` settings.
+3.  **Hooks**: Which core hooks does it listen to or trigger?
+4.  **CLI/MCP**: List any added commands or tools.
+
+Keeping this file updated as features are added is mandatory.
 
 ## Checklist
 
@@ -78,3 +85,4 @@ Instead of hardcoding tools in `index.php`, the MCP server uses **Dynamic Discov
 - [x] Classes reside in `class/` for PSR-4 autoloading.
 - [x] `plugin.json` exists for metadata.
 - [x] Uses Hooks to interact with the core without modifying it.
+- [x] Documentation exists and is updated in `docs/plugins/YourPlugin.md`.

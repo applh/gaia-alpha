@@ -86,9 +86,17 @@ export default {
 3.  **Modularity**: Keep components focused. If a setup function gets too large, refactor logic into a separate "composable" file in `resources/js/composables/`.
 4.  **Global Integration**: Plugins register their main views via the `auth_session_data` hook in PHP, which the frontend router then uses to dynamically load the corresponding module.
 
+## Documentation Requirement
+
+Complex UI components **must** be documented to explain their purpose and state management. This can be included in the plugin's documentation. Documentation should cover:
+1.  **State**: Key reactive variables and their roles.
+2.  **Interactions**: Main user actions (clicks, form submissions).
+3.  **API Integration**: Which endpoints the component communicates with.
+
 ## Checklist
 
 - [x] Resides in `resources/js/`.
 - [x] Exports a valid Vue 3 component object.
 - [x] Uses `import` for dependencies.
 - [x] Template is defined as a string or template literal.
+- [x] UI states and interactions are documented.

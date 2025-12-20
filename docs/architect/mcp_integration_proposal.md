@@ -1,7 +1,11 @@
 # MCP (Model Context Protocol) Integration Proposal
 
+> [!NOTE]
+> **Status: Implemented (v0.56.0)**
+> The Model Context Protocol is now a core feature of Gaia Alpha, enabling full AI-assisted management and development.
+
 ## Introduction
-This document outlines the value proposition and architectural plan for adding a **Model Context Protocol (MCP)** plugin to Gaia Alpha.
+This document outlines the value proposition and architectural plan for the **Model Context Protocol (MCP)** plugin in Gaia Alpha.
 
 Integrating MCP transforms the CMS from a passive application into a **tool-enabled platform**. It allows external AI agents (such as Claude Desktop, Cursor, or IDE-integrated assistants) to securely connect to the CMS, read its data, and execute commands on behalf of the user.
 

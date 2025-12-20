@@ -79,22 +79,27 @@ For agents that connect via HTTP (SSE), you will need to expose the web server e
 
 The server currently exposes the following tools for content and system management:
 
-- **System**:
-  - `system_info`: Returns the current CMS version and PHP version.
-  - `verify_system_health`: Checks directory permissions and database connectivity.
-- **Sites**:
+- **Content & SEO**:
+  - `list_pages`: Lists pages for a specific site.
+  - `get_page`: Retrieves full content and metadata for a page by slug.
+  - `upsert_page`: Creates or updates a page (automatically archives versions).
+  - `analyze_seo`: Automatically analyze a page's SEO score and suggests improvements.
+  - `bulk_import_pages`: Import multiple pages from JSON or CSV.
+- **Media & AI**:
+  - `list_media`: Lists files in a site's media directory.
+  - `ai_generate_image`: Simulate AI image generation and save directly to site assets.
+- **Sites & Administration**:
   - `list_sites`: Lists all managed sites (default and sub-sites).
   - `create_site`: Creates a new site domain with a pre-configured admin user.
   - `backup_site`: Generates a ZIP backup of a site's database and assets.
-- **Content**:
-  - `list_pages`: Lists pages for a specific site.
-  - `get_page`: Retrieves full content and metadata for a page by slug.
-  - `upsert_page`: Creates or updates a page.
-  - `list_media`: Lists files in a site's media directory.
-- **Data & Ops**:
+  - `search_plugins`: Search for available and installed plugins.
+- **Developer Tools**:
   - `db_query`: Executes read-only SQL queries on a site's database.
   - `read_log`: Reads the latest system log entries.
+  - `verify_system_health`: Checks directory permissions and database connectivity.
   - `install_plugin`: Installs a new plugin.
+  - `generate_template_schema`: Suggest template metadata based on natural language description.
+  - `db_migration_assistant`: Suggest SQL migration scripts based on schema change description.
 
 ## Available Resources
 
@@ -103,11 +108,20 @@ Agents can access real-time data through these resources:
 - `cms://sites/list`: JSON list of all available sites.
 - `cms://system/logs`: Full content of the system log.
 - `cms://sites/{site}/database/tables`: Complete table definitions and record counts for any site.
+- `cms://sites/{site}/pages/{slug}/versions`: List historical versions of a specific page.
+- `cms://templates/list`: List all available PHP templates.
+- `cms://components/list`: List all available JavaScript UI components.
 
 ## Prompts
 
 Reusable prompt templates are available via the `prompts/list` and `prompts/get` MCP endpoints. 
-- Example: `summarize_page(slug)` - Instructs the agent to provide a professional summary of a specific page.
+
+### Specialized Role Prompts:
+- `seo_specialist(slug)`: Instructions for a specialized SEO audit of a page.
+- `security_auditor`: Instructions for auditing system security and logs.
+- `ui_designer(path)`: Instructions for evaluating UI components and templates.
+- `summarize_page(slug)`: Instructs the agent to provide a professional summary of a specific page.
+- `summarize_health`: Summarize the current system status and any active errors.
 
 ## Troubleshooting
 

@@ -1,4 +1,12 @@
 # Changelog
+## [v0.56.0] - 2025-12-20
+### Added
+- **MCP Expansion**: Significantly expanded the MCP Server plugin with advanced content and developer operations.
+  - **Tools**: Added `analyze_seo`, `bulk_import_pages`, `ai_generate_image`, `search_plugins`, `generate_template_schema`, and `db_migration_assistant`.
+  - **Resources**: Added `cms://sites/{site}/pages/{slug}/versions`, `cms://templates/list`, `cms://components/list`.
+  - **Prompts**: Added role-based prompts: `SeoSpecialist`, `SecurityAuditor`, and `UiDesigner`.
+- **Versioning**: Implemented a mandatory content versioning system. All page updates now archive the previous state in the `cms_page_versions` table.
+- **Verification**: Added `plugins/McpServer/verify_mcp_new.php` for regression testing of advanced MCP features.
 
 ## [v0.55.0] - 2025-12-19
 ### Added

@@ -2,10 +2,10 @@
 
 This document outlines the planned expansion of the Model Context Protocol (MCP) integration for Gaia Alpha. The goal is to evolve the CMS from a simple content store into a fully tool-integrated platform for AI-assisted development and management.
 
-## Current Capabilities (v1.1.0)
-- **Tools**: `system_info`, `list_sites`, `create_site`, `list_pages`, `get_page`, `upsert_page`, `db_query`, `list_media`, `read_log`, `verify_system_health`, `backup_site`, `install_plugin`, `analyze_seo`, `bulk_import_pages`, `ai_generate_image`, `search_plugins`, `generate_template_schema`.
+## Current Capabilities (v1.2.0)
+- **Tools**: `system_info`, `list_sites`, `create_site`, `list_pages`, `get_page`, `upsert_page`, `db_query`, `list_media`, `read_log`, `verify_system_health`, `backup_site`, `install_plugin`, `analyze_seo`, `bulk_import_pages`, `ai_generate_image`, `search_plugins`, `generate_template_schema`, `db_migration_assistant`.
 - **Resources**: `cms://sites/list`, `cms://system/logs`, `cms://sites/{site}/database/tables`, `cms://sites/packages`, `cms://templates/list`, `cms://components/list`, `cms://sites/{site}/pages/{slug}/versions`.
-- **Prompts**: `summarize_page`.
+- **Prompts**: `summarize_page`, `summarize_health`, `seo_specialist`, `security_auditor`, `ui_designer`.
 
 ---
 
@@ -29,14 +29,14 @@ Empower AI agents to handle routine DevOps and management tasks.
 Assist developers in building and customizing the platform.
 - **[x] Theme/Component Introspection**: Resources to read the source code of active themes and components (`cms://templates/list`, `cms://components/list`). (Implemented)
 - **[x] Template Schema Generator**: Tool to generate or suggest template metadata and configurations based on a natural language description. (Implemented as `generate_template_schema` tool)
+- **[x] DB Migration Assistant**: Tool to generate SQL migration scripts based on changes to a table's schema description. (Implemented as `db_migration_assistant` tool)
 - **[ ] Real-time Log Stream**: SSE-based resource for streaming logs to a developer assistant.
-- **[ ] DB Migration Assistant**: Tool to generate SQL migration scripts based on changes to a table's schema description.
 
 ### Phase 4: Multi-Agent Collaboration & Specialized Prompts
-Develop standardized prompts for specific roles.
-- **[ ] SEO Specialist Prompt**: Pre-configured prompt with instructions for keyword research and metadata optimization.
-- **[ ] Security Auditor Prompt**: Prompt that instructs the AI to check the `db_query` results and logs for potential vulnerabilities or unusual activity.
-- **[ ] UI/UX Designer Prompt**: Prompt focused on evaluating component code against accessibility and design system standards.
+Develop standardized prompts for specific roles. (All implemented in `class/Prompt/`)
+- **[x] SEO Specialist Prompt**: Pre-configured prompt with instructions for keyword research and metadata optimization.
+- **[x] Security Auditor Prompt**: Prompt that instructs the AI to check the `db_query` results and logs for potential vulnerabilities or unusual activity.
+- **[x] UI/UX Designer Prompt**: Prompt focused on evaluating component code against accessibility and design system standards.
 
 ---
 

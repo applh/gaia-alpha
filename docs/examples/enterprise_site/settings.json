@@ -1,0 +1,7 @@
+{
+    "site_title": "Acme Corp Enterprise",
+    "site_description": "Enterprise solutions for Fortune 500 companies",
+    "site_keywords": "enterprise, b2b, solutions, consulting",
+    "site_language": "en",
+    "robots_txt": "User-agent: *\nAllow: /"
+}

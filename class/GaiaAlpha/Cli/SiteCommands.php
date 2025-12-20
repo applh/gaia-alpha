@@ -292,6 +292,32 @@ class SiteCommands
                 $errors[] = "Site Config 'theme' mismatch. Expected 'enterprise-blue', got " . json_encode($theme);
             }
 
+            // Verify Global Settings
+            if (File::exists($packagePath . '/settings.json')) {
+                $packageSettings = json_decode(File::read($packagePath . '/settings.json'), true);
+                $importedSettings = DataStore::getAll(0, 'global_config');
+
+                $missingKeys = array_diff(array_keys($packageSettings), array_keys($importedSettings));
+                if (empty($missingKeys)) {
+                    Output::success("  - Global Settings imported (" . count($packageSettings) . " keys).");
+                } else {
+                    $errors[] = "Missing global settings keys: " . implode(', ', $missingKeys);
+                }
+
+                // Verify specific important settings
+                if (
+                    isset($packageSettings['site_title']) &&
+                    isset($importedSettings['site_title']) &&
+                    $importedSettings['site_title'] === $packageSettings['site_title']
+                ) {
+                    Output::success("  - Site Title verified: " . $importedSettings['site_title']);
+                } elseif (isset($packageSettings['site_title'])) {
+                    $errors[] = "Site Title mismatch or not imported.";
+                }
+            } else {
+                Output::writeln("  - No settings.json in package (legacy package).");
+            }
+
             // Verify Assets
             // Check if assets were copied
             // Assets go to my-data/sites/<domain>/assets

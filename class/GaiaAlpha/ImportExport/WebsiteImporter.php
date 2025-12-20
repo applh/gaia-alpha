@@ -31,7 +31,10 @@ class WebsiteImporter
         $this->checkManifest();
         $this->processConfig();
 
-        // 2. Import Assets (First to ensure available)
+        // 2. Import Global Settings
+        $this->importGlobalSettings();
+
+        // 3. Import Assets (First to ensure available)
         $this->importAssets();
 
         // 3. Import Components
@@ -111,6 +114,23 @@ class WebsiteImporter
             if (!empty($missing)) {
                 echo "WARNING: The following plugins are required but not active: " . implode(', ', $missing) . "\n";
             }
+        }
+    }
+
+    private function importGlobalSettings()
+    {
+        $path = $this->inDir . '/settings.json';
+        if (!File::exists($path)) {
+            return; // Backward compatibility - skip if no settings file
+        }
+
+        $settings = json_decode(File::read($path), true);
+        if (!$settings || !is_array($settings)) {
+            return;
+        }
+
+        foreach ($settings as $key => $value) {
+            DataStore::set(0, 'global_config', $key, $value);
         }
     }
 
@@ -343,11 +363,10 @@ class WebsiteImporter
         if (File::exists($path)) {
             $manifest = json_decode(File::read($path), true);
             $config = $manifest['config'] ?? [];
+
+            // Import all config values to user_pref (for user-specific settings)
             foreach ($config as $key => $val) {
-                // Store in user_pref for now
-                if ($key === 'theme' || $key === 'homepage') {
-                    DataStore::set($this->userId, 'user_pref', $key, $val);
-                }
+                DataStore::set($this->userId, 'user_pref', $key, $val);
             }
         }
     }

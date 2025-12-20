@@ -6,6 +6,7 @@
         "seo-pack",
         "analytics"
     ],
+    "has_global_settings": true,
     "config": {
         "theme": "enterprise-blue",
         "homepage": "home"

@@ -32,11 +32,12 @@ The export process includes:
 *   **Custom Components**: React/JS components (`my-data/components/custom/*.js`).
 *   **Assets**: Public assets (`www/assets/`).
 *   **Media**: Uploaded files referenced in content.
+*   **Global Settings**: Site title, description, keywords, favicon, logo, robots.txt, and language settings.
 *   **Manifest**: A `site.json` file containing metadata and plugin dependencies.
 
 > [!NOTE]
 > **User Accounts** are NOT exported for security reasons. A default admin account is created during import.
-> **Global Settings** (like site title, debug mode) are currently not part of the export package.
+> **User Preferences** (theme, layout) are also not exported.
 
 ---
 
@@ -64,6 +65,7 @@ php cli.php site:create new-client.test --import=docs/examples/enterprise_site
 2.  **Schema Init**: The core database tables are created.
 3.  **Admin User**: A default admin user (`admin` / `admin`) is created.
 4.  **Content Import**:
+    *   Global settings are restored (site title, description, SEO settings, etc.).
     *   Pages are created.
     *   Templates are saved.
     *   Forms and Menus are inserted into the database.
@@ -79,6 +81,7 @@ A valid Site Package is simply a directory with the following structure:
 ```text
 site-package/
 ├── site.json           # Manifest file (metadata, plugins)
+├── settings.json       # Global site settings
 ├── menus.json          # Navigation menus export
 ├── pages/              # Content pages (.md files)
 ├── templates/          # PHP templates (.php files)
@@ -102,3 +105,27 @@ You can manually create a Site Package to use as a starter template. ensuring yo
     }
 }
 ```
+
+---
+
+## Troubleshooting
+
+### Missing Plugin Warning
+If you see a warning about missing plugins during import, you have two options:
+1. Install the required plugins before importing
+2. Proceed with the import - the site will work but plugin-specific features may not function
+
+### Settings Not Applied
+If global settings (like site title) don't appear after import:
+1. Verify `settings.json` exists in the package
+2. Check that you have admin permissions
+3. Clear your browser cache and reload the admin dashboard
+
+### Media Files Not Found
+If images are broken after import:
+1. Verify the `media/` folder exists in the package
+2. Check that media file paths in content use the `./media/` format
+3. Ensure the import completed without errors
+
+### Legacy Packages
+Older site packages created before global settings export was implemented will still import successfully. They simply won't include global settings, and you'll need to configure those manually.

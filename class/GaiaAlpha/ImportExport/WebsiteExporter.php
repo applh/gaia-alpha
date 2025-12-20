@@ -43,7 +43,10 @@ class WebsiteExporter
         // 7. Export Menus
         $this->exportMenus();
 
-        // 8. Generate site.json
+        // 8. Export Global Settings
+        $this->exportGlobalSettings();
+
+        // 9. Generate site.json
         $this->generateSiteJson();
 
         return true;
@@ -213,6 +216,18 @@ class WebsiteExporter
         }
     }
 
+    private function exportGlobalSettings()
+    {
+        $settings = \GaiaAlpha\Model\DataStore::getAll(0, 'global_config');
+
+        if (!empty($settings)) {
+            File::write(
+                $this->outDir . '/settings.json',
+                json_encode($settings, JSON_PRETTY_PRINT)
+            );
+        }
+    }
+
     private function generateSiteJson()
     {
         // Get active plugins
@@ -223,12 +238,16 @@ class WebsiteExporter
             $plugins = json_decode(File::read($pluginsFile), true) ?? [];
         }
 
+        // Check if global settings were exported
+        $hasGlobalSettings = File::exists($this->outDir . '/settings.json');
+
         $manifest = [
             'name' => 'Exported Site',
             'exported_at' => date('c'),
             'generator' => 'GaiaAlpha',
             'version' => '1.0.0',
             'plugins' => $plugins,
+            'has_global_settings' => $hasGlobalSettings,
             'config' => [
                 'theme' => 'default' // Placeholder for now
             ]

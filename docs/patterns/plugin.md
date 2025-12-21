@@ -39,6 +39,9 @@ use YourPlugin\Controller\YourController;
 
 // 1. Dynamic Controller Registration
 Hook::add('framework_load_controllers_after', function ($controllers) {
+    // ALWAYS fetch the latest controllers from Env to avoid overwriting updates from other plugins
+    $controllers = Env::get('controllers');
+
     // The framework handles autoloading YourController::class
     if (class_exists(YourController::class)) {
         $controller = new YourController();
@@ -107,6 +110,20 @@ All plugins **must** be accompanied by a dedicated documentation file in `docs/p
 4.  **CLI/MCP**: List any added commands or tools.
 
 Keeping this file updated as features are added is mandatory.
+
+## Recommended Design Patterns
+
+Structured code is easier to maintain. While plugins can be simple, complex ones should follow established patterns:
+
+1.  **Singleton (Service)**: Use a Service class to handle complex business logic, especially if it maintains state (like a connection) or is used by multiple controllers.
+    ```php
+    class YourService {
+        private static $instance = null;
+        public static function getInstance() { ... }
+    }
+    ```
+2.  **Facade**: If your plugin offers complex functionality to *other* plugins, expose a simple static Facade (e.g., `YourPlugin::doSomething()`) that delegates to your internal classes.
+3.  **Observer**: The `Hook` system is effectively an Observer pattern. Use it to decouple your plugin's actions from core events (e.g., `Hook::add('user_login', ...)`).
 
 ## Checklist
 

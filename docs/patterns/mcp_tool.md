@@ -113,6 +113,12 @@ New MCP tools, prompts, or resources **must** be documented in:
 1.  **`docs/architect/mcp_roadmap.md`**: Update the status and add the new tool to the relevant roadmap phase.
 2.  **Plugin/Tool specific docs**: Document the tool's specific purpose and complex behaviors if they exceed the standard metadata description.
 
+## Recommended Design Patterns
+
+1.  **Command Pattern**: Each MCP tool is essentially a **Command** object. It encapsulates a request as an object (the class) with a standard execution method (`execute`). Keep this clear separation.
+2.  **Chain of Responsibility**: If a tool needs to perform a sequence of checks (auth, validation, resource existence), consider breaking these into small, chainable steps or using a middleware approach within the tool if it gets complex.
+3.  **Data Transfer Object (DTO)**: The `$arguments` array in `execute()` can be unstructured. For complex tools, immediately mapping this array to a strict DTO class (e.g., `SeoAnalysisRequest`) helps enforce types and structure early.
+
 ## Checklist
 
 - [x] Class extends `BaseTool`.

@@ -70,6 +70,16 @@ Any new controller logic **must** be documented within the relevant plugin or fe
 2.  **Input/Output**: Describe expected JSON request bodies and response structures.
 3.  **Authentication**: Specify whether `requireAuth` or `requireAdmin` is used.
 
+## Recommended Design Patterns
+
+Controllers often become bloated. Apply these patterns to keep them lean:
+
+1.  **Service Layer**: Controllers should not contain business logic. They should validate input, call a **Service**, and return a response.
+    - Bad: Calculating tax and saving order details inside `create()`.
+    - Good: Calling `OrderService::create($input)` inside `create()`.
+2.  **Strategy**: If an endpoint behaves differently based on input (e.g., `payment_method: 'stripe'` vs `'paypal'`), defining a Strategy interface allows you to swap implementations without `if/else` spaghetti in the controller.
+3.  **Command**: For complex actions (like "Publish Page"), encapsulate the logic in a Command class. The controller simply instantiates and executes the command.
+
 ## Checklist
 
 - [x] Resides in `YourPlugin/class/Controller/`.

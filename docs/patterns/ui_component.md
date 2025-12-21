@@ -96,6 +96,16 @@ Complex UI components **must** be documented to explain their purpose and state 
 2.  **Interactions**: Main user actions (clicks, form submissions).
 3.  **API Integration**: Which endpoints the component communicates with.
 
+## Recommended Design Patterns
+
+1.  **Composite Pattern**: Build complex views from smaller, reusable atomic components (e.g., Buttons, Inputs, Cards). This encourages reusability.
+    - *Example*: A `UserForm` component that uses `TextInput`, `SelectBox`, and `SubmitButton` components.
+2.  **Container/Presentational Separation**:
+    - **Container**: Handles data fetching and business logic (the "smart" component).
+    - **Presentational**: Handles rendering and user interaction events (the "dumb" component).
+    - *Benefits*: Logic is easier to test, and the visual component can be reused with different data sources.
+3.  **Observer (Reactivity)**: Vue's reactivity system is an implementation of the Observer pattern. Utilize `computed` properties to automatically update the view when state changes, rather than manually updating the DOM.
+
 ## Checklist
 
 - [x] Resides in `resources/js/`.

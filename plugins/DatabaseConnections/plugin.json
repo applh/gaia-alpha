@@ -3,7 +3,7 @@
     "version": "1.0.0",
     "description": "Manage external database connections (MariaDB, PostgreSQL)",
     "author": "Gaia Alpha",
-    "is_core": true,
+    "type": "core",
     "menu": {
         "items": [
             {

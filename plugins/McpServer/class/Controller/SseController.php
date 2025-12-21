@@ -35,6 +35,16 @@ class SseController
     }
 
     /**
+     * Register SSE routes
+     */
+    public function registerRoutes()
+    {
+        \GaiaAlpha\Router::add('POST', '/@/mcp/session', [$this, 'createSession']);
+        \GaiaAlpha\Router::add('POST', '/@/mcp/request', [$this, 'handleRequest']);
+        \GaiaAlpha\Router::add('GET', '/@/mcp/stream', [$this, 'handleStream']);
+    }
+
+    /**
      * Handle client requests (POST endpoint)
      * POST /@/mcp/request
      */

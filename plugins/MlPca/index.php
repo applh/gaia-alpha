@@ -6,6 +6,7 @@ use MlPca\Controller\PcaController;
 
 // 1. Dynamic Controller Registration
 Hook::add('framework_load_controllers_after', function ($controllers) {
+    $controllers = Env::get('controllers');
     if (class_exists(PcaController::class)) {
         $controller = new PcaController();
         $controller->registerRoutes();

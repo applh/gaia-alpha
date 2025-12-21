@@ -53,6 +53,34 @@ class App
         Hook::run('app_init');
         Env::set('root_dir', $rootDir);
 
+        // 1. Determine Data Path
+        if (getenv('GAIA_DATA_PATH')) {
+            if (!defined('GAIA_DATA_PATH')) {
+                define('GAIA_DATA_PATH', getenv('GAIA_DATA_PATH'));
+            }
+        }
+
+        if (file_exists($rootDir . '/loader.php')) {
+            require_once $rootDir . '/loader.php';
+        }
+
+        if (!defined('GAIA_DATA_PATH')) {
+            define('GAIA_DATA_PATH', $rootDir . '/my-data');
+        }
+
+        $dataPath = GAIA_DATA_PATH;
+        if (!is_dir($dataPath)) {
+            mkdir($dataPath, 0755, true);
+        }
+        Env::set('path_data', $dataPath);
+
+        // 2. Load Config
+        if (file_exists($dataPath . '/config.php')) {
+            require_once $dataPath . '/config.php';
+        } elseif (file_exists($rootDir . '/my-config.php')) {
+            require_once $rootDir . '/my-config.php';
+        }
+
         // Resolve Site / DB Path
         \GaiaAlpha\SiteManager::resolve();
 
@@ -70,21 +98,7 @@ class App
             "step99" => "GaiaAlpha\\Response::flush",
         ]);
 
-        // load my-config.php
-        // can change framework_tasks
-        if (file_exists($rootDir . '/my-config.php')) {
-            require_once $rootDir . '/my-config.php';
-        }
-
-        $dataPath = defined('GAIA_DATA_PATH') ? GAIA_DATA_PATH : $rootDir . '/my-data';
-        if (!is_dir($dataPath)) {
-            mkdir($dataPath, 0755, true);
-        }
-        Env::set('path_data', $dataPath);
-
         self::registerAutoloaders();
-
-
     }
 
     public static function cli_setup(string $rootDir)
@@ -96,6 +110,34 @@ class App
         Hook::run('app_init');
         Env::set('root_dir', $rootDir);
 
+        // 1. Determine Data Path
+        if (getenv('GAIA_DATA_PATH')) {
+            if (!defined('GAIA_DATA_PATH')) {
+                define('GAIA_DATA_PATH', getenv('GAIA_DATA_PATH'));
+            }
+        }
+
+        if (file_exists($rootDir . '/loader.php')) {
+            require_once $rootDir . '/loader.php';
+        }
+
+        if (!defined('GAIA_DATA_PATH')) {
+            define('GAIA_DATA_PATH', $rootDir . '/my-data');
+        }
+
+        $dataPath = GAIA_DATA_PATH;
+        if (!is_dir($dataPath)) {
+            mkdir($dataPath, 0755, true);
+        }
+        Env::set('path_data', $dataPath);
+
+        // 2. Load Config
+        if (file_exists($dataPath . '/config.php')) {
+            require_once $dataPath . '/config.php';
+        } elseif (file_exists($rootDir . '/my-config.php')) {
+            require_once $rootDir . '/my-config.php';
+        }
+
         // Resolve Site / DB Path
         \GaiaAlpha\SiteManager::resolve();
 
@@ -105,16 +147,6 @@ class App
             "step06" => "GaiaAlpha\\Framework::appBoot",
             "step10" => "GaiaAlpha\\Cli::run"
         ]);
-
-        if (file_exists($rootDir . '/my-config.php')) {
-            require_once $rootDir . '/my-config.php';
-        }
-
-        $dataPath = defined('GAIA_DATA_PATH') ? GAIA_DATA_PATH : $rootDir . '/my-data';
-        if (!is_dir($dataPath)) {
-            mkdir($dataPath, 0755, true);
-        }
-        Env::set('path_data', $dataPath);
 
         self::registerAutoloaders();
     }

@@ -16,6 +16,32 @@ services:
     environment:
       - REPO_URL=https://github.com/applh/gaia-alpha.git
       - BRANCH=main
+      - GAIA_DB_TYPE=mysql # Options: sqlite, mysql, pgsql
+      - GAIA_DB_HOST=db # Service name for mysql/pgsql
+      - GAIA_DB_NAME=gaia
+      - GAIA_DB_USER=gaia_user
+      - GAIA_DB_PASS=secret
+
+  # Option A: MariaDB (Default DB Service)
+  db:
+    image: mariadb:10.11
+    environment:
+      MYSQL_ROOT_PASSWORD: root_secret
+      MYSQL_DATABASE: gaia
+      MYSQL_USER: gaia_user
+      MYSQL_PASSWORD: secret
+    volumes:
+      - db_data:/var/lib/mysql
+  # Option B: PostgreSQL (Uncomment to use)
+  # db_pgsql:
+  #   image: postgres:15
+  #   environment:
+  #     POSTGRES_DB: gaia
+  #     POSTGRES_USER: gaia_user
+  #     POSTGRES_PASSWORD: secret
+  #   volumes:
+  #     - db_pgsql_data:/var/lib/postgresql/data
 
 volumes:
   app_code:
+  db_data: # db_pgsql_data:

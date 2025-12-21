@@ -13,11 +13,12 @@ RUN apk add --no-cache \
     icu-dev \
     imagemagick \
     imagemagick-dev \
-    libzip-dev
+    libzip-dev \
+    postgresql-dev
 
 # Install extensions
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install -j$(nproc) gd pdo pdo_sqlite intl zip bcmath exif \
+    && docker-php-ext-install -j$(nproc) gd pdo pdo_sqlite pdo_mysql pdo_pgsql intl zip bcmath exif \
     && pecl install imagick \
     && docker-php-ext-enable imagick
 

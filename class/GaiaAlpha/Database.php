@@ -13,10 +13,10 @@ class Database
 {
     private ?PDO $pdo = null;
 
-    public function __construct(string $dsn)
+    public function __construct(string $dsn, ?string $user = null, ?string $pass = null)
     {
         try {
-            $this->pdo = new PDO($dsn);
+            $this->pdo = new PDO($dsn, $user, $pass);
             $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             $this->pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
@@ -30,27 +30,36 @@ class Database
         $sqlDir = Env::get('root_dir') . '/templates/sql';
 
         // Scan for schema files and sort them
-        // Use numbered prefixes for explicit order: 001_users.sql, 002_todos.sql, etc.
-        // Only scans files directly in /templates/sql/, not subdirectories like /migrations/
         $sqlFiles = glob($sqlDir . '/*.sql');
 
         if ($sqlFiles === false || empty($sqlFiles)) {
             throw new \RuntimeException("No SQL schema files found in: $sqlDir");
         }
 
-        sort($sqlFiles); // Ensures consistent alphabetical order (001_users.sql, 002_todos.sql, etc.)
+        sort($sqlFiles);
 
-        $commands = [];
         foreach ($sqlFiles as $filePath) {
             if (file_exists($filePath)) {
-                $commands[] = file_get_contents($filePath);
-            } else {
-                throw new \RuntimeException("SQL template file not found: $filePath");
-            }
-        }
+                $sqlContent = file_get_contents($filePath);
 
-        foreach ($commands as $command) {
-            $this->pdo->exec($command);
+                // Split by semicolon to handle multiple statements
+                // reusing logic similar to runMigrations
+                $statements = array_filter(
+                    array_map('trim', explode(';', $sqlContent)),
+                    function ($stmt) {
+                        return !empty($stmt) && !str_starts_with($stmt, '--');
+                    }
+                );
+
+                foreach ($statements as $statement) {
+                    try {
+                        $this->pdo->exec($statement);
+                    } catch (PDOException $e) {
+                        // Ignore "table already exists" type errors
+                        // Making this idempotent allows safe re-runs
+                    }
+                }
+            }
         }
 
         $this->runMigrations();

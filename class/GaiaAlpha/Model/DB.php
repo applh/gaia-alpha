@@ -29,8 +29,10 @@ class DB
         $installNeeded = !file_exists($dbPath) || filesize($dbPath) === 0;
 
         $dsn = defined('GAIA_DB_DSN') ? GAIA_DB_DSN : 'sqlite:' . $dbPath;
+        $user = defined('GAIA_DB_USER') ? GAIA_DB_USER : null;
+        $pass = defined('GAIA_DB_PASS') ? GAIA_DB_PASS : null;
 
-        $db = new Database($dsn);
+        $db = new Database($dsn, $user, $pass);
 
         if ($installNeeded) {
             $db->ensureSchema();

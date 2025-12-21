@@ -20,10 +20,10 @@
             color: var(--text);
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
             display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
+            min-height: 100vh;
             margin: 0;
+            padding: 2rem 0;
+            box-sizing: border-box;
         }
 
         .install-card {
@@ -33,6 +33,7 @@
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
             width: 100%;
             max-width: 400px;
+            margin: auto;
         }
 
         h1 {
@@ -109,9 +110,47 @@
         <div id="error-msg" class="error"></div>
 
         <form id="install-form">
+            <!-- Database Configuration -->
+            <div style="margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid #334155;">
+                <div class="form-group">
+                    <label for="db_type">Database Type</label>
+                    <select id="db_type" name="db_type"
+                        style="width: 100%; padding: 0.75rem; border-radius: 6px; border: 1px solid #334155; background-color: #0f172a; color: white;">
+                        <option value="sqlite" selected>SQLite (Default)</option>
+                        <option value="mysql">MariaDB / MySQL</option>
+                        <option value="pgsql">PostgreSQL</option>
+                    </select>
+                </div>
+
+                <div id="db-details" style="display: none;">
+                    <div class="form-group">
+                        <label for="db_host">Host</label>
+                        <input type="text" id="db_host" name="db_host" value="127.0.0.1" placeholder="127.0.0.1">
+                    </div>
+                    <div class="form-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div>
+                            <label for="db_port">Port</label>
+                            <input type="text" id="db_port" name="db_port" placeholder="3306">
+                        </div>
+                        <div>
+                            <label for="db_name">Database Name</label>
+                            <input type="text" id="db_name" name="db_name" value="gaia_alpha">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="db_user">Username</label>
+                        <input type="text" id="db_user" name="db_user" placeholder="root">
+                    </div>
+                    <div class="form-group">
+                        <label for="db_pass">Password</label>
+                        <input type="password" id="db_pass" name="db_pass" placeholder="">
+                    </div>
+                </div>
+            </div>
+
             <div class="form-group">
-                <label for="username">Username</label>
-                <input type="text" id="username" name="username" value="admin" required autofocus autocomplete="off">
+                <label for="username">Admin Username</label>
+                <input type="text" id="username" name="username" value="admin" required autocomplete="off">
             </div>
 
             <div class="form-group">
@@ -182,6 +221,22 @@
     </div>
 
     <script>
+        // Database selection toggling
+        const dbType = document.getElementById('db_type');
+        const dbDetails = document.getElementById('db-details');
+        const dbPort = document.getElementById('db_port');
+
+        dbType.addEventListener('change', () => {
+            if (dbType.value === 'sqlite') {
+                dbDetails.style.display = 'none';
+            } else {
+                dbDetails.style.display = 'block';
+                // Update default port
+                if (dbType.value === 'mysql') dbPort.placeholder = '3306';
+                if (dbType.value === 'pgsql') dbPort.placeholder = '5432';
+            }
+        });
+
         // Fetch plugins on load
         (async () => {
             try {

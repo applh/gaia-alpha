@@ -72,11 +72,11 @@ class InstallController extends BaseController
         }
 
         try {
-            // Save Active Plugins
-            $plugins = [];
-            if (isset($data['plugins']) && is_array($data['plugins'])) {
-                $plugins = $data['plugins'];
-            }
+            // Validate Database Connection first
+            $dbType = $data['db_type'] ?? 'sqlite';
+            $dsn = '';
+            $user = null;
+            $pass = null;
 
             $dataPath = Env::get('path_data');
             if (!$dataPath) {
@@ -84,6 +84,57 @@ class InstallController extends BaseController
             }
             if (!is_dir($dataPath)) {
                 mkdir($dataPath, 0755, true);
+            }
+
+            if ($dbType === 'sqlite') {
+                $dsn = 'sqlite:' . $dataPath . '/database.sqlite';
+            } else {
+                $host = $data['db_host'] ?? '127.0.0.1';
+                // Port default logic
+                if (empty($data['db_port'])) {
+                    $port = ($dbType === 'mysql') ? '3306' : '5432';
+                } else {
+                    $port = $data['db_port'];
+                }
+
+                $name = $data['db_name'] ?? 'gaia_alpha';
+                $user = $data['db_user'] ?? '';
+                $pass = $data['db_pass'] ?? '';
+
+                if ($dbType === 'mysql') {
+                    $dsn = "mysql:host=$host;port=$port;dbname=$name;charset=utf8mb4";
+                } elseif ($dbType === 'pgsql') {
+                    $dsn = "pgsql:host=$host;port=$port;dbname=$name";
+                }
+            }
+
+            // Test Connection and Initialize Schema
+            // We pass parameters to the Database constructor to test connectivity
+            // Error will be caught by the catch block below
+            $db = new \GaiaAlpha\Database($dsn, $user, $pass);
+            $db->ensureSchema();
+
+            // Write Configuration to my-data/config.php
+            $configContent = "<?php\n\n";
+            $configContent .= "// Database Configuration ($dbType)\n";
+            if ($dbType === 'sqlite') {
+                // Use __DIR__ so it's relative to the config file location
+                $configContent .= "define('GAIA_DB_DSN', 'sqlite:' . __DIR__ . '/database.sqlite');\n";
+            } else {
+                $configContent .= "define('GAIA_DB_DSN', '$dsn');\n";
+                $configContent .= "define('GAIA_DB_USER', '$user');\n";
+                $configContent .= "define('GAIA_DB_PASS', '$pass');\n";
+            }
+
+            file_put_contents($dataPath . '/config.php', $configContent);
+
+            // Re-inject DB instance into Model Layer
+            \GaiaAlpha\Model\DB::setConnection($db);
+
+            // Save Active Plugins
+            $plugins = [];
+            if (isset($data['plugins']) && is_array($data['plugins'])) {
+                $plugins = $data['plugins'];
             }
             file_put_contents($dataPath . '/active_plugins.json', json_encode($plugins));
 

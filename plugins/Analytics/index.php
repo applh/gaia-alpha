@@ -85,8 +85,7 @@ Hook::add('router_dispatch_after', function ($route, $params) {
     if (strpos($path, '/min/') === 0)
         return;
 
-    $service = AnalyticsService::getInstance();
-    $service->trackVisit(
+    AnalyticsService::trackVisit(
         $path,
         Request::server('HTTP_USER_AGENT'),
         Request::server('REMOTE_ADDR'),

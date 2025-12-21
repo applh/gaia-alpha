@@ -12,12 +12,12 @@ use MediaLibrary\Service\MediaLibraryService;
 
 class MediaLibraryController extends BaseController
 {
-    private MediaLibraryService $service;
+
     private Media $media;
 
     public function init()
     {
-        $this->service = new MediaLibraryService();
+
         $this->media = new Media(Env::get('path_data'));
     }
 
@@ -36,7 +36,7 @@ class MediaLibraryController extends BaseController
             'limit' => Request::query('limit')
         ];
 
-        $files = $this->service->getAllMedia($userId, array_filter($filters));
+        $files = MediaLibraryService::getAllMedia($userId, array_filter($filters));
         Response::json($files);
     }
 
@@ -48,7 +48,7 @@ class MediaLibraryController extends BaseController
         if (!$this->requireAuth())
             return;
 
-        $file = $this->service->getMediaById((int) $id);
+        $file = MediaLibraryService::getMediaById((int) $id);
         if (!$file) {
             Response::json(['error' => 'File not found'], 404);
             return;
@@ -92,7 +92,7 @@ class MediaLibraryController extends BaseController
             }
 
             // Create database record
-            $mediaId = $this->service->createMedia([
+            $mediaId = MediaLibraryService::createMedia([
                 'user_id' => $userId,
                 'filename' => $result['filename'],
                 'original_filename' => $file['name'],
@@ -102,7 +102,7 @@ class MediaLibraryController extends BaseController
                 'height' => $height
             ]);
 
-            $media = $this->service->getMediaById($mediaId);
+            $media = MediaLibraryService::getMediaById($mediaId);
             Response::json($media);
         } catch (\Exception $e) {
             Response::json(['error' => $e->getMessage()], 500);
@@ -117,11 +117,11 @@ class MediaLibraryController extends BaseController
         if (!$this->requireAuth())
             return;
 
-        $data = Request::json();
-        $success = $this->service->updateMedia((int) $id, $data);
+        $data = Request::input();
+        $success = MediaLibraryService::updateMedia((int) $id, $data);
 
         if ($success) {
-            $file = $this->service->getMediaById((int) $id);
+            $file = MediaLibraryService::getMediaById((int) $id);
             Response::json($file);
         } else {
             Response::json(['error' => 'Update failed'], 400);
@@ -136,7 +136,7 @@ class MediaLibraryController extends BaseController
         if (!$this->requireAuth())
             return;
 
-        $success = $this->service->deleteMedia((int) $id);
+        $success = MediaLibraryService::deleteMedia((int) $id);
         Response::json(['success' => $success]);
     }
 
@@ -148,7 +148,7 @@ class MediaLibraryController extends BaseController
         if (!$this->requireAuth())
             return;
 
-        $tags = $this->service->getAllTags();
+        $tags = MediaLibraryService::getAllTags();
         Response::json($tags);
     }
 
@@ -160,18 +160,18 @@ class MediaLibraryController extends BaseController
         if (!$this->requireAuth())
             return;
 
-        $data = Request::json();
+        $data = Request::input();
         if (empty($data['name'])) {
             Response::json(['error' => 'Tag name is required'], 400);
             return;
         }
 
-        $tagId = $this->service->createTag(
+        $tagId = MediaLibraryService::createTag(
             $data['name'],
             $data['color'] ?? '#6366f1'
         );
 
-        $tags = $this->service->getAllTags();
+        $tags = MediaLibraryService::getAllTags();
         $tag = array_filter($tags, fn($t) => $t['id'] == $tagId);
         Response::json(reset($tag));
     }
@@ -184,7 +184,7 @@ class MediaLibraryController extends BaseController
         if (!$this->requireAuth())
             return;
 
-        $success = $this->service->deleteTag((int) $id);
+        $success = MediaLibraryService::deleteTag((int) $id);
         Response::json(['success' => $success]);
     }
 
@@ -196,13 +196,13 @@ class MediaLibraryController extends BaseController
         if (!$this->requireAuth())
             return;
 
-        $data = Request::json();
+        $data = Request::input();
         $tagIds = $data['tag_ids'] ?? [];
 
-        $success = $this->service->assignTags((int) $id, $tagIds);
+        $success = MediaLibraryService::assignTags((int) $id, $tagIds);
 
         if ($success) {
-            $file = $this->service->getMediaById((int) $id);
+            $file = MediaLibraryService::getMediaById((int) $id);
             Response::json($file);
         } else {
             Response::json(['error' => 'Failed to assign tags'], 400);
@@ -224,7 +224,7 @@ class MediaLibraryController extends BaseController
             return;
         }
 
-        $results = $this->service->searchMedia($query, $userId);
+        $results = MediaLibraryService::searchMedia($query, $userId);
         Response::json($results);
     }
 
@@ -237,7 +237,7 @@ class MediaLibraryController extends BaseController
             return;
         $userId = \GaiaAlpha\Session::id();
 
-        $stats = $this->service->getStats($userId);
+        $stats = MediaLibraryService::getStats($userId);
         Response::json($stats);
     }
 

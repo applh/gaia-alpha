@@ -16,7 +16,7 @@ class PcaService
      * ]
      * @throws \Exception If data is invalid
      */
-    public function calculate(array $data, int $nComponents): array
+    public static function calculate(array $data, int $nComponents): array
     {
         // 1. Validation & Preprocessing
         if (empty($data)) {
@@ -85,7 +85,7 @@ class PcaService
 
         // --- Step 3: Eigendecomposition (Jacobi Algorithm) ---
         // Complexity: O(Col^3) per iteration
-        list($eigenvalues, $eigenvectors) = $this->jacobiEigenvalueAlgorithm($covarianceMatrix);
+        list($eigenvalues, $eigenvectors) = self::jacobiEigenvalueAlgorithm($covarianceMatrix);
 
         // --- Step 4: Sort & Project ---
         $pairs = [];
@@ -129,7 +129,7 @@ class PcaService
     /**
      * Solves eigenvalues for a real symmetric matrix.
      */
-    private function jacobiEigenvalueAlgorithm(array $A, float $tol = 1e-10, int $maxIter = 100): array
+    private static function jacobiEigenvalueAlgorithm(array $A, float $tol = 1e-10, int $maxIter = 100): array
     {
         $n = count($A);
         $V = []; // Identity matrix

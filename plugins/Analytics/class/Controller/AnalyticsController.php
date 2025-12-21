@@ -17,8 +17,7 @@ class AnalyticsController extends BaseController
     public function getStats()
     {
         $this->requireAdmin();
-        $service = AnalyticsService::getInstance();
-        $stats = $service->getStats();
+        $stats = AnalyticsService::getStats();
         Response::json($stats);
     }
 }

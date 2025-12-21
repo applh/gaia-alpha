@@ -4,7 +4,7 @@ namespace MediaLibrary\Tool;
 
 use McpServer\Tool\BaseTool;
 use MediaLibrary\Service\MediaLibraryService;
-use GaiaAlpha\Auth;
+use GaiaAlpha\Session;
 
 class TagMedia extends BaseTool
 {
@@ -42,23 +42,23 @@ class TagMedia extends BaseTool
 
     public function execute(array $arguments): array
     {
-        $service = new MediaLibraryService();
+
 
         // Get current user
-        $user = Auth::user();
-        if (!$user) {
+        $userId = Session::id();
+        if (!$userId) {
             throw new \Exception('Authentication required');
         }
 
         $mediaId = $arguments['media_id'];
 
         // Verify media exists and belongs to user
-        $media = $service->getMediaById($mediaId);
+        $media = MediaLibraryService::getMediaById($mediaId);
         if (!$media) {
             throw new \Exception("Media file not found: $mediaId");
         }
 
-        if ($media['user_id'] != $user['id']) {
+        if ($media['user_id'] != $userId) {
             throw new \Exception("Access denied to media file: $mediaId");
         }
 
@@ -71,7 +71,7 @@ class TagMedia extends BaseTool
 
         // Handle tag names (create if needed)
         if (!empty($arguments['tag_names'])) {
-            $allTags = $service->getAllTags();
+            $allTags = MediaLibraryService::getAllTags();
             $tagMap = [];
             foreach ($allTags as $tag) {
                 $tagMap[strtolower($tag['name'])] = $tag['id'];
@@ -83,17 +83,17 @@ class TagMedia extends BaseTool
                     $tagIds[] = $tagMap[$key];
                 } else {
                     // Create new tag
-                    $newTagId = $service->createTag($tagName);
+                    $newTagId = MediaLibraryService::createTag($tagName);
                     $tagIds[] = $newTagId;
                 }
             }
         }
 
         // Assign tags
-        $success = $service->assignTags($mediaId, array_unique($tagIds));
+        $success = MediaLibraryService::assignTags($mediaId, array_unique($tagIds));
 
         if ($success) {
-            $updatedMedia = $service->getMediaById($mediaId);
+            $updatedMedia = MediaLibraryService::getMediaById($mediaId);
             $tagNames = array_map(fn($t) => $t['name'], $updatedMedia['tags']);
 
             return $this->resultText(

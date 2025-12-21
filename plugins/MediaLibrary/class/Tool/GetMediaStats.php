@@ -4,7 +4,7 @@ namespace MediaLibrary\Tool;
 
 use McpServer\Tool\BaseTool;
 use MediaLibrary\Service\MediaLibraryService;
-use GaiaAlpha\Auth;
+use GaiaAlpha\Session;
 
 class GetMediaStats extends BaseTool
 {
@@ -28,15 +28,15 @@ class GetMediaStats extends BaseTool
 
     public function execute(array $arguments): array
     {
-        $service = new MediaLibraryService();
+
 
         // Get current user
-        $user = Auth::user();
-        if (!$user) {
+        $userId = Session::id();
+        if (!$userId) {
             throw new \Exception('Authentication required');
         }
 
-        $stats = $service->getStats($user['id']);
+        $stats = MediaLibraryService::getStats($userId);
 
         $output = "# Media Library Statistics\n\n";
         $output .= "- **Total Files**: {$stats['total_files']}\n";

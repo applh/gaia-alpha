@@ -44,8 +44,7 @@ class PcaController extends BaseController
         }
 
         try {
-            $service = new PcaService();
-            $result = $service->calculate($rawData, $nComponents);
+            $result = PcaService::calculate($rawData, $nComponents);
 
             Response::json([
                 'success' => true,

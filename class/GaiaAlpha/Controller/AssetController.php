@@ -209,11 +209,11 @@ class AssetController extends BaseController
 
         // Serve Seed Data (Dev/Demo purpose)
         Router::get('/templates/seed/(.+)', function ($file) {
-            $path = \GaiaAlpha\Env::get('root_dir') . '/templates/seed/' . $file;
-            if (\GaiaAlpha\File::exists($path)) {
-                \GaiaAlpha\Response::file($path);
+            $path = Env::get('root_dir') . '/templates/seed/' . $file;
+            if (File::exists($path)) {
+                Response::file($path);
             } else {
-                \GaiaAlpha\Response::send('Not Found', 404);
+                Response::send('Not Found', 404);
             }
         });
     }

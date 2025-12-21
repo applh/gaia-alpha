@@ -9,7 +9,7 @@ class MediaLibraryService
     /**
      * Get all media files with optional filters
      */
-    public function getAllMedia(int $userId, array $filters = []): array
+    public static function getAllMedia(int $userId, array $filters = []): array
     {
         $query = "SELECT m.*, GROUP_CONCAT(t.name) as tags 
                   FROM cms_media m
@@ -48,7 +48,7 @@ class MediaLibraryService
     /**
      * Get a single media file by ID
      */
-    public function getMediaById(int $id): ?array
+    public static function getMediaById(int $id): ?array
     {
         $media = DB::fetch(
             "SELECT * FROM cms_media WHERE id = ?",
@@ -72,7 +72,7 @@ class MediaLibraryService
     /**
      * Create a new media record
      */
-    public function createMedia(array $data): int
+    public static function createMedia(array $data): int
     {
         DB::execute(
             "INSERT INTO cms_media (user_id, filename, original_filename, mime_type, file_size, width, height, alt_text, caption, created_at, updated_at)
@@ -96,7 +96,7 @@ class MediaLibraryService
     /**
      * Update media metadata
      */
-    public function updateMedia(int $id, array $data): bool
+    public static function updateMedia(int $id, array $data): bool
     {
         $fields = [];
         $params = [];
@@ -132,10 +132,10 @@ class MediaLibraryService
     /**
      * Delete a media file
      */
-    public function deleteMedia(int $id): bool
+    public static function deleteMedia(int $id): bool
     {
         // Get media info before deletion
-        $media = $this->getMediaById($id);
+        $media = self::getMediaById($id);
         if (!$media) {
             return false;
         }
@@ -155,7 +155,7 @@ class MediaLibraryService
     /**
      * Get all tags
      */
-    public function getAllTags(): array
+    public static function getAllTags(): array
     {
         return DB::fetchAll(
             "SELECT t.*, COUNT(r.media_id) as media_count 
@@ -169,9 +169,9 @@ class MediaLibraryService
     /**
      * Create a new tag
      */
-    public function createTag(string $name, string $color = '#6366f1'): int
+    public static function createTag(string $name, string $color = '#6366f1'): int
     {
-        $slug = $this->slugify($name);
+        $slug = self::slugify($name);
 
         DB::execute(
             "INSERT INTO cms_media_tags (name, slug, color, created_at) VALUES (?, ?, ?, datetime('now'))",
@@ -184,7 +184,7 @@ class MediaLibraryService
     /**
      * Delete a tag
      */
-    public function deleteTag(int $id): bool
+    public static function deleteTag(int $id): bool
     {
         DB::execute("DELETE FROM cms_media_tags WHERE id = ?", [$id]);
         return true;
@@ -193,7 +193,7 @@ class MediaLibraryService
     /**
      * Assign tags to a media file
      */
-    public function assignTags(int $mediaId, array $tagIds): bool
+    public static function assignTags(int $mediaId, array $tagIds): bool
     {
         // Remove existing tags
         DB::execute("DELETE FROM cms_media_tag_relations WHERE media_id = ?", [$mediaId]);
@@ -212,15 +212,15 @@ class MediaLibraryService
     /**
      * Search media files
      */
-    public function searchMedia(string $query, int $userId): array
+    public static function searchMedia(string $query, int $userId): array
     {
-        return $this->getAllMedia($userId, ['search' => $query]);
+        return self::getAllMedia($userId, ['search' => $query]);
     }
 
     /**
      * Get media library statistics
      */
-    public function getStats(int $userId): array
+    public static function getStats(int $userId): array
     {
         $totalFiles = DB::fetch(
             "SELECT COUNT(*) as count FROM cms_media WHERE user_id = ?",
@@ -240,7 +240,7 @@ class MediaLibraryService
         return [
             'total_files' => $totalFiles,
             'total_size' => $totalSize,
-            'total_size_formatted' => $this->formatBytes($totalSize),
+            'total_size_formatted' => self::formatBytes($totalSize),
             'file_types' => $fileTypes
         ];
     }
@@ -248,7 +248,7 @@ class MediaLibraryService
     /**
      * Helper: Create slug from string
      */
-    private function slugify(string $text): string
+    private static function slugify(string $text): string
     {
         $text = strtolower($text);
         $text = preg_replace('/[^a-z0-9-]/', '-', $text);
@@ -259,7 +259,7 @@ class MediaLibraryService
     /**
      * Helper: Format bytes to human-readable size
      */
-    private function formatBytes(int $bytes, int $precision = 2): string
+    private static function formatBytes(int $bytes, int $precision = 2): string
     {
         $units = ['B', 'KB', 'MB', 'GB', 'TB'];
         $bytes = max($bytes, 0);

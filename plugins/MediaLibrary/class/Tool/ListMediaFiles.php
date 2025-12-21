@@ -4,7 +4,7 @@ namespace MediaLibrary\Tool;
 
 use McpServer\Tool\BaseTool;
 use MediaLibrary\Service\MediaLibraryService;
-use GaiaAlpha\Auth;
+use GaiaAlpha\Session;
 
 class ListMediaFiles extends BaseTool
 {
@@ -40,11 +40,11 @@ class ListMediaFiles extends BaseTool
 
     public function execute(array $arguments): array
     {
-        $service = new MediaLibraryService();
+
 
         // Get current user
-        $user = Auth::user();
-        if (!$user) {
+        $userId = Session::id();
+        if (!$userId) {
             throw new \Exception('Authentication required');
         }
 
@@ -54,7 +54,7 @@ class ListMediaFiles extends BaseTool
             'limit' => $arguments['limit'] ?? null
         ];
 
-        $files = $service->getAllMedia($user['id'], array_filter($filters));
+        $files = MediaLibraryService::getAllMedia($userId, array_filter($filters));
 
         $output = "# Media Library Files\n\n";
         $output .= "Total files: " . count($files) . "\n\n";
@@ -86,7 +86,7 @@ class ListMediaFiles extends BaseTool
                 }
 
                 $output .= "- **Created**: {$file['created_at']}\n";
-                $output .= "- **URL**: /media/{$user['id']}/{$file['filename']}\n\n";
+                $output .= "- **URL**: /media/{$userId}/{$file['filename']}\n\n";
             }
         }
 

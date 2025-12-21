@@ -145,7 +145,7 @@ class DynamicApiController extends BaseController
     public function handleCreate(string $table)
     {
         $this->checkAccess($table);
-        $data = Request::json();
+        $data = Request::input();
 
         if (empty($data)) {
             Response::json(['error' => 'No data provided'], 400);
@@ -169,7 +169,7 @@ class DynamicApiController extends BaseController
     public function handleUpdate(string $table, string $id)
     {
         $this->checkAccess($table);
-        $data = Request::json();
+        $data = Request::input();
 
         if (empty($data)) {
             Response::json(['error' => 'No data provided'], 400);

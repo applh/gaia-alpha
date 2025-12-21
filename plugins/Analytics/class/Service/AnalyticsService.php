@@ -7,22 +7,14 @@ use PDO;
 
 class AnalyticsService
 {
-    private static $instance = null;
 
-    public static function getInstance()
-    {
-        if (self::$instance === null) {
-            self::$instance = new self();
-        }
-        return self::$instance;
-    }
 
-    public function trackVisit($path, $userAgent, $ip, $referrer)
+    public static function trackVisit($path, $userAgent, $ip, $referrer)
     {
         DB::query("INSERT INTO cms_analytics_visits (page_path, user_agent, visitor_ip, referrer) VALUES (?, ?, ?, ?)", [$path, $userAgent, $ip, $referrer]);
     }
 
-    public function getStats($days = 30)
+    public static function getStats($days = 30)
     {
         // Total visits and Unique visitors
         $totalVisits = DB::fetchColumn("SELECT COUNT(*) FROM cms_analytics_visits");
@@ -67,7 +59,7 @@ class AnalyticsService
 
         foreach ($allUas as $row) {
             $ua = $row['user_agent'];
-            $parsed = $this->parseUserAgent($ua);
+            $parsed = self::parseUserAgent($ua);
 
             $b = $parsed['browser'];
             $browsers[$b] = ($browsers[$b] ?? 0) + 1;
@@ -112,7 +104,7 @@ class AnalyticsService
         ];
     }
 
-    private function parseUserAgent($ua)
+    private static function parseUserAgent($ua)
     {
         $browser = 'Unknown';
         $os = 'Unknown';

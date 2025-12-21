@@ -4,7 +4,7 @@ namespace MediaLibrary\Tool;
 
 use McpServer\Tool\BaseTool;
 use MediaLibrary\Service\MediaLibraryService;
-use GaiaAlpha\Auth;
+use GaiaAlpha\Session;
 
 class SearchMedia extends BaseTool
 {
@@ -32,16 +32,16 @@ class SearchMedia extends BaseTool
 
     public function execute(array $arguments): array
     {
-        $service = new MediaLibraryService();
+
 
         // Get current user
-        $user = Auth::user();
-        if (!$user) {
+        $userId = Session::id();
+        if (!$userId) {
             throw new \Exception('Authentication required');
         }
 
         $query = $arguments['query'];
-        $results = $service->searchMedia($query, $user['id']);
+        $results = MediaLibraryService::searchMedia($query, $userId);
 
         $output = "# Search Results for: \"$query\"\n\n";
         $output .= "Found " . count($results) . " file(s)\n\n";
@@ -67,7 +67,7 @@ class SearchMedia extends BaseTool
                     $output .= "- **Tags**: {$file['tags']}\n";
                 }
 
-                $output .= "- **URL**: /media/{$user['id']}/{$file['filename']}\n\n";
+                $output .= "- **URL**: /media/{$userId}/{$file['filename']}\n\n";
             }
         }
 

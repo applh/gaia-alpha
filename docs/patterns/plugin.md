@@ -115,15 +115,10 @@ Keeping this file updated as features are added is mandatory.
 
 Structured code is easier to maintain. While plugins can be simple, complex ones should follow established patterns:
 
-1.  **Singleton (Service)**: Use a Service class to handle complex business logic, especially if it maintains state (like a connection) or is used by multiple controllers.
-    ```php
-    class YourService {
-        private static $instance = null;
-        public static function getInstance() { ... }
-    }
-    ```
-2.  **Facade**: If your plugin offers complex functionality to *other* plugins, expose a simple static Facade (e.g., `YourPlugin::doSomething()`) that delegates to your internal classes.
-3.  **Observer**: The `Hook` system is effectively an Observer pattern. Use it to decouple your plugin's actions from core events (e.g., `Hook::add('user_login', ...)`).
+1.  **[Service Pattern](../patterns/service.md)**: Use a Service class to handle complex business logic, especially if it maintains state (like a connection) or is used by multiple controllers.
+2.  **[Model Pattern](../patterns/model.md)**: Use Model classes to define data structures, separating data shape from business logic.
+3.  **Facade**: If your plugin offers complex functionality to *other* plugins, expose a simple static Facade (e.g., `YourPlugin::doSomething()`) that delegates to your internal classes.
+4.  **Observer**: The `Hook` system is effectively an Observer pattern. Use it to decouple your plugin's actions from core events (e.g., `Hook::add('user_login', ...)`).
 
 ## Checklist
 

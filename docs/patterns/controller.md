@@ -98,3 +98,7 @@ Controllers often become bloated. Apply these patterns to keep them lean:
 - [x] Extends `BaseController`.
 - [x] Routes are registered and follow the `/@/` prefix convention for API calls.
 - [x] Routes and API logic are documented in the plugin's documentation file.
+
+## See Also
+
+- [AssetController Pattern](asset_controller.md): For details on serving static assets.

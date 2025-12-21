@@ -25,37 +25,26 @@ export default {
     `,
     setup(props) {
         const chartCanvas = ref(null);
-        const chartInstance = ref(null);
+        let chartInstance = null;
         const error = ref(null);
 
         const createChart = async () => {
             if (!chartCanvas.value) return;
 
             try {
-                // Dynamically import Chart.js from CDN with all components
-                const ChartModule = await import('https://cdn.jsdelivr.net/npm/chart.js@4.4.7/+esm');
-                const { Chart, LineController, BarController, PieController, DoughnutController,
-                    RadarController, PolarAreaController, ScatterController,
-                    CategoryScale, LinearScale, RadialLinearScale, PointElement,
-                    LineElement, BarElement, ArcElement, Tooltip, Legend } = ChartModule;
-
-                // Register all components
-                Chart.register(
-                    LineController, BarController, PieController, DoughnutController,
-                    RadarController, PolarAreaController, ScatterController,
-                    CategoryScale, LinearScale, RadialLinearScale,
-                    PointElement, LineElement, BarElement, ArcElement,
-                    Tooltip, Legend
-                );
+                if (typeof window.Chart === 'undefined') {
+                    await import('/min/js/vendor/chart.js');
+                }
 
                 // Destroy existing chart
-                if (chartInstance.value) {
-                    chartInstance.value.destroy();
+                if (chartInstance) {
+                    chartInstance.destroy();
+                    chartInstance = null;
                 }
 
                 // Create new chart
-                const ctx = chartCanvas.value.getContext('2d');
-                chartInstance.value = new Chart(ctx, {
+                // Use chartCanvas.value (HTMLElement) directly to avoid context issues with proxies
+                chartInstance = new window.Chart(chartCanvas.value, {
                     type: props.chartType,
                     data: props.data,
                     options: {
@@ -77,8 +66,9 @@ export default {
         });
 
         onUnmounted(() => {
-            if (chartInstance.value) {
-                chartInstance.value.destroy();
+            if (chartInstance) {
+                chartInstance.destroy();
+                chartInstance = null;
             }
         });
 

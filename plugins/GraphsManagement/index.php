@@ -46,7 +46,7 @@ Hook::add('auth_session_data', function ($data) {
 
 // Add Chart.js to import map
 Hook::add('html_head', function ($html) {
-    $chartJsPath = '/plugins/GraphsManagement/resources/js/vendor/chart.js';
+    $chartJsPath = '/min/js/vendor/chart.js';
     $importMap = '<script type="importmap-shim">
     {
         "imports": {
@@ -73,7 +73,7 @@ Hook::add('content_render', function ($content) {
         return '<div class="graph-embed" style="width: ' . $width . '; height: ' . $height . 'px;">
             <canvas id="' . $canvasId . '"></canvas>
             <script type="module">
-                import { Chart } from "https://cdn.jsdelivr.net/npm/chart.js@4.4.7/+esm";
+                import "/min/js/vendor/chart.js";
                 
                 (async () => {
                     try {
@@ -86,7 +86,7 @@ Hook::add('content_render', function ($content) {
                         const { graph, data } = await res.json();
                         const ctx = document.getElementById("' . $canvasId . '").getContext("2d");
                         
-                        new Chart(ctx, {
+                        new window.Chart(ctx, {
                             type: graph.chart_type,
                             data: data,
                             options: graph.chart_config || {}
@@ -106,7 +106,7 @@ Hook::add('content_render', function ($content) {
 
         return '<div class="collection-embed" id="' . $containerId . '">
             <script type="module">
-                import { Chart } from "https://cdn.jsdelivr.net/npm/chart.js@4.4.7/+esm";
+                import "/min/js/vendor/chart.js";
                 
                 (async () => {
                     try {
@@ -148,7 +148,7 @@ Hook::add('content_render', function ($content) {
                             const dataRes = await fetch("/@/graphs/" + graph.id + "/data");
                             const { data } = await dataRes.json();
                             
-                            new Chart(canvas.getContext("2d"), {
+                            new window.Chart(canvas.getContext("2d"), {
                                 type: graph.chart_type,
                                 data: data,
                                 options: graph.chart_config || {}

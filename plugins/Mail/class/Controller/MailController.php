@@ -1,14 +1,13 @@
 <?php
 
-namespace GaiaAlpha\Plugins\Mail\Controller;
+namespace Mail\Controller;
 
-use GaiaAlpha\Plugins\Mail\Mail;
-
-use GaiaAlpha\Framework;
+use Mail\Mail;
+use GaiaAlpha\Controller\BaseController;
 use GaiaAlpha\Request;
 use GaiaAlpha\Response;
 
-class MailController
+class MailController extends BaseController
 {
 
     protected $logFile;

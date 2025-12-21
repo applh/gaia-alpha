@@ -10,13 +10,15 @@ class MapController extends BaseController
 {
     public function index()
     {
-        $this->requireAuth();
+        if (!$this->requireAuth())
+            return;
         Response::json(MapMarker::findAllByUserId($_SESSION['user_id']));
     }
 
     public function create()
     {
-        $this->requireAuth();
+        if (!$this->requireAuth())
+            return;
         $this->requireAuth();
         $data = \GaiaAlpha\Request::input();
 
@@ -30,7 +32,8 @@ class MapController extends BaseController
 
     public function update($id)
     {
-        $this->requireAuth();
+        if (!$this->requireAuth())
+            return;
         $data = \GaiaAlpha\Request::input();
 
         if (!isset($data['lat']) || !isset($data['lng'])) {

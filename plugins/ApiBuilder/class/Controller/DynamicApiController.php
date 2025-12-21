@@ -88,7 +88,8 @@ class DynamicApiController extends BaseController
         }
 
         if ($level === 'user') {
-            $this->requireAuth();
+            if (!$this->requireAuth())
+                return;
             return;
         }
 
@@ -118,7 +119,7 @@ class DynamicApiController extends BaseController
         $countParams = "SELECT COUNT(*) FROM $table";
         $total = \GaiaAlpha\Model\DB::fetchColumn($countParams);
 
-        $this->jsonResponse([
+        Response::json([
             'data' => $rows,
             'meta' => [
                 'total' => $total,
@@ -138,13 +139,13 @@ class DynamicApiController extends BaseController
             return;
         }
 
-        $this->jsonResponse($row);
+        Response::json($row);
     }
 
     public function handleCreate(string $table)
     {
         $this->checkAccess($table);
-        $data = $this->getJsonInput();
+        $data = Request::json();
 
         if (empty($data)) {
             Response::json(['error' => 'No data provided'], 400);
@@ -168,7 +169,7 @@ class DynamicApiController extends BaseController
     public function handleUpdate(string $table, string $id)
     {
         $this->checkAccess($table);
-        $data = $this->getJsonInput();
+        $data = Request::json();
 
         if (empty($data)) {
             Response::json(['error' => 'No data provided'], 400);
@@ -187,7 +188,7 @@ class DynamicApiController extends BaseController
 
         try {
             \GaiaAlpha\Model\DB::execute($sql, $values);
-            $this->jsonResponse(['message' => 'Updated successfully']);
+            Response::json(['message' => 'Updated successfully']);
         } catch (\Exception $e) {
             Response::json(['error' => $e->getMessage()], 500);
         }
@@ -198,7 +199,7 @@ class DynamicApiController extends BaseController
         $this->checkAccess($table);
         try {
             \GaiaAlpha\Model\DB::execute("DELETE FROM $table WHERE id = ?", [$id]);
-            $this->jsonResponse(['message' => 'Deleted successfully']);
+            Response::json(['message' => 'Deleted successfully']);
         } catch (\Exception $e) {
             Response::json(['error' => $e->getMessage()], 500);
         }

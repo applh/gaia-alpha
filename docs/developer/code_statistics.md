@@ -8,28 +8,30 @@ Last updated: 2025-12-21
 -------------------------------------------------------------------------------
 Language                     files          blank        comment           code
 -------------------------------------------------------------------------------
-PHP                            188           3403           2618          14840
-JavaScript                      67           1129            863           9379
+PHP                            198           3618           2067          16584
+JavaScript                      74           1236            445          10926
+Markdown                        97           2293              2           8062
 CSS                              4            556            172           3214
-SQL                             19             18             10            531
+SQL                             21             22             13            830
+JSON                            37              0              0            735
 HTML                             2             37              0            233
 Bourne Shell                     2             20             20             62
 Dockerfile                       2             11              9             59
+Text                             2              1              0             54
 YAML                             2              3              1             35
-Text                             1              1              0             34
 SVG                              1              0              0              4
 -------------------------------------------------------------------------------
-SUM:                           288           5178           3693          28391
+SUM:                           442           7797           2729          40798
 -------------------------------------------------------------------------------
 ```
 
 ## Breakdown by Component
 
 ### Core Framework
-- **PHP Backend**: ~14,840 lines of code
-- **JavaScript Frontend**: ~9,379 lines of code
+- **PHP Backend**: ~16,584 lines of code
+- **JavaScript Frontend**: ~10,926 lines of code
 - **CSS Styling**: ~3,214 lines of code
-- **SQL Migrations**: ~531 lines of code
+- **SQL Migrations**: ~830 lines of code
 
 ### Plugin Ecosystem
 
@@ -37,45 +39,45 @@ Total plugins: 18 active plugins
 
 **Top 10 Largest Plugins by Code:**
 
-1. **ComponentBuilder** - 1,476 lines
-   - Visual component builder with drag-and-drop
-   - Code generation and preview
-
-2. **FormBuilder** - 1,175 lines
-   - Dynamic form creation
-   - Field validation and submission handling
-
-3. **ApiBuilder** - 1,011 lines
-   - REST API endpoint generator
-   - Request/response handling
-
-4. **McpServer** - 1,008 lines
+1. **McpServer** - 2,406 lines
    - Model Context Protocol implementation
-   - 20+ tools, resources, and prompts
+   - 20+ tools, 5+ resources, and prompts
 
-5. **DatabaseConnections** - 677 lines
+2. **GraphsManagement** - 1,581 lines
+   - Chart.js integration
+   - Graph and Collection management
+
+3. **ComponentBuilder** - 1,057 lines
+   - Visual component builder
+   - Code generation
+
+4. **Todo** - 965 lines
+   - Hierarchical Todo list
+   - Drag-and-drop, Gantt, and Calendar views
+
+5. **DatabaseConnections** - 689 lines
    - External database management
-   - MariaDB, PostgreSQL, SQLite support
+   - Connection testing and query execution
 
-6. **MediaLibrary** - 653 lines (NEW)
-   - Digital Asset Management
-   - Tagging, search, and organization
+6. **DatabaseManager** - 494 lines
+   - Internal database schema management
+   - Table inspection
 
-7. **Analytics** - 629 lines
+7. **Map** - 434 lines
+   - Interactive maps with markers
+   - Location management
+
+8. **Analytics** - 415 lines
    - Visit tracking and statistics
    - Dashboard visualization
 
-8. **Mail** - 554 lines
-   - Email sending with multiple drivers
-   - SMTP, Sendmail, Log support
+9. **ApiBuilder** - 411 lines
+   - REST API endpoint generator
+   - Dynamic routing and CRUD
 
-9. **JwtAuth** - 465 lines
-   - JWT token authentication
-   - Middleware and validation
-
-10. **Chat** - 424 lines
-    - Real-time messaging
-    - User-to-user communication
+10. **Mail** - 399 lines
+    - Email sending service
+    - Multiple drivers (SMTP, Log, Sendmail)
 
 ### Code Quality Metrics
 

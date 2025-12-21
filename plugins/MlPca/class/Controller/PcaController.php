@@ -24,7 +24,8 @@ class PcaController extends BaseController
      */
     public function analyze()
     {
-        $this->requireAuth();
+        if (!$this->requireAuth())
+            return;
 
         // $input = $this->getJsonInput(); // BaseController does not have this helper
         // $input = $this->getJsonInput(); // BaseController does not have this helper

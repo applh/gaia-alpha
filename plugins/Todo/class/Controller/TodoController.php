@@ -11,7 +11,8 @@ class TodoController extends BaseController
 {
     public function index()
     {
-        $this->requireAuth();
+        if (!$this->requireAuth())
+            return;
 
         // Check if filtering by label
         $label = Request::query('label');
@@ -26,7 +27,8 @@ class TodoController extends BaseController
 
     public function create()
     {
-        $this->requireAuth();
+        if (!$this->requireAuth())
+            return;
         $data = Request::input();
 
         if (empty($data['title'])) {
@@ -50,7 +52,8 @@ class TodoController extends BaseController
 
     public function update($id)
     {
-        $this->requireAuth();
+        if (!$this->requireAuth())
+            return;
         $data = Request::input();
         Todo::update($id, \GaiaAlpha\Session::id(), $data);
         Response::json(['success' => true]);
@@ -58,21 +61,24 @@ class TodoController extends BaseController
 
     public function delete($id)
     {
-        $this->requireAuth();
+        if (!$this->requireAuth())
+            return;
         Todo::delete($id, \GaiaAlpha\Session::id());
         Response::json(['success' => true]);
     }
 
     public function getChildren($id)
     {
-        $this->requireAuth();
+        if (!$this->requireAuth())
+            return;
         $children = Todo::findChildren($id, \GaiaAlpha\Session::id());
         Response::json($children);
     }
 
     public function reorder()
     {
-        $this->requireAuth();
+        if (!$this->requireAuth())
+            return;
         $data = Request::input();
 
         if (!isset($data['id']) || !isset($data['position'])) {

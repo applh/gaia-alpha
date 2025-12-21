@@ -2,12 +2,13 @@
 
 namespace McpServer\Controller;
 
+use GaiaAlpha\Controller\BaseController;
 use McpServer\Server;
 use McpServer\SessionManager;
 use GaiaAlpha\Response;
 use GaiaAlpha\Request;
 
-class SseController
+class SseController extends BaseController
 {
     private $maxDuration = 300; // 5 minutes
     private $heartbeatInterval = 15; // 15 seconds

@@ -4,7 +4,7 @@
     "version": "1.0.0",
     "type": "core",
     "author": "Gaia Alpha",
-    "main_class": "GaiaAlpha\\Plugins\\Mail\\Controller\\MailController",
+    "main_class": "Mail\\Controller\\MailController",
     "routes": {
         "admin": [
             {
@@ -40,17 +40,16 @@
             "method": "POST",
             "action": "clearInbox"
         }
-    ]
-},
-"menu": {
-    "items": [
-        {
-            "label": "Mail Inbox",
-            "view": "mail/inbox",
-            "icon": "mail",
-            "group": "grp-system",
-            "adminOnly": true
-        }
-    ]
-}
+    ],
+    "menu": {
+        "items": [
+            {
+                "label": "Mail Inbox",
+                "view": "mail/inbox",
+                "icon": "mail",
+                "group": "grp-system",
+                "adminOnly": true
+            }
+        ]
+    }
 }

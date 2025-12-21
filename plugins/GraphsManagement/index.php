@@ -167,14 +167,3 @@ Hook::add('content_render', function ($content) {
 
 // Initialize database tables
 // Note: Tables are created via schema.sql during plugin installation
-// Hook::add('framework_init', function () {
-//     $db = DataStore::getDb();
-//     
-//     // Check if tables exist
-//     $stmt = $db->query("SELECT name FROM sqlite_master WHERE type='table' AND name='cms_graphs'");
-//     if (!$stmt->fetch()) {
-//         // Run schema
-//         $schema = file_get_contents(__DIR__ . '/schema.sql');
-//         $db->exec($schema);
-//     }
-// });

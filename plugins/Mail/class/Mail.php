@@ -1,10 +1,10 @@
 <?php
 
-namespace GaiaAlpha\Plugins\Mail;
+namespace Mail;
 
 use GaiaAlpha\App;
-use GaiaAlpha\Plugins\Mail\Drivers\LogDriver;
-use GaiaAlpha\Plugins\Mail\Drivers\PHPMailerDriver;
+use Mail\Drivers\LogDriver;
+use Mail\Drivers\PHPMailerDriver;
 
 class Mail
 {

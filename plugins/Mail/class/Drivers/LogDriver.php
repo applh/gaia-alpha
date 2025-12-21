@@ -1,8 +1,8 @@
 <?php
 
-namespace GaiaAlpha\Plugins\Mail\Drivers;
+namespace Mail\Drivers;
 
-use GaiaAlpha\Plugins\Mail\MailerInterface;
+use Mail\MailerInterface;
 
 class LogDriver implements MailerInterface
 {

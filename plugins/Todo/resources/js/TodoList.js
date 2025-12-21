@@ -1,6 +1,6 @@
 import { ref, onMounted, onActivated, computed, provide, inject } from 'vue';
-import CalendarView from './CalendarView.js';
-import GanttView from './GanttView.js';
+import CalendarView from '/min/js/plugins/Todo/CalendarView.js';
+import GanttView from '/min/js/plugins/Todo/GanttView.js';
 import ColorPicker from 'ui/ColorPicker.js';
 
 import Icon from 'ui/Icon.js';

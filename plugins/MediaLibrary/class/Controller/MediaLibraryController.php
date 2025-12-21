@@ -26,7 +26,8 @@ class MediaLibraryController extends BaseController
      */
     public function listFiles()
     {
-        $this->requireAuth();
+        if (!$this->requireAuth())
+            return;
         $userId = \GaiaAlpha\Session::id();
 
         $filters = [
@@ -44,7 +45,8 @@ class MediaLibraryController extends BaseController
      */
     public function getFile($id)
     {
-        $this->requireAuth();
+        if (!$this->requireAuth())
+            return;
 
         $file = $this->service->getMediaById((int) $id);
         if (!$file) {
@@ -60,7 +62,8 @@ class MediaLibraryController extends BaseController
      */
     public function uploadFile()
     {
-        $this->requireAuth();
+        if (!$this->requireAuth())
+            return;
         $userId = \GaiaAlpha\Session::id();
 
         if (empty($_FILES['file'])) {
@@ -111,7 +114,8 @@ class MediaLibraryController extends BaseController
      */
     public function updateFile($id)
     {
-        $this->requireAuth();
+        if (!$this->requireAuth())
+            return;
 
         $data = Request::json();
         $success = $this->service->updateMedia((int) $id, $data);
@@ -129,7 +133,8 @@ class MediaLibraryController extends BaseController
      */
     public function deleteFile($id)
     {
-        $this->requireAuth();
+        if (!$this->requireAuth())
+            return;
 
         $success = $this->service->deleteMedia((int) $id);
         Response::json(['success' => $success]);
@@ -140,7 +145,8 @@ class MediaLibraryController extends BaseController
      */
     public function listTags()
     {
-        $this->requireAuth();
+        if (!$this->requireAuth())
+            return;
 
         $tags = $this->service->getAllTags();
         Response::json($tags);
@@ -151,7 +157,8 @@ class MediaLibraryController extends BaseController
      */
     public function createTag()
     {
-        $this->requireAuth();
+        if (!$this->requireAuth())
+            return;
 
         $data = Request::json();
         if (empty($data['name'])) {
@@ -174,7 +181,8 @@ class MediaLibraryController extends BaseController
      */
     public function deleteTag($id)
     {
-        $this->requireAuth();
+        if (!$this->requireAuth())
+            return;
 
         $success = $this->service->deleteTag((int) $id);
         Response::json(['success' => $success]);
@@ -185,7 +193,8 @@ class MediaLibraryController extends BaseController
      */
     public function assignTags($id)
     {
-        $this->requireAuth();
+        if (!$this->requireAuth())
+            return;
 
         $data = Request::json();
         $tagIds = $data['tag_ids'] ?? [];
@@ -205,7 +214,8 @@ class MediaLibraryController extends BaseController
      */
     public function search()
     {
-        $this->requireAuth();
+        if (!$this->requireAuth())
+            return;
         $userId = \GaiaAlpha\Session::id();
 
         $query = Request::query('q');
@@ -223,7 +233,8 @@ class MediaLibraryController extends BaseController
      */
     public function stats()
     {
-        $this->requireAuth();
+        if (!$this->requireAuth())
+            return;
         $userId = \GaiaAlpha\Session::id();
 
         $stats = $this->service->getStats($userId);

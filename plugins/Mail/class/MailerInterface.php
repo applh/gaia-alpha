@@ -1,8 +1,9 @@
 <?php
 
-namespace GaiaAlpha\Plugins\Mail;
+namespace Mail;
 
-interface MailerInterface {
+interface MailerInterface
+{
     /**
      * Send an email.
      *

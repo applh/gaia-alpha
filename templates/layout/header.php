@@ -38,6 +38,9 @@ $appSlug = \GaiaAlpha\Model\Page::getAppDashboard();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= htmlspecialchars($displayTitle) ?></title>
     <meta name="description" content="<?= htmlspecialchars($desc) ?>">
+    <?php if (isset($page['canonical_url'])): ?>
+        <link rel="canonical" href="<?= htmlspecialchars($page['canonical_url']) ?>">
+    <?php endif; ?>
     <?php if ($favicon): ?>
         <link rel="icon" href="<?= htmlspecialchars($favicon) ?>">
     <?php endif; ?>

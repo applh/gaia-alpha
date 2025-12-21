@@ -1,43 +1,52 @@
-# Gaia Alpha Roadmap
+# Gaia Alpha Roadmap v2.0
 
 This document outlines the future plans and upcoming features for the Gaia Alpha framework. Our goal is to maintain simplicity while providing powerful tools for modern web development.
 
 > [!NOTE]
-> This roadmap is living and subject to change based on community feedback and project priorities.
+> This roadmap is living and subject to change based on project priorities and community needs.
 
 ## 🔌 Plugin Ecosystem
-- **Plugin Marketplace**: A simple directory or JSON-based registry to discover community plugins.
-- **UI Management**: An admin panel interface to enable, disable, and configure plugins without touching code.
-- **Dependency Management**: Basic resolution to ensure plugins have required `composer` packages or other plugins.
+- [x] **Plugin Discovery**: Standardized `search_plugins` tool via MCP.
+- [ ] **UI Management**: An admin panel interface to enable, disable, and configure plugins without touching code.
+- [ ] **Dependency Management**: Basic resolution to ensure plugins have required `composer` packages or other plugins.
+
+## 🤖 AI & Autonomous Agents (MCP)
+- [x] **MCP Server Core**: Standardized interface for AI agents (Stdio/SSE).
+- [x] **Dynamic Tool Discovery**: Automatic discovery of plugin-provided tools.
+- [x] **SEO Analysis Tool**: AI-driven content optimization suggestions.
+- [x] **AI Image Generation**: Tool to generate and save assets directly to the CMS.
+- [ ] **Real-time Log Stream**: SSE-based resource for streaming logs to a developer assistant.
+- [ ] **Role-Specific Prompts**: Pre-configured prompts for SEO, Security, and UI/UX roles.
 
 ## 🛡️ Security Enhancements
-- **Two-Factor Authentication (2FA)**: Native support for TOTP (Google Authenticator, Authy).
-- **Rate Limiting**: Built-in middleware to prevent brute-force attacks on API and Login endpoints.
-- **Content Security Policy (CSP)**: rigorous default headers to prevent XSS.
+- [ ] **Two-Factor Authentication (2FA)**: Native support for TOTP (Google Authenticator, Authy).
+- [ ] **Rate Limiting**: Built-in middleware to prevent brute-force attacks on API and Login endpoints.
+- [ ] **Content Security Policy (CSP)**: Rigorous default headers to prevent XSS.
+- [ ] **Audit Trail**: Immutable logging of all administrative and API actions.
 
 ## 🧩 Admin Builder (Low-Code)
 - [x] **Async Component System**: Architecture for loading Vue components from the database.
-- [x] **Refine Component Builder**
-    - [x] Implement nested structure view (Tree View)
-    - [x] Support custom nested components
-    - [x] Toolbox Styling & Group Collapsing
+- [x] **Refine Component Builder**: Nested structure view, custom components, and toolbox styling.
 - [x] **Component Library**: Base set of components (Data Table, Stat Card, Container).
 - [ ] **Form Builder Integration**: Use created forms within the Component Builder.
-- [ ] **Marketplace**: Share and install components from a community repository.
+- [ ] **Component Exchange**: Share and install components from a community repository.
 
 ## 💻 Developer Experience
-- [x] **Debug Toolbar**: A frontend overlay showing SQL queries, memory usage, and route info for the current page.
-- **Testing Helpers**: Utilities to make writing PHPUnit and Vue component tests easier.
-- **Scaffolding CLI**: Commands like `make:controller` or `make:plugin` to speed up development.
+- [x] **Debug Toolbar**: SQL queries, memory usage, and route info for the current page.
+- [ ] **Testing Helpers**: Utilities for PHPUnit and Vue component testing.
+- [ ] **Scaffolding CLI**: Commands like `make:controller` or `make:plugin`.
+- [ ] **Real-time Collaboration**: Shared editing sessions via SSE/WebSockets.
 
 ## 🎨 Media & Content
-- [x] **Advanced Image Formats**: Native support for AVIF and WebP conversion on upload.
-- **Internationalization (i18n)**: Core support for multi-language routes and content.
-- **DAM Features**: Better tagging, searching, and organizing of the media library.
+- [x] **Advanced Image Formats**: Native support for AVIF and WebP conversion.
+- [x] **Bulk Content Importer**: Tools for importing large datasets (JSON/CSV).
+- [x] **Content Versioning**: Historical versions for comparison and rollback.
+- [ ] **Internationalization (i18n)**: Core support for multi-language routes and content.
+- [ ] **DAM Features**: Better tagging and organization of the media library.
 
 ## 🚀 Performance
-- **Caching Drivers**: Support for Redis or Memcached in addition to the file-based cache.
-- [x] **Asset Minification**: On-the-fly minification of CSS/JS for production environments.
+- [ ] **Caching Drivers**: Support for Redis or Memcached.
+- [x] **Asset Minification**: On-the-fly minification of CSS/JS.
 
 ## 📈 SEO & Marketing
 - [x] **Robots.txt Management**: Admin control over `robots.txt` content.
@@ -45,8 +54,12 @@ This document outlines the future plans and upcoming features for the Gaia Alpha
 - [x] **XML Sitemap**: Auto-generated sitemap at `/sitemap.xml`.
 - [x] **Meta Tags**: Dynamic Title, Description, and Keywords.
 - [x] **OpenGraph**: Basic OpenGraph Image support for pages.
-- [ ] **Canonical URLs**: Automatic or manual canonical tag generation.
+- [x] **SEO Score & Analysis**: In-editor analysis of content quality (Implemented via [Analytics](file:///Users/lh/Downloads/antig/gaia-alpha/docs/plugins/Analytics.md)).
+- [x] **Canonical URLs**: Automatic or manual canonical tag generation.
 - [ ] **Structured Data**: Schema.org JSON-LD support for Articles, Products, etc.
-- [ ] **Social Cards**: Enhanced Twitter Card and OG tag customization.
-- [ ] **Auto Meta**: AI or rule-based generation of descriptions.
-- [ ] **SEO Score**: In-editor analysis of content quality and keyword density.
+
+## 🧪 Experimental Plugin Proposals
+- [ ] **[Remote Installs Manager](file:///Users/lh/Downloads/antig/gaia-alpha/docs/plugins/RemoteInstalls.md)**: Centralized management of distributed Gaia instances.
+- [ ] **[Cybersecurity Suite](file:///Users/lh/Downloads/antig/gaia-alpha/docs/plugins/Cybersecurity.md)**: Advanced threat monitoring and vulnerability scanning.
+- [ ] **Apache Spark Integration**: High-performance data analysis for large-scale CMS data.
+- [ ] **Social Sync**: Automated cross-platform content distribution via MCP.

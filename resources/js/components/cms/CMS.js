@@ -254,6 +254,10 @@ export default {
                             </div>
                             <textarea v-model="form.content" rows="10" :placeholder="form.content_format === 'markdown' ? 'Write in Markdown...' : 'Page content (HTML allowed)'"></textarea>
                         </div>
+                        <div class="form-group" v-if="filterCat === 'page'">
+                            <label>Canonical URL (Optional Override)</label>
+                            <input v-model="form.canonical_url" placeholder="https://example.com/original-page">
+                        </div>
                     </template>
                     <div class="form-actions">
                         <button type="submit">{{ form.id ? 'Update' : 'Create' }}</button>
@@ -321,7 +325,8 @@ export default {
             content: '',
             content_format: 'html',
             cat: 'page',
-            template_slug: ''
+            template_slug: '',
+            canonical_url: ''
         });
 
         const isStructured = computed(() => {
@@ -410,7 +415,7 @@ export default {
         };
 
         const openCreate = async () => {
-            Object.assign(form, { id: null, title: '', slug: '', image: '', content: '', content_format: 'html', cat: 'page', template_slug: '' });
+            Object.assign(form, { id: null, title: '', slug: '', image: '', content: '', content_format: 'html', cat: 'page', template_slug: '', canonical_url: '' });
             if (filterCat.value === 'page') {
                 await fetchTemplatesList();
             }
@@ -426,6 +431,7 @@ export default {
             Object.assign(form, page);
             if (!form.content_format) form.content_format = 'html';
             if (!form.template_slug) form.template_slug = '';
+            if (!form.canonical_url) form.canonical_url = '';
 
             // Infer Template Mode
             if (filterCat.value === 'template') {

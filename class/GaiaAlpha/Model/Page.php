@@ -17,7 +17,7 @@ class Page
     public static function getLatestPublic(int $limit = 10)
     {
         return DB::fetchAll("
-            SELECT id, title, slug, content, image, created_at, user_id, template_slug, meta_description, meta_keywords, content_format
+            SELECT id, title, slug, content, image, created_at, user_id, template_slug, meta_description, meta_keywords, content_format, canonical_url
             FROM cms_pages 
             WHERE cat = 'page'
             ORDER BY created_at DESC 
@@ -28,7 +28,7 @@ class Page
     public static function findBySlug(string $slug)
     {
         return DB::fetch("
-            SELECT id, title, slug, content, image, created_at, user_id, template_slug, meta_description, meta_keywords, content_format
+            SELECT id, title, slug, content, image, created_at, user_id, template_slug, meta_description, meta_keywords, content_format, canonical_url
             FROM cms_pages 
             WHERE slug = ? AND cat = 'page'
         ", [$slug]);
@@ -36,7 +36,7 @@ class Page
 
     public static function create(int $userId, array $data)
     {
-        $sql = "INSERT INTO cms_pages (user_id, title, slug, content, image, cat, tag, template_slug, meta_description, meta_keywords, content_format, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)";
+        $sql = "INSERT INTO cms_pages (user_id, title, slug, content, image, cat, tag, template_slug, meta_description, meta_keywords, content_format, canonical_url, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)";
         $params = [
             $userId,
             $data['title'],
@@ -48,7 +48,8 @@ class Page
             $data['template_slug'] ?? null,
             $data['meta_description'] ?? null,
             $data['meta_keywords'] ?? null,
-            $data['content_format'] ?? 'html'
+            $data['content_format'] ?? 'html',
+            $data['canonical_url'] ?? null
         ];
         DB::query($sql, $params);
         return DB::lastInsertId();
@@ -94,6 +95,10 @@ class Page
         if (isset($data['content_format'])) {
             $fields[] = "content_format = ?";
             $values[] = $data['content_format'];
+        }
+        if (isset($data['canonical_url'])) {
+            $fields[] = "canonical_url = ?";
+            $values[] = $data['canonical_url'];
         }
 
         if (empty($fields)) {

@@ -87,6 +87,26 @@ class ViewController extends BaseController
         echo $content;
     }
 
+    private function getCanonicalUrl($page, $slug)
+    {
+        if (!empty($page['canonical_url'])) {
+            return $page['canonical_url'];
+        }
+
+        $scheme = Request::scheme();
+        $host = Request::host();
+
+        // Normalize slug for home
+        $displaySlug = ($slug === '/' || $slug === 'home') ? '' : $slug;
+
+        // Ensure leading slash if not empty
+        if ($displaySlug && !str_starts_with($displaySlug, '/')) {
+            $displaySlug = '/' . $displaySlug;
+        }
+
+        return $scheme . '://' . $host . $displaySlug;
+    }
+
     private function injectDebugToolbar($content)
     {
         // Don't inject if not HTML
@@ -278,6 +298,7 @@ HTML;
             }
 
             // Render
+            $page['canonical_url'] = $this->getCanonicalUrl($page, $slug);
             $this->render($template, ['page' => $page, 'slug' => $slug]);
         } else {
             // 4. Fallback

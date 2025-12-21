@@ -45,6 +45,7 @@ const LayoutRow = defineAsyncComponent(() => import('../builder/library/LayoutRo
 const LayoutCol = defineAsyncComponent(() => import('../builder/library/LayoutCol.js'));
 const ActionButton = defineAsyncComponent(() => import('../builder/library/ActionButton.js'));
 const LinkButton = defineAsyncComponent(() => import('../builder/library/LinkButton.js'));
+const FormRenderer = defineAsyncComponent(() => import('../FormRenderer.js'));
 
 // Custom Component Imports
 {$customImports}
@@ -63,6 +64,7 @@ export default {
     LayoutCol,
     ActionButton,
     LinkButton,
+    FormRenderer,
 {$customComponentsList}
   },
   template: `
@@ -206,7 +208,15 @@ JS;
         $width = $component['props']['width'] ?? 12;
         return "<LayoutCol :width=\"{$width}\">" . $this->generateChildren($component['children'] ?? []) . "</LayoutCol>";
       case 'form':
-        return "<form @submit.prevent=\"submitForm\">" . $this->generateChildren($component['children'] ?? []) . "</form>";
+        // Check if this is a Form Builder form or custom form
+        $formSource = $component['props']['formSource'] ?? 'custom';
+        if ($formSource === 'builder' && isset($component['props']['formId'])) {
+          $formId = $component['props']['formId'];
+          return "<FormRenderer :formId=\"{$formId}\" />";
+        } else {
+          // Custom form container (legacy behavior)
+          return "<form @submit.prevent=\"submitForm\">" . $this->generateChildren($component['children'] ?? []) . "</form>";
+        }
       case 'input':
         $name = $component['props']['name'] ?? 'field_' . uniqid();
         $inputType = $component['props']['type'] ?? 'text';

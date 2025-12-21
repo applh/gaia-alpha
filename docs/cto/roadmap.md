@@ -28,7 +28,7 @@ This document outlines the future plans and upcoming features for the Gaia Alpha
 - [x] **Async Component System**: Architecture for loading Vue components from the database.
 - [x] **Refine Component Builder**: Nested structure view, custom components, and toolbox styling.
 - [x] **Component Library**: Base set of components (Data Table, Stat Card, Container).
-- [ ] **Form Builder Integration**: Use created forms within the Component Builder.
+- [x] **Form Builder Integration**: Use created forms within the Component Builder.
 - [ ] **Component Exchange**: Share and install components from a community repository.
 
 ## 💻 Developer Experience

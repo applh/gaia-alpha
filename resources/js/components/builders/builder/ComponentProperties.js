@@ -1,4 +1,4 @@
-import { computed } from 'vue';
+import { ref, onMounted } from 'vue';
 
 export default {
     name: 'ComponentProperties',
@@ -66,24 +66,55 @@ export default {
                 <!-- Form Props -->
                 <div v-if="component.type === 'form'">
                      <div class="form-group">
-                        <label>Action URL</label>
-                        <input 
-                            type="text" 
-                             :value="component.props.action"
-                             @input="update('props.action', $event.target.value)"
+                        <label>Form Source</label>
+                         <select 
+                            :value="component.props.formSource || 'custom'"
+                            @change="update('props.formSource', $event.target.value)"
                         >
-                    </div>
-                    <div class="form-group">
-                        <label>Method</label>
-                        <select 
-                            :value="component.props.method || 'POST'"
-                            @change="update('props.method', $event.target.value)"
-                        >
-                            <option value="POST">POST</option>
-                            <option value="GET">GET</option>
-                            <option value="PUT">PUT</option>
-                            <option value="DELETE">DELETE</option>
+                            <option value="custom">Custom Form</option>
+                            <option value="builder">Form Builder</option>
                         </select>
+                    </div>
+                    
+                    <!-- Form Builder Selection -->
+                    <div v-if="component.props.formSource === 'builder'">
+                        <div class="form-group">
+                            <label>Select Form</label>
+                            <select 
+                                :value="component.props.formId || ''"
+                                @change="update('props.formId', $event.target.value)"
+                            >
+                                <option value="">-- Select a form --</option>
+                                <option v-for="form in availableForms" :key="form.id" :value="form.id">
+                                    {{ form.title }}
+                                </option>
+                            </select>
+                            <small class="text-muted">Forms created in the Form Builder</small>
+                        </div>
+                    </div>
+                    
+                    <!-- Custom Form Properties -->
+                    <div v-if="!component.props.formSource || component.props.formSource === 'custom'">
+                        <div class="form-group">
+                            <label>Action URL</label>
+                            <input 
+                                type="text" 
+                                 :value="component.props.action"
+                                 @input="update('props.action', $event.target.value)"
+                            >
+                        </div>
+                        <div class="form-group">
+                            <label>Method</label>
+                             <select 
+                                :value="component.props.method || 'POST'"
+                                @change="update('props.method', $event.target.value)"
+                            >
+                                <option value="POST">POST</option>
+                                <option value="GET">GET</option>
+                                <option value="PUT">PUT</option>
+                                <option value="DELETE">DELETE</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
 
@@ -323,6 +354,26 @@ export default {
         </div>
     `,
     setup(props, { emit }) {
+        const availableForms = ref([]);
+
+        // Fetch available forms from Form Builder
+        const fetchForms = async () => {
+            try {
+                const response = await fetch('/@/forms');
+                if (response.ok) {
+                    const data = await response.json();
+                    availableForms.value = data;
+                }
+            } catch (e) {
+                console.error('Failed to fetch forms', e);
+            }
+        };
+
+        // Fetch forms on mount
+        onMounted(() => {
+            fetchForms();
+        });
+
         const update = (key, value) => {
             emit('update', {
                 id: props.component.id,
@@ -345,7 +396,7 @@ export default {
             emit('remove', props.component.id);
         };
 
-        return { update, tryUpdateJson, handleRemove };
+        return { availableForms, update, tryUpdateJson, handleRemove };
     },
     styles: `
         .component-properties input,

@@ -27,4 +27,9 @@ Commands:
   site:list                           List all managed sites
   export:site --out=<path>            Export site content to a folder
   import:site --in=<path>             Import site content from a folder
+  make:plugin <name>                  Create a new plugin structure
+  make:controller <name> --plugin=<p> Create a new controller in a plugin
+  make:mcp-tool <name>                Create a new MCP tool
+  make:mcp-resource <name>            Create a new MCP resource
+  make:mcp-prompt <name>              Create a new MCP prompt
   help                                Show this help message

@@ -34,7 +34,7 @@ This document outlines the future plans and upcoming features for the Gaia Alpha
 ## 💻 Developer Experience
 - [x] **Debug Toolbar**: SQL queries, memory usage, and route info for the current page.
 - [ ] **Testing Helpers**: Utilities for PHPUnit and Vue component testing.
-- [ ] **Scaffolding CLI**: Commands like `make:controller` or `make:plugin`.
+- [x] **Scaffolding CLI**: Commands like `make:controller` or `make:plugin`.
 - [ ] **Real-time Collaboration**: Shared editing sessions via SSE/WebSockets.
 
 ## 🎨 Media & Content

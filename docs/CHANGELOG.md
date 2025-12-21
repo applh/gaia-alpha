@@ -1,4 +1,11 @@
-# Changelog
+## [v0.58.0] - 2025-12-21
+### Added
+- **Scaffolding System**: New unified system for generating boilerplate code.
+  - **Core**: Added `GaiaAlpha\Service\ScaffoldingService` for plugin, controller, and MCP feature generation.
+  - **CLI**: Added `make:` command group: `make:plugin`, `make:controller`, `make:mcp-tool`, `make:mcp-resource`, `make:mcp-prompt`.
+  - **MCP**: Added dedicated tools for AI agents: `scaffold_plugin`, `scaffold_controller`, and `scaffold_mcp_feature`.
+- **CLI**: Updated help template with the new scaffolding commands.
+
 ## [v0.57.0] - 2025-12-21
 ### Fixed
 - **Installation**: Fixed invalid regex pattern in `install.php` that caused `SyntaxError` in modern browsers.

@@ -18,7 +18,8 @@ RUN apk add --no-cache \
     imagemagick-dev \
     git \
     unzip \
-    curl
+    curl \
+    postgresql-dev
 
 # Configure and install PHP extensions
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
@@ -26,6 +27,8 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
     gd \
     pdo \
     pdo_sqlite \
+    pdo_mysql \
+    pdo_pgsql \
     intl \
     mbstring \
     zip \

@@ -9,8 +9,9 @@ This is the simplest way to run Gaia Alpha, using the built-in PHP development s
 ```dockerfile
 FROM php:8.2-cli-alpine
 
-# Install extensions (SQLite is included in basic PHP images usually, but we ensure PDO)
-RUN docker-php-ext-install pdo pdo_sqlite
+# Install extensions
+# Note: We include drivers for all supported databases
+RUN docker-php-ext-install pdo pdo_sqlite pdo_mysql pdo_pgsql
 
 WORKDIR /app
 
@@ -133,12 +134,13 @@ services:
       - .:/var/www/html
       - ./my-config.docker.php:/var/www/html/my-config.php
     # Install MySQL/Postgres drivers
-    command: sh -c "docker-php-ext-install pdo pdo_mysql && php-fpm"
+    command: sh -c "docker-php-ext-install pdo pdo_mysql pdo_pgsql && php-fpm"
     environment:
-      - DB_HOST=db
-      - DB_USER=gaia
-      - DB_PASS=secret
-      - DB_NAME=gaia_alpha
+      - GAIA_DB_TYPE=mysql # Options: sqlite, mysql, pgsql
+      - GAIA_DB_HOST=db
+      - GAIA_DB_NAME=gaia_alpha
+      - GAIA_DB_USER=gaia
+      - GAIA_DB_PASS=secret
     depends_on:
       - db
 
@@ -165,17 +167,32 @@ You need to inject a configuration file that tells Gaia Alpha to use the externa
 
 define('GAIA_DATA_PATH', '/var/www/html/my-data');
 
-// Use MySQL DSN
-$host = getenv('DB_HOST');
-$db   = getenv('DB_NAME');
-$user = getenv('DB_USER');
-$pass = getenv('DB_PASS');
+// Example: Using Environment Variables to configure DB
+// In a real scenario, InstallController usually generates the config file.
+// However, if you are manually configuring for Docker:
 
-define('GAIA_DB_DSN', "mysql:host=$host;dbname=$db;charset=utf8mb4");
-// Note: You might need to handle user/pass connection in Database.php or pass them via DSN context if not using default PDO construction.
-// Gaia Alpha's current Database class takes a single DSN argument.
-// For MySQL with user/pass, you typically need to pass user/pass to the PDO constructor.
-// *Architecture Note*: If using this mode, ensure you update GaiaAlpha\Controller\DbController::connect() or GaiaAlpha\Database to handle user/password auth if required by the DSN driver.
+$dbType = getenv('GAIA_DB_TYPE') ?: 'sqlite';
+
+if ($dbType === 'mysql') {
+    $host = getenv('GAIA_DB_HOST');
+    $db   = getenv('GAIA_DB_NAME');
+    $user = getenv('GAIA_DB_USER');
+    $pass = getenv('GAIA_DB_PASS');
+    define('GAIA_DB_DSN', "mysql:host=$host;dbname=$db;charset=utf8mb4");
+    define('GAIA_DB_USER', $user);
+    define('GAIA_DB_PASS', $pass);
+} elseif ($dbType === 'pgsql') {
+    $host = getenv('GAIA_DB_HOST');
+    $db   = getenv('GAIA_DB_NAME');
+    $user = getenv('GAIA_DB_USER');
+    $pass = getenv('GAIA_DB_PASS');
+    define('GAIA_DB_DSN', "pgsql:host=$host;dbname=$db");
+    define('GAIA_DB_USER', $user);
+    define('GAIA_DB_PASS', $pass);
+} else {
+    // SQLite Default
+    define('GAIA_DB_DSN', 'sqlite:' . GAIA_DATA_PATH . '/gaia.sqlite');
+}
 ```
 
 

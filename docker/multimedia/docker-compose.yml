@@ -14,5 +14,36 @@ services:
     volumes:
       - ../../:/var/www/html
     environment:
-      # Use a dedicated data path or the default
+      - GAIA_DB_TYPE=sqlite # Options: sqlite, mysql, pgsql
       - GAIA_DB_PATH=/var/www/html/my-data/gaia.sqlite
+      - GAIA_DB_HOST=db
+      - GAIA_DB_NAME=gaia_alpha
+      - GAIA_DB_USER=gaia
+      - GAIA_DB_PASS=secret
+    depends_on:
+      - db
+
+  # Optional: MariaDB (Default if using mysql type)
+  db:
+    image: mariadb:10.11
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: gaia_alpha
+      MYSQL_USER: gaia
+      MYSQL_PASSWORD: secret
+    volumes:
+      - db_data:/var/lib/mysql
+  # Optional: PostgreSQL
+  # db_pgsql:
+  #   image: postgres:15
+  #   environment:
+  #     POSTGRES_DB: gaia_alpha
+  #     POSTGRES_USER: gaia
+  #     POSTGRES_PASSWORD: secret
+  #   volumes:
+  #     - db_pgsql_data:/var/lib/postgresql/data
+
+volumes:
+  db_data:
+    # db_pgsql_data:
+

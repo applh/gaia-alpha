@@ -145,7 +145,7 @@
                     <div style="display: flex; align-items: center; gap: 0.5rem;">
                         <span style="color: var(--gray);">/</span>
                         <input type="text" id="app_slug" name="app_slug" value="app" placeholder="app"
-                            pattern="[a-z0-9-_]+" title="Lowercase letters, numbers, and hyphens only">
+                            pattern="[a-z0-9_-]+" title="Lowercase letters, numbers, and hyphens only">
                     </div>
                 </div>
 
@@ -184,45 +184,45 @@
     <script>
         // Fetch plugins on load
         (async () => {
-             try {
-                 const res = await fetch('/@/install/plugins');
-                 if (res.ok) {
-                     const plugins = await res.json();
-                     const container = document.getElementById('plugins-list');
-                     container.innerHTML = '';
-                     
-                     plugins.forEach(p => {
-                         const isCore = p.type === 'core';
-                         const div = document.createElement('div');
-                         div.style.display = 'flex';
-                         div.style.alignItems = 'center';
-                         div.style.gap = '0.5rem';
-                         
-                         const input = document.createElement('input');
-                         input.type = 'checkbox';
-                         input.name = 'plugins[]';
-                         input.value = p.id;
-                         input.style.width = 'auto';
-                         input.checked = isCore; // Core checked by default
-                         
-                         const label = document.createElement('label');
-                         label.textContent = p.name;
-                         label.style.marginBottom = '0';
-                         label.style.cursor = 'pointer';
-                         label.style.fontSize = '0.875rem';
-                         label.title = p.description;
-                         
-                         // Link label click to checkbox
-                         label.onclick = () => { input.checked = !input.checked; };
-                         
-                         div.appendChild(input);
-                         div.appendChild(label);
-                         container.appendChild(div);
-                     });
-                 }
-             } catch (e) {
-                 console.error('Failed to load plugins', e);
-             }
+            try {
+                const res = await fetch('/@/install/plugins');
+                if (res.ok) {
+                    const plugins = await res.json();
+                    const container = document.getElementById('plugins-list');
+                    container.innerHTML = '';
+
+                    plugins.forEach(p => {
+                        const isCore = p.type === 'core';
+                        const div = document.createElement('div');
+                        div.style.display = 'flex';
+                        div.style.alignItems = 'center';
+                        div.style.gap = '0.5rem';
+
+                        const input = document.createElement('input');
+                        input.type = 'checkbox';
+                        input.name = 'plugins[]';
+                        input.value = p.id;
+                        input.style.width = 'auto';
+                        input.checked = isCore; // Core checked by default
+
+                        const label = document.createElement('label');
+                        label.textContent = p.name;
+                        label.style.marginBottom = '0';
+                        label.style.cursor = 'pointer';
+                        label.style.fontSize = '0.875rem';
+                        label.title = p.description;
+
+                        // Link label click to checkbox
+                        label.onclick = () => { input.checked = !input.checked; };
+
+                        div.appendChild(input);
+                        div.appendChild(label);
+                        container.appendChild(div);
+                    });
+                }
+            } catch (e) {
+                console.error('Failed to load plugins', e);
+            }
         })();
 
         document.getElementById('install-form').addEventListener('submit', async (e) => {

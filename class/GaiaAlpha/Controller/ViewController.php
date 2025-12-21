@@ -299,7 +299,9 @@ HTML;
 
             // Render
             $page['canonical_url'] = $this->getCanonicalUrl($page, $slug);
-            $this->render($template, ['page' => $page, 'slug' => $slug]);
+            $globalSettings = \GaiaAlpha\Model\DataStore::getAll(0, 'global_config');
+            $schemaJson = \GaiaAlpha\Service\SchemaService::generateJsonLd($page, $globalSettings);
+            $this->render($template, ['page' => $page, 'slug' => $slug, 'schemaJson' => $schemaJson]);
         } else {
             // 4. Fallback
             if ($slug === 'home') {

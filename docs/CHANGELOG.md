@@ -1,4 +1,11 @@
 # Changelog
+## [v0.57.0] - 2025-12-21
+### Fixed
+- **Installation**: Fixed invalid regex pattern in `install.php` that caused `SyntaxError` in modern browsers.
+- **Database**: Added missing `canonical_url`, `schema_type`, and `schema_data` columns to `cms_pages` table.
+- **Database**: Refactored `GaiaAlpha\Database` to separate migration logic and ensure migrations run automatically on every connection.
+- **Analytics**: Fixed path mismatch for `AnalyticsDashboard.js` component registration.
+
 ## [v0.56.0] - 2025-12-20
 ### Added
 - **MCP Expansion**: Significantly expanded the MCP Server plugin with advanced content and developer operations.

@@ -53,7 +53,11 @@ class Database
             $this->pdo->exec($command);
         }
 
+        $this->runMigrations();
+    }
 
+    public function runMigrations(): void
+    {
         // Run migrations for existing databases
         $migrationsDir = Env::get('root_dir') . '/templates/sql/migrations';
 

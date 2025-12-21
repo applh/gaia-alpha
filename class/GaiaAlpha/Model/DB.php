@@ -34,6 +34,8 @@ class DB
 
         if ($installNeeded) {
             $db->ensureSchema();
+        } else {
+            $db->runMigrations();
         }
 
         self::$instance = $db;

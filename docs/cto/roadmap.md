@@ -56,7 +56,7 @@ This document outlines the future plans and upcoming features for the Gaia Alpha
 - [x] **OpenGraph**: Basic OpenGraph Image support for pages.
 - [x] **SEO Score & Analysis**: In-editor analysis of content quality (Implemented via [Analytics](file:///Users/lh/Downloads/antig/gaia-alpha/docs/plugins/Analytics.md)).
 - [x] **Canonical URLs**: Automatic or manual canonical tag generation.
-- [ ] **Structured Data**: Schema.org JSON-LD support for Articles, Products, etc.
+- [x] **Structured Data**: Schema.org JSON-LD support for Articles, Products, etc.
 
 ## 🧪 Experimental Plugin Proposals
 - [ ] **[Remote Installs Manager](file:///Users/lh/Downloads/antig/gaia-alpha/docs/plugins/RemoteInstalls.md)**: Centralized management of distributed Gaia instances.

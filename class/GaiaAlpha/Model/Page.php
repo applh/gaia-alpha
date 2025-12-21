@@ -17,7 +17,7 @@ class Page
     public static function getLatestPublic(int $limit = 10)
     {
         return DB::fetchAll("
-            SELECT id, title, slug, content, image, created_at, user_id, template_slug, meta_description, meta_keywords, content_format, canonical_url
+            SELECT id, title, slug, content, image, created_at, user_id, template_slug, meta_description, meta_keywords, content_format, canonical_url, schema_type, schema_data
             FROM cms_pages 
             WHERE cat = 'page'
             ORDER BY created_at DESC 
@@ -28,7 +28,7 @@ class Page
     public static function findBySlug(string $slug)
     {
         return DB::fetch("
-            SELECT id, title, slug, content, image, created_at, user_id, template_slug, meta_description, meta_keywords, content_format, canonical_url
+            SELECT id, title, slug, content, image, created_at, user_id, template_slug, meta_description, meta_keywords, content_format, canonical_url, schema_type, schema_data
             FROM cms_pages 
             WHERE slug = ? AND cat = 'page'
         ", [$slug]);
@@ -36,7 +36,7 @@ class Page
 
     public static function create(int $userId, array $data)
     {
-        $sql = "INSERT INTO cms_pages (user_id, title, slug, content, image, cat, tag, template_slug, meta_description, meta_keywords, content_format, canonical_url, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)";
+        $sql = "INSERT INTO cms_pages (user_id, title, slug, content, image, cat, tag, template_slug, meta_description, meta_keywords, content_format, canonical_url, schema_type, schema_data, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)";
         $params = [
             $userId,
             $data['title'],
@@ -49,7 +49,9 @@ class Page
             $data['meta_description'] ?? null,
             $data['meta_keywords'] ?? null,
             $data['content_format'] ?? 'html',
-            $data['canonical_url'] ?? null
+            $data['canonical_url'] ?? null,
+            $data['schema_type'] ?? null,
+            $data['schema_data'] ?? null
         ];
         DB::query($sql, $params);
         return DB::lastInsertId();
@@ -99,6 +101,14 @@ class Page
         if (isset($data['canonical_url'])) {
             $fields[] = "canonical_url = ?";
             $values[] = $data['canonical_url'];
+        }
+        if (isset($data['schema_type'])) {
+            $fields[] = "schema_type = ?";
+            $values[] = $data['schema_type'];
+        }
+        if (isset($data['schema_data'])) {
+            $fields[] = "schema_data = ?";
+            $values[] = $data['schema_data'];
         }
 
         if (empty($fields)) {

@@ -258,6 +258,19 @@ export default {
                             <label>Canonical URL (Optional Override)</label>
                             <input v-model="form.canonical_url" placeholder="https://example.com/original-page">
                         </div>
+                        <div class="form-group" v-if="filterCat === 'page'">
+                            <label>Structured Data (Schema.org)</label>
+                            <div style="display:flex; gap:10px; margin-bottom:10px;">
+                                <select v-model="form.schema_type" style="flex:1;">
+                                    <option value="WebPage">WebPage (General)</option>
+                                    <option value="Article">Article (Blog Post/News)</option>
+                                    <option value="Product">Product</option>
+                                    <option value="Organization">Organization</option>
+                                    <option value="LocalBusiness">LocalBusiness</option>
+                                </select>
+                            </div>
+                            <textarea v-model="form.schema_data" rows="4" placeholder='Custom JSON-LD properties (e.g. {"price": "99.99"})'></textarea>
+                        </div>
                     </template>
                     <div class="form-actions">
                         <button type="submit">{{ form.id ? 'Update' : 'Create' }}</button>
@@ -326,7 +339,9 @@ export default {
             content_format: 'html',
             cat: 'page',
             template_slug: '',
-            canonical_url: ''
+            canonical_url: '',
+            schema_type: 'WebPage',
+            schema_data: ''
         });
 
         const isStructured = computed(() => {
@@ -415,7 +430,7 @@ export default {
         };
 
         const openCreate = async () => {
-            Object.assign(form, { id: null, title: '', slug: '', image: '', content: '', content_format: 'html', cat: 'page', template_slug: '', canonical_url: '' });
+            Object.assign(form, { id: null, title: '', slug: '', image: '', content: '', content_format: 'html', cat: 'page', template_slug: '', canonical_url: '', schema_type: 'WebPage', schema_data: '' });
             if (filterCat.value === 'page') {
                 await fetchTemplatesList();
             }
@@ -432,6 +447,8 @@ export default {
             if (!form.content_format) form.content_format = 'html';
             if (!form.template_slug) form.template_slug = '';
             if (!form.canonical_url) form.canonical_url = '';
+            if (!form.schema_type) form.schema_type = 'WebPage';
+            if (!form.schema_data) form.schema_data = '';
 
             // Infer Template Mode
             if (filterCat.value === 'template') {

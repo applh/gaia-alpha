@@ -13,6 +13,9 @@ CREATE TABLE IF NOT EXISTS cms_pages (
     meta_description TEXT,
     meta_keywords TEXT,
     content_format TEXT DEFAULT 'html',
+    canonical_url TEXT,
+    schema_type TEXT,
+    schema_data TEXT,
     FOREIGN KEY(user_id) REFERENCES users(id),
     UNIQUE(slug)
 );

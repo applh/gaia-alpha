@@ -41,6 +41,11 @@ $appSlug = \GaiaAlpha\Model\Page::getAppDashboard();
     <?php if (isset($page['canonical_url'])): ?>
         <link rel="canonical" href="<?= htmlspecialchars($page['canonical_url']) ?>">
     <?php endif; ?>
+    <?php if (isset($schemaJson)): ?>
+        <script type="application/ld+json">
+                <?= $schemaJson ?>
+            </script>
+    <?php endif; ?>
     <?php if ($favicon): ?>
         <link rel="icon" href="<?= htmlspecialchars($favicon) ?>">
     <?php endif; ?>

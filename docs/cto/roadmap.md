@@ -41,8 +41,8 @@ This document outlines the future plans and upcoming features for the Gaia Alpha
 - [x] **Advanced Image Formats**: Native support for AVIF and WebP conversion.
 - [x] **Bulk Content Importer**: Tools for importing large datasets (JSON/CSV).
 - [x] **Content Versioning**: Historical versions for comparison and rollback.
-- [ ] **Internationalization (i18n)**: Core support for multi-language routes and content.
-- [ ] **DAM Features**: Better tagging and organization of the media library.
+- [x] **Internationalization (i18n)**: Core support for multi-language routes and content.
+- [x] **DAM Features**: Better tagging and organization of the media library.
 
 ## 🚀 Performance
 - [ ] **Caching Drivers**: Support for Redis or Memcached.

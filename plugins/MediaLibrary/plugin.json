@@ -1,0 +1,9 @@
+{
+    "name": "MediaLibrary",
+    "version": "1.0.0",
+    "description": "Digital Asset Management (DAM) plugin for organizing and tagging media files",
+    "author": "Gaia Alpha",
+    "requires": {
+        "gaia-alpha": ">=1.0.0"
+    }
+}

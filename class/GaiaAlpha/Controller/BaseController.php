@@ -14,15 +14,21 @@ abstract class BaseController
     {
         if (!\GaiaAlpha\Session::isLoggedIn()) {
             Response::json(['error' => 'Unauthorized'], 401);
+            return false;
         }
+        return true;
     }
 
     protected function requireAdmin()
     {
-        $this->requireAuth();
+        if (!$this->requireAuth()) {
+            return false;
+        }
         if (!\GaiaAlpha\Session::isAdmin()) {
             Response::json(['error' => 'Forbidden'], 403);
+            return false;
         }
+        return true;
     }
 
     public function registerRoutes()

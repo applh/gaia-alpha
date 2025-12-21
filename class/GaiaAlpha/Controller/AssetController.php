@@ -250,6 +250,13 @@ class AssetController extends BaseController
             $pluginName = array_shift($parts);
             $rest = implode('/', $parts);
 
+            // First check plugin root directory
+            $pluginRootSource = $rootDir . '/plugins/' . $pluginName . '/' . $rest;
+            if (File::exists($pluginRootSource)) {
+                return $pluginRootSource;
+            }
+
+            // Then check resources/js subdirectory
             $pluginSource = $rootDir . '/plugins/' . $pluginName . '/resources/js/' . $rest;
             if (File::exists($pluginSource)) {
                 return $pluginSource;

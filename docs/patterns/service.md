@@ -59,37 +59,96 @@ class ConnectionManager
 
 namespace YourPlugin\Service;
 
-use YourPlugin\Model\Order;
+use GaiaAlpha\Model\DB;
+use GaiaAlpha\Session;
 
 class OrderProcessingService
 {
     /**
      * Process a complete order flow
      */
-    public function processOrder(Order $order): bool
+    public static function processOrder(int $userId, array $orderData): array
     {
-        if (!$this->validateStock($order)) {
-            return false;
+        // Validate input
+        if (empty($orderData['items'])) {
+            throw new \Exception('Order must contain items');
         }
 
-        $this->chargePayment($order);
-        $this->sendEmail($order);
+        // Create order record
+        DB::execute('
+            INSERT INTO orders (user_id, total, status, created_at)
+            VALUES (?, ?, ?, datetime("now"))
+        ', [$userId, $orderData['total'], 'pending']);
         
-        return true;
+        $orderId = DB::lastInsertId();
+
+        // Insert order items
+        foreach ($orderData['items'] as $item) {
+            DB::execute('
+                INSERT INTO order_items (order_id, product_id, quantity, price)
+                VALUES (?, ?, ?, ?)
+            ', [$orderId, $item['product_id'], $item['quantity'], $item['price']]);
+        }
+
+        // Return created order
+        return self::getOrder($orderId);
     }
 
-    private function validateStock(Order $order): bool
+    public static function getOrder(int $orderId): ?array
     {
-        // Logic to check stock
-        return true;
+        $order = DB::fetch('SELECT * FROM orders WHERE id = ?', [$orderId]);
+        
+        if (!$order) {
+            return null;
+        }
+
+        // Load order items
+        $order['items'] = DB::fetchAll('
+            SELECT * FROM order_items WHERE order_id = ?
+        ', [$orderId]);
+
+        return $order;
     }
     
-    // ...
+    public static function listOrders(int $userId): array
+    {
+        return DB::fetchAll('
+            SELECT * FROM orders 
+            WHERE user_id = ? 
+            ORDER BY created_at DESC
+        ', [$userId]);
+    }
 }
 ```
+
+## Database Access Best Practices
+
+**Always use `GaiaAlpha\Model\DB` class:**
+
+```php
+use GaiaAlpha\Model\DB;
+
+// Fetch all rows
+$rows = DB::fetchAll($sql, $params);
+
+// Fetch single row
+$row = DB::fetch($sql, $params);
+
+// Execute INSERT/UPDATE/DELETE
+DB::execute($sql, $params);
+
+// Get last inserted ID
+$id = DB::lastInsertId();
+```
+
+**Never use:**
+- ❌ `DataStore::getDb()` - Wrong class
+- ❌ Direct PDO access - Use DB class instead
 
 ## Checklist
 
 - [ ] Resides in `YourPlugin/class/Service/`.
 - [ ] Uses correct namespace `YourPlugin\Service`.
+- [ ] Uses `GaiaAlpha\Model\DB` for database operations.
 - [ ] Encapsulates logic that doesn't belong in a Controller.
+- [ ] Validates input and throws exceptions on errors.

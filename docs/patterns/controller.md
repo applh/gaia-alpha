@@ -17,6 +17,9 @@ namespace YourPlugin\Controller;
 
 use GaiaAlpha\Controller\BaseController;
 use GaiaAlpha\Router;
+use GaiaAlpha\Request;
+use GaiaAlpha\Response;
+use GaiaAlpha\Session;
 
 class YourController extends BaseController
 {
@@ -31,22 +34,30 @@ class YourController extends BaseController
 
     public function index()
     {
-        $this->requireAuth();
-        $this->jsonResponse(['items' => []]);
+        // IMPORTANT: Check return value and exit if not authenticated
+        if (!$this->requireAuth()) return;
+        
+        $userId = Session::id();
+        $items = YourService::getItems($userId);
+        Response::json(['items' => $items]);
     }
     
     public function create()
     {
-        $this->requireAuth();
+        // IMPORTANT: Check return value and exit if not authenticated
+        if (!$this->requireAuth()) return;
+        
         // Use the Request helper for standard input handling
-        $input = \GaiaAlpha\Request::input(); 
+        $input = Request::input(); 
         
         if (empty($input['name'])) {
-             \GaiaAlpha\Response::json(['error' => 'Name required'], 400);
+            Response::json(['error' => 'Name required'], 400);
+            return;  // IMPORTANT: Exit after error response
         }
 
-        // ... Logic ...
-        \GaiaAlpha\Response::json(['success' => true]);
+        $userId = Session::id();
+        $item = YourService::createItem($userId, $input);
+        Response::json($item, 201);
     }
 }
 ```

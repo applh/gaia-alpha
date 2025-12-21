@@ -42,27 +42,56 @@ Hook::add('framework_load_controllers_after', function ($controllers) {
     // The framework handles autoloading YourController::class
     if (class_exists(YourController::class)) {
         $controller = new YourController();
+        if (method_exists($controller, 'init')) {
+            $controller->init();
+        }
+        if (method_exists($controller, 'registerRoutes')) {
+            $controller->registerRoutes();
+        }
         $controllers['your_plugin'] = $controller;
         Env::set('controllers', $controllers);
     }
 });
 
-// 2. Inject Menu Item
+// 2. Register UI Component (Dynamic Loading)
+\GaiaAlpha\UiManager::registerComponent('your_plugin', 'plugins/YourPlugin/YourPanel.js', true);
+
+// 3. Inject Menu Item (Preferred for Groups/Icons)
 Hook::add('auth_session_data', function ($data) {
     if (isset($data['user'])) {
         $data['user']['menu_items'][] = [
-            'id' => 'grp-content', 
+            'id' => 'grp-tools', // Optional: Add to existing group
+            'label' => 'Tools', 
+            'icon' => 'pen-tool',
             'children' => [[
                 'label' => 'Your Plugin', 
-                'view' => 'your_plugin',
-                'icon' => 'box',
-                'path' => '/admin/your-plugin'
+                'view' => 'your_plugin', // Maps to registered component key
+                'icon' => 'box'
             ]]
         ];
     }
     return $data;
 });
 ```
+
+## Frontend View Registration
+ 
+Plugins verify their UI components dynamically using `\GaiaAlpha\UiManager`. **Do not** modify `resources/js/site.js`.
+ 
+### Registration in `index.php`
+ 
+Add the following line to your plugin's `index.php`:
+ 
+```php
+// Register UI Component
+\GaiaAlpha\UiManager::registerComponent(
+    'your_plugin_view_id',           // The 'view' key used in your menu item
+    'plugins/YourPlugin/YourPanel.js', // Path relative to root (virtual path mapped by AssetController)
+    true                             // adminOnly? true = admin only, false = public
+);
+```
+ 
+The framework automatically injects these components into the frontend configuration. The frontend router will dynamically load `YourPanel.js` when the user navigates to a menu item with `view: 'your_plugin_view_id'`.
 
 ## Dynamic Feature Discovery (MCP)
 

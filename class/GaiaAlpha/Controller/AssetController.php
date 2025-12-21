@@ -206,6 +206,16 @@ class AssetController extends BaseController
 
         // Matches /assets/... for static resources
         Router::get('/assets/(.+)', [$this, 'servePublic']);
+
+        // Serve Seed Data (Dev/Demo purpose)
+        Router::get('/templates/seed/(.+)', function ($file) {
+            $path = \GaiaAlpha\Env::get('root_dir') . '/templates/seed/' . $file;
+            if (\GaiaAlpha\File::exists($path)) {
+                \GaiaAlpha\Response::file($path);
+            } else {
+                \GaiaAlpha\Response::send('Not Found', 404);
+            }
+        });
     }
     private function findAssetPath($path, $type)
     {

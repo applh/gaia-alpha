@@ -16,5 +16,8 @@ Hook::add('framework_load_controllers_after', function ($controllers) {
     }
 });
 
+// Register UI Component
+\GaiaAlpha\UiManager::registerComponent('chat', 'plugins/Chat/ChatPanel.js', false);
+
 // Inject Menu
 

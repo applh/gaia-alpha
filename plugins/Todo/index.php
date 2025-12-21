@@ -33,4 +33,8 @@ Hook::add('admin_dashboard_cards', function ($cards) {
 });
 
 // Inject Menu
+// ...
+
+// Register UI Component
+\GaiaAlpha\UiManager::registerComponent('todos', 'plugins/Todo/TodoList.js', false);
 

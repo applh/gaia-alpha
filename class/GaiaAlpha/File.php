@@ -13,12 +13,32 @@ class File
     }
 
     /**
+     * Read file and decode as JSON.
+     */
+    public static function readJson(string $path, bool $assoc = true)
+    {
+        $content = self::read($path);
+        if ($content !== false) {
+            return json_decode($content, $assoc) ?? [];
+        }
+        return [];
+    }
+
+    /**
      * Write content to file.
      */
     public static function write(string $path, string $content, bool $append = false)
     {
         $flags = $append ? FILE_APPEND : 0;
         return file_put_contents($path, $content, $flags);
+    }
+
+    /**
+     * Encode data as JSON and write to file.
+     */
+    public static function writeJson(string $path, $data, int $flags = JSON_PRETTY_PRINT)
+    {
+        return self::write($path, json_encode($data, $flags));
     }
 
     /**

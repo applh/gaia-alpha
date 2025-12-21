@@ -18,7 +18,7 @@ class Seeder
         // echo "1. Seeding Todos...\n";
         $todosFile = $seedDir . '/todos.json';
         if (File::exists($todosFile)) {
-            $todos = json_decode(File::read($todosFile), true);
+            $todos = File::readJson($todosFile);
             $getDate = fn($d) => $d ? date('Y-m-d', strtotime($d)) : null;
 
             foreach ($todos as $todo) {
@@ -68,7 +68,7 @@ class Seeder
         $pagesDir = $seedDir . '/pages';
         if (File::isDirectory($pagesDir)) {
             foreach (File::glob($pagesDir . '/*.json') as $pageFile) {
-                $pageData = json_decode(File::read($pageFile), true);
+                $pageData = File::readJson($pageFile);
                 Page::create($userId, $pageData);
             }
         }
@@ -76,7 +76,7 @@ class Seeder
         // 4. Menus
         $menusFile = $seedDir . '/menus.json';
         if (File::exists($menusFile)) {
-            $menus = json_decode(File::read($menusFile), true);
+            $menus = File::readJson($menusFile);
             foreach ($menus as $menu) {
                 DB::execute(
                     "INSERT INTO menus (title, location, items, created_at, updated_at) VALUES (?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)",
@@ -88,7 +88,7 @@ class Seeder
         // 5. Forms & Submissions
         $formsFile = $seedDir . '/forms.json';
         if (File::exists($formsFile)) {
-            $forms = json_decode(File::read($formsFile), true);
+            $forms = File::readJson($formsFile);
             foreach ($forms as $form) {
                 $sql = "INSERT INTO forms (user_id, title, slug, description, schema, submit_label) VALUES (?, ?, ?, ?, ?, ?)";
                 DB::execute($sql, [
@@ -116,7 +116,7 @@ class Seeder
         // 6. Map Markers
         $markersFile = $seedDir . '/markers.json';
         if (File::exists($markersFile)) {
-            $markers = json_decode(File::read($markersFile), true);
+            $markers = File::readJson($markersFile);
             $sql = "INSERT INTO map_markers (user_id, label, lat, lng) VALUES (?, ?, ?, ?)";
             foreach ($markers as $m) {
                 DB::execute($sql, [$userId, $m['label'], $m['lat'], $m['lng']]);
@@ -159,7 +159,7 @@ class Seeder
         // 9. Messages
         $msgsFile = $seedDir . '/messages.json';
         if (File::exists($msgsFile)) {
-            $msgs = json_decode(File::read($msgsFile), true);
+            $msgs = File::readJson($msgsFile);
             $sql = "INSERT INTO messages (sender_id, receiver_id, content, is_read) VALUES (?, ?, ?, ?)";
             foreach ($msgs as $msg) {
                 DB::execute($sql, [$userId, $userId, $msg['content'], $msg['is_read']]);

@@ -3,6 +3,7 @@
 namespace Map\Controller;
 
 use GaiaAlpha\Controller\BaseController;
+use GaiaAlpha\Response;
 use Map\Model\MapMarker;
 
 class MapController extends BaseController
@@ -10,37 +11,38 @@ class MapController extends BaseController
     public function index()
     {
         $this->requireAuth();
-        $this->jsonResponse(MapMarker::findAllByUserId($_SESSION['user_id']));
+        Response::json(MapMarker::findAllByUserId($_SESSION['user_id']));
     }
 
     public function create()
     {
         $this->requireAuth();
-        $data = $this->getJsonInput();
+        $this->requireAuth();
+        $data = \GaiaAlpha\Request::input();
 
         if (empty($data['label']) || !isset($data['lat']) || !isset($data['lng'])) {
-            $this->jsonResponse(['error' => 'Missing required fields'], 400);
+            Response::json(['error' => 'Missing required fields'], 400);
         }
 
         $id = MapMarker::create($_SESSION['user_id'], $data['label'], $data['lat'], $data['lng']);
-        $this->jsonResponse(['success' => true, 'id' => $id]);
+        Response::json(['success' => true, 'id' => $id]);
     }
 
     public function update($id)
     {
         $this->requireAuth();
-        $data = $this->getJsonInput();
+        $data = \GaiaAlpha\Request::input();
 
         if (!isset($data['lat']) || !isset($data['lng'])) {
-            $this->jsonResponse(['error' => 'Missing required fields'], 400);
+            Response::json(['error' => 'Missing required fields'], 400);
         }
 
         $success = MapMarker::updatePosition($id, $_SESSION['user_id'], $data['lat'], $data['lng']);
 
         if ($success) {
-            $this->jsonResponse(['success' => true]);
+            Response::json(['success' => true]);
         } else {
-            $this->jsonResponse(['error' => 'Failed to update marker'], 500);
+            Response::json(['error' => 'Failed to update marker'], 500);
         }
     }
 

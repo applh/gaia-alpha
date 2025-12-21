@@ -14,6 +14,9 @@ Hook::add('framework_load_controllers_after', function ($controllers) {
         if (method_exists($apiBuilder, 'init')) {
             $apiBuilder->init();
         }
+        if (method_exists($apiBuilder, 'registerRoutes')) {
+            $apiBuilder->registerRoutes();
+        }
         $controllers['api-builder'] = $apiBuilder; // Key matches standard route expectations if any
     }
 
@@ -30,5 +33,8 @@ Hook::add('framework_load_controllers_after', function ($controllers) {
     // Update Env
     Env::set('controllers', $controllers);
 });
+
+// Register UI Component
+\GaiaAlpha\UiManager::registerComponent('api-builder', 'plugins/ApiBuilder/ApiManager.js', true);
 
 

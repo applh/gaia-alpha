@@ -42,7 +42,7 @@ class ComponentBuilderController extends BaseController
     {
         $this->requireAdmin();
         $components = $this->manager->getComponents();
-        $this->jsonResponse($components);
+        Response::json($components);
     }
 
     // ... (rest of methods)
@@ -86,7 +86,7 @@ class ComponentBuilderController extends BaseController
     {
         $this->requireAdmin();
         $component = $this->manager->getComponent($id);
-        $this->jsonResponse(['definition' => json_decode($component['definition'])]);
+        Response::json(['definition' => json_decode($component['definition'])]);
     }
 
     public function handleGet($id)
@@ -94,7 +94,7 @@ class ComponentBuilderController extends BaseController
         $this->requireAdmin();
         $component = $this->manager->getComponent($id);
         if (!$component) {
-            $this->jsonResponse(['error' => 'Component not found'], 404);
+            Response::json(['error' => 'Component not found'], 404);
             return;
         }
 
@@ -103,17 +103,17 @@ class ComponentBuilderController extends BaseController
             $component['definition'] = json_decode($component['definition'], true);
         }
 
-        $this->jsonResponse($component);
+        Response::json($component);
     }
 
     public function handleCreate()
     {
         $this->requireAdmin();
-        $data = $this->getJsonInput();
+        $data = Request::input();
 
         // Basic validation
         if (empty($data['name']) || empty($data['title'])) {
-            $this->jsonResponse(['error' => 'Name and Title are required'], 400);
+            Response::json(['error' => 'Name and Title are required'], 400);
             return;
         }
 
@@ -121,26 +121,26 @@ class ComponentBuilderController extends BaseController
 
         try {
             $id = $this->manager->createComponent($data);
-            $this->jsonResponse(['id' => $id, 'success' => true]);
+            Response::json(['id' => $id, 'success' => true]);
         } catch (\Exception $e) {
-            $this->jsonResponse(['error' => $e->getMessage()], 500);
+            Response::json(['error' => $e->getMessage()], 500);
         }
     }
 
     public function handleUpdate($id)
     {
         $this->requireAdmin();
-        $data = $this->getJsonInput();
+        $data = Request::input();
 
         try {
             $success = $this->manager->updateComponent($id, $data);
             if ($success) {
-                $this->jsonResponse(['success' => true]);
+                Response::json(['success' => true]);
             } else {
-                $this->jsonResponse(['error' => 'Update failed or no changes'], 400);
+                Response::json(['error' => 'Update failed or no changes'], 400);
             }
         } catch (\Exception $e) {
-            $this->jsonResponse(['error' => $e->getMessage()], 500);
+            Response::json(['error' => $e->getMessage()], 500);
         }
     }
 
@@ -151,12 +151,12 @@ class ComponentBuilderController extends BaseController
         try {
             $success = $this->manager->deleteComponent($id);
             if ($success) {
-                $this->jsonResponse(['success' => true]);
+                Response::json(['success' => true]);
             } else {
-                $this->jsonResponse(['error' => 'Delete failed'], 400);
+                Response::json(['error' => 'Delete failed'], 400);
             }
         } catch (\Exception $e) {
-            $this->jsonResponse(['error' => $e->getMessage()], 500);
+            Response::json(['error' => $e->getMessage()], 500);
         }
     }
 
@@ -165,9 +165,9 @@ class ComponentBuilderController extends BaseController
         $this->requireAdmin();
         try {
             $code = $this->manager->generateCode($id);
-            $this->jsonResponse(['success' => true, 'code' => $code]);
+            Response::json(['success' => true, 'code' => $code]);
         } catch (\Exception $e) {
-            $this->jsonResponse(['error' => $e->getMessage()], 500);
+            Response::json(['error' => $e->getMessage()], 500);
         }
     }
 
@@ -192,6 +192,6 @@ class ComponentBuilderController extends BaseController
                 ]
             ]
         ];
-        $this->jsonResponse($templates);
+        Response::json($templates);
     }
 }

@@ -38,5 +38,8 @@ Hook::add('framework_load_controllers_after', function ($controllers) {
     return $controllers;
 });
 
+// Register UI Component
+\GaiaAlpha\UiManager::registerComponent('mail/inbox', 'plugins/Mail/MailPanel.js', true);
+
 // 3. Inject Admin Menu Item
 

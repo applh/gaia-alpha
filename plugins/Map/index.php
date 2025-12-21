@@ -12,6 +12,9 @@ Hook::add('framework_load_controllers_after', function ($controllers) {
         if (method_exists($controller, 'init')) {
             $controller->init();
         }
+        if (method_exists($controller, 'registerRoutes')) {
+            $controller->registerRoutes();
+        }
 
         // Register controller
         $controllers['map'] = $controller;
@@ -20,5 +23,8 @@ Hook::add('framework_load_controllers_after', function ($controllers) {
         Env::set('controllers', $controllers);
     }
 });
+
+// Register UI Component
+\GaiaAlpha\UiManager::registerComponent('map', 'plugins/Map/MapPanel.js', false);
 
 

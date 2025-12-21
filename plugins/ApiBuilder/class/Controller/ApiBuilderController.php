@@ -36,15 +36,14 @@ class ApiBuilderController extends BaseController
             ];
         }
 
-        $this->jsonResponse($result);
+        Response::json($result);
     }
 
     public function handleSaveConfig()
     {
         $this->requireAdmin();
-        $data = $this->getJsonInput();
-        if (!isset($data['name']) || !isset($data['config'])) {
-            Response::json(['error' => 'Invalid input'], 400);
+        $data = $this->getValidatedInput();
+        if (!$data) {
             return;
         }
 
@@ -63,7 +62,17 @@ class ApiBuilderController extends BaseController
 
         $this->saveConfig($config);
 
-        $this->jsonResponse(['success' => true]);
+        Response::json(['success' => true]);
+    }
+
+    private function getValidatedInput()
+    {
+        $data = \GaiaAlpha\Request::input();
+        if (!isset($data['name']) || !isset($data['config'])) {
+            Response::json(['error' => 'Invalid input'], 400);
+            return null;
+        }
+        return $data;
     }
 
     private function getConfigPath()
@@ -74,16 +83,12 @@ class ApiBuilderController extends BaseController
     private function loadConfig()
     {
         $path = $this->getConfigPath();
-        $content = File::read($path);
-        if ($content !== false) {
-            return json_decode($content, true) ?? [];
-        }
-        return [];
+        return File::readJson($path);
     }
 
     private function saveConfig(array $config)
     {
         $path = $this->getConfigPath();
-        File::write($path, json_encode($config, JSON_PRETTY_PRINT));
+        File::writeJson($path, $config);
     }
 }

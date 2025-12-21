@@ -38,9 +38,15 @@ class YourController extends BaseController
     public function create()
     {
         $this->requireAuth();
-        $input = $this->getJsonInput();
+        // Use the Request helper for standard input handling
+        $input = \GaiaAlpha\Request::input(); 
+        
+        if (empty($input['name'])) {
+             \GaiaAlpha\Response::json(['error' => 'Name required'], 400);
+        }
+
         // ... Logic ...
-        $this->jsonResponse(['success' => true]);
+        \GaiaAlpha\Response::json(['success' => true]);
     }
 }
 ```
@@ -51,8 +57,10 @@ class YourController extends BaseController
 2.  **Inheritance**: Must extend `GaiaAlpha\Controller\BaseController`.
 3.  **Helpers**:
     *   `$this->requireAuth()`: Enforces a logged-in session.
-    *   `$this->jsonResponse($data, $status)`: Sends a JSON response and terminates execution.
-    *   `$this->getJsonInput()`: Safely retrieves and decodes JSON request bodies.
+    *   `\GaiaAlpha\Response::json($data, $status)`: Sends a JSON response and terminates execution (Static method).
+    *   `\GaiaAlpha\Request::input($key, $default)`: Safely retrieves inputs from JSON body or POST data (Static method).
+    *   `\GaiaAlpha\File::readJson($path)`: Helper to read and decode JSON files.
+    *   `\GaiaAlpha\File::writeJson($path, $data)`: Helper to encode and write JSON files.
 4.  **MCP Integration**: Controller methods are the ideal backend for MCP Tools. By keeping your controller logic modular, you can easily expose it to AI agents via the MCP server.
 
 ## Documentation Requirement

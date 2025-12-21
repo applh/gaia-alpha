@@ -30,5 +30,8 @@ Hook::add('framework_load_controllers_after', function () {
     }
 });
 
+// Register UI Component
+\GaiaAlpha\UiManager::registerComponent('component-builder', 'plugins/ComponentBuilder/ComponentBuilder.js', true);
+
 
 

@@ -1,0 +1,7 @@
+{
+    "name": "MlPca",
+    "version": "1.0.0",
+    "description": "Principal Component Analysis (PCA) tool for dimensionality reduction and data visualization.",
+    "author": "Gaia Alpha",
+    "is_core": false
+}

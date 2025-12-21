@@ -58,6 +58,9 @@ class ViewController extends BaseController
         // Fetch Global Settings
         $globalSettings = \GaiaAlpha\Model\DataStore::getAll(0, 'global_config');
 
+        // Inject Dynamic UI Components
+        $globalSettings['ui_components'] = \GaiaAlpha\UiManager::getComponents();
+
         // Inject Active Plugins
         $pathData = Env::get('path_data');
         if (file_exists($pathData . '/active_plugins.json')) {

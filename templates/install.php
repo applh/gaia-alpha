@@ -168,6 +168,13 @@
                     <input type="checkbox" name="demo_data" value="1" checked style="width: auto;">
                     Populate with Demo Data (recommended)
                 </label>
+
+                <div class="form-group" style="margin-top: 1.5rem; border-top: 1px solid #334155; padding-top: 1rem;">
+                    <label>Plugins</label>
+                    <div id="plugins-list" style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+                        <span style="color: var(--gray); font-size: 0.875rem;">Loading plugins...</span>
+                    </div>
+                </div>
             </div>
 
             <button type="submit" style="margin-top: 1.5rem;">Create Account</button>
@@ -175,6 +182,49 @@
     </div>
 
     <script>
+        // Fetch plugins on load
+        (async () => {
+             try {
+                 const res = await fetch('/@/install/plugins');
+                 if (res.ok) {
+                     const plugins = await res.json();
+                     const container = document.getElementById('plugins-list');
+                     container.innerHTML = '';
+                     
+                     plugins.forEach(p => {
+                         const isCore = p.type === 'core';
+                         const div = document.createElement('div');
+                         div.style.display = 'flex';
+                         div.style.alignItems = 'center';
+                         div.style.gap = '0.5rem';
+                         
+                         const input = document.createElement('input');
+                         input.type = 'checkbox';
+                         input.name = 'plugins[]';
+                         input.value = p.id;
+                         input.style.width = 'auto';
+                         input.checked = isCore; // Core checked by default
+                         
+                         const label = document.createElement('label');
+                         label.textContent = p.name;
+                         label.style.marginBottom = '0';
+                         label.style.cursor = 'pointer';
+                         label.style.fontSize = '0.875rem';
+                         label.title = p.description;
+                         
+                         // Link label click to checkbox
+                         label.onclick = () => { input.checked = !input.checked; };
+                         
+                         div.appendChild(input);
+                         div.appendChild(label);
+                         container.appendChild(div);
+                     });
+                 }
+             } catch (e) {
+                 console.error('Failed to load plugins', e);
+             }
+        })();
+
         document.getElementById('install-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = e.target.querySelector('button');
@@ -185,7 +235,16 @@
             errorDiv.style.display = 'none';
 
             const formData = new FormData(e.target);
-            const data = Object.fromEntries(formData);
+            // Handle plugins array manually because Object.fromEntries doesn't handle multiple values for same key well
+            const data = {};
+            formData.forEach((value, key) => {
+                if (key === 'plugins[]') {
+                    if (!data['plugins']) data['plugins'] = [];
+                    data['plugins'].push(value);
+                } else {
+                    data[key] = value;
+                }
+            });
 
             try {
                 const res = await fetch('/@/install', {

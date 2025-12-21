@@ -22,6 +22,40 @@ class InstallController extends BaseController
         include $rootDir . '/templates/install.php';
     }
 
+    public function getPlugins()
+    {
+        $rootDir = Env::get('root_dir');
+        $pathData = Env::get('path_data');
+        $pluginDirs = [
+            $pathData . '/plugins',
+            $rootDir . '/plugins'
+        ];
+
+        // Gather all unique plugins
+        $plugins = [];
+        foreach ($pluginDirs as $dir) {
+            if (!is_dir($dir))
+                continue;
+            foreach (glob($dir . '/*/plugin.json') as $file) {
+                $dirName = basename(dirname($file));
+                if (!isset($plugins[$dirName])) {
+                    $meta = json_decode(file_get_contents($file), true);
+                    // Normalize type
+                    $type = $meta['type'] ?? (($meta['is_core'] ?? false) ? 'core' : 'standard');
+
+                    $plugins[$dirName] = [
+                        'id' => $dirName,
+                        'name' => $meta['name'] ?? $dirName,
+                        'description' => $meta['description'] ?? '',
+                        'type' => $type
+                    ];
+                }
+            }
+        }
+
+        Response::json(array_values($plugins));
+    }
+
     public function install()
     {
         // If already installed, forbid
@@ -38,6 +72,21 @@ class InstallController extends BaseController
         }
 
         try {
+            // Save Active Plugins
+            $plugins = [];
+            if (isset($data['plugins']) && is_array($data['plugins'])) {
+                $plugins = $data['plugins'];
+            }
+
+            $dataPath = Env::get('path_data');
+            if (!$dataPath) {
+                $dataPath = defined('GAIA_DATA_PATH') ? GAIA_DATA_PATH : Env::get('root_dir') . '/my-data';
+            }
+            if (!is_dir($dataPath)) {
+                mkdir($dataPath, 0755, true);
+            }
+            file_put_contents($dataPath . '/active_plugins.json', json_encode($plugins));
+
             // Create Admin User (Level 100)
             $id = User::create($data['username'], $data['password'], 100);
 
@@ -83,6 +132,7 @@ class InstallController extends BaseController
     {
         Router::add('GET', '/install', [$this, 'index']);
         Router::add('POST', '/@/install', [$this, 'install']);
+        Router::add('GET', '/@/install/plugins', [$this, 'getPlugins']);
     }
 
     // Static check meant to be run as a framework task
@@ -99,7 +149,7 @@ class InstallController extends BaseController
         // Also allow debug/min paths if needed?
         if (
             $uri === '/install' ||
-            $uri === '/@/install' ||
+            str_starts_with($uri, '/@/install') ||
             str_starts_with($uri, '/assets/') ||
             str_starts_with($uri, '/min/') ||
             str_starts_with($uri, '/favicon.ico')
@@ -118,7 +168,10 @@ class InstallController extends BaseController
 
     private static function isInstalled()
     {
-        $dataPath = defined('GAIA_DATA_PATH') ? GAIA_DATA_PATH : Env::get('root_dir') . '/my-data';
+        $dataPath = Env::get('path_data');
+        if (!$dataPath) {
+            $dataPath = defined('GAIA_DATA_PATH') ? GAIA_DATA_PATH : Env::get('root_dir') . '/my-data';
+        }
         $lockFile = $dataPath . '/installed.lock';
 
         if (file_exists($lockFile)) {
@@ -141,7 +194,11 @@ class InstallController extends BaseController
 
     private function markInstalled()
     {
-        $dataPath = defined('GAIA_DATA_PATH') ? GAIA_DATA_PATH : Env::get('root_dir') . '/my-data';
+        $dataPath = Env::get('path_data');
+        if (!$dataPath) {
+            $dataPath = defined('GAIA_DATA_PATH') ? GAIA_DATA_PATH : Env::get('root_dir') . '/my-data';
+        }
+
         if (is_dir($dataPath)) {
             touch($dataPath . '/installed.lock');
         }

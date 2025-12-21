@@ -41,7 +41,7 @@ class Framework
                 // If active_plugins.json exists, ONLY whitelist if NOT core
                 $isCore = isset($config['type']) && $config['type'] === 'core';
 
-                if ($activePlugins !== null && !$isCore && !in_array($pluginDirName, $activePlugins)) {
+                if ($activePlugins !== null && !in_array($pluginDirName, $activePlugins)) {
                     continue;
                 }
 

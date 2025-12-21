@@ -1,12 +1,12 @@
 -- Admin Components Table
 CREATE TABLE admin_components (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL UNIQUE,
-    title TEXT NOT NULL,
+    name VARCHAR(255) NOT NULL UNIQUE,
+    title VARCHAR(255) NOT NULL,
     description TEXT,
-    category TEXT DEFAULT 'custom',
-    icon TEXT DEFAULT 'puzzle',
-    view_name TEXT NOT NULL UNIQUE,
+    category VARCHAR(255) DEFAULT 'custom',
+    icon VARCHAR(255) DEFAULT 'puzzle',
+    view_name VARCHAR(255) NOT NULL UNIQUE,
     definition TEXT NOT NULL, -- JSON component definition
     generated_code TEXT, -- Generated Vue component code
     version INTEGER DEFAULT 1,
@@ -33,7 +33,7 @@ CREATE TABLE admin_component_versions (
 CREATE TABLE admin_component_permissions (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     component_id INTEGER NOT NULL,
-    role TEXT NOT NULL,
+    role VARCHAR(255) NOT NULL,
     can_view BOOLEAN DEFAULT 1,
     can_edit BOOLEAN DEFAULT 0,
     can_delete BOOLEAN DEFAULT 0,

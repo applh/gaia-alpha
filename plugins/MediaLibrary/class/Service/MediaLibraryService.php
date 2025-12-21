@@ -76,7 +76,7 @@ class MediaLibraryService
     {
         DB::execute(
             "INSERT INTO cms_media (user_id, filename, original_filename, mime_type, file_size, width, height, alt_text, caption, created_at, updated_at)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))",
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             [
                 $data['user_id'],
                 $data['filename'],
@@ -86,7 +86,9 @@ class MediaLibraryService
                 $data['width'] ?? null,
                 $data['height'] ?? null,
                 $data['alt_text'] ?? '',
-                $data['caption'] ?? ''
+                $data['caption'] ?? '',
+                date('Y-m-d H:i:s'),
+                date('Y-m-d H:i:s')
             ]
         );
 
@@ -120,7 +122,8 @@ class MediaLibraryService
             return false;
         }
 
-        $fields[] = "updated_at = datetime('now')";
+        $fields[] = "updated_at = ?";
+        $params[] = date('Y-m-d H:i:s');
         $params[] = $id;
 
         $query = "UPDATE cms_media SET " . implode(', ', $fields) . " WHERE id = ?";
@@ -174,8 +177,8 @@ class MediaLibraryService
         $slug = self::slugify($name);
 
         DB::execute(
-            "INSERT INTO cms_media_tags (name, slug, color, created_at) VALUES (?, ?, ?, datetime('now'))",
-            [$name, $slug, $color]
+            "INSERT INTO cms_media_tags (name, slug, color, created_at) VALUES (?, ?, ?, ?)",
+            [$name, $slug, $color, date('Y-m-d H:i:s')]
         );
 
         return DB::lastInsertId();
@@ -201,8 +204,8 @@ class MediaLibraryService
         // Add new tags
         foreach ($tagIds as $tagId) {
             DB::execute(
-                "INSERT INTO cms_media_tag_relations (media_id, tag_id, created_at) VALUES (?, ?, datetime('now'))",
-                [$mediaId, $tagId]
+                "INSERT INTO cms_media_tag_relations (media_id, tag_id, created_at) VALUES (?, ?, ?)",
+                [$mediaId, $tagId, date('Y-m-d H:i:s')]
             );
         }
 

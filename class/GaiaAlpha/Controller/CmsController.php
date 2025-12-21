@@ -11,7 +11,8 @@ class CmsController extends BaseController
 {
     public function index()
     {
-        $this->requireAuth();
+        if (!$this->requireAuth())
+            return;
         $cat = Request::query('cat', 'page');
         Response::json(Page::findAllByUserId(\GaiaAlpha\Session::id(), $cat));
     }
@@ -23,6 +24,7 @@ class CmsController extends BaseController
 
         if (empty($data['title']) || empty($data['slug'])) {
             Response::json(['error' => 'Missing title or slug'], 400);
+            return;
         }
 
         // Default cat to 'page' if not provided
@@ -40,7 +42,8 @@ class CmsController extends BaseController
 
     public function update($id)
     {
-        $this->requireAuth();
+        if (!$this->requireAuth())
+            return;
         $data = Request::input();
         Page::update($id, \GaiaAlpha\Session::id(), $data);
         Response::json(['success' => true]);
@@ -48,14 +51,16 @@ class CmsController extends BaseController
 
     public function delete($id)
     {
-        $this->requireAuth();
+        if (!$this->requireAuth())
+            return;
         Page::delete($id, \GaiaAlpha\Session::id());
         Response::json(['success' => true]);
     }
 
     public function upload()
     {
-        $this->requireAuth();
+        if (!$this->requireAuth())
+            return;
         if (!Request::hasFile('image')) {
             Response::json(['error' => 'No image uploaded or upload error'], 400);
             return;
@@ -120,17 +125,20 @@ class CmsController extends BaseController
 
     public function getTemplates()
     {
-        $this->requireAuth();
+        if (!$this->requireAuth())
+            return;
         Response::json(Template::findAllByUserId(\GaiaAlpha\Session::id()));
     }
 
     public function createTemplate()
     {
-        $this->requireAuth();
+        if (!$this->requireAuth())
+            return;
         $data = Request::input();
 
         if (empty($data['title']) || empty($data['slug'])) {
             Response::json(['error' => 'Missing title or slug'], 400);
+            return;
         }
 
         try {
@@ -143,7 +151,8 @@ class CmsController extends BaseController
 
     public function updateTemplate($id)
     {
-        $this->requireAuth();
+        if (!$this->requireAuth())
+            return;
         $data = Request::input();
         Template::update($id, \GaiaAlpha\Session::id(), $data);
         Response::json(['success' => true]);
@@ -151,7 +160,8 @@ class CmsController extends BaseController
 
     public function deleteTemplate($id)
     {
-        $this->requireAuth();
+        if (!$this->requireAuth())
+            return;
         Template::delete($id, \GaiaAlpha\Session::id());
         Response::json(['success' => true]);
     }

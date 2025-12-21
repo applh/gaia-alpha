@@ -44,6 +44,7 @@ class AuthController extends BaseController
         $data = Request::input();
         if (empty($data['username']) || empty($data['password'])) {
             Response::json(['error' => 'Missing credentials'], 400);
+            return;
         }
 
         try {

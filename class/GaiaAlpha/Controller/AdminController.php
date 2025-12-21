@@ -10,7 +10,8 @@ class AdminController extends BaseController
 {
     public function stats()
     {
-        $this->requireAdmin();
+        if (!$this->requireAdmin())
+            return;
 
         // Base Cards
         $cards = [

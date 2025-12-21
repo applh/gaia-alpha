@@ -21,14 +21,34 @@ class AnalyticsService
         $uniqueVisitors = DB::fetchColumn("SELECT COUNT(DISTINCT visitor_ip) FROM cms_analytics_visits");
 
         // Visits today
-        $todayVisits = DB::fetchColumn("SELECT COUNT(*) FROM cms_analytics_visits WHERE date(timestamp) = date('now')");
-        $todayUnique = DB::fetchColumn("SELECT COUNT(DISTINCT visitor_ip) FROM cms_analytics_visits WHERE date(timestamp) = date('now')");
+        $todayStart = date('Y-m-d 00:00:00');
+        $todayVisits = DB::fetchColumn("SELECT COUNT(*) FROM cms_analytics_visits WHERE timestamp >= ?", [$todayStart]);
+        $todayUnique = DB::fetchColumn("SELECT COUNT(DISTINCT visitor_ip) FROM cms_analytics_visits WHERE timestamp >= ?", [$todayStart]);
 
         // Top Pages
         $topPages = DB::fetchAll("SELECT page_path, COUNT(*) as count FROM cms_analytics_visits GROUP BY page_path ORDER BY count DESC LIMIT 10");
 
         // Visits over time (last 30 days)
-        $rawHistory = DB::fetchAll("SELECT date(timestamp) as date, COUNT(*) as count, COUNT(DISTINCT visitor_ip) as unique_count FROM cms_analytics_visits WHERE timestamp >= date('now', '-$days days') GROUP BY date(timestamp)");
+        $startDate = date('Y-m-d 00:00:00', strtotime("-$days days"));
+
+        // Use a generic date formatting approach or handle aggregation in PHP if SQL dialect varies too much.
+        // For basic "per day" grouping, standard SQL is tricky. 
+        // SQLite: strftime('%Y-%m-%d', timestamp)
+        // MySQL: DATE_FORMAT(timestamp, '%Y-%m-%d') or DATE(timestamp)
+        // Postgres: to_char(timestamp, 'YYYY-MM-DD')
+
+        // Since we can't easily unify GROUP BY date(timestamp) across all 3 without a helper, 
+        // let's fetch raw data and aggregate in PHP for maximum compatibility, 
+        // assuming the dataset for 30 days isn't massive (it's analytics, so it might be large, but let's assume reasonable for now).
+        // Alternatively, use substrings for YYYY-MM-DD if timestamp format is guaranteed. 
+        // We standardized to DATETIME (YYYY-MM-DD HH:MM:SS), so SUBSTR(timestamp, 1, 10) works on SQLite and MySQL/Postgres (as text cast).
+
+        $rawHistory = DB::fetchAll("
+            SELECT SUBSTR(timestamp, 1, 10) as date, COUNT(*) as count, COUNT(DISTINCT visitor_ip) as unique_count 
+            FROM cms_analytics_visits 
+            WHERE timestamp >= ? 
+            GROUP BY SUBSTR(timestamp, 1, 10)
+        ", [$startDate]);
 
         $historyMap = [];
         foreach ($rawHistory as $row) {

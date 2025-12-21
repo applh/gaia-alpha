@@ -8,6 +8,7 @@ use Analytics\Service\AnalyticsService;
 
 // 1. Register Controller
 Hook::add('framework_load_controllers_after', function ($controllers) {
+    $controllers = Env::get('controllers');
     if (class_exists(AnalyticsController::class)) {
         $controller = new AnalyticsController();
         if (method_exists($controller, 'registerRoutes')) {

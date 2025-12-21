@@ -90,6 +90,36 @@ Controllers often become bloated. Apply these patterns to keep them lean:
     - Good: Calling `OrderService::create($input)` inside `create()`.
 2.  **Strategy**: If an endpoint behaves differently based on input (e.g., `payment_method: 'stripe'` vs `'paypal'`), defining a Strategy interface allows you to swap implementations without `if/else` spaghetti in the controller.
 3.  **Command**: For complex actions (like "Publish Page"), encapsulate the logic in a Command class. The controller simply instantiates and executes the command.
+ 
+## Common Pitfalls
+
+### Missing `return` after Auth Check
+`requireAuth()` and `requireAdmin()` return a boolean. They send a 401/403 response if they fail, but they **do not** terminate execution automatically. You must check the return value and exit the method.
+
+```php
+// Bad: Continues execution even if not admin!
+$this->requireAdmin();
+$this->deleteEverything(); 
+
+// Good: Execution stops immediately.
+if (!$this->requireAdmin()) return;
+$this->deleteEverything();
+```
+
+### Missing `return` after Error Response
+Calling `Response::json()` with an error status (e.g., 400, 404) echoes the JSON but does not stop the PHP process. Subsequent code will still run, potentially appending more JSON to the response or performing unintended actions.
+
+```php
+// Bad: Appends result even if ID is missing.
+if (!$id) { Response::json(['error' => 'Missing ID'], 400); }
+Response::json(['result' => 'ok']); 
+
+// Good:
+if (!$id) { 
+    Response::json(['error' => 'Missing ID'], 400); 
+    return; 
+}
+```
 
 ## Checklist
 

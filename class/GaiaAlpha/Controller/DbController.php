@@ -24,12 +24,9 @@ class DbController extends BaseController
     // method would be called on an instance of DbController.
     public function registerRoutes()
     {
-        Router::add('GET', '/@/admin/db/tables', [$this, 'listTables']);
-        Router::add('GET', '/@/admin/db/table/([a-zA-Z0-9_]+)', [$this, 'getTableData']);
-        Router::add('POST', '/@/admin/db/query', [$this, 'executeQuery']);
-        Router::add('POST', '/@/admin/db/table/([a-zA-Z0-9_]+)', [$this, 'insertRecord']);
-        Router::add('PATCH', '/@/admin/db/table/([a-zA-Z0-9_]+)/(\d+)', [$this, 'updateRecord']);
-        Router::add('DELETE', '/@/admin/db/table/([a-zA-Z0-9_]+)/(\d+)', [$this, 'deleteRecord']);
+        // Routes moved to DatabaseManager plugin
+        // Router::add('GET', '/@/admin/db/tables', [$this, 'listTables']);
+        // ...
     }
 
     // Placeholder methods for the routes, assuming they exist elsewhere or need to be added.

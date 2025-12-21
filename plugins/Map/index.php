@@ -6,6 +6,8 @@ use Map\Controller\MapController;
 
 // Register Controller
 Hook::add('framework_load_controllers_after', function ($controllers) {
+    // ALWAYS fetch the latest controllers from Env to avoid overwriting updates from other plugins
+    $controllers = Env::get('controllers');
 
     if (class_exists(MapController::class)) {
         $controller = new MapController();

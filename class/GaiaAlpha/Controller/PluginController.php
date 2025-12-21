@@ -11,7 +11,8 @@ class PluginController extends BaseController
 {
     public function index()
     {
-        $this->requireAdmin();
+        if (!$this->requireAdmin())
+            return;
 
         $pathData = Env::get('path_data');
         $rootDir = Env::get('root_dir');
@@ -52,7 +53,8 @@ class PluginController extends BaseController
 
     public function togglePlugin()
     {
-        $this->requireAdmin();
+        if (!$this->requireAdmin())
+            return;
         $data = Request::input();
 
         $name = $data['name'] ?? null;
@@ -78,7 +80,8 @@ class PluginController extends BaseController
 
     public function savePlugins()
     {
-        $this->requireAdmin();
+        if (!$this->requireAdmin())
+            return;
         $data = Request::input();
         $activePlugins = $data['active_plugins'] ?? [];
 
@@ -96,7 +99,8 @@ class PluginController extends BaseController
 
     public function install()
     {
-        $this->requireAdmin();
+        if (!$this->requireAdmin())
+            return;
         $input = Request::input();
         $url = $input['url'] ?? '';
         $isRaw = $input['is_raw'] ?? false;

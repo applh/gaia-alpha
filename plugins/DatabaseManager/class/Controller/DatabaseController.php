@@ -5,24 +5,36 @@ namespace DatabaseManager\Controller;
 use GaiaAlpha\Controller\BaseController;
 use GaiaAlpha\Model\DB;
 use GaiaAlpha\Router;
+use GaiaAlpha\Request;
+use GaiaAlpha\Response;
 
 class DatabaseController extends BaseController
 {
     public function getTables()
     {
-        $this->requireAdmin();
-        $tables = DB::getTables();
-
-
-        $this->jsonResponse(['tables' => $tables]);
+        error_log("DatabaseController::getTables called");
+        if (!$this->requireAdmin()) {
+            error_log("DatabaseController::getTables - Auth Failed");
+            return;
+        }
+        try {
+            $tables = DB::getTables();
+            error_log("DatabaseController::getTables - Found " . count($tables) . " tables");
+            Response::json(['tables' => $tables]);
+        } catch (\Exception $e) {
+            error_log("DatabaseController::getTables - Error: " . $e->getMessage());
+            Response::json(['error' => $e->getMessage()], 500);
+        }
     }
 
     public function getTableData($tableName)
     {
-        $this->requireAdmin();
+        if (!$this->requireAdmin()) {
+            return;
+        }
 
         if (!preg_match('/^[a-zA-Z_][a-zA-Z0-9_]*$/', $tableName)) {
-            $this->jsonResponse(['error' => 'Invalid table name'], 400);
+            Response::json(['error' => 'Invalid table name'], 400);
             return;
         }
 
@@ -31,7 +43,7 @@ class DatabaseController extends BaseController
         $data = DB::getTableRecords($tableName);
         $count = DB::getTableCount($tableName);
 
-        $this->jsonResponse([
+        Response::json([
             'table' => $tableName,
             'schema' => $schema,
             'data' => $data,
@@ -41,11 +53,13 @@ class DatabaseController extends BaseController
 
     public function executeQuery()
     {
-        $this->requireAdmin();
-        $data = $this->getJsonInput();
+        if (!$this->requireAdmin()) {
+            return;
+        }
+        $data = Request::input();
 
         if (empty($data['query'])) {
-            $this->jsonResponse(['error' => 'No query provided'], 400);
+            Response::json(['error' => 'No query provided'], 400);
             return;
         }
 
@@ -57,7 +71,7 @@ class DatabaseController extends BaseController
             if ($isSelect) {
                 $stmt = DB::query($query);
                 $results = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-                $this->jsonResponse([
+                Response::json([
                     'success' => true,
                     'type' => 'select',
                     'results' => $results,
@@ -66,14 +80,14 @@ class DatabaseController extends BaseController
             } else {
                 $stmt = DB::query($query);
                 $affectedRows = $stmt->rowCount();
-                $this->jsonResponse([
+                Response::json([
                     'success' => true,
                     'type' => 'modification',
                     'affected_rows' => $affectedRows
                 ]);
             }
         } catch (\PDOException $e) {
-            $this->jsonResponse([
+            Response::json([
                 'error' => 'Query execution failed: ' . $e->getMessage()
             ], 400);
         }
@@ -81,14 +95,16 @@ class DatabaseController extends BaseController
 
     public function createRecord($tableName)
     {
-        $this->requireAdmin();
-
-        if (!preg_match('/^[a-zA-Z_][a-zA-Z0-9_]*$/', $tableName)) {
-            $this->jsonResponse(['error' => 'Invalid table name'], 400);
+        if (!$this->requireAdmin()) {
             return;
         }
 
-        $data = $this->getJsonInput();
+        if (!preg_match('/^[a-zA-Z_][a-zA-Z0-9_]*$/', $tableName)) {
+            Response::json(['error' => 'Invalid table name'], 400);
+            return;
+        }
+
+        $data = Request::input();
 
         try {
             $columns = array_keys($data);
@@ -103,25 +119,27 @@ class DatabaseController extends BaseController
 
             DB::execute($sql, array_values($data));
 
-            $this->jsonResponse([
+            Response::json([
                 'success' => true,
                 'id' => DB::lastInsertId()
             ]);
         } catch (\PDOException $e) {
-            $this->jsonResponse(['error' => 'Insert failed: ' . $e->getMessage()], 400);
+            Response::json(['error' => 'Insert failed: ' . $e->getMessage()], 400);
         }
     }
 
     public function updateRecord($tableName, $id)
     {
-        $this->requireAdmin();
-
-        if (!preg_match('/^[a-zA-Z_][a-zA-Z0-9_]*$/', $tableName)) {
-            $this->jsonResponse(['error' => 'Invalid table name'], 400);
+        if (!$this->requireAdmin()) {
             return;
         }
 
-        $data = $this->getJsonInput();
+        if (!preg_match('/^[a-zA-Z_][a-zA-Z0-9_]*$/', $tableName)) {
+            Response::json(['error' => 'Invalid table name'], 400);
+            return;
+        }
+
+        $data = Request::input();
 
         try {
             $setParts = [];
@@ -141,27 +159,29 @@ class DatabaseController extends BaseController
 
             DB::execute($sql, $values);
 
-            $this->jsonResponse(['success' => true]);
+            Response::json(['success' => true]);
         } catch (\PDOException $e) {
-            $this->jsonResponse(['error' => 'Update failed: ' . $e->getMessage()], 400);
+            Response::json(['error' => 'Update failed: ' . $e->getMessage()], 400);
         }
     }
 
     public function deleteRecord($tableName, $id)
     {
-        $this->requireAdmin();
+        if (!$this->requireAdmin()) {
+            return;
+        }
 
         if (!preg_match('/^[a-zA-Z_][a-zA-Z0-9_]*$/', $tableName)) {
-            $this->jsonResponse(['error' => 'Invalid table name'], 400);
+            Response::json(['error' => 'Invalid table name'], 400);
             return;
         }
 
         try {
             DB::execute("DELETE FROM $tableName WHERE id = ?", [$id]);
 
-            $this->jsonResponse(['success' => true]);
+            Response::json(['success' => true]);
         } catch (\PDOException $e) {
-            $this->jsonResponse(['error' => 'Delete failed: ' . $e->getMessage()], 400);
+            Response::json(['error' => 'Delete failed: ' . $e->getMessage()], 400);
         }
     }
 

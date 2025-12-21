@@ -38,25 +38,27 @@ class Database
 
         sort($sqlFiles);
 
+        $driver = $this->pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
+
         foreach ($sqlFiles as $filePath) {
             if (file_exists($filePath)) {
                 $sqlContent = file_get_contents($filePath);
 
+                // Remove comments
+                $sqlContent = preg_replace('/^--.*$/m', '', $sqlContent);
+
                 // Split by semicolon to handle multiple statements
-                // reusing logic similar to runMigrations
                 $statements = array_filter(
                     array_map('trim', explode(';', $sqlContent)),
-                    function ($stmt) {
-                        return !empty($stmt) && !str_starts_with($stmt, '--');
-                    }
+                    fn($stmt) => !empty($stmt)
                 );
 
                 foreach ($statements as $statement) {
                     try {
-                        $this->pdo->exec($statement);
+                        $processedSql = $this->transformSql($statement, $driver);
+                        $this->pdo->exec($processedSql);
                     } catch (PDOException $e) {
-                        // Ignore "table already exists" type errors
-                        // Making this idempotent allows safe re-runs
+                        // Column/constraint likely already exists, ignore
                     }
                 }
             }
@@ -69,6 +71,7 @@ class Database
     {
         // Run migrations for existing databases
         $migrationsDir = Env::get('root_dir') . '/templates/sql/migrations';
+        $driver = $this->pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
 
         if (is_dir($migrationsDir)) {
             $migrationFiles = glob($migrationsDir . '/*.sql');
@@ -77,18 +80,19 @@ class Database
             foreach ($migrationFiles as $migrationFile) {
                 $sqlStatements = file_get_contents($migrationFile);
 
+                // Remove comments
+                $sqlStatements = preg_replace('/^--.*$/m', '', $sqlStatements);
+
                 // Split by semicolon to handle multiple statements
                 $statements = array_filter(
                     array_map('trim', explode(';', $sqlStatements)),
-                    function ($stmt) {
-                        // Filter out empty statements and comments
-                        return !empty($stmt) && !str_starts_with($stmt, '--');
-                    }
+                    fn($stmt) => !empty($stmt)
                 );
 
                 foreach ($statements as $statement) {
                     try {
-                        $this->pdo->exec($statement);
+                        $processedSql = $this->transformSql($statement, $driver);
+                        $this->pdo->exec($processedSql);
                     } catch (PDOException $e) {
                         // Column/constraint likely already exists, ignore
                     }
@@ -100,5 +104,45 @@ class Database
     public function getPdo(): PDO
     {
         return $this->pdo;
+    }
+
+    private function transformSql(string $sql, string $driver): string
+    {
+        if ($driver === 'sqlite') {
+            return $sql;
+        }
+
+        // Common replacements
+        if ($driver === 'mysql') {
+            // SQLite: INTEGER PRIMARY KEY AUTOINCREMENT
+            // MySQL:  INT AUTO_INCREMENT PRIMARY KEY
+            $sql = preg_replace(
+                '/INTEGER PRIMARY KEY AUTOINCREMENT/i',
+                'INT AUTO_INCREMENT PRIMARY KEY',
+                $sql
+            );
+
+            // Fix text defaults incompatible with blob/text in some mysql versions if not careful, 
+            // but primarily we valid syntax. 
+            // Also handle "DATETIME DEFAULT CURRENT_TIMESTAMP" which is valid in MySQL 5.6.5+ 
+
+        } elseif ($driver === 'pgsql') {
+            // PostgreSQL: SERIAL PRIMARY KEY
+            // Note: Postgres uses SERIAL which implies INTEGER PRIMARY KEY DEFAULT nextval(...)
+            $sql = preg_replace(
+                '/INTEGER PRIMARY KEY AUTOINCREMENT/i',
+                'SERIAL PRIMARY KEY',
+                $sql
+            );
+
+            // Postgres logic for "DATETIME" -> "TIMESTAMP"? 
+            // Actually "DATETIME" is not a native Postgres type (it's TIMESTAMP).
+            $sql = preg_replace('/DATETIME/i', 'TIMESTAMP', $sql);
+
+            // "TINYINT" -> "SMALLINT"
+            $sql = preg_replace('/TINYINT/i', 'SMALLINT', $sql);
+        }
+
+        return $sql;
     }
 }

@@ -93,6 +93,7 @@ class FormController extends BaseController
             ]);
         } catch (\PDOException $e) {
             Response::json(['error' => "Create failed: " . $e->getMessage()], 400);
+            return;
         }
     }
 
@@ -148,6 +149,7 @@ class FormController extends BaseController
             Response::json(['success' => true]);
         } catch (\PDOException $e) {
             Response::json(['error' => "Update failed: " . $e->getMessage()], 400);
+            return;
         }
     }
 
@@ -207,6 +209,7 @@ class FormController extends BaseController
             Response::json(['success' => true]);
         } catch (\PDOException $e) {
             Response::json(['error' => 'Submission failed'], 500);
+            return;
         }
     }
 

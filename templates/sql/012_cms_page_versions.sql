@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS cms_page_versions (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     page_id INTEGER NOT NULL,
-    title TEXT NOT NULL,
+    title VARCHAR(255) NOT NULL,
     content TEXT,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     user_id INTEGER,

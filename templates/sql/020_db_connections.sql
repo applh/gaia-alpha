@@ -1,12 +1,12 @@
 CREATE TABLE IF NOT EXISTS cms_db_connections (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL,
-    type TEXT NOT NULL,
-    host TEXT,
+    name VARCHAR(255) NOT NULL,
+    type VARCHAR(255) NOT NULL,
+    host VARCHAR(255),
     port INTEGER,
-    database TEXT NOT NULL,
-    username TEXT,
-    password TEXT,
-    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
-    updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+    database VARCHAR(255) NOT NULL,
+    username VARCHAR(255),
+    password VARCHAR(255),
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );

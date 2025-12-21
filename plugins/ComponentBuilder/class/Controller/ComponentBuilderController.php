@@ -40,7 +40,8 @@ class ComponentBuilderController extends BaseController
 
     public function handleList()
     {
-        $this->requireAdmin();
+        if (!$this->requireAdmin())
+            return;
         $components = $this->manager->getComponents();
         Response::json($components);
     }
@@ -49,7 +50,8 @@ class ComponentBuilderController extends BaseController
 
     public function handlePreviewRender($viewName)
     {
-        $this->requireAdmin();
+        if (!$this->requireAdmin())
+            return;
 
         // Sanitize
         $viewName = preg_replace('/[^a-zA-Z0-9_-]/', '', $viewName);
@@ -84,14 +86,16 @@ class ComponentBuilderController extends BaseController
 
     public function handlePreview($id)
     {
-        $this->requireAdmin();
+        if (!$this->requireAdmin())
+            return;
         $component = $this->manager->getComponent($id);
         Response::json(['definition' => json_decode($component['definition'])]);
     }
 
     public function handleGet($id)
     {
-        $this->requireAdmin();
+        if (!$this->requireAdmin())
+            return;
         $component = $this->manager->getComponent($id);
         if (!$component) {
             Response::json(['error' => 'Component not found'], 404);
@@ -108,7 +112,8 @@ class ComponentBuilderController extends BaseController
 
     public function handleCreate()
     {
-        $this->requireAdmin();
+        if (!$this->requireAdmin())
+            return;
         $data = Request::input();
 
         // Basic validation
@@ -129,7 +134,8 @@ class ComponentBuilderController extends BaseController
 
     public function handleUpdate($id)
     {
-        $this->requireAdmin();
+        if (!$this->requireAdmin())
+            return;
         $data = Request::input();
 
         try {
@@ -146,7 +152,8 @@ class ComponentBuilderController extends BaseController
 
     public function handleDelete($id)
     {
-        $this->requireAdmin();
+        if (!$this->requireAdmin())
+            return;
 
         try {
             $success = $this->manager->deleteComponent($id);
@@ -162,7 +169,8 @@ class ComponentBuilderController extends BaseController
 
     public function handleGenerate($id)
     {
-        $this->requireAdmin();
+        if (!$this->requireAdmin())
+            return;
         try {
             $code = $this->manager->generateCode($id);
             Response::json(['success' => true, 'code' => $code]);
@@ -173,7 +181,8 @@ class ComponentBuilderController extends BaseController
 
     public function handleTemplates()
     {
-        $this->requireAdmin();
+        if (!$this->requireAdmin())
+            return;
         // Return hardcoded templates for now
         $templates = [
             [

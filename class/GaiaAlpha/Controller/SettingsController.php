@@ -12,7 +12,8 @@ class SettingsController extends BaseController
 {
     public function index()
     {
-        $this->requireAuth();
+        if (!$this->requireAuth())
+            return;
 
         // We currently only store user preferences under type 'user_pref'
         $settings = DataStore::getAll(\GaiaAlpha\Session::id(), 'user_pref');
@@ -22,11 +23,13 @@ class SettingsController extends BaseController
 
     public function update()
     {
-        $this->requireAuth();
+        if (!$this->requireAuth())
+            return;
         $data = Request::input();
 
         if (!isset($data['key']) || !isset($data['value'])) {
             Response::json(['error' => 'Missing key or value'], 400);
+            return;
         }
 
         $success = DataStore::set(\GaiaAlpha\Session::id(), 'user_pref', $data['key'], $data['value']);
@@ -53,18 +56,21 @@ class SettingsController extends BaseController
 
     public function getGlobal()
     {
-        $this->requireAdmin();
+        if (!$this->requireAdmin())
+            return;
         $settings = DataStore::getAll(0, 'global_config'); // user_id 0 = system/global
         Response::json(['settings' => $settings]);
     }
 
     public function updateGlobal()
     {
-        $this->requireAdmin();
+        if (!$this->requireAdmin())
+            return;
         $data = Request::input();
 
         if (!isset($data['key']) || !isset($data['value'])) {
             Response::json(['error' => 'Missing key or value'], 400);
+            return;
         }
 
         // user_id 0 = system/global

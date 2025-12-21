@@ -10,13 +10,15 @@ class UserController extends BaseController
 {
     public function index()
     {
-        $this->requireAdmin();
+        if (!$this->requireAdmin())
+            return;
         Response::json(User::findAll());
     }
 
     public function create()
     {
-        $this->requireAdmin();
+        if (!$this->requireAdmin())
+            return;
         $data = Request::input();
 
         if (empty($data['username']) || empty($data['password'])) {
@@ -29,12 +31,14 @@ class UserController extends BaseController
             Response::json(['success' => true, 'id' => $id]);
         } catch (\PDOException $e) {
             Response::json(['error' => 'Username already exists'], 400);
+            return;
         }
     }
 
     public function update($id)
     {
-        $this->requireAdmin();
+        if (!$this->requireAdmin())
+            return;
         $data = Request::input();
         User::update($id, $data);
         Response::json(['success' => true]);
@@ -42,7 +46,8 @@ class UserController extends BaseController
 
     public function delete($id)
     {
-        $this->requireAdmin();
+        if (!$this->requireAdmin())
+            return;
         if ($id == $_SESSION['user_id']) {
             Response::json(['error' => 'Cannot delete yourself'], 400);
             return;

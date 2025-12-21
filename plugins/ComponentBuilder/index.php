@@ -21,12 +21,6 @@ Hook::add('framework_load_controllers_after', function () {
 
         // Update Env
         Env::set('controllers', $controllers);
-
-        // Register routes immediately since Framework::registerRoutes() has already been called
-        // or will be called before this hook's changes are visible
-        if (method_exists($controller, 'registerRoutes')) {
-            $controller->registerRoutes();
-        }
     }
 });
 

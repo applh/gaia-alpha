@@ -15,21 +15,21 @@ class GraphController extends BaseController
     {
         // Graph management
         Router::add('GET', '/@/graphs', [$this, 'listGraphs']);
-        Router::add('GET', '/@/graphs/:id', [$this, 'getGraph']);
+        Router::add('GET', '/@/graphs/(\d+)', [$this, 'getGraph']);
         Router::add('POST', '/@/graphs', [$this, 'createGraph']);
-        Router::add('PUT', '/@/graphs/:id', [$this, 'updateGraph']);
-        Router::add('DELETE', '/@/graphs/:id', [$this, 'deleteGraph']);
-        Router::add('GET', '/@/graphs/:id/data', [$this, 'getGraphData']);
+        Router::add('PUT', '/@/graphs/(\d+)', [$this, 'updateGraph']);
+        Router::add('DELETE', '/@/graphs/(\d+)', [$this, 'deleteGraph']);
+        Router::add('GET', '/@/graphs/(\d+)/data', [$this, 'getGraphData']);
 
         // Collection management
         Router::add('GET', '/@/graphs/collections', [$this, 'listCollections']);
-        Router::add('GET', '/@/graphs/collections/:id', [$this, 'getCollection']);
+        Router::add('GET', '/@/graphs/collections/(\d+)', [$this, 'getCollection']);
         Router::add('POST', '/@/graphs/collections', [$this, 'createCollection']);
-        Router::add('PUT', '/@/graphs/collections/:id', [$this, 'updateCollection']);
-        Router::add('DELETE', '/@/graphs/collections/:id', [$this, 'deleteCollection']);
+        Router::add('PUT', '/@/graphs/collections/(\d+)', [$this, 'updateCollection']);
+        Router::add('DELETE', '/@/graphs/collections/(\d+)', [$this, 'deleteCollection']);
 
         // Public embed endpoint
-        Router::add('GET', '/@/graphs/:id/embed', [$this, 'getEmbedData']);
+        Router::add('GET', '/@/graphs/(\d+)/embed', [$this, 'getEmbedData']);
     }
 
     /**
@@ -62,17 +62,20 @@ class GraphController extends BaseController
      */
     public function getGraph($id)
     {
-        if (!$this->requireAuth()) return;
+        if (!$this->requireAuth())
+            return;
 
         $graph = GraphService::getGraph((int) $id);
 
         if (!$graph) {
             Response::json(['error' => 'Graph not found'], 404);
+            return;
         }
 
         $userId = Session::id();
         if ($graph['user_id'] != $userId) {
             Response::json(['error' => 'Access denied'], 403);
+            return;
         }
 
         Response::json($graph);
@@ -83,7 +86,8 @@ class GraphController extends BaseController
      */
     public function createGraph()
     {
-        if (!$this->requireAuth()) return;
+        if (!$this->requireAuth())
+            return;
 
         $input = Request::input();
 
@@ -100,7 +104,8 @@ class GraphController extends BaseController
      */
     public function updateGraph($id)
     {
-        if (!$this->requireAuth()) return;
+        if (!$this->requireAuth())
+            return;
 
         $input = Request::input();
 
@@ -118,7 +123,8 @@ class GraphController extends BaseController
      */
     public function deleteGraph($id)
     {
-        if (!$this->requireAuth()) return;
+        if (!$this->requireAuth())
+            return;
 
         try {
             GraphService::deleteGraph((int) $id);
@@ -133,18 +139,21 @@ class GraphController extends BaseController
      */
     public function getGraphData($id)
     {
-        if (!$this->requireAuth()) return;
+        if (!$this->requireAuth())
+            return;
 
         try {
             $graph = GraphService::getGraph((int) $id);
 
             if (!$graph) {
                 Response::json(['error' => 'Graph not found'], 404);
+                return;
             }
 
             $userId = Session::id();
             if ($graph['user_id'] != $userId) {
                 Response::json(['error' => 'Access denied'], 403);
+                return;
             }
 
             $data = GraphService::fetchGraphData((int) $id);
@@ -162,7 +171,8 @@ class GraphController extends BaseController
      */
     public function listCollections()
     {
-        if (!$this->requireAuth()) return;
+        if (!$this->requireAuth())
+            return;
 
         $userId = Session::id();
         $collections = GraphService::listCollections($userId);
@@ -175,17 +185,20 @@ class GraphController extends BaseController
      */
     public function getCollection($id)
     {
-        if (!$this->requireAuth()) return;
+        if (!$this->requireAuth())
+            return;
 
         $collection = GraphService::getCollection((int) $id);
 
         if (!$collection) {
             Response::json(['error' => 'Collection not found'], 404);
+            return;
         }
 
         $userId = Session::id();
         if ($collection['user_id'] != $userId) {
             Response::json(['error' => 'Access denied'], 403);
+            return;
         }
 
         Response::json($collection);
@@ -196,7 +209,8 @@ class GraphController extends BaseController
      */
     public function createCollection()
     {
-        if (!$this->requireAuth()) return;
+        if (!$this->requireAuth())
+            return;
 
         $input = Request::input();
 
@@ -213,7 +227,8 @@ class GraphController extends BaseController
      */
     public function updateCollection($id)
     {
-        if (!$this->requireAuth()) return;
+        if (!$this->requireAuth())
+            return;
 
         $input = Request::input();
 
@@ -231,7 +246,8 @@ class GraphController extends BaseController
      */
     public function deleteCollection($id)
     {
-        if (!$this->requireAuth()) return;
+        if (!$this->requireAuth())
+            return;
 
         try {
             GraphService::deleteCollection((int) $id);
@@ -251,10 +267,12 @@ class GraphController extends BaseController
 
             if (!$graph) {
                 Response::json(['error' => 'Graph not found'], 404);
+                return;
             }
 
             if (!$graph['is_public']) {
                 Response::json(['error' => 'This graph is not public'], 403);
+                return;
             }
 
             $data = GraphService::fetchGraphData((int) $id);

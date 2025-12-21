@@ -1,8 +1,8 @@
 CREATE TABLE IF NOT EXISTS cms_pages (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER NOT NULL,
-    title TEXT NOT NULL,
-    slug TEXT NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    slug VARCHAR(255) NOT NULL,
     content TEXT,
     created_at DATETIME,
     updated_at DATETIME,

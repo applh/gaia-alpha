@@ -14,9 +14,6 @@ Hook::add('framework_load_controllers_after', function ($controllers) {
         if (method_exists($controller, 'init')) {
             $controller->init();
         }
-        if (method_exists($controller, 'registerRoutes')) {
-            $controller->registerRoutes();
-        }
         $controllers['graphs'] = $controller;
         Env::set('controllers', $controllers);
     }

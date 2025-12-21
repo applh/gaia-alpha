@@ -76,8 +76,10 @@ Everything you need to know about using and extending Gaia Alpha.
 
 ## ✨ Key Features
 
+- **Digital Asset Management**: Advanced media library with tagging, search, and organization.
 - **Enterprise Site Starter Kit**: Ready-to-use 10-page corporate site structure.
-- **Core Plugin Architecture**: Modular design with migrated Console, Map, and Multi-Site plugins.
+- **Core Plugin Architecture**: 18+ modular plugins including ComponentBuilder, FormBuilder, and ApiBuilder.
+- **MCP Server Integration**: 20+ tools for AI-assisted development and management.
 - **Declarative Menu System**: JSON-based menu configuration for ease of use.
 - **Zero-Config Database**: Auto-migrating SQLite setup.
 - **Reactive UI**: Vue 3 frontend without a build step (ES Modules).
@@ -87,6 +89,14 @@ Everything you need to know about using and extending Gaia Alpha.
 - **Real-time Chat**: User-to-user messaging system.
 - **Slot-Based Templating**: Powerful visual page builder with reusable layouts.
 - **Smart Asset Pipeline**: On-the-fly minification and caching for CSS and JS assets.
+
+### 📊 By the Numbers
+
+- **28,000+** lines of code
+- **188** PHP files
+- **67** JavaScript files  
+- **18** active plugins
+- **20+** MCP tools for AI integration
 
 ---
 

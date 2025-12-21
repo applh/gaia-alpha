@@ -12,7 +12,8 @@ Welcome to the official documentation for Gaia Alpha, organized by role to help 
 - **[Templating Guide](developer/templating_guide.md)**: How to write templates.
 - [Plugin System](developer/plugins.md)
 - [Component Design System](developer/component_design_system.md)
-- [Database Schema](developer/database_schema.md)ework.
+- [Database Schema](developer/database_schema.md)
+- **[Code Statistics](developer/code_statistics.md)**: Project metrics and growth.
 - **[Debug Toolbar](developer/debug_toolbar.md)**: Debugging tools.
 
 ## 🏗️ For Architects

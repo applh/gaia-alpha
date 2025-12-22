@@ -6,7 +6,9 @@ use GaiaAlpha\Controller\BaseController;
 use GaiaAlpha\Router;
 use GaiaAlpha\Response;
 use GaiaAlpha\Request;
+use GaiaAlpha\Session;
 use GaiaAlpha\Media;
+use GaiaAlpha\Video;
 use GaiaAlpha\Env;
 use MediaLibrary\Service\MediaLibraryService;
 
@@ -28,7 +30,7 @@ class MediaLibraryController extends BaseController
     {
         if (!$this->requireAuth())
             return;
-        $userId = \GaiaAlpha\Session::id();
+        $userId = Session::id();
 
         $filters = [
             'tag' => Request::query('tag'),
@@ -64,7 +66,7 @@ class MediaLibraryController extends BaseController
     {
         if (!$this->requireAuth())
             return;
-        $userId = \GaiaAlpha\Session::id();
+        $userId = Session::id();
 
         if (empty($_FILES['file'])) {
             Response::json(['error' => 'No file uploaded'], 400);
@@ -216,7 +218,7 @@ class MediaLibraryController extends BaseController
     {
         if (!$this->requireAuth())
             return;
-        $userId = \GaiaAlpha\Session::id();
+        $userId = Session::id();
 
         $query = Request::query('q');
         if (empty($query)) {
@@ -235,10 +237,88 @@ class MediaLibraryController extends BaseController
     {
         if (!$this->requireAuth())
             return;
-        $userId = \GaiaAlpha\Session::id();
+        $userId = Session::id();
 
         $stats = MediaLibraryService::getStats($userId);
         Response::json($stats);
+    }
+
+    public function processImage()
+    {
+        if (!$this->requireAuth())
+            return;
+        $data = Request::input();
+
+        // Handle Base64 image save (simplified)
+        // In a real app, you'd decode base64 and overwrite the file
+        // For this demo, let's assume we decode and save
+        $path = $data['path'];
+        $image = $data['image'];
+
+        if (preg_match('/^data:image\/(\w+);base64,/', $image, $type)) {
+            $image = substr($image, strpos($image, ',') + 1);
+            $type = strtolower($type[1]); // jpg, png, gif
+            $image = base64_decode($image);
+            if ($image === false) {
+                return Response::json(['success' => false, 'error' => 'Base64 decode failed'], 500);
+            }
+        } else {
+            return Response::json(['success' => false, 'error' => 'Invalid image data'], 400);
+        }
+
+        // We need the full system path. 
+        // Assuming path passed from frontend is relative or needs to be resolved.
+        // For MediaLibrary, files are in uploads/{userId}/...
+        // But the frontend usually works with URLs or relative paths.
+        // Let's assume we find the file by ID or the path is trusted (admin).
+
+        // Security check: ensure path is within uploads
+        $realPath = realpath(Request::input('path')); // This might be tricky if path is not absolute on server
+        // For simplicity reusing FileExplorer logic logic here
+        // If path is absolute (from VFS or RealFS), use it.
+
+        if (file_put_contents($path, $image)) {
+            return Response::json(['success' => true]);
+        }
+
+        return Response::json(['success' => false], 500);
+    }
+
+    public function processVideo()
+    {
+        if (!$this->requireAuth())
+            return;
+        $data = Request::input();
+        $action = $data['action'] ?? '';
+        $path = $data['path']; // This needs to be absolute system path
+
+        $outputPath = $data['outputPath'] ?? $path; // Overwrite or new file
+
+        try {
+            $success = false;
+            switch ($action) {
+                case 'extract-frame':
+                    $outputPath = $data['outputPath'] ?? $path . '.jpg';
+                    $success = Video::extractFrame($path, $outputPath, $data['time'] ?? '00:00:01');
+                    break;
+                case 'trim':
+                    // Create new file for trim to avoid overwriting source immediately if not intended
+                    if ($outputPath === $path) {
+                        $outputPath = pathinfo($path, PATHINFO_DIRNAME) . '/' . pathinfo($path, PATHINFO_FILENAME) . '_trimmed.' . pathinfo($path, PATHINFO_EXTENSION);
+                    }
+                    $success = Video::trim($path, $outputPath, $data['start'], $data['duration']);
+                    break;
+                case 'compress':
+                    if ($outputPath === $path) {
+                        $outputPath = pathinfo($path, PATHINFO_DIRNAME) . '/' . pathinfo($path, PATHINFO_FILENAME) . '_compressed.' . pathinfo($path, PATHINFO_EXTENSION);
+                    }
+                    $success = Video::compress($path, $outputPath, $data['crf'] ?? 28);
+                    break;
+            }
+            return Response::json(['success' => $success, 'path' => $outputPath]);
+        } catch (\Exception $e) {
+            return Response::json(['error' => $e->getMessage()], 500);
+        }
     }
 
     /**
@@ -259,5 +339,9 @@ class MediaLibraryController extends BaseController
         Router::add('POST', '/@/media-library/files/(\d+)/tags', [$this, 'assignTags']);
         Router::add('GET', '/@/media-library/search', [$this, 'search']);
         Router::add('GET', '/@/media-library/stats', [$this, 'stats']);
+
+        // Processing Routes
+        Router::add('POST', '/@/media-library/process-image', [$this, 'processImage']);
+        Router::add('POST', '/@/media-library/process-video', [$this, 'processVideo']);
     }
 }

@@ -7,7 +7,8 @@ export default {
     props: {
         src: { type: String, required: true },
         path: { type: String, required: true },
-        fileName: { type: String, default: '' }
+        fileName: { type: String, default: '' },
+        processUrl: { type: String, default: '/@/file-explorer/video-process' }
     },
     emits: ['save'],
     template: `
@@ -101,7 +102,7 @@ export default {
         const processAction = async (action, extra = {}) => {
             loading.value = true;
             try {
-                const res = await fetch('/@/file-explorer/video-process', {
+                const res = await fetch(props.processUrl, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({

@@ -1,8 +1,11 @@
 import { ref, onMounted, computed } from 'vue';
 import Icon from 'ui/Icon.js';
+import ImageEditor from 'ui/ImageEditor.js';
+import VideoPlayer from 'ui/VideoPlayer.js';
+import VideoEditor from 'ui/VideoEditor.js';
 
 export default {
-    components: { LucideIcon: Icon },
+    components: { LucideIcon: Icon, ImageEditor, VideoPlayer, VideoEditor },
 
     template: `
     <div class="media-library-page">
@@ -244,6 +247,49 @@ export default {
                     <button @click="showTagModal = false" class="btn">Cancel</button>
                     <button @click="createTag" class="btn btn-primary">Create Tag</button>
                 </div>
+                <div class="modal-footer">
+                    <button @click="showTagModal = false" class="btn">Cancel</button>
+                    <button @click="createTag" class="btn btn-primary">Create Tag</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Image/Video Editor Modal -->
+        <div v-if="mediaEditor.file" class="modal-overlay" @click="mediaEditor.file = null">
+            <div class="modal-content large-modal" @click.stop>
+                <div class="modal-header">
+                    <h3>Edit Media</h3>
+                    <button @click="mediaEditor.file = null" class="btn-close">×</button>
+                </div>
+                <div class="modal-body editor-body">
+                    <ImageEditor
+                        v-if="isImage(mediaEditor.file)"
+                        :src="getFileUrl(mediaEditor.file)"
+                        :path="mediaEditor.file.path"
+                        processUrl="/@/media-library/process-image"
+                        @save="onMediaSaved"
+                    />
+                    <div v-else-if="isVideo(mediaEditor.file)" class="video-editor-wrapper">
+                         <div class="editor-view-toggle in-modal">
+                            <button @click="mediaEditor.mode = 'view'" :class="{active: mediaEditor.mode === 'view'}">Player</button>
+                            <button @click="mediaEditor.mode = 'edit'" :class="{active: mediaEditor.mode === 'edit'}">Editor</button>
+                        </div>
+
+                        <VideoPlayer
+                            v-if="mediaEditor.mode === 'view'"
+                            :src="getFileUrl(mediaEditor.file)"
+                            :fileName="mediaEditor.file.original_filename"
+                        />
+                        <VideoEditor
+                            v-else
+                            :src="getFileUrl(mediaEditor.file)"
+                            :path="mediaEditor.file.path || ''" 
+                            :fileName="mediaEditor.file.original_filename"
+                            processUrl="/@/media-library/process-video"
+                            @save="onMediaSaved"
+                        />
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -339,7 +385,12 @@ export default {
         };
 
         const selectFile = (file) => {
-            editFile(file);
+            // Check if we should open editor or just edit metadata
+            if (isImage(file) || isVideo(file)) {
+                mediaEditor.value = { file: file, mode: 'view' };
+            } else {
+                editFile(file);
+            }
         };
 
         const toggleSelection = (fileId) => {
@@ -461,6 +512,24 @@ export default {
             }, 300);
         };
 
+        // Media Editor State
+        const mediaEditor = ref({ file: null, mode: 'view' });
+
+        const isImage = (file) => {
+            if (!file) return false;
+            return file.mime_type.startsWith('image/');
+        };
+
+        const isVideo = (file) => {
+            if (!file) return false;
+            return file.mime_type.startsWith('video/');
+        };
+
+        const onMediaSaved = async () => {
+            mediaEditor.value.file = null;
+            await loadFiles();
+        };
+
         onMounted(() => {
             loadFiles();
             loadTags();
@@ -495,7 +564,11 @@ export default {
             getFileUrl,
             formatFileSize,
             formatDate,
-            debouncedSearch
+            debouncedSearch,
+            mediaEditor,
+            isImage,
+            isVideo,
+            onMediaSaved
         };
     }
 };

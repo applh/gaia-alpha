@@ -2,9 +2,9 @@ import { ref, onMounted, computed, watch } from 'vue';
 import Icon from 'ui/Icon.js';
 import TreeView from './components/TreeView.js';
 import FileEditor from './components/FileEditor.js';
-import ImageEditor from './components/ImageEditor.js';
-import VideoPlayer from './components/VideoPlayer.js';
-import VideoEditor from './components/VideoEditor.js';
+import ImageEditor from 'ui/ImageEditor.js';
+import VideoPlayer from 'ui/VideoPlayer.js';
+import VideoEditor from 'ui/VideoEditor.js';
 
 export default {
     components: {

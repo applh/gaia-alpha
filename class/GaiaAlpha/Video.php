@@ -1,12 +1,12 @@
 <?php
 
-namespace FileExplorer\Service;
+namespace GaiaAlpha;
 
-use GaiaAlpha\System;
-use GaiaAlpha\File;
-
-class VideoService
+class Video
 {
+    /**
+     * Get video metadata using ffprobe
+     */
     public static function getInfo(string $path): array
     {
         if (!System::isAvailable('ffprobe')) {
@@ -29,6 +29,9 @@ class VideoService
         return json_decode(implode("\n", $outLines), true);
     }
 
+    /**
+     * Extract a single frame from video at specified time
+     */
     public static function extractFrame(string $videoPath, string $outputPath, string $time = '00:00:01'): bool
     {
         self::ensureFfmpeg();
@@ -40,10 +43,15 @@ class VideoService
             System::escapeArg($outputPath)
         );
 
+        $outLines = [];
+        $returnVar = 0;
         System::exec($command, $outLines, $returnVar);
         return $returnVar === 0 && File::exists($outputPath);
     }
 
+    /**
+     * Trim video segment
+     */
     public static function trim(string $videoPath, string $outputPath, string $start, string $duration): bool
     {
         self::ensureFfmpeg();
@@ -56,10 +64,15 @@ class VideoService
             System::escapeArg($outputPath)
         );
 
+        $outLines = [];
+        $returnVar = 0;
         System::exec($command, $outLines, $returnVar);
         return $returnVar === 0 && File::exists($outputPath);
     }
 
+    /**
+     * Compress video using CRF
+     */
     public static function compress(string $videoPath, string $outputPath, int $crf = 28): bool
     {
         self::ensureFfmpeg();
@@ -71,10 +84,15 @@ class VideoService
             System::escapeArg($outputPath)
         );
 
+        $outLines = [];
+        $returnVar = 0;
         System::exec($command, $outLines, $returnVar);
         return $returnVar === 0 && File::exists($outputPath);
     }
 
+    /**
+     * Ensure ffmpeg is available
+     */
     private static function ensureFfmpeg(): void
     {
         if (!System::isAvailable('ffmpeg')) {

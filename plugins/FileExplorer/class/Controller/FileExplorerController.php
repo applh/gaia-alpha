@@ -10,7 +10,7 @@ use GaiaAlpha\Media;
 use GaiaAlpha\Session;
 use FileExplorer\Service\FileExplorerService;
 use FileExplorer\Service\VirtualFsService;
-use FileExplorer\Service\VideoService;
+use GaiaAlpha\Video;
 
 class FileExplorerController extends BaseController
 {
@@ -184,7 +184,7 @@ class FileExplorerController extends BaseController
             return;
         $path = Request::query('path');
         try {
-            return Response::json(VideoService::getInfo($path));
+            return Response::json(Video::getInfo($path));
         } catch (\Exception $e) {
             return Response::json(['error' => $e->getMessage()], 500);
         }
@@ -204,13 +204,13 @@ class FileExplorerController extends BaseController
             switch ($action) {
                 case 'extract-frame':
                     $outputPath = $data['outputPath'] ?? $path . '.jpg';
-                    $success = VideoService::extractFrame($path, $outputPath, $data['time'] ?? '00:00:01');
+                    $success = Video::extractFrame($path, $outputPath, $data['time'] ?? '00:00:01');
                     break;
                 case 'trim':
-                    $success = VideoService::trim($path, $outputPath, $data['start'], $data['duration']);
+                    $success = Video::trim($path, $outputPath, $data['start'], $data['duration']);
                     break;
                 case 'compress':
-                    $success = VideoService::compress($path, $outputPath, $data['crf'] ?? 28);
+                    $success = Video::compress($path, $outputPath, $data['crf'] ?? 28);
                     break;
             }
             return Response::json(['success' => $success, 'path' => $outputPath]);

@@ -153,6 +153,31 @@ When writing raw queries, always follow the [Multi-DB SQL Management Pattern](fi
 - ❌ `DataStore::getDb()` - Wrong class
 - ❌ Direct PDO access - Use DB class instead
 
+## Logging and Performance (Hooks)
+
+Logging operations (API logs, Analytics, Activity) should be **pluggable** to minimize performance impact and allow easy deactivation.
+
+### Use the Hook Pattern for Logging
+Instead of calling a logging service directly from core logic, trigger a hook. This ensures the core remains fast and the logging logic is entirely optional.
+
+**Core Logic:**
+```php
+// Core logic remains thin and unaware of logging implementation
+Hook::run('mcp_request_handled', [
+    'request' => $request,
+    'duration' => $duration
+]);
+```
+
+**Plugin Registration (index.php):**
+```php
+// Decoupled logging subscriber
+Hook::add('mcp_request_handled', [McpLogger::class, 'logRequest']);
+```
+
+### Async/Passive Logging
+Log entries should ideally be captured at the end of the request lifecycle (e.g., `router_dispatch_after` or `response_json_before`) to ensure they don't block the generation of the response.
+
 ## Checklist
 
 - [ ] Resides in `YourPlugin/class/Service/`.
@@ -160,3 +185,4 @@ When writing raw queries, always follow the [Multi-DB SQL Management Pattern](fi
 - [ ] Uses `GaiaAlpha\Model\DB` for database operations.
 - [ ] Encapsulates logic that doesn't belong in a Controller.
 - [ ] Validates input and throws exceptions on errors.
+- [ ] Implementing logging? Use Hooks to keep it pluggable.

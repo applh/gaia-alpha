@@ -1,0 +1,7 @@
+{
+    "name": "ApiAnalytics",
+    "version": "1.0.0",
+    "description": "Comprehensive API usage logging and stats dashboard.",
+    "author": "Gaia Alpha",
+    "type": "plugin"
+}

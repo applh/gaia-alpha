@@ -110,10 +110,15 @@ class Server
 
         $duration = microtime(true) - $startTime;
 
-        // Don't log internal pings or initialization steps that reveal secrets if any
-        if ($method !== 'ping') {
-            McpLogger::logRequest($request, $response, $duration, $this->sessionId, $this->currentSiteDomain, $this->clientInfo);
-        }
+        // Use hook for pluggable logging
+        Hook::run('mcp_request_handled', [
+            'request' => $request,
+            'response' => $response,
+            'duration' => $duration,
+            'sessionId' => $this->sessionId,
+            'siteDomain' => $this->currentSiteDomain,
+            'clientInfo' => $this->clientInfo
+        ]);
 
         return $response;
     }

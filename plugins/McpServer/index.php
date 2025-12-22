@@ -85,3 +85,6 @@ Hook::add('auth_session_data', function ($data) {
     }
     return $data;
 });
+
+// Register Logging (Pluggable)
+Hook::add('mcp_request_handled', [McpServer\Service\McpLogger::class, 'logRequest']);

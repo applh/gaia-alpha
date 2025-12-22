@@ -12,37 +12,48 @@ class McpStatsService
      */
     public static function getSummary($days = 30)
     {
-        $db = DB::connect();
-        $pdo = $db->getPdo();
+        // Calculate start date in PHP for portability
+        $startDate = date('Y-m-d 00:00:00', strtotime("-$days days"));
 
         // Total Calls
-        $totalCalls = $pdo->query("SELECT COUNT(*) FROM cms_mcp_logs WHERE timestamp > datetime('now', '-$days days')")->fetchColumn();
+        $totalCalls = DB::fetchColumn("SELECT COUNT(*) FROM cms_mcp_logs WHERE timestamp >= ?", [$startDate]);
 
         // Success Rate
-        $successCount = $pdo->query("SELECT COUNT(*) FROM cms_mcp_logs WHERE result_status = 'success' AND timestamp > datetime('now', '-$days days')")->fetchColumn();
+        $successCount = DB::fetchColumn("SELECT COUNT(*) FROM cms_mcp_logs WHERE result_status = 'success' AND timestamp >= ?", [$startDate]);
         $successRate = $totalCalls > 0 ? round(($successCount / $totalCalls) * 100, 1) : 0;
 
         // Average Duration
-        $avgDuration = $pdo->query("SELECT AVG(duration) FROM cms_mcp_logs WHERE timestamp > datetime('now', '-$days days')")->fetchColumn();
-        $avgDuration = round($avgDuration * 1000, 2); // Convert to ms
+        $avgDuration = DB::fetchColumn("SELECT AVG(duration) FROM cms_mcp_logs WHERE timestamp >= ?", [$startDate]);
+        $avgDuration = round(($avgDuration ?? 0) * 1000, 2); // Convert to ms
 
         // Top Tools/Methods
-        $topTools = $pdo->query("SELECT method, COUNT(*) as count 
+        $topTools = DB::fetchAll("SELECT method, COUNT(*) as count 
                                 FROM cms_mcp_logs 
-                                WHERE timestamp > datetime('now', '-$days days')
+                                WHERE timestamp >= ?
                                 GROUP BY method 
                                 ORDER BY count DESC 
-                                LIMIT 5")->fetchAll(PDO::FETCH_ASSOC);
+                                LIMIT 5", [$startDate]);
 
-        // History for graph (last 30 days)
-        $history = [];
+        // History for graph
+        $rawHistory = DB::fetchAll("
+            SELECT SUBSTR(timestamp, 1, 10) as date, COUNT(*) as count 
+            FROM cms_mcp_logs 
+            WHERE timestamp >= ? 
+            GROUP BY SUBSTR(timestamp, 1, 10)
+            ORDER BY date ASC
+        ", [$startDate]);
+
+        $historyMap = [];
+        foreach ($rawHistory as $row) {
+            $historyMap[$row['date']] = (int) $row['count'];
+        }
+
+        $paddedHistory = [];
         for ($i = $days - 1; $i >= 0; $i--) {
             $date = date('Y-m-d', strtotime("-$i days"));
-            $count = $pdo->prepare("SELECT COUNT(*) FROM cms_mcp_logs WHERE date(timestamp) = ?");
-            $count->execute([$date]);
-            $history[] = [
+            $paddedHistory[] = [
                 'date' => $date,
-                'count' => $count->fetchColumn()
+                'count' => $historyMap[$date] ?? 0
             ];
         }
 
@@ -51,7 +62,7 @@ class McpStatsService
             'success_rate' => $successRate,
             'avg_duration_ms' => $avgDuration,
             'top_tools' => $topTools,
-            'history' => $history
+            'history' => $paddedHistory
         ];
     }
 
@@ -60,9 +71,6 @@ class McpStatsService
      */
     public static function getRecentLogs($limit = 50)
     {
-        $db = DB::connect();
-        $pdo = $db->getPdo();
-
-        return $pdo->query("SELECT * FROM cms_mcp_logs ORDER BY timestamp DESC LIMIT $limit")->fetchAll(PDO::FETCH_ASSOC);
+        return DB::fetchAll("SELECT * FROM cms_mcp_logs ORDER BY timestamp DESC LIMIT ?", [$limit]);
     }
 }

@@ -8,21 +8,26 @@ use GaiaAlpha\Env;
 class McpLogger
 {
     /**
-     * Log an MCP request and its response
+     * Log an MCP request and its response (Triggered by hook)
      * 
-     * @param array $request The JSON-RPC request
-     * @param array|null $response The JSON-RPC response
-     * @param float $duration Execution duration in seconds
-     * @param string|null $sessionId The MCP session ID
-     * @param string $site The site domain
-     * @param array $clientInfo Information about the client (name, version)
+     * @param array $payload Keyed array containing request, response, duration, etc.
      */
-    public static function logRequest($request, $response, $duration, $sessionId = null, $site = 'default', $clientInfo = [])
+    public static function logRequest(array $payload)
     {
-        $db = DB::connect();
-        $pdo = $db->getPdo();
+        $request = $payload['request'] ?? [];
+        $response = $payload['response'] ?? null;
+        $duration = $payload['duration'] ?? 0;
+        $sessionId = $payload['sessionId'] ?? null;
+        $site = $payload['siteDomain'] ?? 'default';
+        $clientInfo = $payload['clientInfo'] ?? [];
 
         $method = $request['method'] ?? 'unknown';
+
+        // Don't log internal pings
+        if ($method === 'ping') {
+            return;
+        }
+
         $params = isset($request['params']) ? json_encode($request['params']) : null;
 
         $resultStatus = 'success';
@@ -37,17 +42,20 @@ class McpLogger
                 (session_id, method, params, result_status, error_message, duration, site_domain, client_name, client_version) 
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute([
-            $sessionId,
-            $method,
-            $params,
-            $resultStatus,
-            $errorMessage,
-            $duration,
-            $site,
-            $clientInfo['name'] ?? null,
-            $clientInfo['version'] ?? null
-        ]);
+        try {
+            DB::execute($sql, [
+                $sessionId,
+                $method,
+                $params,
+                $resultStatus,
+                $errorMessage,
+                $duration,
+                $site,
+                $clientInfo['name'] ?? null,
+                $clientInfo['version'] ?? null
+            ]);
+        } catch (\Exception $e) {
+            // Silently fail if table doesn't exist yet or other DB error
+        }
     }
 }

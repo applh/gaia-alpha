@@ -1,0 +1,7 @@
+{
+    "name": "NodeEditor",
+    "version": "1.0.0",
+    "description": "A drag-and-drop node editor for creating diagrams",
+    "author": "Gaia Alpha",
+    "license": "MIT"
+}

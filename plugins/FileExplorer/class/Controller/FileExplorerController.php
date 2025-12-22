@@ -14,6 +14,26 @@ use GaiaAlpha\Video;
 
 class FileExplorerController extends BaseController
 {
+    public function registerRoutes()
+    {
+        $router = new \GaiaAlpha\Router(); // Or just use static Router if preferred, but BaseController typically uses static methods or $this->router if available. 
+        // Framework::registerRoutes calls $controller->registerRoutes(). 
+        // The standard pattern uses \GaiaAlpha\Router::add or simply Router::get/post.
+
+        \GaiaAlpha\Router::add('GET', '/@/file-explorer/list', [$this, 'list']);
+        \GaiaAlpha\Router::add('GET', '/@/file-explorer/read', [$this, 'read']);
+        \GaiaAlpha\Router::add('POST', '/@/file-explorer/write', [$this, 'write']);
+        \GaiaAlpha\Router::add('POST', '/@/file-explorer/create', [$this, 'create']);
+        \GaiaAlpha\Router::add('POST', '/@/file-explorer/delete', [$this, 'delete']);
+        \GaiaAlpha\Router::add('POST', '/@/file-explorer/rename', [$this, 'rename']);
+        \GaiaAlpha\Router::add('POST', '/@/file-explorer/move', [$this, 'move']);
+        \GaiaAlpha\Router::add('POST', '/@/file-explorer/image-process', [$this, 'imageProcess']);
+        \GaiaAlpha\Router::add('GET', '/@/file-explorer/video-info', [$this, 'videoInfo']);
+        \GaiaAlpha\Router::add('POST', '/@/file-explorer/video-process', [$this, 'videoProcess']);
+        \GaiaAlpha\Router::add('GET', '/@/file-explorer/vfs', [$this, 'vfsList']);
+        \GaiaAlpha\Router::add('POST', '/@/file-explorer/vfs', [$this, 'vfsCreate']);
+    }
+
     public function list()
     {
         if (!$this->requireAuth())

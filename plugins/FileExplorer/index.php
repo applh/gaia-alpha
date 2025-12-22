@@ -33,18 +33,4 @@ Hook::add('auth_session_data', function ($data) {
     return $data;
 });
 
-// Register Routes
-Hook::add('framework_register_routes', function ($router) {
-    $router->add('GET', '/@/file-explorer/list', [FileExplorerController::class, 'list']);
-    $router->add('GET', '/@/file-explorer/read', [FileExplorerController::class, 'read']);
-    $router->add('POST', '/@/file-explorer/write', [FileExplorerController::class, 'write']);
-    $router->add('POST', '/@/file-explorer/create', [FileExplorerController::class, 'create']);
-    $router->add('POST', '/@/file-explorer/delete', [FileExplorerController::class, 'delete']);
-    $router->add('POST', '/@/file-explorer/rename', [FileExplorerController::class, 'rename']);
-    $router->add('POST', '/@/file-explorer/move', [FileExplorerController::class, 'move']);
-    $router->add('POST', '/@/file-explorer/image-process', [FileExplorerController::class, 'imageProcess']);
-    \GaiaAlpha\Router::add('GET', '/@/file-explorer/video-info', [FileExplorerController::class, 'videoInfo']);
-    \GaiaAlpha\Router::add('POST', '/@/file-explorer/video-process', [FileExplorerController::class, 'videoProcess']);
-    $router->add('GET', '/@/file-explorer/vfs', [FileExplorerController::class, 'vfsList']);
-    $router->add('POST', '/@/file-explorer/vfs', [FileExplorerController::class, 'vfsCreate']);
-});
+

@@ -183,12 +183,12 @@ class DB
 
     public static function getTables()
     {
-        return self::fetchAll("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name", [], PDO::FETCH_COLUMN);
+        return self::connect()->getTables();
     }
 
     public static function getTableSchema($tableName)
     {
-        return self::fetchAll("PRAGMA table_info($tableName)");
+        return self::connect()->getTableSchema($tableName);
     }
 
     public static function getTableRecords($tableName, $limit = 100)

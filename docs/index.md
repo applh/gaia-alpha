@@ -15,6 +15,7 @@ Welcome to the official documentation for Gaia Alpha, organized by role to help 
 - [Database Schema](developer/database_schema.md)
 - **[Code Statistics](developer/code_statistics.md)**: Project metrics and growth.
 - **[Debug Toolbar](developer/debug_toolbar.md)**: Debugging tools.
+- **[Multi-DB SQL Management](patterns/multi_db_sql.md)**: Development guide for SQL.
 
 ## 🏗️ For Architects
 *System design, security, and evaluations.*

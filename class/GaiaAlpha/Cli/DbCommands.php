@@ -11,28 +11,8 @@ class DbCommands
 {
     private static function runExport(string $outputFile): void
     {
-        if (!defined('GAIA_DB_PATH')) {
-            Output::error("GAIA_DB_PATH is not defined.");
-            exit(1);
-        }
-
-        $dbPath = GAIA_DB_PATH;
-        if (!File::exists($dbPath)) {
-            Output::error("Database file does not exist at $dbPath");
-            exit(1);
-        }
-
-        $cmd = "sqlite3 " . escapeshellarg($dbPath) . " .dump";
-        $cmd .= " > " . escapeshellarg($outputFile);
-
-        passthru($cmd, $returnVar);
-
-        if ($returnVar !== 0) {
-            Output::error("Database export failed.");
-            exit(1);
-        }
-
-        Output::success("Database exported to $outputFile");
+        $db = \GaiaAlpha\Model\DB::connect();
+        $db->dump($outputFile);
     }
 
     public static function handleExport(): void
@@ -72,23 +52,14 @@ class DbCommands
             exit(1);
         }
 
-        if (!defined('GAIA_DB_PATH')) {
-            Output::error("GAIA_DB_PATH is not defined.");
+        try {
+            $db = \GaiaAlpha\Model\DB::connect();
+            $db->import($inputFile);
+            Output::success("Database imported from $inputFile");
+        } catch (\Exception $e) {
+            Output::error("Database import failed: " . $e->getMessage());
             exit(1);
         }
-
-        $dbPath = GAIA_DB_PATH;
-
-        $cmd = "sqlite3 " . escapeshellarg($dbPath) . " < " . escapeshellarg($inputFile);
-
-        passthru($cmd, $returnVar);
-
-        if ($returnVar !== 0) {
-            Output::error("Database import failed.");
-            exit(1);
-        }
-
-        Output::success("Database imported from $inputFile");
     }
 
     public static function handleMigrate(): void

@@ -128,9 +128,14 @@ The `my-data/config.php` approach works perfectly with Docker. You simply mount 
 
 This is cleaner than mounting a file to the root directory or relying solely on ENV vars for complex configs.
 
-## 5. Migration Strategy
+## 5. Implementation Status
 
-To implement this:
-1.  **Refactor `DB` Class**: Ensure `connect()` accepts functionality for user/pass.
-2.  **Update `InstallController`**: Handle new inputs and `config` generation.
-3.  **Schema Abstraction**: Ensure `schema.sql` is compatible with all 3 (mostly standard SQL, but check for `AUTOINCREMENT` vs `AUTO_INCREMENT` vs `SERIAL`).
+The Multi-Database support is now a core feature of Gaia Alpha.
+
+- **Completed**: Refactored `DB` class for driver-agnostic connections.
+- **Completed**: Updated `InstallController` for guided database setup.
+- **Completed**: Implemented `Database::transformSql()` for automatic dialect translation.
+- **Completed**: Implemented driver-agnostic `dump()` and `import()` for backups.
+- **Completed**: Added [Multi-DB SQL Management Pattern](file:///Users/lh/Downloads/antig/gaia-alpha/docs/patterns/multi_db_sql.md).
+
+For development guidelines, refer to the [Multi-DB SQL Management Pattern](file:///Users/lh/Downloads/antig/gaia-alpha/docs/patterns/multi_db_sql.md) document.

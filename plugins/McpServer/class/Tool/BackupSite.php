@@ -32,15 +32,26 @@ class BackupSite extends BaseTool
 
         $zipFile = $backupDir . '/' . ($site === 'default' ? 'default' : $site) . '_' . date('Ymd_His') . '.zip';
 
+        $db = \GaiaAlpha\Model\DB::connect();
+        $dbDumpFile = $rootDir . '/my-data/database_backup.sql';
+        $db->dump($dbDumpFile);
+
         if ($site === 'default') {
-            $cmd = "cd " . escapeshellarg($rootDir . '/my-data') . " && zip -r " . escapeshellarg($zipFile) . " database.sqlite assets/";
+            $cmd = "cd " . escapeshellarg($rootDir . '/my-data') . " && zip -r " . escapeshellarg($zipFile) . " database_backup.sql assets/";
         } else {
+            // For now, site-specific backups still assume SQLite or use the main DB.
+            // If MultiSite is implemented with separate DBs, this would need more logic.
             $cmd = "cd " . escapeshellarg($rootDir . '/my-data/sites') . " && zip -r " . escapeshellarg($zipFile) . " " . escapeshellarg($site);
         }
 
         $output = [];
         $return = 0;
         exec($cmd, $output, $return);
+
+        // Cleanup temp dump file
+        if (file_exists($dbDumpFile)) {
+            unlink($dbDumpFile);
+        }
 
         if ($return !== 0) {
             throw new \Exception("Backup failed: " . implode("\n", $output));

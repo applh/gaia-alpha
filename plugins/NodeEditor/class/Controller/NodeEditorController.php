@@ -48,7 +48,7 @@ class NodeEditorController
 
     public function save()
     {
-        $data = Request::json();
+        $data = Request::input();
 
         if (empty($data['title'])) {
             Response::json(['error' => 'Title is required'], 400);

@@ -11,18 +11,18 @@ class PHPMailerDriver implements MailerInterface
     public function send(string $to, string $subject, string $body, array $headers = []): bool
     {
 
-        // Check if PHPMailer class exists, if not try to load from vendor/src
+        // Check if PHPMailer class exists, if not try to load from lib/src
         if (!class_exists('PHPMailer\\PHPMailer\\PHPMailer')) {
-            $vendorDir = __DIR__ . '/../../vendor/src/';
-            if (file_exists($vendorDir . 'PHPMailer.php')) {
-                require_once $vendorDir . 'Exception.php';
-                require_once $vendorDir . 'PHPMailer.php';
-                require_once $vendorDir . 'SMTP.php';
+            $libDir = __DIR__ . '/../../lib/src/';
+            if (file_exists($libDir . 'PHPMailer.php')) {
+                require_once $libDir . 'Exception.php';
+                require_once $libDir . 'PHPMailer.php';
+                require_once $libDir . 'SMTP.php';
             }
         }
 
         if (!class_exists('PHPMailer\\PHPMailer\\PHPMailer')) {
-            error_log("Mail Error: PHPMailer class not found. Please install phpmailer/phpmailer or check plugins/Mail/vendor/src.");
+            error_log("Mail Error: PHPMailer class not found. Please install phpmailer/phpmailer or check plugins/Mail/lib/src.");
             return false;
         }
 

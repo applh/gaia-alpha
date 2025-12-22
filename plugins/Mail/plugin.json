@@ -1,7 +1,7 @@
 {
     "name": "Mail",
     "description": "Core Mail Management System with Fake/Real drivers",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "type": "core",
     "author": "Gaia Alpha",
     "main_class": "Mail\\Controller\\MailController",

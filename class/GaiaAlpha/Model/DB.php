@@ -200,4 +200,18 @@ class DB
     {
         return self::fetchColumn("SELECT COUNT(*) FROM $tableName");
     }
+
+    /**
+     * Generic insert method for any table
+     */
+    public static function insert(string $table, array $data)
+    {
+        $fields = array_keys($data);
+        $placeholders = array_fill(0, count($fields), '?');
+
+        $sql = "INSERT INTO $table (" . implode(', ', $fields) . ") VALUES (" . implode(', ', $placeholders) . ")";
+
+        self::query($sql, array_values($data));
+        return self::lastInsertId();
+    }
 }

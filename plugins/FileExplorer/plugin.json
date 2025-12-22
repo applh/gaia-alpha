@@ -1,0 +1,8 @@
+{
+    "id": "file-explorer",
+    "name": "File Explorer",
+    "version": "1.0.0",
+    "description": "Browse and manage real and virtual file systems.",
+    "author": "Antigravity",
+    "adminOnly": true
+}

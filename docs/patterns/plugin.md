@@ -106,6 +106,17 @@ Structured code is easier to maintain. While plugins can be simple, complex ones
 3.  **Facade**: If your plugin offers complex functionality to *other* plugins, expose a simple static Facade (e.g., `YourPlugin::doSomething()`) that delegates to your internal classes.
 4.  **Observer**: The `Hook` system is effectively an Observer pattern. Use it to decouple your plugin's actions from core events (e.g., `Hook::add('user_login', ...)`).
 
+## Complex Example: File Explorer
+
+The `File Explorer` plugin demonstrates a complex integration involving multiple services, a unified controller, and a rich UI:
+
+- **Services**: `FileExplorerService` (Real FS) and `VirtualFsService` (VFS).
+- **Controller**: `FileExplorerController` handles 10+ API endpoints.
+- **UI**: Assembled from `TreeView`, `FileEditor`, and `ImageEditor` components.
+- **Assets**: Linked via `resources/js/FileExplorer.js` and registered in `index.php`.
+
+This plugin serves as the current "Gold Standard" for internal tool development in Gaia Alpha.
+
 ## Checklist
 
 - [x] Namespace matches folder: `plugins/Name` -> `namespace Name`

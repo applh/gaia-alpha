@@ -7,16 +7,7 @@ use GraphsManagement\Controller\GraphController;
 
 // Register controller
 Hook::add('framework_load_controllers_after', function ($controllers) {
-    $controllers = Env::get('controllers');
-
-    if (class_exists(GraphController::class)) {
-        $controller = new GraphController();
-        if (method_exists($controller, 'init')) {
-            $controller->init();
-        }
-        $controllers['graphs'] = $controller;
-        Env::set('controllers', $controllers);
-    }
+    \GaiaAlpha\Framework::registerController('graphs', GraphController::class);
 });
 
 // Register UI component

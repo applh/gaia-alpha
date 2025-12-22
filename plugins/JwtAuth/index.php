@@ -12,12 +12,7 @@ Hook::add('app_boot', function () {
 
 // Register Controller
 Hook::add('framework_load_controllers_after', function () {
-    $controllers = Env::get('controllers');
-    $controller = new JwtSettingsController();
-    $controller->init();
-    $controller->registerRoutes();
-    $controllers['jwt-settings'] = $controller;
-    Env::set('controllers', $controllers);
+    \GaiaAlpha\Framework::registerController('jwt-settings', JwtSettingsController::class);
 });
 
 // Register CLI Commands

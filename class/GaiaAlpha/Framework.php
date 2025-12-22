@@ -170,5 +170,31 @@ class Framework
         }
     }
 
+    /**
+     * Centralized method to register a controller, typically called from plugin index.php
+     * 
+     * @param string $key Unique key for the controller (e.g. 'analytics')
+     * @param string|object $controller Class name or instance of the controller
+     */
+    public static function registerController(string $key, $controller)
+    {
+        $controllers = Env::get('controllers');
 
+        if (is_string($controller) && class_exists($controller)) {
+            $controller = new $controller();
+        }
+
+        if (is_object($controller)) {
+            if (method_exists($controller, 'init')) {
+                $controller->init();
+            }
+
+            if (method_exists($controller, 'registerRoutes')) {
+                $controller->registerRoutes();
+            }
+
+            $controllers[$key] = $controller;
+            Env::set('controllers', $controllers);
+        }
+    }
 }

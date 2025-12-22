@@ -7,17 +7,7 @@ use Todo\Model\Todo;
 
 // Register Controller
 Hook::add('framework_load_controllers_after', function () {
-    $controllers = Env::get('controllers');
-
-    $controller = new TodoController();
-    if (method_exists($controller, 'init')) {
-        $controller->init();
-    }
-
-    // Key 'todo' matches the previous key used in Framework::loadControllers for TodoController
-    $controllers['todo'] = $controller;
-
-    Env::set('controllers', $controllers);
+    \GaiaAlpha\Framework::registerController('todo', TodoController::class);
 });
 
 // Inject Stats Card

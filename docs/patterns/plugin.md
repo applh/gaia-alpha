@@ -39,18 +39,7 @@ use YourPlugin\Controller\YourController;
 
 // 1. Dynamic Controller Registration
 Hook::add('framework_load_controllers_after', function ($controllers) {
-    // ALWAYS fetch the latest controllers from Env to avoid overwriting updates from other plugins
-    $controllers = Env::get('controllers');
-
-    // The framework handles autoloading YourController::class
-    if (class_exists(YourController::class)) {
-        $controller = new YourController();
-        if (method_exists($controller, 'init')) {
-            $controller->init();
-        }
-        $controllers['your_plugin'] = $controller;
-        Env::set('controllers', $controllers);
-    }
+    \GaiaAlpha\Framework::registerController('your_plugin', YourController::class);
 });
 
 // 2. Register UI Component (Dynamic Loading)

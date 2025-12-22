@@ -62,6 +62,23 @@ class YourController extends BaseController
 }
 ```
 
+## Registration
+
+Controllers in plugins must be registered via `GaiaAlpha\Framework::registerController` within a hook in `index.php`.
+
+```php
+// plugins/YourPlugin/index.php
+Hook::add('framework_load_controllers_after', function () {
+    \GaiaAlpha\Framework::registerController('your-key', \YourPlugin\Controller\YourController::class);
+});
+```
+
+The `registerController` method handles:
+1.  **Instantiation**: Creates a new instance of the controller class.
+2.  **Initialization**: Calls the `init()` method if it exists.
+3.  **Route Registration**: Calls the `registerRoutes()` method if it exists.
+4.  **Global Availability**: Adds the controller to the system's central registry.
+
 ## Key Features
 
 1.  **Autoloading**: No need to manually `include` or `require` controller files. The framework uses the namespace to find the file in `class/Controller/`.

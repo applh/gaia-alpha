@@ -15,27 +15,8 @@ Hook::add('cli_resolve_command', function ($current, $group, $parts) {
 
 // Register Controllers and Routes
 Hook::add('framework_load_controllers_after', function ($controllers) {
-    $controllers = Env::get('controllers');
-
-    // SSE Controller
-    if (class_exists(SseController::class)) {
-        $sseController = new SseController();
-        if (method_exists($sseController, 'registerRoutes')) {
-            $sseController->registerRoutes();
-        }
-        $controllers['mcp-sse'] = $sseController;
-    }
-
-    // Stats Controller
-    if (class_exists(McpStatsController::class)) {
-        $statsController = new McpStatsController();
-        if (method_exists($statsController, 'registerRoutes')) {
-            $statsController->registerRoutes();
-        }
-        $controllers['mcp-stats'] = $statsController;
-    }
-
-    Env::set('controllers', $controllers);
+    \GaiaAlpha\Framework::registerController('mcp-sse', SseController::class);
+    \GaiaAlpha\Framework::registerController('mcp-stats', McpStatsController::class);
 });
 
 // Register UI Component

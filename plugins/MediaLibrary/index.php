@@ -6,19 +6,7 @@ use MediaLibrary\Controller\MediaLibraryController;
 
 // Register Controller
 Hook::add('framework_load_controllers_after', function ($controllers) {
-    $controllers = Env::get('controllers');
-
-    if (class_exists(MediaLibraryController::class)) {
-        $controller = new MediaLibraryController();
-        if (method_exists($controller, 'init')) {
-            $controller->init();
-        }
-        if (method_exists($controller, 'registerRoutes')) {
-            $controller->registerRoutes();
-        }
-        $controllers['media_library'] = $controller;
-        Env::set('controllers', $controllers);
-    }
+    \GaiaAlpha\Framework::registerController('media_library', MediaLibraryController::class);
 });
 
 // Register UI Component

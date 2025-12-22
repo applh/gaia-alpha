@@ -6,24 +6,7 @@ use Map\Controller\MapController;
 
 // Register Controller
 Hook::add('framework_load_controllers_after', function ($controllers) {
-    // ALWAYS fetch the latest controllers from Env to avoid overwriting updates from other plugins
-    $controllers = Env::get('controllers');
-
-    if (class_exists(MapController::class)) {
-        $controller = new MapController();
-        if (method_exists($controller, 'init')) {
-            $controller->init();
-        }
-        if (method_exists($controller, 'registerRoutes')) {
-            $controller->registerRoutes();
-        }
-
-        // Register controller
-        $controllers['map'] = $controller;
-
-        // Update Env
-        Env::set('controllers', $controllers);
-    }
+    \GaiaAlpha\Framework::registerController('map', MapController::class);
 });
 
 // Register UI Component

@@ -40,15 +40,7 @@ Hook::add('router_404', function ($uri) {
 
 // 2. Register Stats Controller
 Hook::add('framework_load_controllers_after', function ($controllers) {
-    $controllers = Env::get('controllers');
-    if (class_exists(ApiStatsController::class)) {
-        $controller = new ApiStatsController();
-        if (method_exists($controller, 'registerRoutes')) {
-            $controller->registerRoutes();
-        }
-        $controllers['api-analytics'] = $controller;
-        Env::set('controllers', $controllers);
-    }
+    \GaiaAlpha\Framework::registerController('api-analytics', ApiStatsController::class);
 });
 
 // 3. Register UI Component

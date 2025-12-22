@@ -43,6 +43,8 @@ Hook::add('framework_register_routes', function ($router) {
     $router->add('POST', '/@/file-explorer/rename', [FileExplorerController::class, 'rename']);
     $router->add('POST', '/@/file-explorer/move', [FileExplorerController::class, 'move']);
     $router->add('POST', '/@/file-explorer/image-process', [FileExplorerController::class, 'imageProcess']);
+    \GaiaAlpha\Router::add('GET', '/@/file-explorer/video-info', [FileExplorerController::class, 'videoInfo']);
+    \GaiaAlpha\Router::add('POST', '/@/file-explorer/video-process', [FileExplorerController::class, 'videoProcess']);
     $router->add('GET', '/@/file-explorer/vfs', [FileExplorerController::class, 'vfsList']);
     $router->add('POST', '/@/file-explorer/vfs', [FileExplorerController::class, 'vfsCreate']);
 });

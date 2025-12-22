@@ -3,9 +3,18 @@ import Icon from 'ui/Icon.js';
 import TreeView from './components/TreeView.js';
 import FileEditor from './components/FileEditor.js';
 import ImageEditor from './components/ImageEditor.js';
+import VideoPlayer from './components/VideoPlayer.js';
+import VideoEditor from './components/VideoEditor.js';
 
 export default {
-    components: { LucideIcon: Icon, TreeView, FileEditor, ImageEditor },
+    components: {
+        LucideIcon: Icon,
+        TreeView,
+        FileEditor,
+        ImageEditor,
+        VideoPlayer,
+        VideoEditor
+    },
     template: `
     <div class="file-explorer-container admin-page">
         <div class="admin-header">
@@ -63,6 +72,18 @@ export default {
                         :path="selectedPath"
                         @save="refresh"
                     />
+                    <VideoEditor
+                        v-else-if="isVideo && viewMode === 'edit'"
+                        :src="itemUrl"
+                        :path="selectedItem.path"
+                        :fileName="selectedItem.name"
+                        @save="refresh"
+                    />
+                    <VideoPlayer
+                        v-else-if="isVideo"
+                        :src="itemUrl"
+                        :fileName="selectedItem.name"
+                    />
                     <FileEditor 
                         v-else 
                         v-model="currentItemContent" 
@@ -70,6 +91,12 @@ export default {
                         :readOnly="selectedItem.isDir || selectedItem.type === 'folder'"
                         @save="saveContent"
                     />
+
+                    <!-- Video View/Edit Toggle -->
+                    <div v-if="isVideo" class="editor-view-toggle">
+                        <button @click="viewMode = 'view'" :class="{active: viewMode === 'view'}">Player</button>
+                        <button @click="viewMode = 'edit'" :class="{active: viewMode === 'edit'}">Editor</button>
+                    </div>
                 </template>
             </main>
         </div>
@@ -89,14 +116,21 @@ export default {
         const selectedItem = ref(null);
         const currentItemContent = ref('');
         const contextMenu = ref({ visible: false, x: 0, y: 0, item: null });
+        const viewMode = ref('view');
 
         const selectedPath = computed(() => selectedItem.value?.path || '');
         const selectedId = computed(() => selectedItem.value?.id || 0);
 
         const isImage = computed(() => {
             if (!selectedItem.value) return false;
-            const name = selectedItem.value.name;
-            return /\.(png|jpe?g|webp|avif)$/i.test(name);
+            const ext = selectedItem.value.name.split('.').pop().toLowerCase();
+            return ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext);
+        });
+
+        const isVideo = computed(() => {
+            if (!selectedItem.value) return false;
+            const ext = selectedItem.value.name.split('.').pop().toLowerCase();
+            return ['mp4', 'webm', 'ogg'].includes(ext);
         });
 
         const itemUrl = computed(() => {
@@ -284,8 +318,8 @@ export default {
 
         return {
             mode, loading, treeItems, vfsList, selectedVfs, selectedItem, currentItemContent,
-            selectedPath, selectedId, isImage, itemUrl, contextMenu, contextMenuStyle,
-            onSelect, onMove, onContextMenu, saveContent, createItem, deleteItem, renameItem, createVfs, refresh
+            selectedPath, selectedId, isImage, isVideo, itemUrl, contextMenu, contextMenuStyle,
+            viewMode, onSelect, onMove, onContextMenu, saveContent, createItem, deleteItem, renameItem, createVfs, refresh
         };
     }
 };

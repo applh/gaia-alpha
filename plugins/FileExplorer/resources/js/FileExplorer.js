@@ -5,6 +5,7 @@ import FileEditor from './components/FileEditor.js';
 import ImageEditor from 'ui/ImageEditor.js';
 import VideoPlayer from 'ui/VideoPlayer.js';
 import VideoEditor from 'ui/VideoEditor.js';
+import JsonEditor from './components/JsonEditor.js';
 
 export default {
     components: {
@@ -13,7 +14,8 @@ export default {
         FileEditor,
         ImageEditor,
         VideoPlayer,
-        VideoEditor
+        VideoEditor,
+        JsonEditor
     },
     template: `
     <div class="file-explorer-container admin-page">
@@ -84,6 +86,27 @@ export default {
                         :src="itemUrl"
                         :fileName="selectedItem.name"
                     />
+                    
+                    <div v-else-if="isJson" style="height: 100%; display: flex; flex-direction: column;">
+                         <div class="editor-view-toggle">
+                            <button @click="viewMode = 'code'" :class="{active: viewMode === 'code'}">Code</button>
+                            <button @click="viewMode = 'tree'" :class="{active: viewMode === 'tree'}">Tree</button>
+                        </div>
+                        
+                        <JsonEditor
+                            v-if="viewMode === 'tree'"
+                            v-model="currentItemContent"
+                            @save="saveContent"
+                        />
+                        <FileEditor 
+                            v-else
+                            v-model="currentItemContent" 
+                            :filePath="selectedPath || selectedItem.name"
+                            language="json"
+                            @save="saveContent"
+                        />
+                    </div>
+
                     <FileEditor 
                         v-else 
                         v-model="currentItemContent" 
@@ -116,7 +139,7 @@ export default {
         const selectedItem = ref(null);
         const currentItemContent = ref('');
         const contextMenu = ref({ visible: false, x: 0, y: 0, item: null });
-        const viewMode = ref('view');
+        const viewMode = ref('code'); // code | tree | view | edit
 
         const selectedPath = computed(() => selectedItem.value?.path || '');
         const selectedId = computed(() => selectedItem.value?.id || 0);
@@ -131,6 +154,11 @@ export default {
             if (!selectedItem.value) return false;
             const ext = selectedItem.value.name.split('.').pop().toLowerCase();
             return ['mp4', 'webm', 'ogg'].includes(ext);
+        });
+
+        const isJson = computed(() => {
+            if (!selectedItem.value) return false;
+            return selectedItem.value.name.toLowerCase().endsWith('.json');
         });
 
         const itemUrl = computed(() => {
@@ -160,8 +188,12 @@ export default {
 
         const onSelect = async (item) => {
             selectedItem.value = item;
+
+            // Should reset viewMode appropriately
+            if (item.name.endsWith('.json')) viewMode.value = 'code';
+            else if (['mp4', 'webm'].some(ext => item.name.endsWith(ext))) viewMode.value = 'view';
+
             if (item.isDir || item.type === 'folder') {
-                // For real FS, we might want to load subfolders if not already loaded
                 return;
             }
 
@@ -318,7 +350,7 @@ export default {
 
         return {
             mode, loading, treeItems, vfsList, selectedVfs, selectedItem, currentItemContent,
-            selectedPath, selectedId, isImage, isVideo, itemUrl, contextMenu, contextMenuStyle,
+            selectedPath, selectedId, isImage, isVideo, isJson, itemUrl, contextMenu, contextMenuStyle,
             viewMode, onSelect, onMove, onContextMenu, saveContent, createItem, deleteItem, renameItem, createVfs, refresh
         };
     }

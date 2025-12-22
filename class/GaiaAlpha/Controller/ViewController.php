@@ -62,6 +62,7 @@ class ViewController extends BaseController
         $globalSettings['ui_components'] = \GaiaAlpha\UiManager::getComponents();
 
         // Inject Active Plugins
+        $globalSettings['root_dir'] = Env::get('root_dir');
         $pathData = Env::get('path_data');
         if (file_exists($pathData . '/active_plugins.json')) {
             $globalSettings['active_plugins'] = json_decode(file_get_contents($pathData . '/active_plugins.json'), true);
@@ -317,6 +318,9 @@ HTML;
 
     public function registerRoutes()
     {
+        Router::get('/app', [$this, 'app']);
+        Router::get('/f/([\w-]+)', [$this, 'form']);
+
         // Catch-all (Home)
         // Must NOT match /@/, /media/, /js/, /css/ to allow them to 404 properly if not found
         // Also excluding /min/ and /assets/ as used in AssetController

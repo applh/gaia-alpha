@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Form | Gaia Alpha</title>
-    <link rel="stylesheet" href="/css/site.css">
+    <link rel="stylesheet" href="/min/css/site.css">
     <style>
         body {
             background-color: var(--bg-color);
@@ -42,19 +42,19 @@
     <script type="importmap">
     {
         "imports": {
-            "vue": "https://unpkg.com/vue@3/dist/vue.esm-browser.js"
+            "vue": "/min/js/vendor/vue.esm-browser.js"
         }
     }
     </script>
 
     <script type="module">
         import { createApp } from 'vue';
-        import PublicFormViewer from '/js/components/PublicFormViewer.js';
+        import PublicFormViewer from '/min/js/components/public/PublicFormViewer.js';
 
         const app = createApp({
             components: { PublicFormViewer }
         });
- app.mount('#app');
+        app.mount('#app');
     </script>
 </body>
 

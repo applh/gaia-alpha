@@ -1,12 +1,13 @@
 <?php
 namespace GaiaAlpha\Controller;
 
+use GaiaAlpha\Controller\BaseController;
 use GaiaAlpha\Framework;
 use GaiaAlpha\Router;
 use GaiaAlpha\Response;
 use GaiaAlpha\Model\Menu;
 
-class MenuController
+class MenuController extends BaseController
 {
 
     public function registerRoutes()

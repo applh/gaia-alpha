@@ -26,7 +26,7 @@ Hook::add('router_dispatch_after', function () {
 });
 
 // Since we want to capture the status code, we use response_json_before
-Hook::add('response_json_before', function (&$context) {
+Hook::add('response_json_before', function ($context) {
     ApiLogger::log($context['status'] ?? 200);
 });
 
@@ -53,6 +53,7 @@ Hook::add('framework_load_controllers_after', function ($controllers) {
 // 4. Inject Menu Item
 Hook::add('auth_session_data', function ($data) {
     if (isset($data['user']) && $data['user']['level'] >= 100) {
+        $found = false;
         if (!isset($data['user']['menu_items']) || !is_array($data['user']['menu_items'])) {
             $data['user']['menu_items'] = [];
         }
@@ -66,8 +67,24 @@ Hook::add('auth_session_data', function ($data) {
                     'view' => 'api_dashboard',
                     'icon' => 'activity'
                 ];
+                $found = true;
                 break;
             }
+        }
+
+        if (!$found) {
+            $data['user']['menu_items'][] = [
+                'id' => 'grp-reports',
+                'label' => 'Reports',
+                'icon' => 'bar-chart-2',
+                'children' => [
+                    [
+                        'label' => 'API Usage',
+                        'view' => 'api_dashboard',
+                        'icon' => 'activity'
+                    ]
+                ]
+            ];
         }
     }
     return $data;

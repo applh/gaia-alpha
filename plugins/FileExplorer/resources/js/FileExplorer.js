@@ -56,6 +56,7 @@ export default {
                     :selectedPath="selectedPath" 
                     :selectedId="selectedId"
                     @select="onSelect" 
+                    @toggle="onToggle"
                     @move="onMove"
                     @contextmenu="onContextMenu"
                 />
@@ -162,9 +163,12 @@ export default {
         });
 
         const itemUrl = computed(() => {
-            if (mode.value === 'vfs') return ''; // VFS blobs need special handling or base64
-            // Convert server path to URL (simplified)
-            return selectedPath.value.replace(/.*\/my-data\//, '/my-data/');
+            if (mode.value === 'vfs' || !selectedPath.value) return '';
+
+            const params = new URLSearchParams({
+                path: selectedPath.value
+            });
+            return '/@/file-explorer/preview?' + params.toString();
         });
 
         const loadVfsList = async () => {
@@ -186,6 +190,27 @@ export default {
             }
         };
 
+        const onToggle = async (item) => {
+            item.expanded = !item.expanded;
+            if (item.expanded && !item.children) {
+                item.loading = true;
+                try {
+                    const params = new URLSearchParams({
+                        type: mode.value,
+                        vfsDb: selectedVfs.value,
+                        path: item.path || '',
+                        parentId: item.id || 0
+                    });
+                    const res = await fetch('/@/file-explorer/list?' + params);
+                    if (res.ok) {
+                        item.children = await res.json();
+                    }
+                } finally {
+                    item.loading = false;
+                }
+            }
+        };
+
         const onSelect = async (item) => {
             selectedItem.value = item;
 
@@ -193,7 +218,7 @@ export default {
             if (item.name.endsWith('.json')) viewMode.value = 'code';
             else if (['mp4', 'webm'].some(ext => item.name.endsWith(ext))) viewMode.value = 'view';
 
-            if (item.isDir || item.type === 'folder') {
+            if (item.isDir || item.type === 'folder' || isImage.value || isVideo.value) {
                 return;
             }
 
@@ -343,7 +368,7 @@ export default {
                 const link = document.createElement('link');
                 link.id = 'file-explorer-css';
                 link.rel = 'stylesheet';
-                link.href = '/plugins/FileExplorer/resources/js/FileExplorer.css';
+                link.href = '/min/css/plugins/FileExplorer/resources/js/FileExplorer.css';
                 document.head.appendChild(link);
             }
         });
@@ -351,7 +376,7 @@ export default {
         return {
             mode, loading, treeItems, vfsList, selectedVfs, selectedItem, currentItemContent,
             selectedPath, selectedId, isImage, isVideo, isJson, itemUrl, contextMenu, contextMenuStyle,
-            viewMode, onSelect, onMove, onContextMenu, saveContent, createItem, deleteItem, renameItem, createVfs, refresh
+            viewMode, onSelect, onToggle, onMove, onContextMenu, saveContent, createItem, deleteItem, renameItem, createVfs, refresh
         };
     }
 };

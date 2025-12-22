@@ -166,7 +166,9 @@ class Framework
     {
         $controllers = Env::get('controllers');
         foreach ($controllers as $controller) {
-            $controller->registerRoutes();
+            if (method_exists($controller, 'registerRoutes')) {
+                $controller->registerRoutes();
+            }
         }
     }
 
@@ -187,9 +189,8 @@ class Framework
                 $controller->init();
             }
 
-            if (method_exists($controller, 'registerRoutes')) {
-                $controller->registerRoutes();
-            }
+            // Note: registerRoutes is called globally in Framework::registerRoutes()
+            // precisely to allow sorting and control over order.
 
             Env::add('controllers', $controller, $key);
         }

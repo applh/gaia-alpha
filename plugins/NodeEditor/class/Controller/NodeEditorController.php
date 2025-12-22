@@ -2,14 +2,24 @@
 
 namespace NodeEditor\Controller;
 
+use GaiaAlpha\Controller\BaseController;
 use GaiaAlpha\Request;
 use GaiaAlpha\Response;
+use GaiaAlpha\Router;
 use NodeEditor\Service\NodeEditorService;
 
-class NodeEditorController
+class NodeEditorController extends BaseController
 {
 
     private $service;
+
+    public function registerRoutes()
+    {
+        Router::add('GET', '/@/node_editor/diagrams', [$this, 'index']);
+        Router::add('GET', '/@/node_editor/diagrams/(\d+)', [$this, 'get']);
+        Router::add('POST', '/@/node_editor/diagrams/save', [$this, 'save']);
+        Router::add('DELETE', '/@/node_editor/diagrams/(\d+)', [$this, 'delete']);
+    }
 
     public function __construct()
     {

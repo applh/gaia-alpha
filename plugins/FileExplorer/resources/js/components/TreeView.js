@@ -9,13 +9,14 @@ export default {
         selectedPath: { type: String, default: '' },
         selectedId: { type: Number, default: 0 }
     },
-    emits: ['select', 'move', 'contextmenu'],
+    emits: ['select', 'move', 'contextmenu', 'toggle'],
     template: `
     <ul class="tree-list">
         <li v-for="item in items" :key="item.path || item.id" 
             :class="['tree-item', { 
                 selected: (item.path && item.path === selectedPath) || (item.id && item.id === selectedId),
-                'is-dir': item.isDir || item.type === 'folder'
+                'is-dir': item.isDir || item.type === 'folder',
+                'is-expanded': item.expanded
             }]"
             @click.stop="$emit('select', item)"
             @contextmenu.prevent="$emit('contextmenu', $event, item)"
@@ -25,15 +26,24 @@ export default {
             @drop.stop="onDrop($event, item)"
         >
             <div class="item-label">
+                <div v-if="item.isDir || item.type === 'folder'" 
+                     class="toggle-icon" 
+                     @click.stop="$emit('toggle', item)">
+                    <LucideIcon :name="item.expanded ? 'chevron-down' : 'chevron-right'" size="14" />
+                </div>
+                <div v-else class="toggle-spacer"></div>
+                
                 <LucideIcon :name="getIcon(item)" size="16" />
                 <span class="label-text">{{ item.name }}</span>
+                <LucideIcon v-if="item.loading" name="refresh-cw" size="12" class="spin ml-2" />
             </div>
             
-            <tree-view v-if="(item.isDir || item.type === 'folder') && item.children && item.children.length"
-                :items="item.children"
+            <tree-view v-if="(item.isDir || item.type === 'folder') && item.expanded"
+                :items="item.children || []"
                 :selectedPath="selectedPath"
                 :selectedId="selectedId"
                 @select="$emit('select', $event)"
+                @toggle="$emit('toggle', $event)"
                 @move="$emit('move', $event)"
                 @contextmenu="$emit('contextmenu', $event)"
             />

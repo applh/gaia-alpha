@@ -78,6 +78,36 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    display: flex;
+    align-items: center;
+}
+
+.toggle-icon {
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border-radius: 4px;
+    color: var(--text-muted);
+}
+
+.toggle-icon:hover {
+    background: rgba(var(--primary-rgb), 0.2);
+    color: var(--primary-color);
+}
+
+.toggle-spacer {
+    width: 20px;
+}
+
+.spin {
+    animation: spin 1s linear infinite;
+}
+
+.ml-2 {
+    margin-left: 0.5rem;
 }
 
 .tree-item:hover .item-label {

@@ -84,7 +84,26 @@ export default {
 1.  **Imports**: Always use absolute-style imports mapped by the Import Map (e.g., `ui/Icon.js`). This ensures consistency even when files are moved.
 2.  **No .vue files**: Components are `.js` files exporting an object. This allows for native browser execution without a build step.
 3.  **Modularity**: Keep components focused. If a setup function gets too large, refactor logic into a separate "composable" file in `resources/js/composables/`.
-4.  **Global Integration**:
+4.  **Local Assets Only**: **Never use external CDNs** in component templates or logic. All scripts, fonts, and icons must be hosted locally in `resources/js/vendor/` and served via the `/min/` or `/assets/` route.
+
+## Notification Pattern
+
+Always provide feedback for user actions. Never use `alert()`. Use the system toast notification system via the global store.
+
+```javascript
+import { store } from '/min/js/store.js';
+
+// Success feedback
+store.addNotification("Changes saved!", "success");
+
+// Error feedback
+store.addNotification("Operation failed: " + errorMessage, "error");
+
+// Duration is optional (defaults to 3s)
+store.addNotification("Loading...", "info", 5000);
+```
+
+## Global Integration
     1.  **Plugins**: Register the component in `index.php` using `\GaiaAlpha\UiManager::registerComponent('view_key', 'plugins/Name/File.js', true)`.
     2.  **Core**: Register via static map in `resources/js/site.js` (legacy/core only).
     3.  **Menu**: Inject the menu item via `auth_session_data` hook, ensuring the `view` key matches the registered ID.

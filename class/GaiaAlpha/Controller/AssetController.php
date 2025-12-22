@@ -244,7 +244,7 @@ class AssetController extends BaseController
         }
 
         // 4. Fallback: Check for Plugin assets
-        if ($type === 'js' && strpos($path, 'plugins/') === 0) {
+        if (strpos($path, 'plugins/') === 0) {
             $pluginPath = substr($path, 8);
             $parts = explode('/', $pluginPath);
             $pluginName = array_shift($parts);
@@ -256,7 +256,7 @@ class AssetController extends BaseController
                 return $pluginRootSource;
             }
 
-            // Then check resources/js subdirectory
+            // Then check resources/js subdirectory (legacy/convenience)
             $pluginSource = $rootDir . '/plugins/' . $pluginName . '/resources/js/' . $rest;
             if (File::exists($pluginSource)) {
                 return $pluginSource;

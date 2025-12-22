@@ -33,12 +33,7 @@ class DB
         $pass = defined('GAIA_DB_PASS') ? GAIA_DB_PASS : null;
 
         $db = new Database($dsn, $user, $pass);
-
-        if ($installNeeded) {
-            $db->ensureSchema();
-        } else {
-            $db->runMigrations();
-        }
+        $db->ensureSchema();
 
         self::$instance = $db;
         return $db;

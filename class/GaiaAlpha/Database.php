@@ -26,17 +26,35 @@ class Database
 
     public function ensureSchema(): void
     {
-        // Load SQL commands from template files
+        $sqlFiles = [];
+
+        // 1. Core Schemas
         $sqlDir = Env::get('root_dir') . '/templates/sql';
+        $coreFiles = glob($sqlDir . '/*.sql') ?: [];
+        sort($coreFiles);
+        $sqlFiles = array_merge($sqlFiles, $coreFiles);
 
-        // Scan for schema files and sort them
-        $sqlFiles = glob($sqlDir . '/*.sql');
+        // 2. Plugin Schemas
+        $pluginRoots = [
+            Env::get('path_data') . '/plugins',
+            Env::get('root_dir') . '/plugins'
+        ];
 
-        if ($sqlFiles === false || empty($sqlFiles)) {
-            throw new \RuntimeException("No SQL schema files found in: $sqlDir");
+        foreach ($pluginRoots as $dir) {
+            if (is_dir($dir)) {
+                $pluginSchemas = glob($dir . '/*/schema.sql') ?: [];
+                sort($pluginSchemas);
+                foreach ($pluginSchemas as $p) {
+                    if (!in_array($p, $sqlFiles)) {
+                        $sqlFiles[] = $p;
+                    }
+                }
+            }
         }
 
-        sort($sqlFiles);
+        if (empty($sqlFiles)) {
+            return;
+        }
 
         $driver = $this->pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
 

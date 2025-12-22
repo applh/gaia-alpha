@@ -108,35 +108,29 @@ Controllers often become bloated. Apply these patterns to keep them lean:
 2.  **Strategy**: If an endpoint behaves differently based on input (e.g., `payment_method: 'stripe'` vs `'paypal'`), defining a Strategy interface allows you to swap implementations without `if/else` spaghetti in the controller.
 3.  **Command**: For complex actions (like "Publish Page"), encapsulate the logic in a Command class. The controller simply instantiates and executes the command.
  
-## Common Pitfalls
-
-### Missing `return` after Auth Check
-`requireAuth()` and `requireAdmin()` return a boolean. They send a 401/403 response if they fail, but they **do not** terminate execution automatically. You must check the return value and exit the method.
-
-```php
-// Bad: Continues execution even if not admin!
-$this->requireAdmin();
-$this->deleteEverything(); 
-
-// Good: Execution stops immediately.
-if (!$this->requireAdmin()) return;
-$this->deleteEverything();
-```
-
-### Missing `return` after Error Response
-Calling `Response::json()` with an error status (e.g., 400, 404) echoes the JSON but does not stop the PHP process. Subsequent code will still run, potentially appending more JSON to the response or performing unintended actions.
-
-```php
-// Bad: Appends result even if ID is missing.
-if (!$id) { Response::json(['error' => 'Missing ID'], 400); }
-Response::json(['result' => 'ok']); 
-
-// Good:
-if (!$id) { 
-    Response::json(['error' => 'Missing ID'], 400); 
-    return; 
 }
 ```
+
+## Security & Validation
+
+Controllers are the gatekeepers of the system. Follow these security patterns:
+
+1.  **Authentication**: Always check `requireAuth()` or `requireAdmin()` and **return** on failure.
+2.  **Parameter Binding**: Use `?` placeholders in every SQL query. Never use string interpolation.
+3.  **Typed Input**: Use specialized `Request` methods to enforce types:
+    - `Request::queryInt($key, $default)`: Enforces integer from GET parameters.
+    - `Request::input($key, $default)`: Safely gets value from JSON/POST.
+4.  **Existence Validation**: Never assume an ID exists in the database.
+    ```php
+    $item = DB::fetch("SELECT id FROM items WHERE id = ?", [$id]);
+    if (!$item) {
+        Response::json(['error' => 'Not Found'], 404);
+        return;
+    }
+    ```
+5.  **Output Sanitization**: If data from a controller will be rendered into a PHP template (not just via Vue), use `htmlspecialchars()`.
+
+## Common Pitfalls
 
 ## Checklist
 

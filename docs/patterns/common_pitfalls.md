@@ -91,45 +91,84 @@ UiManager::registerComponent('my_component', 'plugins/MyPlugin/MyComponent.js', 
 
 ---
 
-## Chart.js / External Libraries
-
-### ❌ WRONG: Using ESM build without dependencies
-```javascript
-import { Chart } from '/path/to/chart.js';  // Missing dependencies!
-```
-
-**Error:** `Failed to resolve module specifier '@kurkle/color'`
-
-### ❌ WRONG: Not registering controllers
+### ❌ WRONG: Using ESM build with external CDN dependencies
 ```javascript
 import { Chart } from 'https://cdn.jsdelivr.net/npm/chart.js@4.4.7/+esm';
-new Chart(ctx, { type: 'line', data: {...} });  // Controller not registered!
 ```
 
-**Error:** `"line" is not a registered controller`
+**Error:** `Failed to resolve module specifier` or dependency on external network.
 
-### ✅ CORRECT: Import and register all components
+### ✅ CORRECT: Use local assets
 ```javascript
-const ChartModule = await import('https://cdn.jsdelivr.net/npm/chart.js@4.4.7/+esm');
-const { Chart, LineController, BarController, PieController, DoughnutController, 
-        RadarController, PolarAreaController, ScatterController,
-        CategoryScale, LinearScale, RadialLinearScale, PointElement, 
-        LineElement, BarElement, ArcElement, Tooltip, Legend } = ChartModule;
-
-// Register all components
-Chart.register(
-    LineController, BarController, PieController, DoughnutController,
-    RadarController, PolarAreaController, ScatterController,
-    CategoryScale, LinearScale, RadialLinearScale,
-    PointElement, LineElement, BarElement, ArcElement,
-    Tooltip, Legend
-);
-
-// Now create chart
-new Chart(ctx, { type: 'line', data: {...} });
+import { Chart, ... } from '/min/js/vendor/chart.js';
+// Or use the Import Map
+import { Chart } from 'chartjs'; 
 ```
 
-**Why:** Chart.js ESM builds require explicit registration of all controllers, scales, and elements. Use CDN for automatic dependency resolution.
+**Why:** Production applications should not rely on external CDNs. They introduce security risks (SRI), privacy concerns, and can fail if the user's network blocks the CDN. Always mirror dependencies locally in `resources/js/vendor/`.
+
+---
+
+## User Interaction
+
+### ❌ WRONG: Using Browser `alert()` or `confirm()`
+```javascript
+if (error) {
+    alert("Something went wrong!");
+}
+```
+
+**Error:** Blocks the main thread, looks unprofessional, and prevents a smooth SPA experience.
+
+### ✅ CORRECT: Using the Toast system
+```javascript
+import { store } from '/min/js/store.js';
+
+// For errors
+store.addNotification("Successfully saved!", "success");
+
+// For errors
+store.addNotification("Failed to delete item", "error");
+```
+
+**Why:** The `ToastContainer` provides a non-blocking, themed notification system that integrates with the application's design language.
+
+---
+
+## API Security
+
+### ❌ WRONG: Trusting raw input
+```php
+public function update($id) {
+    $data = Request::input();
+    DB::execute("UPDATE table SET name = '{$data['name']}' WHERE id = $id");
+}
+```
+
+**Error:** SQL Injection, Type errors, and XSS.
+
+### ✅ CORRECT: Validate, Type, and Parametrize
+```php
+public function update($id) {
+    if (!$this->requireAuth()) return;
+    
+    $name = Request::input('name');
+    if (!$name || !is_string($name)) {
+        Response::json(['error' => 'Invalid name'], 400);
+        return;
+    }
+
+    // Always use parameter binding
+    DB::execute("UPDATE table SET name = ? WHERE id = ?", [
+        htmlspecialchars($name), // Sanitize if it will be rendered as HTML later
+        (int)$id
+    ]);
+    
+    Response::json(['success' => true]);
+}
+```
+
+**Why:** Never trust client-side data. Use typed helpers like `Request::queryInt()`, always use `?` placeholders in SQL, and validate that required fields exist before processing.
 
 ---
 

@@ -1,5 +1,233 @@
 import { ref, onMounted, computed, reactive, watch } from 'vue';
 import Icon from 'ui/Icon.js';
+import { store } from 'store';
+
+const STYLES = `
+        .node-editor-container {
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 100px); /* Adjust based on admin header */
+            background: var(--bg-color);
+            color: var(--text-primary);
+        }
+        .editor-header {
+            padding: 1rem;
+            background: var(--card-bg);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .editor-body {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+            position: relative;
+        }
+        .editor-sidebar {
+            width: 200px;
+            background: var(--card-bg);
+            border-right: 1px solid var(--border-color);
+            padding: 1rem;
+            z-index: 10;
+        }
+        .editor-properties {
+            width: 250px;
+            background: var(--card-bg);
+            border-left: 1px solid var(--border-color);
+            padding: 1rem;
+            z-index: 10;
+            overflow-y: auto;
+        }
+        .node-item {
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            background: var(--glass-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            cursor: grab;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            color: var(--text-primary);
+        }
+        .node-item:hover {
+            background: var(--border-color);
+        }
+        .editor-canvas {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            background-color: var(--bg-color);
+            background-image: radial-gradient(var(--text-muted) 1px, transparent 1px);
+            background-size: 20px 20px;
+            cursor: grab;
+        }
+        .editor-canvas:active {
+            cursor: grabbing;
+        }
+        .canvas-content {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            transform-origin: 0 0;
+        }
+        .connections-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: visible;
+            pointer-events: none; /* Let clicks pass through to canvas */
+        }
+        .connection-line {
+            fill: none;
+            stroke: var(--text-secondary);
+            stroke-width: 2;
+            pointer-events: stroke; /* Allow clicking on the line itself */
+            cursor: pointer;
+        }
+        .connection-line:hover {
+            stroke: var(--text-primary);
+            stroke-width: 3;
+        }
+        .connection-line.selected {
+            stroke: var(--accent-color);
+            stroke-width: 3;
+        }
+         .connection-line.draft {
+            stroke: var(--accent-color);
+            stroke-dasharray: 4;
+        }
+        .node-rect {
+            position: absolute;
+            width: 150px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            user-select: none;
+            color: var(--text-primary);
+        }
+        .node-rect.selected {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 2px var(--accent-light);
+        }
+        .node-header {
+            padding: 0.5rem;
+            background: var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+            border-radius: 8px 8px 0 0;
+            font-weight: 500;
+            font-size: 0.875rem;
+            display: flex;
+            justify-content: space-between;
+        }
+        .node-body {
+            padding: 0.5rem;
+             display: flex;
+            justify-content: space-between;
+        }
+        .node-inputs, .node-outputs {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .port {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+        }
+        .port-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--text-muted);
+            border-radius: 50%;
+        }
+        .port:hover .port-dot {
+            background: var(--accent-color);
+            transform: scale(1.2);
+        }
+        .input-port {
+            justify-content: flex-start;
+        }
+        .output-port {
+            justify-content: flex-end;
+            text-align: right;
+        }
+        
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            backdrop-filter: blur(4px);
+        }
+        .modal {
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            border-radius: 8px;
+            width: 500px;
+            max-width: 90vw;
+            box-shadow: var(--shadow-lg);
+        }
+        .modal-header {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+        }
+        .modal-body {
+            padding: 1rem;
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+        .modal-footer {
+            padding: 1rem;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.5rem;
+        }
+        .diagram-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .diagram-list li {
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .diagram-list li:hover {
+            background: var(--glass-bg);
+        }
+        .diagram-title { font-weight: 500; }
+        .diagram-date { font-size: 0.8em; color: var(--text-muted); margin-right: 10px; }
+        
+        /* Node Type Specifics */
+        .node-process .node-header { background-color: rgba(3, 105, 161, 0.2); color: #7dd3fc; }
+        .node-input .node-header { background-color: rgba(21, 128, 61, 0.2); color: #86efac; }
+        .node-output .node-header { background-color: rgba(185, 28, 28, 0.2); color: #fca5a5; }
+        .node-note .node-header { background-color: rgba(161, 98, 7, 0.2); color: #fde047; }
+        .node-note .node-rect { background-color: var(--card-bg); width: 200px; }
+`;
 
 export default {
     components: { LucideIcon: Icon },
@@ -215,225 +443,7 @@ export default {
     </div>
     `,
     /* CSS Injection */
-    styles: `
-        .node-editor-container {
-            display: flex;
-            flex-direction: column;
-            height: calc(100vh - 100px); /* Adjust based on admin header */
-            background: #f8f9fa;
-        }
-        .editor-header {
-            padding: 1rem;
-            background: white;
-            border-bottom: 1px solid #e5e7eb;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .editor-body {
-            flex: 1;
-            display: flex;
-            overflow: hidden;
-            position: relative;
-        }
-        .editor-sidebar {
-            width: 200px;
-            background: white;
-            border-right: 1px solid #e5e7eb;
-            padding: 1rem;
-            z-index: 10;
-        }
-        .editor-properties {
-            width: 250px;
-            background: white;
-            border-left: 1px solid #e5e7eb;
-            padding: 1rem;
-            z-index: 10;
-        }
-        .node-item {
-            padding: 0.75rem;
-            margin-bottom: 0.5rem;
-            background: #f3f4f6;
-            border: 1px solid #e5e7eb;
-            border-radius: 6px;
-            cursor: grab;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.875rem;
-        }
-        .node-item:hover {
-            background: #e5e7eb;
-        }
-        .editor-canvas {
-            flex: 1;
-            position: relative;
-            overflow: hidden;
-            background-color: #f8f9fa;
-            background-image: radial-gradient(#d1d5db 1px, transparent 1px);
-            background-size: 20px 20px;
-            cursor: grab;
-        }
-        .editor-canvas:active {
-            cursor: grabbing;
-        }
-        .canvas-content {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            transform-origin: 0 0;
-        }
-        .connections-layer {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            overflow: visible;
-            pointer-events: none; /* Let clicks pass through to canvas */
-        }
-        .connection-line {
-            fill: none;
-            stroke: #9ca3af;
-            stroke-width: 2;
-            pointer-events: stroke; /* Allow clicking on the line itself */
-            cursor: pointer;
-        }
-        .connection-line:hover {
-            stroke: #6b7280;
-            stroke-width: 3;
-        }
-        .connection-line.selected {
-            stroke: #3b82f6;
-            stroke-width: 3;
-        }
-         .connection-line.draft {
-            stroke: #3b82f6;
-            stroke-dasharray: 4;
-        }
-        .node-rect {
-            position: absolute;
-            width: 150px;
-            background: white;
-            border: 1px solid #d1d5db;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            user-select: none;
-        }
-        .node-rect.selected {
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
-        }
-        .node-header {
-            padding: 0.5rem;
-            background: #f9fafb;
-            border-bottom: 1px solid #e5e7eb;
-            border-radius: 8px 8px 0 0;
-            font-weight: 500;
-            font-size: 0.875rem;
-            display: flex;
-            justify-content: space-between;
-        }
-        .node-body {
-            padding: 0.5rem;
-             display: flex;
-            justify-content: space-between;
-        }
-        .node-inputs, .node-outputs {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-        .port {
-            display: flex;
-            align-items: center;
-            gap: 0.25rem;
-            font-size: 0.75rem;
-            color: #6b7280;
-            cursor: pointer;
-        }
-        .port-dot {
-            width: 8px;
-            height: 8px;
-            background: #9ca3af;
-            border-radius: 50%;
-        }
-        .port:hover .port-dot {
-            background: #3b82f6;
-            transform: scale(1.2);
-        }
-        .input-port {
-            justify-content: flex-start;
-        }
-        .output-port {
-            justify-content: flex-end;
-            text-align: right;
-        }
-        
-        .modal-overlay {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.5);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 100;
-        }
-        .modal {
-            background: white;
-            border-radius: 8px;
-            width: 500px;
-            max-width: 90vw;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-        }
-        .modal-header {
-            padding: 1rem;
-            border-bottom: 1px solid #e5e7eb;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-weight: 600;
-        }
-        .modal-body {
-            padding: 1rem;
-            max-height: 60vh;
-            overflow-y: auto;
-        }
-        .modal-footer {
-            padding: 1rem;
-            border-top: 1px solid #e5e7eb;
-            display: flex;
-            justify-content: flex-end;
-            gap: 0.5rem;
-        }
-        .diagram-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-        .diagram-list li {
-            padding: 0.75rem;
-            border-bottom: 1px solid #f3f4f6;
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .diagram-list li:hover {
-            background: #f9fafb;
-        }
-        .diagram-title { font-weight: 500; }
-        .diagram-date { font-size: 0.8em; color: gray; margin-right: 10px; }
-        
-        /* Node Type Specifics */
-        .node-process .node-header { background-color: #e0f2fe; color: #0369a1; }
-        .node-input .node-header { background-color: #dcfce7; color: #15803d; }
-        .node-output .node-header { background-color: #fee2e2; color: #b91c1c; }
-        .node-note .node-header { background-color: #fef9c3; color: #a16207; }
-        .node-note .node-rect { background-color: #fefce8; width: 200px; }
-    `,
+    styles: STYLES,
     setup() {
         // State
         const nodes = ref([]); // { id, x, y, type, data: {} }
@@ -486,229 +496,7 @@ export default {
             if (!document.getElementById(styleId)) {
                 const style = document.createElement('style');
                 style.id = styleId;
-                // Just use the strings directly, assuming `this.$options.styles` is accessible or passed
-                // But in setup() we don't have this. 
-                // We'll trust the component architecture to handle this or brute force it.
-                // For this single-file setup, I'll basically just copy the string here or put it in a variable outside setup.
-                style.textContent = `
-                    .node-editor-container {
-            display: flex;
-            flex-direction: column;
-            height: calc(100vh - 100px); /* Adjust based on admin header */
-            background: #f8f9fa;
-        }
-        .editor-header {
-            padding: 1rem;
-            background: white;
-            border-bottom: 1px solid #e5e7eb;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .editor-body {
-            flex: 1;
-            display: flex;
-            overflow: hidden;
-            position: relative;
-        }
-        .editor-sidebar {
-            width: 200px;
-            background: white;
-            border-right: 1px solid #e5e7eb;
-            padding: 1rem;
-            z-index: 10;
-        }
-        .editor-properties {
-            width: 250px;
-            background: white;
-            border-left: 1px solid #e5e7eb;
-            padding: 1rem;
-            z-index: 10;
-        }
-        .node-item {
-            padding: 0.75rem;
-            margin-bottom: 0.5rem;
-            background: #f3f4f6;
-            border: 1px solid #e5e7eb;
-            border-radius: 6px;
-            cursor: grab;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.875rem;
-        }
-        .node-item:hover {
-            background: #e5e7eb;
-        }
-        .editor-canvas {
-            flex: 1;
-            position: relative;
-            overflow: hidden;
-            background-color: #f8f9fa;
-            background-image: radial-gradient(#d1d5db 1px, transparent 1px);
-            background-size: 20px 20px;
-            cursor: grab;
-        }
-        .editor-canvas:active {
-            cursor: grabbing;
-        }
-        .canvas-content {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            transform-origin: 0 0;
-        }
-        .connections-layer {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            overflow: visible;
-            pointer-events: none; /* Let clicks pass through to canvas */
-        }
-        .connection-line {
-            fill: none;
-            stroke: #9ca3af;
-            stroke-width: 2;
-            pointer-events: stroke; /* Allow clicking on the line itself */
-            cursor: pointer;
-        }
-        .connection-line:hover {
-            stroke: #6b7280;
-            stroke-width: 3;
-        }
-        .connection-line.selected {
-            stroke: #3b82f6;
-            stroke-width: 3;
-        }
-         .connection-line.draft {
-            stroke: #3b82f6;
-            stroke-dasharray: 4;
-        }
-        .node-rect {
-            position: absolute;
-            width: 150px;
-            background: white;
-            border: 1px solid #d1d5db;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            user-select: none;
-        }
-        .node-rect.selected {
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
-        }
-        .node-header {
-            padding: 0.5rem;
-            background: #f9fafb;
-            border-bottom: 1px solid #e5e7eb;
-            border-radius: 8px 8px 0 0;
-            font-weight: 500;
-            font-size: 0.875rem;
-            display: flex;
-            justify-content: space-between;
-        }
-        .node-body {
-            padding: 0.5rem;
-             display: flex;
-            justify-content: space-between;
-        }
-        .node-inputs, .node-outputs {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-        .port {
-            display: flex;
-            align-items: center;
-            gap: 0.25rem;
-            font-size: 0.75rem;
-            color: #6b7280;
-            cursor: pointer;
-        }
-        .port-dot {
-            width: 8px;
-            height: 8px;
-            background: #9ca3af;
-            border-radius: 50%;
-        }
-        .port:hover .port-dot {
-            background: #3b82f6;
-            transform: scale(1.2);
-        }
-        .input-port {
-            justify-content: flex-start;
-        }
-        .output-port {
-            justify-content: flex-end;
-            text-align: right;
-        }
-        
-        .modal-overlay {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.5);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 100;
-        }
-        .modal {
-            background: white;
-            border-radius: 8px;
-            width: 500px;
-            max-width: 90vw;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-        }
-        .modal-header {
-            padding: 1rem;
-            border-bottom: 1px solid #e5e7eb;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-weight: 600;
-        }
-        .modal-body {
-            padding: 1rem;
-            max-height: 60vh;
-            overflow-y: auto;
-        }
-        .modal-footer {
-            padding: 1rem;
-            border-top: 1px solid #e5e7eb;
-            display: flex;
-            justify-content: flex-end;
-            gap: 0.5rem;
-        }
-        .diagram-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-        .diagram-list li {
-            padding: 0.75rem;
-            border-bottom: 1px solid #f3f4f6;
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .diagram-list li:hover {
-            background: #f9fafb;
-        }
-        .diagram-title { font-weight: 500; }
-        .diagram-date { font-size: 0.8em; color: gray; margin-right: 10px; }
-        
-        /* Node Type Specifics */
-        .node-process .node-header { background-color: #e0f2fe; color: #0369a1; }
-        .node-input .node-header { background-color: #dcfce7; color: #15803d; }
-        .node-output .node-header { background-color: #fee2e2; color: #b91c1c; }
-        .node-note .node-header { background-color: #fef9c3; color: #a16207; }
-        .node-note .node-rect { background-color: #fefce8; width: 200px; }
-                `;
+                style.textContent = STYLES;
                 document.head.appendChild(style);
             }
         };
@@ -944,7 +732,7 @@ export default {
 
         const confirmSave = async () => {
             if (!currentDiagram.value.title) {
-                alert('Title required');
+                store.addNotification('Title required', 'error');
                 return;
             }
 
@@ -969,9 +757,9 @@ export default {
                 const result = await res.json();
                 currentDiagram.value.id = result.id;
                 showSave.value = false;
-                alert('Saved!');
+                store.addNotification('Saved!', 'success');
             } else {
-                alert('Error saving');
+                store.addNotification('Error saving', 'error');
             }
         };
 

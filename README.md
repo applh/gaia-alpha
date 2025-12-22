@@ -1,12 +1,14 @@
 # Gaia Alpha
 
+![Gaia Alpha Guardian](docs/assets/cyberpunk_centaur_archer.png)
+
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![PHP Version](https://img.shields.io/badge/php-%3E%3D8.0-777bb4.svg?logo=php)
 ![Vue Version](https://img.shields.io/badge/vue-3.x-4FC08D.svg?logo=vue.js)
 ![Status](https://img.shields.io/badge/status-active-success.svg)
-> **Built by Antigravity with a Senior Software Engineer.**
+> **Gaia Alpha Centauri is built by Antigravity, led by a Senior Software Engineer.**
 
-**Gaia Alpha** is a lightweight, self-contained web application framework that bridges the gap between simple PHP scripts and complex modern web apps. It features a robust PHP backend, a reactive Vue.js frontend, and zero-configuration SQLite persistence.
+**Gaia Alpha Centauri** is an advanced, AI-native web application framework designed for the modern era of development. It bridges the gap between rapid prototyping and enterprise scalability by combining a modular **Plugin Architecture**, a reactive **Vue 3** frontend (with zero build steps), and flexible **Multi-Database** persistence (SQLite, MySQL, PostgreSQL). With built-in **MCP Server integration**, it empowers seamless collaboration between human engineers and AI agents.
 
 > "Simplicity is the ultimate sophistication." - Leonardo da Vinci
 

@@ -145,7 +145,7 @@ class SseController extends BaseController
             if ($request !== null) {
                 try {
                     // Process request through MCP server
-                    $response = $server->handleRequestPublic($request);
+                    $response = $server->handleRequestPublic($request, $sessionId);
 
                     if ($response) {
                         $this->sendSseEvent('message', $response, ++$eventId);

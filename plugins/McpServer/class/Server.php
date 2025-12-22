@@ -10,12 +10,15 @@ use GaiaAlpha\Hook;
 use GaiaAlpha\Env;
 use GaiaAlpha\Database;
 use GaiaAlpha\File;
+use McpServer\Service\McpLogger;
 
 class Server
 {
     private $input;
     private $output;
     private $currentSiteDomain = 'default';
+    private $sessionId = null;
+    private $clientInfo = [];
 
     public function __construct($input = null, $output = null)
     {
@@ -59,8 +62,9 @@ class Server
      * @param array $request JSON-RPC request
      * @return array|null JSON-RPC response
      */
-    public function handleRequestPublic($request)
+    public function handleRequestPublic($request, $sessionId = null)
     {
+        $this->sessionId = $sessionId;
         return $this->handleRequest($request);
     }
 
@@ -74,6 +78,9 @@ class Server
         $method = $request['method'] ?? '';
         $params = $request['params'] ?? [];
 
+        $startTime = microtime(true);
+        $response = null;
+
         try {
             $result = $this->dispatch($method, $params);
 
@@ -81,15 +88,17 @@ class Server
                 return null;
             }
 
-            return [
+            $response = [
                 'jsonrpc' => '2.0',
                 'id' => $id,
                 'result' => $result
             ];
         } catch (\Exception $e) {
-            if ($id === null)
-                return null;
-            return [
+            if ($id === null) {
+                // We should still log internal errors for notifications/methods without ID
+                // but we return null as per JSON-RPC spec
+            }
+            $response = [
                 'jsonrpc' => '2.0',
                 'id' => $id,
                 'error' => [
@@ -98,12 +107,24 @@ class Server
                 ]
             ];
         }
+
+        $duration = microtime(true) - $startTime;
+
+        // Don't log internal pings or initialization steps that reveal secrets if any
+        if ($method !== 'ping') {
+            McpLogger::logRequest($request, $response, $duration, $this->sessionId, $this->currentSiteDomain, $this->clientInfo);
+        }
+
+        return $response;
     }
 
     private function dispatch($method, $params)
     {
         switch ($method) {
             case 'initialize':
+                if (isset($params['clientInfo'])) {
+                    $this->clientInfo = $params['clientInfo'];
+                }
                 return [
                     'protocolVersion' => '2024-11-05',
                     'capabilities' => [

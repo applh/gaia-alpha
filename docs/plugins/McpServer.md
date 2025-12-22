@@ -9,7 +9,8 @@ The **McpServer** plugin implements the **Model Context Protocol (MCP)**, allowi
 
 ## Hooks
 - **`cli_resolve_command`**: Registers the `mcp-server` CLI command.
-- **`framework_load_controllers_after`**: Registers the `SseController` for handling SSE transport.
+- **`framework_load_controllers_after`**: Registers `SseController` and `McpStatsController`.
+- **`auth_session_data`**: Injects the "MCP Activity" menu item into the Admin sidebar.
 
 ## CLI Commands
 - `php gaia mcp-server`: Starts the MCP server in Stdio mode.
@@ -17,5 +18,9 @@ The **McpServer** plugin implements the **Model Context Protocol (MCP)**, allowi
 ## Components
 - **Server**: Handles JSON-RPC requests and dispatches them to tools and resources.
 - **SseController**: Handles Server-Sent Events (SSE) for HTTP-based MCP transport.
+- **McpStatsController**: Serves activity statistics for the Admin UI.
+- **McpLogger**: Service for recording request/response activity in the database.
+- **McpStatsService**: Service for aggregating KPI data from logs.
+- **McpDashboard**: Vue-based Admin UI component for monitoring MCP activity and performance.
 - **Tools**: located in `class/Tool/`.
 - **Resources**: located in `class/Resource/`.

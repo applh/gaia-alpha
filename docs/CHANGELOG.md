@@ -1,3 +1,14 @@
+## [v0.59.0] - 2025-12-22
+### Added
+- **MCP Activity Logging**: Implemented comprehensive logging for MCP server interactions.
+  - **Database**: Added `cms_mcp_logs` table to track session IDs, methods, durations, and client information.
+  - **Core**: Integrated timing and logging into `McpServer\Server`.
+  - **Service**: Added `McpLogger` and `McpStatsService` for data persistence and aggregation.
+- **MCP KPI Dashboard**: Added new Admin UI for monitoring AI agent activity.
+  - **UI**: Added "MCP Activity" dashboard under Reports menu.
+  - **Visualization**: Implemented charts for activity trends and tool usage statistics.
+  - **API**: Added `McpStatsController` for secure metrics retrieval.
+
 ## [v0.58.0] - 2025-12-21
 ### Added
 - **Scaffolding System**: New unified system for generating boilerplate code.
@@ -120,7 +131,9 @@
 
 ### Changed
 - **Plugin Architecture**: Refined plugin loading and route registration mechanism
-  - Controllers registered via `framework_load_controllers_after` hook now call `registerRoutes()` directly
+  - **`cli_resolve_command`**: Registers the `mcp-server` CLI command.
+  - **`framework_load_controllers_after`**: Registers `SseController` and `McpStatsController`.
+  - **`auth_session_data`**: Injects the "MCP Activity" menu item into the Admin sidebar.
   - Improved plugin asset serving for JS modules
   - Builder sub-components remain in core for shared use by CMS
 
@@ -421,6 +434,14 @@ All notable changes to this project will be documented in this file.
 
 ## [v0.22.0] - 2025-12-11
 ### Added
+- **Server**: Handles JSON-RPC requests and dispatches them to tools and resources.
+- **SseController**: Handles Server-Sent Events (SSE) for HTTP-based MCP transport.
+- **McpStatsController**: Serves activity statistics for the Admin UI.
+- **McpLogger**: Service for recording request/response activity in the database.
+- **McpStatsService**: Service for aggregating KPI data from logs.
+- **McpDashboard**: Vue-based Admin UI component for monitoring MCP activity and performance.
+- **Tools**: located in `class/Tool/`.
+- **Resources**: located in `class/Resource/`.
 - **Core**: Added `Response` class for centralized JSON output handling.
 - **Hooks**: Added `response_json_before` hook to modify API responses globally.
 - **Refactor**: Updated all controllers to use `Response::json` for consistent output and simplified testing.

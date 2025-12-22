@@ -199,22 +199,8 @@ use GaiaAlpha\Env;
 // use {$name}\Controller\{$name}Controller;
 
 // 1. Dynamic Controller Registration
-Hook::add('framework_load_controllers_after', function (\$controllers) {
-    \$controllers = Env::get('controllers');
-
-    /*
-    if (class_exists({$name}Controller::class)) {
-        \$controller = new {$name}Controller();
-        if (method_exists(\$controller, 'init')) {
-            \$controller->init();
-        }
-        if (method_exists(\$controller, 'registerRoutes')) {
-            \$controller->registerRoutes();
-        }
-        \$controllers['{$lowerName}'] = \$controller;
-        Env::set('controllers', \$controllers);
-    }
-    */
+Hook::add('framework_load_controllers_after', function () {
+    // \GaiaAlpha\Framework::registerController('{$lowerName}', {$name}Controller::class);
 });
 
 // 2. Register UI Component

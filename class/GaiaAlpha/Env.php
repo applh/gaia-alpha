@@ -15,4 +15,17 @@ class Env
     {
         return self::$vars[$key] ?? $default;
     }
+
+    public static function add(string $key, $value, ?string $index = null): void
+    {
+        if (!isset(self::$vars[$key]) || !is_array(self::$vars[$key])) {
+            self::$vars[$key] = [];
+        }
+
+        if ($index !== null) {
+            self::$vars[$key][$index] = $value;
+        } else {
+            self::$vars[$key][] = $value;
+        }
+    }
 }

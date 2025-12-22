@@ -178,8 +178,6 @@ class Framework
      */
     public static function registerController(string $key, $controller)
     {
-        $controllers = Env::get('controllers');
-
         if (is_string($controller) && class_exists($controller)) {
             $controller = new $controller();
         }
@@ -193,8 +191,7 @@ class Framework
                 $controller->registerRoutes();
             }
 
-            $controllers[$key] = $controller;
-            Env::set('controllers', $controllers);
+            Env::add('controllers', $controller, $key);
         }
     }
 }

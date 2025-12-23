@@ -30,7 +30,7 @@ Welcome to the Gaia Alpha documentation. This documentation is organized topical
 - **[System Overview](plugins/system_overview.md)**: How the plugin system works.
 - **[Plugin Pattern](plugins/plugin_pattern.md)**: Golden sample for plugin development.
 - **[Hooks & Menus](plugins/hooks_and_menus.md)**: Extending the system without modifying core.
-- **[Plugin Directory](plugins/analytics.md)**: Documentation for individual plugins (e.g., [Drawing](plugins/drawing.md)).
+- **[Plugin Directory](plugins/analytics.md)**: Documentation for individual plugins (e.g., [Drawing](plugins/drawing.md), [Screen Recorder](plugins/screen_recorder.md)).
 
 ## 📋 Implementation Patterns
 *Standardized approach to common coding tasks.*

@@ -64,26 +64,45 @@ class Database
         $driver = $this->pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
 
         foreach ($sqlFiles as $filePath) {
-            if (file_exists($filePath)) {
-                $sqlContent = file_get_contents($filePath);
-
-                // Remove comments
-                $sqlContent = preg_replace('/^--.*$/m', '', $sqlContent);
-
-                $statements = $this->splitSql($sqlContent);
-
-                foreach ($statements as $statement) {
-                    try {
-                        $processedSql = $this->transformSql($statement, $driver);
-                        $this->pdo->exec($processedSql);
-                    } catch (PDOException $e) {
-                        // Column/constraint likely already exists, ignore
-                    }
-                }
-            }
+            $this->runSqlFile($filePath, $driver);
         }
 
         $this->runMigrations();
+    }
+
+    public function ensurePluginSchema(string $pluginName): void
+    {
+        $pluginRoots = [
+            Env::get('path_data') . '/plugins',
+            Env::get('root_dir') . '/plugins'
+        ];
+
+        $driver = $this->pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
+
+        foreach ($pluginRoots as $dir) {
+            $schemaPath = $dir . '/' . $pluginName . '/schema.sql';
+            if (file_exists($schemaPath)) {
+                $this->runSqlFile($schemaPath, $driver);
+            }
+        }
+    }
+
+    private function runSqlFile(string $filePath, string $driver): void
+    {
+        if (file_exists($filePath)) {
+            $sqlContent = file_get_contents($filePath);
+            $sqlContent = preg_replace('/^--.*$/m', '', $sqlContent);
+            $statements = $this->splitSql($sqlContent);
+
+            foreach ($statements as $statement) {
+                try {
+                    $processedSql = $this->transformSql($statement, $driver);
+                    $this->pdo->exec($processedSql);
+                } catch (PDOException $e) {
+                    // Column/constraint likely already exists, ignore
+                }
+            }
+        }
     }
 
     public function runMigrations(): void

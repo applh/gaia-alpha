@@ -13,4 +13,4 @@ CREATE TABLE IF NOT EXISTS cms_api_logs (
     timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_api_logs_timestamp ON cms_api_logs(timestamp);
+CREATE INDEX IF NOT EXISTS idx_api_logs_timestamp ON cms_api_logs(timestamp);

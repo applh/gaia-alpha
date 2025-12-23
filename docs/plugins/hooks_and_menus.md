@@ -1,4 +1,28 @@
-# Plugin Menu Hook System
+# Plugin Hooks & Menus
+
+Gaia Alpha provides a Hook system for plugins to interact with the core lifecycle and UI.
+
+## Lifecycle Hooks
+
+Plugins can listen to activation and deactivation events. These are useful for setting up default data, clearing caches, or other initialization tasks. Note that database tables (`schema.sql`) are automatically handled by the framework on activation.
+
+### `plugin_activated`
+Fired when a plugin is enabled in the Admin Panel.
+- **Payload**: `(string) $pluginName`
+
+### `plugin_deactivated`
+Fired when a plugin is disabled.
+- **Payload**: `(string) $pluginName`
+
+```php
+Hook::add('plugin_activated', function($pluginName) {
+    if ($pluginName === 'MyPlugin') {
+        // Run first-time setup
+    }
+});
+```
+
+## Menu Hooks
 
 Gaia Alpha allows plugins to dynamically inject items into the main navigation menu using the Hook system. This ensures that menu items appear only when your plugin is active and the user has the appropriate permissions.
 

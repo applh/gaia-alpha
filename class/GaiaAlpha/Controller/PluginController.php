@@ -83,9 +83,9 @@ class PluginController extends BaseController
         if (!$this->requireAdmin())
             return;
         $data = Request::input();
-        $activePlugins = $data['active_plugins'] ?? [];
+        $newActivePlugins = $data['active_plugins'] ?? [];
 
-        if (!is_array($activePlugins)) {
+        if (!is_array($newActivePlugins)) {
             Response::json(['error' => 'Invalid input'], 400);
             return;
         }
@@ -93,7 +93,40 @@ class PluginController extends BaseController
         $pathData = Env::get('path_data');
         $activePluginsFile = $pathData . '/active_plugins.json';
 
-        File::write($activePluginsFile, json_encode($activePlugins, JSON_PRETTY_PRINT));
+        // 1. Read existing active plugins
+        $currentActivePlugins = [];
+        if (File::exists($activePluginsFile)) {
+            $currentActivePlugins = json_decode(File::read($activePluginsFile), true) ?: [];
+        }
+
+        // 2. Determine changes
+        $activated = array_diff($newActivePlugins, $currentActivePlugins);
+        $deactivated = array_diff($currentActivePlugins, $newActivePlugins);
+
+        // 3. Save new list
+        File::write($activePluginsFile, json_encode($newActivePlugins, JSON_PRETTY_PRINT));
+
+        // 4. Handle Activation
+        if (!empty($activated)) {
+            $db = \GaiaAlpha\Model\DB::connect();
+            foreach ($activated as $pluginName) {
+                // Ensure Schema
+                if ($db) {
+                    $db->ensurePluginSchema($pluginName);
+                }
+                // Fire Hook
+                \GaiaAlpha\Hook::run('plugin_activated', $pluginName);
+            }
+        }
+
+        // 5. Handle Deactivation
+        if (!empty($deactivated)) {
+            foreach ($deactivated as $pluginName) {
+                // Fire Hook
+                \GaiaAlpha\Hook::run('plugin_deactivated', $pluginName);
+            }
+        }
+
         Response::json(['success' => true]);
     }
 

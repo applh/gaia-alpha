@@ -15,6 +15,7 @@ Plugins are the standard way to add features. They reside in `plugins/`. Gaia Al
 plugins/YourPlugin/
 ├── index.php                # Entry point, hooks, registration
 ├── plugin.json              # Meta data
+├── schema.sql               # Database schema (loaded on activation)
 ├── class/                   # Auto-loaded PSR-4 namespace: YourPlugin\
 │   ├── Controller/
 │   │   └── YourController.php
@@ -25,6 +26,15 @@ plugins/YourPlugin/
     └── js/
         └── YourPanel.js
 ```
+
+## Database Schema
+
+Plugins can define their own database tables using a standard SQL file.
+
+- **File**: `plugins/YourPlugin/schema.sql`
+- **Format**: Standard SQLite-compatible SQL (`CREATE TABLE IF NOT EXISTS ...`).
+- **Activation**: When a plugin is activated via the Admin Panel, the framework automatically runs this SQL file to create tables.
+- **Migration**: The framework tracks loaded schemas. Changes to `schema.sql` after activation are not automatically applied; you must handle migrations manually or re-activate the plugin (carefully).
 
 ## Golden Sample: index.php
 

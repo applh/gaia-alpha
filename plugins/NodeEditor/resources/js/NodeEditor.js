@@ -117,6 +117,10 @@ const STYLES = `
             border-color: var(--accent-color);
             box-shadow: 0 0 0 2px var(--accent-light);
         }
+        .node-rect.multi-selected {
+            border-color: var(--accent-color);
+            border-style: dashed;
+        }
         .node-header {
             padding: 0.5rem;
             background: var(--border-color);
@@ -227,6 +231,65 @@ const STYLES = `
         .node-output .node-header { background-color: rgba(185, 28, 28, 0.2); color: #fca5a5; }
         .node-note .node-header { background-color: rgba(161, 98, 7, 0.2); color: #fde047; }
         .node-note .node-rect { background-color: var(--card-bg); width: 200px; }
+        
+        /* Minimap */
+        .minimap {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            width: 200px;
+            height: 150px;
+            background: rgba(0,0,0,0.5);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            z-index: 20;
+            overflow: hidden;
+            pointer-events: none;
+        }
+        .minimap-content {
+            width: 100%;
+            height: 100%;
+        }
+        .minimap-node { fill: var(--accent-color); opacity: 0.5; }
+        .minimap-viewport {
+            fill: none;
+            stroke: #fff;
+            stroke-width: 1px;
+            opacity: 0.3;
+        }
+
+        /* Context Menu */
+        .context-menu {
+            position: fixed;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            box-shadow: var(--shadow-lg);
+            padding: 0.5rem 0;
+            z-index: 1000;
+            min-width: 150px;
+        }
+        .context-menu-item {
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+        }
+        .context-menu-item:hover {
+            background: var(--glass-bg);
+        }
+        .context-menu-item.danger { color: #ef4444; }
+
+        /* Selection Box */
+        .selection-box {
+            position: absolute;
+            background: rgba(3, 105, 161, 0.1);
+            border: 1px solid var(--accent-color);
+            pointer-events: none;
+            z-index: 15;
+        }
 `;
 
 export default {
@@ -248,6 +311,10 @@ export default {
                 <button @click="showList = true" class="btn btn-secondary">
                     <LucideIcon name="list" size="16" />
                     Load
+                </button>
+                <button @click="tidyLayout" class="btn btn-secondary">
+                    <LucideIcon name="layout" size="16" />
+                    Tidy
                 </button>
                 <button @click="clearCanvas" class="btn btn-danger">
                     <LucideIcon name="trash-2" size="16" />
@@ -301,15 +368,22 @@ export default {
                 ref="canvasRef"
                 @drop="onDrop" 
                 @dragover.prevent
-                @mousedown="startPan"
+                @mousedown="handleCanvasMouseDown"
                 @mousemove="handleMouseMove"
                 @mouseup="stopInteraction"
                 @wheel.prevent="handleZoom"
+                @contextmenu.prevent="showContextMenu"
             >
                 <div 
                     class="canvas-content"
                     :style="{ transform: 'translate(' + pan.x + 'px, ' + pan.y + 'px) scale(' + zoom + ')' }"
                 >
+                    <!-- Selection Box -->
+                    <div 
+                        v-if="selectionRect" 
+                        class="selection-box"
+                        :style="selectionBoxStyle"
+                    ></div>
                     <!-- Connections -->
                     <svg class="connections-layer">
                         <path 
@@ -332,7 +406,7 @@ export default {
                         v-for="node in nodes" 
                         :key="node.id"
                         class="node-rect"
-                        :class="['node-' + node.type, { selected: selectedNode === node.id }]"
+                        :class="['node-' + node.type, { selected: selectedNode === node.id, 'multi-selected': selectedNodes.includes(node.id) }]"
                         :style="{ left: node.x + 'px', top: node.y + 'px' }"
                         @mousedown.stop="startDragNode($event, node)"
                         @click.stop="selectNode(node.id)"
@@ -388,6 +462,47 @@ export default {
                     <label>ID</label>
                     <input :value="selectedNodeData.id" class="form-input" disabled />
                 </div>
+            </div>
+        </div>
+            
+        <!-- Minimap -->
+        <div class="minimap">
+            <svg class="minimap-content" viewBox="0 0 1000 750">
+                <rect 
+                    v-for="node in nodes" 
+                    :key="'mini-' + node.id"
+                    class="minimap-node"
+                    :x="node.x / 5" 
+                    :y="node.y / 5" 
+                    width="30" 
+                    height="20"
+                />
+                <!-- Viewport frame (simplified) -->
+                <rect 
+                    class="minimap-viewport"
+                    :x="-pan.x / (zoom * 5)"
+                    :y="-pan.y / (zoom * 5)"
+                    :width="1000 / (zoom * 5)"
+                    :height="750 / (zoom * 5)"
+                />
+            </svg>
+        </div>
+
+        <!-- Context Menu -->
+        <div 
+            v-if="contextMenu.show" 
+            class="context-menu" 
+            :style="{ top: contextMenu.y + 'px', left: contextMenu.x + 'px' }"
+            @click.stop
+        >
+            <div class="context-menu-item" @click="duplicateSelected">
+                <LucideIcon name="copy" size="14" /> Duplicate
+            </div>
+            <div class="context-menu-item" @click="tidyLayout">
+                <LucideIcon name="layout" size="14" /> Tidy Layout
+            </div>
+            <div class="context-menu-item danger" @click="deleteSelected">
+                <LucideIcon name="trash-2" size="14" /> Delete
             </div>
         </div>
 
@@ -461,7 +576,11 @@ export default {
         const mousePos = ref({ x: 0, y: 0 });
 
         const selectedNode = ref(null);
+        const selectedNodes = ref([]); // For multi-selection
         const selectedEdge = ref(null);
+
+        const selectionRect = ref(null); // { x1, y1, x2, y2 }
+        const contextMenu = reactive({ show: false, x: 0, y: 0 });
 
         // App State
         const showList = ref(false);
@@ -484,6 +603,20 @@ export default {
             return {
                 start: getPortPosition(connectionSource.value.nodeId, connectionSource.value.portId),
                 end: toCanvasCoords(mousePos.value.x, mousePos.value.y)
+            };
+        });
+
+        const selectionBoxStyle = computed(() => {
+            if (!selectionRect.value) return {};
+            const x = Math.min(selectionRect.value.x1, selectionRect.value.x2);
+            const y = Math.min(selectionRect.value.y1, selectionRect.value.y2);
+            const w = Math.abs(selectionRect.value.x1 - selectionRect.value.x2);
+            const h = Math.abs(selectionRect.value.y1 - selectionRect.value.y2);
+            return {
+                left: x + 'px',
+                top: y + 'px',
+                width: w + 'px',
+                height: h + 'px'
             };
         });
 
@@ -531,10 +664,22 @@ export default {
             selectNode(newNode.id);
         };
 
-        const startPan = (event) => {
+        const handleCanvasMouseDown = (event) => {
+            if (event.button === 2) return; // Right click handled by contextmenu
+            contextMenu.show = false;
+
             if (event.button === 0 && !event.target.closest('.node-rect') && !event.target.closest('.connection-line') && !isConnecting.value) {
-                isDragging.value = true;
-                dragStart.value = { x: event.clientX - pan.value.x, y: event.clientY - pan.value.y };
+                if (event.shiftKey) {
+                    // Start selection box
+                    const coords = toCanvasCoords(event.clientX, event.clientY);
+                    selectionRect.value = { x1: coords.x, y1: coords.y, x2: coords.x, y2: coords.y };
+                } else {
+                    // Start pan
+                    isDragging.value = true;
+                    dragStart.value = { x: event.clientX - pan.value.x, y: event.clientY - pan.value.y };
+                }
+                selectedNode.value = null;
+                selectedNodes.value = [];
             }
         };
 
@@ -557,6 +702,10 @@ export default {
                 const coords = toCanvasCoords(event.clientX, event.clientY);
                 draggingNode.value.x = coords.x - dragStart.value.x;
                 draggingNode.value.y = coords.y - dragStart.value.y;
+            } else if (selectionRect.value) {
+                const coords = toCanvasCoords(event.clientX, event.clientY);
+                selectionRect.value.x2 = coords.x;
+                selectionRect.value.y2 = coords.y;
             }
         };
 
@@ -570,9 +719,21 @@ export default {
             isDragging.value = false;
             draggingNode.value = null;
 
+            if (selectionRect.value) {
+                // Determine selected nodes
+                const x1 = Math.min(selectionRect.value.x1, selectionRect.value.x2);
+                const x2 = Math.max(selectionRect.value.x1, selectionRect.value.x2);
+                const y1 = Math.min(selectionRect.value.y1, selectionRect.value.y2);
+                const y2 = Math.max(selectionRect.value.y1, selectionRect.value.y2);
+
+                selectedNodes.value = nodes.value.filter(n => {
+                    return n.x >= x1 && n.x <= x2 && n.y >= y1 && n.y <= y2;
+                }).map(n => n.id);
+
+                selectionRect.value = null;
+            }
+
             if (isConnecting.value) {
-                // Cancel connection if dropped on nothing
-                // But wait, validation is done in onPortMouseUp
                 isConnecting.value = false;
                 connectionSource.value = null;
             }
@@ -592,16 +753,73 @@ export default {
         };
 
         const selectNode = (id) => {
+            if (selectedNodes.value.includes(id)) return; // Keep multi-selection if clicking one of them?
             selectedNode.value = id;
+            selectedNodes.value = []; // Clear multi-selection on single click
             selectedEdge.value = null;
         };
 
         const deleteNode = (id) => {
-            if (confirm('Delete node?')) {
-                nodes.value = nodes.value.filter(n => n.id !== id);
-                edges.value = edges.value.filter(e => e.source !== id && e.target !== id);
+            nodes.value = nodes.value.filter(n => n.id !== id);
+            edges.value = edges.value.filter(e => e.source !== id && e.target !== id);
+            if (selectedNode.value === id) selectedNode.value = null;
+        };
+
+        const deleteSelected = () => {
+            const idsToDelete = selectedNode.value ? [selectedNode.value] : selectedNodes.value;
+            if (idsToDelete.length === 0) return;
+
+            if (confirm(`Delete ${idsToDelete.length} item(s)?`)) {
+                idsToDelete.forEach(id => deleteNode(id));
                 selectedNode.value = null;
+                selectedNodes.value = [];
+                contextMenu.show = false;
             }
+        };
+
+        const duplicateSelected = () => {
+            const idsToDup = selectedNode.value ? [selectedNode.value] : selectedNodes.value;
+            if (idsToDup.length === 0) return;
+
+            const newNodes = [];
+            const idMap = {};
+
+            idsToDup.forEach(id => {
+                const node = nodes.value.find(n => n.id === id);
+                if (node) {
+                    const newNode = JSON.parse(JSON.stringify(node));
+                    newNode.id = 'node_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
+                    newNode.x += 20;
+                    newNode.y += 20;
+                    idMap[id] = newNode.id;
+                    newNodes.push(newNode);
+                }
+            });
+
+            nodes.value.push(...newNodes);
+            selectedNodes.value = newNodes.map(n => n.id);
+            selectedNode.value = null;
+            contextMenu.show = false;
+        };
+
+        const tidyLayout = () => {
+            // Simple grid layout
+            const padding = 50;
+            const colWidth = 200;
+            const rowHeight = 150;
+            const cols = 4;
+
+            nodes.value.forEach((node, index) => {
+                node.x = padding + (index % cols) * colWidth;
+                node.y = padding + Math.floor(index / cols) * rowHeight;
+            });
+            contextMenu.show = false;
+        };
+
+        const showContextMenu = (event) => {
+            contextMenu.show = true;
+            contextMenu.x = event.clientX;
+            contextMenu.y = event.clientY;
         };
 
         // Methods - Connections
@@ -773,11 +991,31 @@ export default {
         // Lifecycle
         onMounted(() => {
             injectStyles();
-            // Listen for keydown delete?
             window.addEventListener('keydown', (e) => {
-                if ((e.key === 'Delete' || e.key === 'Backspace') && !e.target.matches('input, textarea')) {
-                    if (selectedNode.value) deleteNode(selectedNode.value);
-                    // if (selectedEdge.value) ...
+                if (e.target.matches('input, textarea')) return;
+
+                if (e.key === 'Delete' || e.key === 'Backspace') {
+                    deleteSelected();
+                } else if (e.key === 'd' || e.key === 'D') {
+                    duplicateSelected();
+                } else if (e.key === 'l' || e.key === 'L') {
+                    tidyLayout();
+                } else if (e.key === 'Escape') {
+                    selectedNode.value = null;
+                    selectedNodes.value = [];
+                    contextMenu.show = false;
+                } else if (e.key === 'n' || e.key === 'N') {
+                    // Create node at mouse pos
+                    const coords = toCanvasCoords(mousePos.value.x, mousePos.value.y);
+                    const newNode = {
+                        id: 'node_' + Date.now(),
+                        type: 'process',
+                        x: coords.x,
+                        y: coords.y,
+                        data: { label: 'New Process' }
+                    };
+                    nodes.value.push(newNode);
+                    selectNode(newNode.id);
                 }
             });
         });
@@ -789,12 +1027,12 @@ export default {
 
         return {
             nodes, edges, pan, zoom,
-            isDragging, onDragStart, onDrop, startPan, handleMouseMove, stopInteraction, handleZoom,
+            isDragging, onDragStart, onDrop, handleCanvasMouseDown, handleMouseMove, stopInteraction, handleZoom,
             startDragNode,
             isConnecting, startConnection, onPortMouseUp,
             getInputs, getOutputs,
-            selectedNode, selectedEdge, selectNode, selectEdge, deleteNode,
-            selectedNodeData,
+            selectedNode, selectedNodes, selectedEdge, selectNode, selectEdge, deleteNode, deleteSelected, duplicateSelected, tidyLayout, showContextMenu,
+            selectedNodeData, selectionRect, selectionBoxStyle, contextMenu,
             getEdgePath, draftEdge, getDraftEdgePath,
             canvasRef,
             showList, showSave, loading, cachedDiagrams, currentDiagram,

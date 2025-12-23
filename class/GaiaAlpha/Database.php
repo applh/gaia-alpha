@@ -35,18 +35,23 @@ class Database
         $sqlFiles = array_merge($sqlFiles, $coreFiles);
 
         // 2. Plugin Schemas
+        $activePlugins = [];
+        $activePluginsFile = Env::get('path_data') . '/active_plugins.json';
+        if (file_exists($activePluginsFile)) {
+            $activePlugins = json_decode(file_get_contents($activePluginsFile), true) ?: [];
+        }
+
         $pluginRoots = [
             Env::get('path_data') . '/plugins',
             Env::get('root_dir') . '/plugins'
         ];
 
         foreach ($pluginRoots as $dir) {
-            if (is_dir($dir)) {
-                $pluginSchemas = glob($dir . '/*/schema.sql') ?: [];
-                sort($pluginSchemas);
-                foreach ($pluginSchemas as $p) {
-                    if (!in_array($p, $sqlFiles)) {
-                        $sqlFiles[] = $p;
+            foreach ($activePlugins as $pluginName) {
+                $schemaPath = $dir . '/' . $pluginName . '/schema.sql';
+                if (file_exists($schemaPath)) {
+                    if (!in_array($schemaPath, $sqlFiles)) {
+                        $sqlFiles[] = $schemaPath;
                     }
                 }
             }

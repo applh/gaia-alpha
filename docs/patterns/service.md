@@ -143,7 +143,7 @@ $id = DB::lastInsertId();
 
 **Writing Multi-DB Compatible SQL:**
 
-When writing raw queries, always follow the [Multi-DB SQL Management Pattern](file:///Users/lh/Downloads/antig/gaia-alpha/docs/patterns/multi_db_sql.md). 
+When writing raw queries, always follow the [Multi-DB SQL Management Pattern](../core/multi_db_sql.md). 
 
 1. Use SQLite-ish dialect (the translation layer handles it).
 2. Avoid dialect-specific functions unless absolutely necessary.

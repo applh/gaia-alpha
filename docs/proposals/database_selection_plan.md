@@ -136,6 +136,6 @@ The Multi-Database support is now a core feature of Gaia Alpha.
 - **Completed**: Updated `InstallController` for guided database setup.
 - **Completed**: Implemented `Database::transformSql()` for automatic dialect translation.
 - **Completed**: Implemented driver-agnostic `dump()` and `import()` for backups.
-- **Completed**: Added [Multi-DB SQL Management Pattern](file:///Users/lh/Downloads/antig/gaia-alpha/docs/patterns/multi_db_sql.md).
+- **Completed**: Added [Multi-DB SQL Management Pattern](../core/multi_db_sql.md).
 
-For development guidelines, refer to the [Multi-DB SQL Management Pattern](file:///Users/lh/Downloads/antig/gaia-alpha/docs/patterns/multi_db_sql.md) document.
+For development guidelines, refer to the [Multi-DB SQL Management Pattern](../core/multi_db_sql.md) document.

@@ -28,7 +28,7 @@ Enable dynamic loading of admin panel components to:
 ### Implementation Location
 - **Entry Point**: [site.js](file:///Users/lh/Downloads/antig/gaia-alpha/resources/js/site.js)
 - **Components Directory**: [resources/js/components/](file:///Users/lh/Downloads/antig/gaia-alpha/resources/js/components/)
-- **Architecture Documentation**: [docs/architect/architecture.md](file:///Users/lh/Downloads/antig/gaia-alpha/docs/architect/architecture.md)
+- **Architecture Documentation**: [docs/architect/architecture.md](../core/architecture.md)
 
 ---
 
@@ -515,7 +515,7 @@ The feature successfully achieves its core objectives and provides a solid found
 
 ## References
 
-- [Architecture Documentation](file:///Users/lh/Downloads/antig/gaia-alpha/docs/architect/architecture.md#L362-L406)
+- [Architecture Documentation](../core/architecture.md#L362-L406)
 - [Main Application Entry](file:///Users/lh/Downloads/antig/gaia-alpha/resources/js/site.js)
 - [Vue 3 defineAsyncComponent API](https://vuejs.org/guide/components/async.html)
 - [ES Modules Browser Support](https://caniuse.com/es6-module)

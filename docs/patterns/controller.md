@@ -142,4 +142,4 @@ Controllers are the gatekeepers of the system. Follow these security patterns:
 
 ## See Also
 
-- [AssetController Pattern](asset_controller.md): For details on serving static assets.
+- [AssetController Pattern](../frontend/asset_controller.md): For details on serving static assets.

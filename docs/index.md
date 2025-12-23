@@ -1,46 +1,61 @@
-# Gaia Alpha Documentation
+# Gaia Alpha Documentation Index
 
-Welcome to the official documentation for Gaia Alpha, organized by role to help you find exactly what you need.
+Welcome to the Gaia Alpha documentation. This documentation is organized topically for clarity and ease of access for both human developers and AI agents.
 
-## 👩‍💻 For Developers
-*Implementation details, APIs, and guides.*
-- **[Getting Started](../README.md#quick-start)**: Setup guide.
-- **[Shell Commands](developer/shell_commands.md)**: Master the CLI.
-- **[API Reference](developer/api.md)**: Endpoints and data structures.
-- **[Design System](developer/design_system.md)**: UI tokens and patterns.
-- **[Vue Components](developer/vue_components.md)**: Frontend library.
-- **[Templating Guide](developer/templating_guide.md)**: How to write templates.
-- [Plugin System](developer/plugins.md)
-- [Component Design System](developer/component_design_system.md)
-- [Database Schema](developer/database_schema.md)
-- **[Code Statistics](developer/code_statistics.md)**: Project metrics and growth.
-- **[Debug Toolbar](developer/debug_toolbar.md)**: Debugging tools.
-- **[Multi-DB SQL Management](patterns/multi_db_sql.md)**: Development guide for SQL.
+> [!TIP]
+> **New to the project?** Check out the **[Guide by Role](roles.md)** to find documentation curated for your specific needs.
 
-## 🏗️ For Architects
-*System design, security, and evaluations.*
-- **[System Architecture](architect/architecture.md)**: Request lifecycle.
-- **[Webshell Architecture](architect/webshell_architecture.md)**: Console internals.
-- **[Security Comparison](architect/security_comparison.md)**: Security analysis.
-- **[Template System Evaluation](architect/template_system_evaluation.md)**: Design rationale.
-- **[3D Maps Comparison](architect/3d-map-library-comparison.md)**: Lib selection.
+## 🏗️ Core Architecture
+*System internals, architecture, and core features.*
+- **[System Architecture](core/architecture.md)**: Request lifecycle and core flow.
+- **[Webshell Architecture](core/webshell_architecture.md)**: Console and shell internals.
+- **[API Reference](core/api_reference.md)**: Comprehensive list of API endpoints.
+- **[CLI Commands](core/cli_commands.md)**: Command-line interface guide.
+- **[Multi-DB SQL Management](core/multi_db_sql.md)**: Writing portable SQL.
+- **[Site Packages](core/site_packages.md)**: Evaluation and usage.
+- **[Debug Toolbar](core/debug_toolbar.md)**: Core debugging tools.
 
-## 🚀 For DevOps
-*Deployment, operations, and performance.*
-- **[Docker Deployment](devops/docker_deployment.md)**: Production setup.
-- **[Performance](devops/performance.md)**: Benchmarks and profiling.
-- **[Performance History](devops/performance_history.md)**: Tracking over time.
+## 🎨 Frontend & Design
+*UI components, design system, and templating.*
+- **[Design System](frontend/design_system.md)**: UI tokens and UX principles.
+- **[Component Design System](frontend/component_design_system.md)**: Reusable components.
+- **[Vue Components](frontend/vue_components.md)**: Frontend library documentation.
+- **[Templating Overview](frontend/templating_overview.md)**: Introduction to templating.
+- **[Templating Guide](frontend/templating_guide.md)**: Advanced templating techniques.
+- **[Asset Controller](frontend/asset_controller.md)**: How assets are served.
+- **[Admin Component Builder](user/admin_component_builder.md)**: Low-code UI builder.
 
-## 💼 For CTO / Strategy
-*Roadmaps and high-level planning.*
-- **[Roadmap](cto/roadmap.md)**: Future plans.
-- **[Chat Feature Evaluation](cto/chat_evaluation.md)**: Strategic analysis.
+## 🧩 Plugins & Hooks
+*Extending the system via the plugin architecture.*
+- **[System Overview](plugins/system_overview.md)**: How the plugin system works.
+- **[Plugin Pattern](plugins/plugin_pattern.md)**: Golden sample for plugin development.
+- **[Hooks & Menus](plugins/hooks_and_menus.md)**: Extending the system without modifying core.
+- **[Plugin Directory](plugins/analytics.md)**: Documentation for individual plugins.
 
-## 👤 For Users
-*Guides for end-users.*
-- **[Map Feature](user/map_feature.md)**: Using the maps.
-- **[Testing Site Packages](user/testing_site_packages.md)**: Validate site packages locally.
+## 📋 Implementation Patterns
+*Standardized approach to common coding tasks.*
+- **[Controllers](patterns/controller.md)**
+- **[Models](patterns/model.md)**
+- **[Services](patterns/service.md)**
+- **[Form Integration](patterns/form_integration.md)**
+- **[UI Components](patterns/ui_component.md)**
+- **[MCP Tools](patterns/mcp_tool.md)**
+
+## 🚀 Operations & Deployment
+*Setup, performance, and maintenance.*
+- **[Docker Deployment](ops/docker_deployment.md)**: Production setup.
+- **[Performance Guide](ops/performance_guide.md)**: Benchmarks and optimization.
+- **[MCP SSE Deployment](ops/mcp_sse_deployment.md)**: Deploying the AI agent portal.
+
+## 📈 Strategy & Roadmap
+- **[Roadmap](strategy/roadmap.md)**: Future plans.
+- **[Code Metrics](strategy/code_metrics.md)**: Health and growth stats.
+- **[Feature Proposals](proposals/chat_evaluation.md)**: Research and assessments.
+
+## 🤖 Machine & AI
+- **[AI Constitution](ai/constitution.md)**: Core directives for agents.
+- **[Project Map](ai/project_map.md)**: Functional overview for navigation.
+- **[AI Handbook](ai/master_plan.md)**: Comprehensive guide for AI collaboration.
 
 ---
-**[Contributing](../CONTRIBUTING.md)** | **[Code of Conduct](../CODE_OF_CONDUCT.md)**
-
+**[README](../README.md)**

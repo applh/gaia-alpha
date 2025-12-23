@@ -1,20 +1,20 @@
 
 import { ref, onMounted } from 'vue';
-import FormBuilder from 'builders/FormBuilder.js';
+import FormBuilder from './FormBuilder.js';
 import FormSubmissions from './FormSubmissions.js';
+import FormDashboard from './FormDashboard.js';
 import SortTh from 'ui/SortTh.js';
-import Icon from 'ui/Icon.js';
 import { useSorting } from 'composables/useSorting.js';
 
 export default {
-    components: { FormBuilder, FormSubmissions, SortTh },
+    components: { FormBuilder, FormSubmissions, FormDashboard, SortTh },
     template: `
         <div>
             <!-- List View -->
             <div v-if="view === 'list'" class="admin-page">
                 <div class="admin-header">
-                    <h2 class="page-title">My Forms</h2>
-                    <button class="btn-primary" @click="openBuilder(null)">+ Create New Form</button>
+                    <h2 class="page-title">Form Builder</h2>
+                    <button class="btn-primary" @click="openBuilder(null)">+ Create New</button>
                 </div>
                 
                 <div class="admin-card">
@@ -23,6 +23,7 @@ export default {
                             <tr>
                                 <SortTh label="ID" name="id" :currentSort="sortColumn" :sortDir="sortDirection" @sort="sortBy" />
                                 <SortTh label="Title" name="title" :currentSort="sortColumn" :sortDir="sortDirection" @sort="sortBy" />
+                                <SortTh label="Type" name="type" :currentSort="sortColumn" :sortDir="sortDirection" @sort="sortBy" />
                                 <SortTh label="Public Link" name="slug" :currentSort="sortColumn" :sortDir="sortDirection" @sort="sortBy" />
                                 <SortTh label="Created" name="created_at" :currentSort="sortColumn" :sortDir="sortDirection" @sort="sortBy" />
                                 <th>Actions</th>
@@ -32,11 +33,12 @@ export default {
                             <tr v-for="form in sortedForms" :key="form.id">
                                 <td>#{{ form.id }}</td>
                                 <td><strong>{{ form.title }}</strong></td>
+                                <td><span class="badge" :class="'badge-' + (form.type || 'form')">{{ form.type || 'form' }}</span></td>
                                 <td>
                                     <div style="display: flex; gap: 8px; align-items: center;">
                                         <a :href="getPublicLink(form.slug)" target="_blank" class="text-link">/f/{{ form.slug }}</a>
                                         <button class="btn-small btn-icon" @click="copyLink(form.slug)" title="Copy Link">
-                                            <i data-lucide="copy" style="width: 14px; height: 14px;"></i>
+                                            Copy
                                         </button>
                                     </div>
                                 </td>
@@ -45,6 +47,7 @@ export default {
                                     <div class="actions-group">
                                         <button class="btn-small" @click="openBuilder(form.id)">Edit</button>
                                         <button class="btn-small" @click="openSubmissions(form.id)">Submissions</button>
+                                        <button class="btn-small" @click="openStats(form.id)">Stats</button>
                                         <button class="btn-small btn-danger" @click="deleteForm(form.id)">Delete</button>
                                     </div>
                                 </td>
@@ -52,8 +55,8 @@ export default {
                         </tbody>
                     </table>
                     <div v-else class="empty-state">
-                        <p>No forms created yet.</p>
-                        <button class="btn-primary" @click="openBuilder(null)">Create your first form</button>
+                        <p>No forms or quizzes created yet.</p>
+                        <button class="btn-primary" @click="openBuilder(null)">Create your first one</button>
                     </div>
                 </div>
             </div>
@@ -68,6 +71,13 @@ export default {
             <!-- Submissions View -->
             <FormSubmissions 
                 v-if="view === 'submissions'" 
+                :formId="activeId" 
+                @close="closeSubView" 
+            />
+            
+             <!-- Stats View -->
+            <FormDashboard 
+                v-if="view === 'stats'" 
                 :formId="activeId" 
                 @close="closeSubView" 
             />
@@ -101,6 +111,11 @@ export default {
             view.value = 'submissions';
         };
 
+        const openStats = (id) => {
+            activeId.value = id;
+            view.value = 'stats';
+        };
+
         const closeSubView = () => {
             view.value = 'list';
             activeId.value = null;
@@ -108,7 +123,7 @@ export default {
         };
 
         const deleteForm = async (id) => {
-            // if (!confirm('Are you sure? This will delete all submissions too.')) return;
+            if (!confirm('Are you sure? This will delete all submissions too.')) return;
             try {
                 await fetch(`/@/forms/${id}`, { method: 'DELETE' });
                 fetchForms();
@@ -133,7 +148,7 @@ export default {
         return {
             view, activeId, forms, sortedForms,
             sortColumn, sortDirection, sortBy,
-            openBuilder, openSubmissions, closeSubView, deleteForm, getPublicLink, copyLink
+            openBuilder, openSubmissions, openStats, closeSubView, deleteForm, getPublicLink, copyLink
         };
     }
 };

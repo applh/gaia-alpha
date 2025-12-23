@@ -1,5 +1,5 @@
 
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 
 export default {
     props: ['formId'],
@@ -22,12 +22,17 @@ export default {
                         <thead>
                             <tr>
                                 <th>Date</th>
+                                <th v-if="hasScores">Score</th>
                                 <th v-for="key in keys" :key="key">{{ key }}</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr v-for="sub in submissions" :key="sub.id">
-                                <td>{{ new Date(sub.submitted_at).toLocaleString() }}</td>
+                                <td>{{ new Date(sub.created_at || sub.submitted_at).toLocaleString() }}</td>
+                                <td v-if="hasScores">
+                                    <span v-if="sub.score !== null">{{ sub.score }}</span>
+                                    <span v-else>-</span>
+                                </td>
                                 <td v-for="key in keys" :key="key">
                                     {{ formatValue(sub.data[key]) }}
                                 </td>
@@ -42,6 +47,10 @@ export default {
         const submissions = ref([]);
         const loading = ref(true);
         const keys = ref([]);
+
+        const hasScores = computed(() => {
+            return submissions.value.some(s => s.score !== null && s.score !== undefined);
+        });
 
         const fetchSubmissions = async () => {
             loading.value = true;
@@ -69,11 +78,12 @@ export default {
         const formatValue = (val) => {
             if (typeof val === 'boolean') return val ? 'Yes' : 'No';
             if (val === null || val === undefined) return '-';
+            if (Array.isArray(val)) return val.join(', '); // Handle checkbox arrays
             return val;
         };
 
         onMounted(fetchSubmissions);
 
-        return { submissions, loading, keys, fetchSubmissions, formatValue };
+        return { submissions, loading, keys, hasScores, fetchSubmissions, formatValue };
     }
 };

@@ -12,7 +12,7 @@ const AdminDashboard = defineAsyncComponent(() => import('components/admin/Admin
 const UsersAdmin = defineAsyncComponent(() => import('components/admin/settings/UsersAdmin.js'));
 const CMS = defineAsyncComponent(() => import('components/cms/CMS.js'));
 const PluginsAdmin = defineAsyncComponent(() => import('components/admin/settings/PluginsAdmin.js'));
-const FormsAdmin = defineAsyncComponent(() => import('components/cms/FormsAdmin.js'));
+// FormsAdmin migrated to plugin
 const UserSettings = defineAsyncComponent(() => import('components/admin/settings/UserSettings.js'));
 const SiteSettings = defineAsyncComponent(() => import('components/admin/settings/SiteSettings.js'));
 // MlPca migrated to dynamic loading
@@ -64,7 +64,7 @@ const App = {
                 'cms': CMS,
                 'cms-templates': CMS,
                 'cms-components': CMS,
-                'forms': FormsAdmin,
+                // 'forms': FormsAdmin, // Handled by plugin
                 'settings': UserSettings,
                 'site-settings': SiteSettings,
                 'plugins': isAdmin.value ? PluginsAdmin : TodoList,

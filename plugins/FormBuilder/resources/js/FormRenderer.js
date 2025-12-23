@@ -7,7 +7,7 @@ export default {
         formSlug: String
     },
     template: `
-        <div class="form-renderer">
+        <div class="form-renderer form-builder-plugin">
             <div v-if="loading" class="loading-state">
                 <p>Loading form...</p>
             </div>
@@ -20,7 +20,7 @@ export default {
                 <h3 v-if="form.title">{{ form.title }}</h3>
                 <p v-if="form.description" class="form-description">{{ form.description }}</p>
                 
-                <form @submit.prevent="handleSubmit" class="dynamic-form">
+                <form v-if="!showResults" @submit.prevent="handleSubmit" class="dynamic-form">
                     <div v-for="field in form.schema" :key="field.key || field.id" class="form-field">
                         <label :for="field.key || field.id">
                             {{ field.label }}
@@ -36,6 +36,7 @@ export default {
                             v-model="formData[field.key || field.id]"
                             :placeholder="field.placeholder"
                             :required="field.required"
+                            :disabled="submitting"
                         >
                         
                         <!-- Textarea -->
@@ -47,6 +48,7 @@ export default {
                             :placeholder="field.placeholder"
                             :rows="field.rows || 3"
                             :required="field.required"
+                            :disabled="submitting"
                         ></textarea>
                         
                         <!-- Select -->
@@ -56,6 +58,7 @@ export default {
                             :name="field.key || field.id"
                             v-model="formData[field.key || field.id]"
                             :required="field.required"
+                            :disabled="submitting"
                         >
                             <option value="">Select an option...</option>
                             <option v-for="(option, idx) in field.options" :key="idx" :value="option">
@@ -63,7 +66,22 @@ export default {
                             </option>
                         </select>
                         
-                        <!-- Checkbox -->
+                         <!-- Radio -->
+                        <div v-if="field.type === 'radio'" class="radio-group">
+                            <div v-for="(option, idx) in field.options" :key="idx" class="radio-item">
+                                <input 
+                                    type="radio" 
+                                    :id="(field.key || field.id) + idx"
+                                    :name="field.key || field.id"
+                                    :value="option"
+                                    v-model="formData[field.key || field.id]"
+                                    :required="field.required"
+                                >
+                                <label :for="(field.key || field.id) + idx">{{ option }}</label>
+                            </div>
+                        </div>
+
+                        <!-- Checkbox (Single) -->
                         <div v-if="field.type === 'checkbox'" class="checkbox-field">
                             <input 
                                 :id="field.key || field.id"
@@ -71,6 +89,7 @@ export default {
                                 :name="field.key || field.id"
                                 v-model="formData[field.key || field.id]"
                                 :required="field.required"
+                                :disabled="submitting"
                             >
                             <label :for="field.key || field.id">{{ field.placeholder || field.label }}</label>
                         </div>
@@ -80,14 +99,42 @@ export default {
                         {{ submitError }}
                     </div>
                     
-                    <div v-if="submitSuccess" class="success-message">
-                        Form submitted successfully!
-                    </div>
-                    
-                    <button type="submit" :disabled="submitting" class="submit-button">
+                    <button type="submit" :disabled="submitting" class="submit-button btn-primary">
                         {{ submitting ? 'Submitting...' : (form.submit_label || 'Submit') }}
                     </button>
                 </form>
+
+                <!-- Results View (Quiz/Poll) -->
+                <div v-else class="results-view">
+                    <div class="success-message">
+                        <h4>Thank you!</h4>
+                        <p>Your submission has been received.</p>
+                    </div>
+
+                    <div v-if="quizResult" class="quiz-score">
+                        <div class="score-circle">
+                            <span class="score-value">{{ quizResult.score }}</span>
+                            <span class="score-total">/ {{ quizResult.total }}</span>
+                        </div>
+                        <p>Score</p>
+                    </div>
+
+                    <div v-if="quizResult && quizResult.results" class="quiz-breakdown">
+                        <h5>Results:</h5>
+                         <div v-for="field in form.schema" :key="field.key" class="result-item">
+                            <div v-if="quizResult.results[field.key]">
+                                <p class="question-label">{{ field.label }}</p>
+                                <p :class="{'text-success': quizResult.results[field.key].correct, 'text-danger': !quizResult.results[field.key].correct}">
+                                    Your answer: {{ quizResult.results[field.key].userAnswer }}
+                                    <span v-if="!quizResult.results[field.key].correct">(Correct: {{ quizResult.results[field.key].correctAnswer }})</span>
+                                    <span v-if="quizResult.results[field.key].points > 0" class="points-badge">+{{ quizResult.results[field.key].points }} pts</span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button @click="resetForm" class="btn-secondary">Submit Another</button>
+                </div>
             </div>
         </div>
     `,
@@ -98,7 +145,8 @@ export default {
         const formData = reactive({});
         const submitting = ref(false);
         const submitError = ref(null);
-        const submitSuccess = ref(false);
+        const showResults = ref(false);
+        const quizResult = ref(null);
 
         const loadForm = async () => {
             loading.value = true;
@@ -141,7 +189,6 @@ export default {
         const handleSubmit = async () => {
             submitting.value = true;
             submitError.value = null;
-            submitSuccess.value = false;
 
             try {
                 const slug = form.value.slug;
@@ -163,23 +210,27 @@ export default {
                     throw new Error(result.error || 'Submission failed');
                 }
 
-                submitSuccess.value = true;
+                // Handle Quiz/Poll results
+                if (result.score !== undefined) {
+                    quizResult.value = result;
+                }
 
-                // Reset form after successful submission
-                Object.keys(formData).forEach(key => {
-                    formData[key] = form.value.schema.find(f => (f.key || f.id) === key)?.type === 'checkbox' ? false : '';
-                });
-
-                // Hide success message after 5 seconds
-                setTimeout(() => {
-                    submitSuccess.value = false;
-                }, 5000);
+                showResults.value = true;
 
             } catch (e) {
                 submitError.value = e.message || 'Failed to submit form';
             } finally {
                 submitting.value = false;
             }
+        };
+
+        const resetForm = () => {
+            showResults.value = false;
+            quizResult.value = null;
+            // Reset form data
+            Object.keys(formData).forEach(key => {
+                formData[key] = form.value.schema.find(f => (f.key || f.id) === key)?.type === 'checkbox' ? false : '';
+            });
         };
 
         onMounted(() => {
@@ -193,8 +244,10 @@ export default {
             formData,
             submitting,
             submitError,
-            submitSuccess,
-            handleSubmit
+            showResults,
+            quizResult,
+            handleSubmit,
+            resetForm
         };
     }
 };

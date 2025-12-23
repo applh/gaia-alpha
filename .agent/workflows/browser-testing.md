@@ -6,7 +6,7 @@ To verify changes in the browser:
 
 1. **Start the PHP server**:
    // turbo
-   `php -S localhost:8000`
+   `php -S localhost:8000 -t www`
    
 2. **Ensure the server is running**:
    Check the command status or browse to `http://localhost:8000`.

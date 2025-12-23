@@ -43,36 +43,33 @@
 With Gaia Alpha, you don't just write code; you orchestrate it. Our structured **Site Packages** allow you to export, modify, and re-import entire sites using simple AI prompts.
 
 - **[AI Prompts Guide](docs/user/ai_prompts_guide.md)**: Learn how to use LLMs to build features in minutes.
-- **Site Packages**: Standardized structure for portable, reusable website definitions.
+- **[Site Packages Guide](docs/core/site_packages.md)**: Evaluation and usage of portable site bundles.
 - **Enterprise Ready**: Comes with a full [Enterprise Site Example](docs/user/example_enterprise_site.md) out of the box.
 
 ---
 
-## � The AI Handbook
+## 🛡️ The AI & Machine Center
 
-The **[AI Handbook](docs/ai-handbook/00_master_plan.md)** is your essential guide to building, managing, and evolving Gaia Alpha with AI collaboration.
+Everything you need to optimize your collaboration with AI agents like Antigravity.
 
-- **[Master Plan](docs/ai-handbook/00_master_plan.md)**: The roadmap for re-creating current CMS features.
-- **[Advanced Prompting](docs/ai-handbook/04_advanced_prompting.md)**: Using ZIPs and Databases for hyper-accurate AI context.
-- **[Site Packages Guide](docs/ai-handbook/06_site_packages_guide.md)**: How the AI builds and manages portable site bundles.
-- **[Human-AI Synergy](docs/ai-handbook/07_ai_human_collaboration.md)**: New team dynamics for Junior and Senior engineers.
-- **[The AI Triad](docs/ai-handbook/10_the_ai_triad_synergy.md)**: How AI, Open Source, and Companies work together.
+- **[AI Constitution](docs/ai/constitution.md)**: Core directives and unbreakable rules for agents.
+- **[Project Map](docs/ai/project_map.md)**: Functional overview for rapid orientation.
+- **[Master Plan](docs/ai/master_plan.md)**: The vision for recreating Gaia Alpha features.
+- **[AI Capabilities](docs/ai/ai_capability_evaluation.md)**: Assessment of agent performance relative to codebase complexity.
 
 ---
 
-## �📖 Documentation
+## 📖 Documentation
 
-Everything you need to know about using and extending Gaia Alpha.
+The Gaia Alpha documentation is organized topically for maximum discoverability.
 
-- **[Documentation Hub](docs/index.md)**: The central entry point for all docs.
-- **[System Architecture](docs/architect/architecture.md)**: Deep dive into the core.
-- **[Design System](docs/developer/design_system.md)**: UI architecture, CSS hierarchy, and layout patterns.
-- **[API Reference](docs/developer/api.md)**: Endpoints and data structures.
-- **[Performance](docs/devops/performance.md)**: Benchmarks and profiling.
-- **[Multi-Site](docs/devops/multi_site.md)**: Serving multiple domains from one install.
-- **[Plugin System](docs/developer/plugins.md)**: Extending the framework.
-- **[Roadmap](docs/cto/roadmap.md)**: Future plans and upcoming features.
-- **[Changelog](docs/CHANGELOG.md)**: History of changes and versions.
+- **[Documentation Index](docs/index.md)**: The central topical entry point.
+- **[Documentation by Role](docs/roles.md)**: Curated guides for Developers, Architects, DevOps, and CTOs.
+- **[System Architecture](docs/core/architecture.md)**: Deep dive into the request lifecycle and core logic.
+- **[API Reference](docs/core/api_reference.md)**: Full list of endpoints and data structures.
+- **[Plugin System](docs/plugins/system_overview.md)**: How to extend the framework.
+- **[Roadmap](docs/strategy/roadmap.md)**: Future plans and upcoming features.
+- **[Changelog](docs/CHANGELOG.md)**: Version history.
 
 ---
 
@@ -80,58 +77,36 @@ Everything you need to know about using and extending Gaia Alpha.
 
 - **Digital Asset Management**: Advanced media library with tagging, search, and organization.
 - **Enterprise Site Starter Kit**: Ready-to-use 10-page corporate site structure.
-- **Core Plugin Architecture**: 18+ modular plugins including ComponentBuilder, FormBuilder, and ApiBuilder.
-- **MCP Server Integration**: 20+ tools for AI-assisted development and management.
+- **Core Plugin Architecture**: 20+ modular plugins including ComponentBuilder, FormBuilder, and ApiBuilder.
+- **MCP Server Integration**: 50+ tools for AI-assisted development and management.
 - **Declarative Menu System**: JSON-based menu configuration for ease of use.
-- **Zero-Config Database**: Auto-migrating SQLite setup.
+- **Zero-Config Database**: Auto-migrating SQLite setup with multi-DB support.
 - **Reactive UI**: Vue 3 frontend without a build step (ES Modules).
 - **CLI Power**: Comprehensive command-line tools for DB, Media, and Files.
 - **Video Engine**: Advanced image and video processing on the fly.
-- **Role-Based Access**: Built-in authentication and permission system.
 - **Real-time Chat**: User-to-user messaging system.
-- **Slot-Based Templating**: Powerful visual page builder with reusable layouts.
-- **Smart Asset Pipeline**: On-the-fly minification and caching for CSS and JS assets.
 
 ### 📊 By the Numbers
 
-- **28,000+** lines of code
-- **188** PHP files
-- **67** JavaScript files  
-- **18** active plugins
-- **20+** MCP tools for AI integration
+- **125,000+** lines of code
+- **~500** files
+- **20** active plugins
+- **50+** MCP tools for AI integration
 
 ---
 
 ## 🤝 Community & Contributing
 
-We welcome contributions from everyone! Here's how you can help:
+We welcome contributions from everyone! 
 
-- **[Contributing Guide](.github/CONTRIBUTING.md)**: How to submit PRs and report bugs.
-- **[Code of Conduct](.github/CODE_OF_CONDUCT.md)**: Our pledge for a welcoming community.
+- **[Contributing Guide](.github/CONTRIBUTING.md)**: (Coming soon)
+- **[CLI Reference](docs/core/cli_commands.md)**: Learn to use the powerful `cli.php` tool.
 
 ### Performance Benchmarking
-We care about speed. Proof it yourself:
+We care about speed. Prove it yourself:
 ```bash
 php cli.php bench:all
 ```
-
----
-
-## 🛠 CLI Overview
-
-Gaia Alpha comes with a powerful CLI tool `cli.php`.
-
-```bash
-php cli.php <command> [args]
-```
-
-**Common Commands:**
-- `table:list users`: View database rows.
-- `media:process`: Optimize images.
-- `bench:all`: Run performance checks.
-- `help`: See all available commands.
-
-For a full list of commands, see the [CLI Documentation](docs/developer/shell_commands.md) or run `php cli.php help`.
 
 ---
 

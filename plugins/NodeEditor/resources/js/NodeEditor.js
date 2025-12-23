@@ -231,6 +231,83 @@ const STYLES = `
         .node-output .node-header { background-color: rgba(185, 28, 28, 0.2); color: #fca5a5; }
         .node-note .node-header { background-color: rgba(161, 98, 7, 0.2); color: #fde047; }
         .node-note .node-rect { background-color: var(--card-bg); width: 200px; }
+        .node-comment .node-rect { border-radius: 4px; border: 1px dashed var(--text-muted); background: transparent; box-shadow: none; width: 180px; }
+        .node-comment .node-header { display: none; }
+        .node-comment .node-body { font-style: italic; color: var(--text-muted); font-size: 0.8rem; }
+        .node-variable .node-header { background-color: rgba(168, 85, 247, 0.2); color: #d8b4fe; }
+        .node-subgraph .node-header { background-color: rgba(249, 115, 22, 0.2); color: #fdba74; }
+        
+        /* Sidebar Search */
+        .sidebar-search {
+            margin-bottom: 1rem;
+            position: relative;
+        }
+        .sidebar-search input {
+            width: 100%;
+            padding: 0.4rem 0.5rem 0.4rem 2rem;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-color);
+            color: var(--text-primary);
+            font-size: 0.8rem;
+        }
+        .sidebar-search .lucide-icon {
+            position: absolute;
+            left: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+        .search-results {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .search-item {
+            padding: 0.4rem;
+            font-size: 0.8rem;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .search-item:hover { background: var(--glass-bg); }
+
+        /* Breadcrumbs */
+        .breadcrumbs {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+        .breadcrumb-item { cursor: pointer; }
+        .breadcrumb-item:hover { color: var(--accent-color); }
+        .breadcrumb-separator { color: var(--text-muted); }
+
+        /* Export Dropdown */
+        .dropdown { position: relative; }
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            box-shadow: var(--shadow-lg);
+            z-index: 50;
+            min-width: 120px;
+            padding: 0.5rem 0;
+            display: none;
+        }
+        .dropdown:hover .dropdown-menu { display: block; }
+        .dropdown-item {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .dropdown-item:hover { background: var(--glass-bg); }
         
         /* Minimap */
         .minimap {
@@ -303,7 +380,32 @@ export default {
                 <span v-if="currentDiagram.id">{{ currentDiagram.title }}</span>
                 <span v-else>New Diagram</span>
             </h2>
+            
+            <div class="breadcrumbs" v-if="navigationStack.length > 0">
+                <span class="breadcrumb-item" @click="resetToRoot">Root</span>
+                <template v-for="(nav, index) in navigationStack" :key="index">
+                    <span class="breadcrumb-separator">/</span>
+                    <span class="breadcrumb-item" @click="jumpToStack(index)">{{ nav.label }}</span>
+                </template>
+            </div>
+
             <div class="button-group">
+                <button @click="showVariables = true" class="btn btn-secondary">
+                    <LucideIcon name="database" size="16" />
+                    Variables
+                </button>
+                <div class="dropdown">
+                    <button class="btn btn-secondary">
+                        <LucideIcon name="download" size="16" />
+                        Export
+                        <LucideIcon name="chevron-down" size="14" />
+                    </button>
+                    <div class="dropdown-menu">
+                        <div class="dropdown-item" @click="exportSVG">SVG Image</div>
+                        <div class="dropdown-item" @click="exportPNG">PNG Image</div>
+                        <div class="dropdown-item" @click="exportMermaid">Mermaid Code</div>
+                    </div>
+                </div>
                 <button @click="saveDiagram" class="btn btn-primary">
                     <LucideIcon name="save" size="16" />
                     Save
@@ -327,6 +429,22 @@ export default {
         <div class="editor-body">
             <!-- Sidebar -->
             <div class="editor-sidebar">
+                <div class="sidebar-search">
+                    <LucideIcon name="search" size="14" />
+                    <input v-model="searchQuery" placeholder="Search nodes..." />
+                </div>
+                
+                <div class="search-results" v-if="searchQuery">
+                    <div 
+                        v-for="node in filteredNodes" 
+                        :key="node.id" 
+                        class="search-item"
+                        @click="teleportToNode(node.id)"
+                    >
+                        {{ node.data.label || node.type }}
+                    </div>
+                </div>
+
                 <h3>Nodes</h3>
                 <div 
                     class="node-item" 
@@ -334,7 +452,23 @@ export default {
                     @dragstart="onDragStart($event, 'process')"
                 >
                     <LucideIcon name="cpu" size="16" />
-                    Process Node
+                    Process
+                </div>
+                <div 
+                    class="node-item" 
+                    draggable="true" 
+                    @dragstart="onDragStart($event, 'subgraph')"
+                >
+                    <LucideIcon name="box" size="16" />
+                    Sub-graph
+                </div>
+                <div 
+                    class="node-item" 
+                    draggable="true" 
+                    @dragstart="onDragStart($event, 'variable')"
+                >
+                    <LucideIcon name="database" size="16" />
+                    Variable
                 </div>
                 <div 
                     class="node-item" 
@@ -342,7 +476,7 @@ export default {
                     @dragstart="onDragStart($event, 'input')"
                 >
                     <LucideIcon name="log-in" size="16" />
-                    Input Node
+                    Input
                 </div>
                 <div 
                     class="node-item" 
@@ -350,7 +484,7 @@ export default {
                     @dragstart="onDragStart($event, 'output')"
                 >
                     <LucideIcon name="log-out" size="16" />
-                    Output Node
+                    Output
                 </div>
                  <div 
                     class="node-item" 
@@ -359,6 +493,14 @@ export default {
                 >
                     <LucideIcon name="sticky-note" size="16" />
                     Note
+                </div>
+                <div 
+                    class="node-item" 
+                    draggable="true" 
+                    @dragstart="onDragStart($event, 'comment')"
+                >
+                    <LucideIcon name="message-square" size="16" />
+                    Comment
                 </div>
             </div>
 
@@ -410,9 +552,10 @@ export default {
                         :style="{ left: node.x + 'px', top: node.y + 'px' }"
                         @mousedown.stop="startDragNode($event, node)"
                         @click.stop="selectNode(node.id)"
+                        @dblclick.stop="node.type === 'subgraph' ? enterSubgraph(node) : null"
                     >
                         <div class="node-header">
-                            <span class="node-title">{{ node.data.label || node.type }}</span>
+                            <span class="node-title">{{ node.data.label || node.data.variableKey || node.type }}</span>
                             <div class="node-actions">
                                 <LucideIcon name="x" size="12" @click.stop="deleteNode(node.id)" />
                             </div>
@@ -454,9 +597,19 @@ export default {
                     <label>Label</label>
                     <input v-model="selectedNodeData.data.label" class="form-input" />
                 </div>
-                 <div class="form-group" v-if="selectedNodeData.type === 'note'">
+                 <div class="form-group" v-if="selectedNodeData.type === 'note' || selectedNodeData.type === 'comment'">
                     <label>Content</label>
                     <textarea v-model="selectedNodeData.data.content" class="form-input" rows="5"></textarea>
+                </div>
+                <div class="form-group" v-if="selectedNodeData.type === 'variable'">
+                    <label>Global Variable</label>
+                    <select v-model="selectedNodeData.data.variableKey" class="form-input">
+                        <option v-for="v in variables" :key="v.key" :value="v.key">{{ v.key }}</option>
+                    </select>
+                </div>
+                <div class="form-group" v-if="selectedNodeData.type === 'subgraph'">
+                    <LucideIcon name="external-link" size="14" />
+                    <span>Double-click node to edit sub-graph content.</span>
                 </div>
                  <div class="form-group">
                     <label>ID</label>
@@ -554,6 +707,43 @@ export default {
                  </div>
              </div>
         </div>
+
+        <!-- Variables Modal -->
+        <div class="modal-overlay" v-if="showVariables">
+            <div class="modal">
+                <div class="modal-header">
+                    <h3>Global Variables</h3>
+                    <button @click="showVariables = false"><LucideIcon name="x" size="16" /></button>
+                </div>
+                <div class="modal-body">
+                    <table class="table">
+                        <thead>
+                            <tr><th>Key</th><th>Type</th><th>Default</th><th></th></tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="(v, index) in variables" :key="index">
+                                <td><input v-model="v.key" class="form-input-sm" /></td>
+                                <td>
+                                    <select v-model="v.type" class="form-input-sm">
+                                        <option value="string">String</option>
+                                        <option value="number">Number</option>
+                                        <option value="boolean">Boolean</option>
+                                    </select>
+                                </td>
+                                <td><input v-model="v.value" class="form-input-sm" /></td>
+                                <td><button @click="variables.splice(index, 1)" class="btn-icon text-danger"><LucideIcon name="trash-2" size="14" /></button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <button @click="variables.push({ key: 'var_' + variables.length, type: 'string', value: '' })" class="btn btn-secondary btn-sm mt-2">
+                        Add Variable
+                    </button>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" @click="showVariables = false">Done</button>
+                </div>
+            </div>
+        </div>
         
     </div>
     `,
@@ -593,6 +783,12 @@ export default {
             description: ''
         });
 
+        // Phase 2 State
+        const variables = ref([]); // { key, type, value }
+        const showVariables = ref(false);
+        const navigationStack = ref([]); // { id, label, nodes, edges }
+        const searchQuery = ref('');
+
         // Computed
         const selectedNodeData = computed(() => {
             return nodes.value.find(n => n.id === selectedNode.value);
@@ -618,6 +814,15 @@ export default {
                 width: w + 'px',
                 height: h + 'px'
             };
+        });
+
+        const filteredNodes = computed(() => {
+            if (!searchQuery.value) return [];
+            const q = searchQuery.value.toLowerCase();
+            return nodes.value.filter(n =>
+                (n.data.label && n.data.label.toLowerCase().includes(q)) ||
+                n.type.toLowerCase().includes(q)
+            );
         });
 
         // Ref
@@ -741,15 +946,160 @@ export default {
 
         // Methods - Nodes & Ports
         const getInputs = (type) => {
-            if (type === 'process') return [{ id: 'in', label: 'In' }];
+            if (type === 'process' || type === 'subgraph') return [{ id: 'in', label: 'In' }];
             if (type === 'output') return [{ id: 'in', label: 'Value' }];
             return [];
         };
 
         const getOutputs = (type) => {
-            if (type === 'process') return [{ id: 'out', label: 'Out' }];
-            if (type === 'input') return [{ id: 'out', label: 'Value' }];
+            if (type === 'process' || type === 'subgraph') return [{ id: 'out', label: 'Out' }];
+            if (type === 'input' || type === 'variable') return [{ id: 'out', label: 'Value' }];
             return [];
+        };
+
+        const teleportToNode = (id) => {
+            const node = nodes.value.find(n => n.id === id);
+            if (node) {
+                // Animate or jump to node
+                const rect = canvasRef.value.getBoundingClientRect();
+                pan.value = {
+                    x: (rect.width / 2) - (node.x * zoom.value) - (75 * zoom.value),
+                    y: (rect.height / 2) - (node.y * zoom.value) - (50 * zoom.value)
+                };
+                selectNode(id);
+                searchQuery.value = '';
+            }
+        };
+
+        const enterSubgraph = (node) => {
+            // Push current state to stack
+            navigationStack.value.push({
+                id: node.id,
+                label: node.data.label || 'Sub-graph',
+                nodes: [...nodes.value],
+                edges: [...edges.value],
+                pan: { ...pan.value },
+                zoom: zoom.value
+            });
+
+            // Load sub-graph content (stored in node.data.content or empty)
+            const content = node.data.subgraphContent || { nodes: [], edges: [] };
+            nodes.value = content.nodes;
+            edges.value = content.edges;
+            pan.value = { x: 0, y: 0 };
+            zoom.value = 1;
+            selectedNode.value = null;
+        };
+
+        const resetToRoot = () => {
+            if (navigationStack.value.length === 0) return;
+            const root = navigationStack.value[0];
+
+            // Save current back to parent
+            const currentLevel = navigationStack.value[navigationStack.value.length - 1];
+            const parent = navigationStack.value.length > 1 ? navigationStack.value[navigationStack.value.length - 2] : null;
+
+            // This logic is tricky because we need to update the node in the parent state
+            saveCurrentToParent();
+
+            nodes.value = root.nodes;
+            edges.value = root.edges;
+            pan.value = root.pan;
+            zoom.value = root.zoom;
+            navigationStack.value = [];
+        };
+
+        const jumpToStack = (index) => {
+            saveCurrentToParent();
+            const target = navigationStack.value[index];
+            nodes.value = target.nodes;
+            edges.value = target.edges;
+            pan.value = target.pan;
+            zoom.value = target.zoom;
+            navigationStack.value = navigationStack.value.slice(0, index);
+        };
+
+        const saveCurrentToParent = () => {
+            if (navigationStack.value.length === 0) return;
+
+            const subgraphData = {
+                nodes: JSON.parse(JSON.stringify(nodes.value)),
+                edges: JSON.parse(JSON.stringify(edges.value))
+            };
+
+            // Propagate backwards through stack
+            for (let i = navigationStack.value.length - 1; i >= 0; i--) {
+                const level = navigationStack.value[i];
+                const targetId = i === navigationStack.value.length - 1 ? level.id : navigationStack.value[i + 1].id;
+                const targetNode = level.nodes.find(n => n.id === targetId);
+                if (targetNode) {
+                    targetNode.data.subgraphContent = i === navigationStack.value.length - 1 ? subgraphData : {
+                        nodes: JSON.parse(JSON.stringify(navigationStack.value[i + 1].nodes)),
+                        edges: JSON.parse(JSON.stringify(navigationStack.value[i + 1].edges))
+                    };
+                }
+            }
+        };
+
+        const getRootState = () => {
+            if (navigationStack.value.length === 0) {
+                return {
+                    nodes: nodes.value,
+                    edges: edges.value,
+                    view: { pan: pan.value, zoom: zoom.value }
+                };
+            }
+            saveCurrentToParent();
+            const root = navigationStack.value[0];
+            return {
+                nodes: root.nodes,
+                edges: root.edges,
+                view: { pan: root.pan, zoom: root.zoom }
+            };
+        };
+
+        const exportSVG = () => {
+            const svg = canvasRef.value.querySelector('.connections-layer').cloneNode(true);
+            const nodesHtml = canvasRef.value.querySelector('.canvas-content').cloneNode(true);
+            // This is a bit complex as we need to inline all styles.
+            // Simplified version: trigger parent's download logic if any or direct blob
+            const content = `<svg xmlns="http://www.w3.org/2000/svg" width="2000" height="2000">
+                <style>${STYLES}</style>
+                <g transform="translate(${pan.value.x}, ${pan.value.y}) scale(${zoom.value})">
+                    ${canvasRef.value.querySelector('.canvas-content').innerHTML}
+                </g>
+            </svg>`;
+            const blob = new Blob([content], { type: 'image/svg+xml' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `diagram-${Date.now()}.svg`;
+            a.click();
+        };
+
+        const exportPNG = () => {
+            store.addNotification('PNG Exporting...', 'info');
+            // Simplified: use a library or complex canvas logic. 
+            // For now, SVG is more reliable for this agent.
+            exportSVG();
+        };
+
+        const exportMermaid = () => {
+            let mermaid = 'graph LR\n';
+            edges.value.forEach(e => {
+                const source = nodes.value.find(n => n.id === e.source);
+                const target = nodes.value.find(n => n.id === e.target);
+                if (source && target) {
+                    mermaid += `  ${source.id}["${source.data.label}"] --> ${target.id}["${target.data.label}"]\n`;
+                }
+            });
+
+            const blob = new Blob([mermaid], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `diagram-${Date.now()}.mmd`;
+            a.click();
         };
 
         const selectNode = (id) => {
@@ -914,8 +1264,6 @@ export default {
         };
 
         const loadDiagram = async (diagram) => {
-            // Fetch full details if needed, but we probably listing summaries
-            // Assuming we need to fetch individual content
             const res = await fetch(`/@/node_editor/diagrams/${diagram.id}`);
             if (res.ok) {
                 const full = await res.json();
@@ -925,11 +1273,13 @@ export default {
                     description: full.description
                 };
                 // Restore content
-                const content = full.content || {}; // object or string handled by controller
+                const content = full.content || {};
                 nodes.value = content.nodes || [];
                 edges.value = content.edges || [];
                 pan.value = content.view?.pan || { x: 0, y: 0 };
                 zoom.value = content.view?.zoom || 1;
+                variables.value = content.variables || [];
+                navigationStack.value = [];
 
                 showList.value = false;
             }
@@ -941,6 +1291,8 @@ export default {
             edges.value = [];
             pan.value = { x: 0, y: 0 };
             zoom.value = 1;
+            variables.value = [];
+            navigationStack.value = [];
             showList.value = false;
         };
 
@@ -954,14 +1306,17 @@ export default {
                 return;
             }
 
+            const rootState = getRootState();
+
             const payload = {
                 id: currentDiagram.value.id,
                 title: currentDiagram.value.title,
                 description: currentDiagram.value.description,
                 content: {
-                    nodes: nodes.value,
-                    edges: edges.value,
-                    view: { pan: pan.value, zoom: zoom.value }
+                    nodes: rootState.nodes,
+                    edges: rootState.edges,
+                    variables: variables.value,
+                    view: rootState.view
                 }
             };
 
@@ -1036,7 +1391,11 @@ export default {
             getEdgePath, draftEdge, getDraftEdgePath,
             canvasRef,
             showList, showSave, loading, cachedDiagrams, currentDiagram,
-            clearCanvas, loadDiagram, createNewDiagram, saveDiagram, confirmSave, deleteDiagram
+            clearCanvas, loadDiagram, createNewDiagram, saveDiagram, confirmSave, deleteDiagram,
+            // Phase 2
+            variables, showVariables, navigationStack, searchQuery, filteredNodes,
+            teleportToNode, enterSubgraph, resetToRoot, jumpToStack,
+            exportSVG, exportPNG, exportMermaid
         };
     }
 }

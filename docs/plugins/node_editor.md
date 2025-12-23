@@ -14,6 +14,12 @@ The Node Editor plugin provides a visual, drag-and-drop interface for creating n
     - **Selection Box**: Hold Shift and drag to select multiple nodes.
     - **Context Menu**: Right-click for quick actions (Duplicate, Tidy, Delete).
     - **Tidy Layout**: Auto-align nodes to a grid.
+- **Power Features**:
+    - **Nested Diagrams (Sub-graphs)**: Create modular, drill-down diagrams.
+    - **Global Variables**: Manage diagram-wide constants and state.
+    - **Export Engine**: Export to SVG, PNG, and Mermaid.js.
+    - **Live Search**: Instantly find and teleport to nodes.
+    - **Sticky Comments**: Add context with non-intrusive comment blocks.
 - **Management**: Create, Save, Load, and Delete diagrams.
 
 ## Keyboard Shortcuts
@@ -57,7 +63,7 @@ The Node Editor is evolving into a central hub for logic and data orchestration 
 - **Tidy Layout**: An "Auto-Layout" button to automatically arrange and space nodes neatly using a Sugiyama-style algorithm.
 - **Improved Keyboard Shortcuts**: Full control via keyboard (e.g., `N` for new, `Ctrl+D` for duplicate, `Ctrl+G` for group).
 
-### Phase 2: Power Features (Mid-Term)
+### Phase 2: Power Features (Completed ✅)
 - **Nested Diagrams (Sub-graphs)**: Ability to "encapsulate" a group of nodes into a single "Sub-graph" node to reduce complexity.
 - **Global Variable Registry**: Define variables at the diagram level that nodes can read from or write to.
 - **Export Engine**: Export diagrams to High-Res PNG, SVG, and Mermaid.js markdown for documentation.

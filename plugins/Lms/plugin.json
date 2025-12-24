@@ -1,0 +1,9 @@
+{
+    "name": "Lms",
+    "description": "Learning Management System for creating and selling courses.",
+    "version": "1.0.0",
+    "author": "Antigravity",
+    "website": "https://gaia-alpha.com",
+    "required_version": "0.0.1",
+    "dependencies": []
+}

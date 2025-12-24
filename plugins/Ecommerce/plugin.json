@@ -1,0 +1,9 @@
+{
+    "name": "Ecommerce",
+    "description": "Complete E-commerce solution for selling products and services.",
+    "version": "1.0.0",
+    "author": "Antigravity",
+    "website": "https://gaia-alpha.com",
+    "required_version": "0.0.1",
+    "dependencies": []
+}

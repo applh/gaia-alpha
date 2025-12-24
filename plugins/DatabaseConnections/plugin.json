@@ -2,6 +2,12 @@
     "name": "DatabaseConnections",
     "version": "1.0.0",
     "description": "Manage external database connections (MariaDB, PostgreSQL)",
+    "category": "Database",
+    "tags": [
+        "sql",
+        "connection",
+        "external"
+    ],
     "author": "Gaia Alpha",
     "type": "core",
     "menu": {

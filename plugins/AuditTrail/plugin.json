@@ -5,5 +5,11 @@
     "author": "Antigravity",
     "website": "https://gaia-alpha.com",
     "required_version": "0.0.1",
-    "dependencies": []
+    "dependencies": [],
+    "category": "System",
+    "tags": [
+        "security",
+        "logs",
+        "audit"
+    ]
 }

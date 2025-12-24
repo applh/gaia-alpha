@@ -2,6 +2,12 @@
     "name": "NodeEditor",
     "version": "1.0.0",
     "description": "A drag-and-drop node editor for creating diagrams",
+    "category": "Development",
+    "tags": [
+        "flow",
+        "visual",
+        "logic"
+    ],
     "author": "Gaia Alpha",
     "license": "MIT"
 }

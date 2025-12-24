@@ -1,6 +1,12 @@
 {
     "name": "Screen Recorder",
     "description": "Capture screen and camera with P-i-P effect directly from the browser.",
+    "category": "Utilities",
+    "tags": [
+        "recording",
+        "video",
+        "screen"
+    ],
     "version": "1.0.0",
     "author": "Antigravity",
     "icon": "video",

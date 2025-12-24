@@ -3,5 +3,11 @@
     "version": "1.0.0",
     "description": "Comprehensive API usage logging and stats dashboard.",
     "author": "Gaia Alpha",
+    "category": "Analytics",
+    "tags": [
+        "api",
+        "logs",
+        "requests"
+    ],
     "type": "plugin"
 }

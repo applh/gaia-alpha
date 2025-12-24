@@ -2,6 +2,12 @@
     "name": "DatabaseManager",
     "version": "1.0.0",
     "description": "Core Database Management Plugin",
+    "category": "Database",
+    "tags": [
+        "management",
+        "adminer",
+        "sql"
+    ],
     "author": "Gaia Alpha",
     "type": "core",
     "menu": {

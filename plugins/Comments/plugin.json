@@ -6,5 +6,10 @@
     "author": "Gaia Alpha",
     "requires": {
         "core": ">=1.0.0"
-    }
+    },
+    "category": "Content",
+    "tags": [
+        "discussion",
+        "reviews"
+    ]
 }

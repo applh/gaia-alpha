@@ -2,6 +2,12 @@
     "name": "GraphsManagement",
     "version": "1.0.0",
     "description": "Create and manage custom data visualizations and charts",
+    "category": "Data Visualization",
+    "tags": [
+        "charts",
+        "graphs",
+        "dashboard"
+    ],
     "author": "Gaia Alpha",
     "dependencies": {
         "js": {

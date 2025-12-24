@@ -2,6 +2,12 @@
     "name": "Console",
     "version": "1.0.0",
     "description": "System Console for executing commands.",
+    "category": "System",
+    "tags": [
+        "terminal",
+        "cli",
+        "debug"
+    ],
     "type": "core",
     "author": "Gaia Alpha",
     "menu": {

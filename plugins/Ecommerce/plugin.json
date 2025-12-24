@@ -9,5 +9,11 @@
         "php": {
             "stripe/stripe-php": "^10.0"
         }
-    }
+    },
+    "category": "Business",
+    "tags": [
+        "shop",
+        "sales",
+        "stripe"
+    ]
 }

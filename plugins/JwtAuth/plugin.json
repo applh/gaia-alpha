@@ -1,6 +1,12 @@
 {
     "name": "JwtAuth",
     "description": "JSON Web Token (JWT) management for authentication and stateless APIs.",
+    "category": "Security",
+    "tags": [
+        "auth",
+        "jwt",
+        "token"
+    ],
     "version": "1.0.0",
     "author": "Antigravity",
     "type": "core",

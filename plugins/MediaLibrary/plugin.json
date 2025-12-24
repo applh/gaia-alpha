@@ -2,6 +2,13 @@
     "name": "MediaLibrary",
     "version": "1.0.0",
     "description": "Digital Asset Management (DAM) plugin for organizing and tagging media files",
+    "category": "Content",
+    "tags": [
+        "images",
+        "video",
+        "assets",
+        "dam"
+    ],
     "author": "Gaia Alpha",
     "requires": {
         "gaia-alpha": ">=1.0.0"

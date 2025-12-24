@@ -2,6 +2,12 @@
     "name": "Form Builder",
     "version": "2.0.0",
     "description": "Advanced Form Builder with Quiz, Poll, and Reporting capabilities.",
+    "category": "Content",
+    "tags": [
+        "forms",
+        "quiz",
+        "poll"
+    ],
     "author": "Gaia Alpha",
     "require": [],
     "menu": {

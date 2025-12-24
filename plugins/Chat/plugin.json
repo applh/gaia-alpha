@@ -4,6 +4,11 @@
     "description": "System Chat for internal messaging.",
     "type": "standard",
     "author": "Gaia Alpha",
+    "category": "Communication",
+    "tags": [
+        "messaging",
+        "real-time"
+    ],
     "menu": {
         "items": [
             {

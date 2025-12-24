@@ -2,6 +2,12 @@
     "name": "Todo",
     "version": "1.0.0",
     "description": "A simple task management plugin with color coding, lists, and calendar views.",
+    "category": "Productivity",
+    "tags": [
+        "tasks",
+        "list",
+        "pm"
+    ],
     "author": "Gaia Alpha",
     "type": "standard",
     "license": "MIT",

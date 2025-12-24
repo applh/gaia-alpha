@@ -1,6 +1,12 @@
 {
     "name": "MultiSite",
     "description": "Multi-Site Management Core Plugin",
+    "category": "System",
+    "tags": [
+        "network",
+        "sites",
+        "multi-tenant"
+    ],
     "version": "1.0.0",
     "type": "core",
     "enabled": true,

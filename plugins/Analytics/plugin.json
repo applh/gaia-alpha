@@ -2,5 +2,11 @@
     "name": "Analytics",
     "description": "Complete analytics features to follow page visits.",
     "version": "1.0.0",
-    "author": "Antigravity"
+    "author": "Antigravity",
+    "category": "Analytics",
+    "tags": [
+        "visits",
+        "stats",
+        "tracking"
+    ]
 }

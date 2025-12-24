@@ -2,6 +2,12 @@
     "name": "ComponentBuilder",
     "description": "Admin Component Builder Core Plugin",
     "version": "1.0.0",
+    "category": "Development",
+    "tags": [
+        "ui",
+        "components",
+        "vue"
+    ],
     "type": "core",
     "enabled": true,
     "menu": {

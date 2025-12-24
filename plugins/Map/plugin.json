@@ -2,6 +2,12 @@
     "name": "Map Manager",
     "version": "1.0.0",
     "description": "Manage map markers and locations.",
+    "category": "Content",
+    "tags": [
+        "maps",
+        "location",
+        "geo"
+    ],
     "type": "core",
     "routes": {
         "api": [

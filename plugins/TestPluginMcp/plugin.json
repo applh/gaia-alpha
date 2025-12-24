@@ -2,5 +2,10 @@
     "name": "TestPluginMcp",
     "version": "1.0.0",
     "description": "Installed via MCP",
+    "category": "Development",
+    "tags": [
+        "test",
+        "mcp"
+    ],
     "type": "user"
 }

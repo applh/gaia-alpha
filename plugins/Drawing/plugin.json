@@ -3,5 +3,11 @@
     "version": "1.0.0",
     "description": "A versatile drawing plugin with 3 usage levels and background image support",
     "author": "Gaia Alpha",
-    "license": "MIT"
+    "license": "MIT",
+    "category": "Creative",
+    "tags": [
+        "art",
+        "canvas",
+        "drawing"
+    ]
 }

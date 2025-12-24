@@ -3,5 +3,11 @@
     "version": "1.0.0",
     "description": "Connect and publish to X, LinkedIn, YouTube, and TikTok",
     "author": "Gaia Alpha",
-    "type": "feature"
+    "type": "feature",
+    "category": "Social",
+    "tags": [
+        "media",
+        "share",
+        "integration"
+    ]
 }

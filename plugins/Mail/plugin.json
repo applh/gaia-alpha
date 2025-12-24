@@ -1,6 +1,12 @@
 {
     "name": "Mail",
     "description": "Core Mail Management System with Fake/Real drivers",
+    "category": "Communication",
+    "tags": [
+        "email",
+        "smtp",
+        "inbox"
+    ],
     "version": "1.1.0",
     "type": "core",
     "author": "Gaia Alpha",

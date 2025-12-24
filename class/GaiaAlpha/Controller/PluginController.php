@@ -43,13 +43,17 @@ class PluginController extends BaseController
                         if (File::exists($configFile)) {
                             $config = json_decode(File::read($configFile), true);
                             $requires = $config['requires'] ?? [];
+                            $category = $config['category'] ?? 'Uncategorized';
+                            $tags = $config['tags'] ?? [];
                         }
 
                         $plugins[] = [
                             'name' => $name,
                             'active' => isset($allActive) ? true : in_array($name, $activePlugins),
                             'is_core' => strpos($dir, $rootDir . '/plugins') === 0,
-                            'requires' => $requires
+                            'requires' => $requires,
+                            'category' => $category,
+                            'tags' => $tags
                         ];
                     }
                 }

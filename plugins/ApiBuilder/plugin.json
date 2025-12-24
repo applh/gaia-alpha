@@ -2,6 +2,12 @@
     "name": "ApiBuilder",
     "version": "1.0.0",
     "type": "core",
+    "category": "Development",
+    "tags": [
+        "api",
+        "rest",
+        "builder"
+    ],
     "description": "Dynamic API Builder for database tables",
     "menu": {
         "items": [

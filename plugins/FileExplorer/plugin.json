@@ -3,6 +3,12 @@
     "name": "File Explorer",
     "version": "1.0.0",
     "description": "Browse and manage real and virtual file systems.",
+    "category": "Utilities",
+    "tags": [
+        "files",
+        "manager",
+        "upload"
+    ],
     "author": "Antigravity",
     "adminOnly": true
 }

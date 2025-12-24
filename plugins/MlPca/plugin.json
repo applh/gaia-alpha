@@ -2,6 +2,12 @@
     "name": "MlPca",
     "version": "1.0.0",
     "description": "Principal Component Analysis (PCA) tool for dimensionality reduction and data visualization.",
+    "category": "Analytics",
+    "tags": [
+        "machine-learning",
+        "data",
+        "pca"
+    ],
     "author": "Gaia Alpha",
     "is_core": false
 }

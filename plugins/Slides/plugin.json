@@ -2,6 +2,11 @@
     "name": "Slides",
     "version": "1.0.0",
     "description": "Create and play interactive slide decks with multiple pages.",
+    "category": "Content",
+    "tags": [
+        "presentation",
+        "slider"
+    ],
     "author": "Gaia Alpha",
     "license": "MIT"
 }

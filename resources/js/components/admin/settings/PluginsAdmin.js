@@ -1,4 +1,4 @@
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import Icon from 'ui/Icon.js';
 import { store } from 'store';
 
@@ -22,26 +22,49 @@ export default {
                 </div>
             </div>
 
+            <div class="admin-card" style="margin-bottom: 20px; padding: 15px;">
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <div style="flex: 1; position: relative;">
+                        <LucideIcon name="search" size="16" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: #666;"></LucideIcon>
+                        <input 
+                            type="text" 
+                            v-model="searchQuery" 
+                            placeholder="Search plugins..." 
+                            class="form-control" 
+                            style="padding-left: 32px;"
+                        >
+                    </div>
+                    <div style="width: 200px;">
+                        <select v-model="selectedCategory" class="form-control">
+                            <option value="">All Categories</option>
+                            <option v-for="cat in categories" :key="cat" :value="cat">{{ cat }}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
             <div v-if="loading" class="admin-card">Loading plugins...</div>
             <div v-else-if="error" class="admin-card error">{{ error }}</div>
             
             <div v-else class="admin-card">
-                <div v-if="plugins.length === 0" class="empty-state">
+                <div v-if="filteredPlugins.length === 0" class="empty-state">
                     No plugins found.
                 </div>
                 <table v-else class="data-table">
                     <thead>
                         <tr>
                             <th>Plugin Name</th>
+                            <th>Category</th>
                             <th style="width: 150px; text-align: right;">Status</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="plugin in plugins" :key="plugin.name">
+                        <tr v-for="plugin in filteredPlugins" :key="plugin.name">
                             <td>
                                 <div class="plugin-name">
                                     {{ plugin.name }}
                                     <span v-if="plugin.is_core" class="badge badge-info">Core</span>
+                                    <span v-for="tag in plugin.tags" :key="tag" class="badge badge-tag">{{ tag }}</span>
                                 </div>
                                 <div v-if="plugin.requires && Object.keys(plugin.requires).length > 0" class="plugin-deps">
                                     <span class="deps-label">Requires:</span>
@@ -49,6 +72,9 @@ export default {
                                         {{ dep }} <span class="dep-ver">{{ ver }}</span>
                                     </span>
                                 </div>
+                            </td>
+                            <td>
+                                <span class="category-label">{{ plugin.category || 'Uncategorized' }}</span>
                             </td>
                             <td style="text-align: right;">
                                 <label class="switch">
@@ -107,6 +133,25 @@ export default {
         const plugins = ref([]);
         const loading = ref(true);
         const error = ref(null);
+        const searchQuery = ref('');
+        const selectedCategory = ref('');
+
+        const categories = computed(() => {
+            const cats = new Set();
+            plugins.value.forEach(p => {
+                if (p.category) cats.add(p.category);
+            });
+            return Array.from(cats).sort();
+        });
+
+        const filteredPlugins = computed(() => {
+            return plugins.value.filter(p => {
+                const matchesSearch = p.name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+                    (p.tags && p.tags.some(t => t.toLowerCase().includes(searchQuery.value.toLowerCase())));
+                const matchesCategory = !selectedCategory.value || p.category === selectedCategory.value;
+                return matchesSearch && matchesCategory;
+            });
+        });
 
         // Install State
         const showInstallModal = ref(false);
@@ -217,6 +262,7 @@ export default {
                         display: flex;
                         align-items: center;
                         gap: 8px;
+                        flex-wrap: wrap;
                     }
                     .badge {
                         font-size: 0.7em;
@@ -229,6 +275,23 @@ export default {
                         background: rgba(99, 102, 241, 0.1);
                         color: #6366f1;
                         border: 1px solid rgba(99, 102, 241, 0.2);
+                    }
+                    .badge-tag {
+                        background: #f1f5f9;
+                        border: 1px solid #e2e8f0;
+                        color: #64748b;
+                        font-size: 0.65em;
+                        font-weight: normal;
+                        text-transform: none;
+                    }
+                    .category-label {
+                        display: inline-block;
+                        padding: 2px 8px;
+                        border-radius: 12px;
+                        background: #eef2f6;
+                        color: #4b5563;
+                        font-size: 0.8em;
+                        font-weight: 500;
                     }
                     .plugin-deps {
                         font-size: 0.85em;
@@ -268,7 +331,8 @@ export default {
         return {
             plugins, loading, error, togglePlugin,
             showInstallModal, installUrl, isRawUrl, installing, installError, installPlugin,
-            isDirty, saving, saveChanges
+            isDirty, saving, saveChanges,
+            searchQuery, selectedCategory, categories, filteredPlugins
         };
     }
 };

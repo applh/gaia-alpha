@@ -1,4 +1,4 @@
-# Gaia Alpha Roadmap v2.0
+# Gaia Alpha Roadmap v2.1
 
 This document outlines the future plans and upcoming features for the Gaia Alpha framework. Our goal is to maintain simplicity while providing powerful tools for modern web development.
 
@@ -22,7 +22,7 @@ This document outlines the future plans and upcoming features for the Gaia Alpha
 - [ ] **Two-Factor Authentication (2FA)**: Native support for TOTP (Google Authenticator, Authy).
 - [ ] **Rate Limiting**: Built-in middleware to prevent brute-force attacks on API and Login endpoints.
 - [ ] **Content Security Policy (CSP)**: Rigorous default headers to prevent XSS.
-- [ ] **Audit Trail**: Immutable logging of all administrative and API actions.
+- [x] **Audit Trail**: Immutable logging of all administrative and API actions. (Implemented via [AuditTrail Plugin](../../plugins/AuditTrail/docs/index.md))
 
 ## 🧩 Admin Builder (Low-Code)
 - [x] **Async Component System**: Architecture for loading Vue components from the database.
@@ -63,3 +63,31 @@ This document outlines the future plans and upcoming features for the Gaia Alpha
 - [ ] **[Cybersecurity Integration](../plugins/cybersecurity.md)**: Advanced threat monitoring and vulnerability scanning.
 - [ ] **Apache Spark Integration**: High-performance data analysis for large-scale CMS data.
 - [ ] **Social Sync**: Automated cross-platform content distribution via MCP.
+
+## 🔄 WordPress Comparative Matrix (Top 100 Plugins)
+
+Gaia Alpha is designed to provide "out-of-the-box" high-performance equivalents to the most common WordPress plugin categories, reducing maintenance overhead and technical debt.
+
+| WordPress Category | Top 100 WP Plugins | Gaia Alpha Equivalent | Status |
+| :----------------- | :----------------- | :-------------------- | :----- |
+| **SEO** | Yoast, Rank Math, AIOSEO | `Analytics`, `SEO Tools` | ✅ Core/Active |
+| **Page Building** | Elementor, Divi, Beaver Builder | `ComponentBuilder`, `NodeEditor` | ✅ Active |
+| **E-commerce** | WooCommerce, EDD | `Ecommerce` Plugin | ✅ Active |
+| **LMS** | LearnDash, LifterLMS | `Lms` Plugin | ✅ Active |
+| **Security/Audit** | Wordfence, Sucuri, Audit Log | `AuditTrail`, `JwtAuth` | ✅ Active |
+| **Forms** | WPForms, Gravity Forms, CF7 | `FormBuilder` Plugin | ✅ Active |
+| **Performance** | WP Rocket, LiteSpeed Cache | Minification, Asset Pipeline | ✅ Active |
+| **Media Library** | HappyFiles, FileBird | `MediaLibrary`, `FileExplorer` | ✅ Active |
+| **Database/Fields** | ACF, Meta Box | Managed Schemas, Low-code Props | ✅ Active |
+| **Communication** | WP Mail SMTP, Mailchimp | `Mail` Plugin | ✅ Active |
+| **Analytics** | MonsterInsights, Site Kit | `Analytics`, `ApiAnalytics` | ✅ Active |
+| **Member/Social** | BuddyPress, MemberPress | `SocialNetworks`, `Comments` | ✅ Active |
+| **Backup/Remote** | UpdraftPlus, MainWP | `RemoteInstalls` (Experimental) | 🚧 Planned |
+| **Performance/Caching** | Redis Object Cache | Caching Drivers (Redis/Memcached) | 🚧 Planned |
+
+## 🎯 Strategic Advantage over WordPress
+- **Lower Boilerplate**: No need to install 30+ plugins to get a functional site.
+- **AI-Native**: Deep integration with MCP for autonomous content and code management.
+- **Developer First**: Clean PHP/Vue architecture without the legacy "hooks soup".
+- **Performance**: Sub-100ms response times by avoiding heavy plugin overhead.
+

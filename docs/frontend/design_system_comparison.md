@@ -4,6 +4,9 @@ This document compares the current implementation of UI components in `gaia-alph
 
 ## Component Matrix
 
+> [!TIP]
+> **New!** Check out the [Component Usage Guide](file:///Users/lh/Downloads/antig/gaia-alpha/docs/frontend/component_guide.md) for detailed code examples and API details.
+
 **Legend:**
 - ✅ : Present
 - ❌ : Missing
@@ -14,8 +17,8 @@ This document compares the current implementation of UI components in `gaia-alph
 | :--- | :--- | :---: | :---: | :---: | :--- |
 | **Basic** | Button | ✅ | ✅ | ✅ | `Button.js` |
 | | Icon | ✅ | ✅ | ✅ | `Icon.js` |
-| | Link | ✅ | ✅ | ❌ | |
-| | Text / Typography | ✅ | ✅ | ❌ | |
+| | Link | ✅ | ✅ | ✅ | `Link.js` |
+| | Text / Typography | ✅ | ✅ | ✅ | `Typography.js` |
 | | Layout / Container | ✅ | ✅ | ✅ | `Container.js`, `Row.js`, `Col.js` |
 | | Badge | ✅ | ✅ | ✅ | `Badge.js` |
 | **Form** | Input | ✅ | ✅ | ✅ | `Input.js`, `PasswordInput.js` |
@@ -30,7 +33,7 @@ This document compares the current implementation of UI components in `gaia-alph
 | | Upload / File Input | ✅ | ✅ | ✅ | `ImageSelector.js` (Specialized) |
 | | Code Editor | ❌ | ❌ | ✅ | `CodeEditor.js` 🛠️ |
 | **Data Display** | Card | ✅ | ✅ | ✅ | `Card.js` |
-| | Table | ✅ | ✅ | ⚠️ | `SortTh.js` (Partial) |
+| | Table | ✅ | ✅ | ✅ | `DataTable.js` (Full) |
 | | Tag | ✅ | ✅ | ✅ | `Tag.js` |
 | | Tree | ✅ | ❌ | ✅ | `TreeView.js` |
 | | Pagination | ✅ | ✅ | ✅ | `Pagination.js` |
@@ -57,9 +60,8 @@ This document compares the current implementation of UI components in `gaia-alph
 After five phases of implementation, the core gaps in the design system have been significantly reduced. The remaining foundational elements missing compared to Element+ or UIkit are minimal.
 
 **Remaining Gaps:**
-- **Navigation:** Dropdown (improved nesting), Complex Navigation Menus.
+- **Navigation:** Complex Navigation Menus.
 - **Data Display:** Specialized charts/visualizations.
-- **Basic:** Formally styled `Link`, more granular `Typography` components.
 - **Forms:** Date/Time Picker (high complexity), Virtualized Selects for large data sets.
 
 ### Strengths
@@ -125,6 +127,14 @@ Further enhancements for navigation and data handling.
 - [x] **Pagination**: Navigation for large data sets.
 - [x] **Avatar**: User profile representation.
 - [x] **Textarea**: Component wrapper for multi-line input.
+
+### Phase 6: Basic & Data Refinement - COMPLETE ✅
+Further enhancements for basic elements and data display.
+
+- [x] **Link**: Stylized link component.
+- [x] **Typography**: UITitle, UIText, UIParagraph.
+- [x] **DataTable**: Robust table with pagination integration.
+- [x] **Dropdown Item Refinement**: Improved structure and nesting.
 
 
 

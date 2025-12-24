@@ -1,4 +1,23 @@
+export const DropdownItem = {
+    props: {
+        command: [String, Number, Object],
+        disabled: Boolean,
+        divided: Boolean
+    },
+    inject: ['handleItemClick'],
+    template: `
+        <div 
+            class="dropdown-item" 
+            :class="{ 'is-disabled': disabled, 'is-divided': divided }"
+            @click="handleItemClick(this)"
+        >
+            <slot></slot>
+        </div>
+    `
+};
+
 export default {
+    components: { DropdownItem },
     props: {
         trigger: {
             type: String,
@@ -10,9 +29,15 @@ export default {
         },
         disabled: Boolean
     },
+    emits: ['command'],
     data() {
         return {
             visible: false
+        };
+    },
+    provide() {
+        return {
+            handleItemClick: this.handleItemClick
         };
     },
     methods: {
@@ -32,6 +57,11 @@ export default {
             if (this.trigger === 'click') {
                 this.toggle();
             }
+        },
+        handleItemClick(item) {
+            if (item.disabled) return;
+            this.$emit('command', item.command);
+            this.visible = false;
         }
     },
     template: `
@@ -47,3 +77,4 @@ export default {
         </div>
     `
 };
+

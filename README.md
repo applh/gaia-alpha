@@ -7,6 +7,8 @@
 ![Vue Version](https://img.shields.io/badge/vue-3.x-4FC08D.svg?logo=vue.js)
 ![Status](https://img.shields.io/badge/status-active-success.svg)
 
+## Gaia Alpha Centauri
+
 > **Gaia Alpha Centauri** is an advanced, AI-native web application framework designed from the ground up for the era of autonomous development. It serves as a unified ecosystem that bridges the gap between rapid prototyping and enterprise-grade scalability through its four core pillars:
 > 
 > 1.  **🤖 AI-Native Core**: Deeply integrated with the Model Context Protocol (MCP), Gaia Alpha provides a standardized interface for LLMs to understand, manipulate, and generate code, content, and UIs autonomously.

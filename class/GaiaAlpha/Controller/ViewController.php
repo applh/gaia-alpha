@@ -58,6 +58,11 @@ class ViewController extends BaseController
         // Fetch Global Settings
         $globalSettings = \GaiaAlpha\Model\DataStore::getAll(0, 'global_config');
 
+        // Allow plugins to inject custom Dashboard Widgets
+        // Usage: Hook::add('dashboard_widgets', function($widgets) { $widgets[] = ['name' => '...', 'path' => '...']; return $widgets; });
+        $dashboardWidgets = \GaiaAlpha\Hook::filter('dashboard_widgets', []);
+        $globalSettings['dashboard_widgets'] = $dashboardWidgets;
+
         // Inject Dynamic UI Components
         $globalSettings['ui_components'] = \GaiaAlpha\UiManager::getComponents();
         $globalSettings['ui_styles'] = \GaiaAlpha\UiManager::getStyles();

@@ -14,3 +14,14 @@ UiManager::registerComponent('forms', 'plugins/FormBuilder/resources/js/FormsAdm
 
 // Add Menu Item
 // Menu Item is now registered via plugin.json
+
+// Register Dashboard Widget
+Hook::add('dashboard_widgets', function ($widgets) {
+    // Check if user has permission if needed (usually handled by dashboard rendering, but good practice)
+    $widgets[] = [
+        'name' => 'FormWidget',
+        'path' => 'plugins/FormBuilder/resources/js/FormWidget.js',
+        'width' => 'full' // or 'half', 'third'
+    ];
+    return $widgets;
+});

@@ -1,5 +1,5 @@
 
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, defineAsyncComponent } from 'vue';
 import Icon from 'ui/Icon.js';
 
 
@@ -22,10 +22,33 @@ export default {
                 </div>
             </div>
             <div v-else class="admin-card">Loading stats...</div>
+
+            <!-- Custom Plugin Widgets -->
+            <div v-if="widgetComponents.length > 0" class="dashboard-widgets" style="margin-top: 2rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem;">
+                <component 
+                    v-for="widget in widgetComponents" 
+                    :key="widget.name" 
+                    :is="widget.component"
+                    class="dashboard-widget"
+                    :style="widget.width === 'full' ? 'grid-column: 1 / -1' : ''"
+                />
+            </div>
         </div>
     `,
     setup() {
         const cards = ref(null);
+        const widgetComponents = [];
+
+        // Load custom widgets from siteConfig
+        if (window.siteConfig && window.siteConfig.dashboard_widgets) {
+            window.siteConfig.dashboard_widgets.forEach(widget => {
+                widgetComponents.push({
+                    name: widget.name,
+                    component: defineAsyncComponent(() => import(widget.path)),
+                    width: widget.width || 'full'
+                });
+            });
+        }
 
         const fetchStats = async () => {
             const res = await fetch('/@/admin/stats');
@@ -37,6 +60,6 @@ export default {
 
         onMounted(fetchStats);
 
-        return { cards };
+        return { cards, widgetComponents };
     }
 };

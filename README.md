@@ -18,41 +18,6 @@
 
 ---
 
-## ✨ The Gaia Alpha Design System
-
-Gaia Alpha now features a comprehensive, state-of-the-art **UI Design System** inspired by glassmorphism and modern design trends. It is built to be "Agent-Friendly," allowing AI to construct complex UIs with standardized primitives.
-
-- **25+ Reusable Components**: Standardized controls for everything from Core Forms to Advanced Data Tables.
-- **Pure Vue 3 (ESM)**: Reactive components that work directly in the browser with **zero build steps**.
-- **Unified Aesthetics**: A cohesive glassmorphism theme applied across all core views and plugins.
-- **[Component Usage Guide](docs/frontend/component_guide.md)**: Detailed API and examples for developers.
-- **[Design System Comparison](docs/frontend/design_system_comparison.md)**: Benchmarking against Element+ and UIkit.
-
----
-
-## 🚀 Quick Start
-
-1. **Clone & Enter**
-   ```bash
-   git clone https://github.com/applh/gaia-alpha.git
-   cd gaia-alpha
-   ```
-
-2. **Run Server** (No build required!)
-   ```bash
-   php -S localhost:8000 -t www
-   ```
-
-   *To increase upload size limit (e.g. 500MB):*
-   ```bash
-   php -d upload_max_filesize=500M -d post_max_size=500M -S localhost:8000 -t www
-   ```
-
-3. **Installation**
-   Open [http://localhost:8000](http://localhost:8000). You will be automatically redirected to the **Installation Screen**. 
-
----
-
 ## 🤖 The AI-Native Advantage
 
 Gaia Alpha is engineered from the ground up to be **AI-Native**. It doesn't just "support" AI; it provides a structured interface for autonomous agents to understand, interact with, and build upon the codebase.
@@ -72,6 +37,7 @@ Our comprehensive **UI Design System** is built to be "Agent-Friendly," allowing
 - **Pure Vue 3 (ESM)**: Reactive components that work directly in the browser with **zero build steps**.
 - **Unified Aesthetics**: A cohesive glassmorphism theme applied across all core views and plugins.
 - **[Component Usage Guide](docs/frontend/component_guide.md)**: Detailed API and examples for developers.
+- **[Design System Comparison](docs/frontend/design_system_comparison.md)**: Benchmarking against Element+ and UIkit.
 
 ---
 

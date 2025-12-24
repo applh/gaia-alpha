@@ -136,7 +136,11 @@ class DB
 
         $sql = "INSERT INTO $table (" . implode(', ', $fields) . ") VALUES (" . implode(', ', $placeholders) . ")";
         self::query($sql, $values);
-        return self::lastInsertId();
+        $id = self::lastInsertId();
+
+        Hook::run('db_create_after', $table, $id, $data);
+
+        return $id;
     }
 
     public static function update($id, $data)
@@ -163,15 +167,27 @@ class DB
 
         $values[] = $id; // For WHERE clause
 
+        // Hook: Update Before (to capture old value if needed)
+        Hook::run('db_update_before', $table, $id, $data);
+
         $sql = "UPDATE $table SET " . implode(', ', $sets) . " WHERE id = ?";
         $stmt = self::query($sql, $values);
-        return $stmt->rowCount() > 0;
+        $success = $stmt->rowCount() > 0;
+
+        if ($success) {
+            Hook::run('db_update_after', $table, $id, $data);
+        }
+
+        return $success;
     }
 
     public static function delete($id)
     {
         $db = self::getPdo();
         $table = static::$table;
+
+        Hook::run('db_delete_before', $table, $id);
+
         $stmt = self::query("DELETE FROM $table WHERE id = ?", [$id]);
         return true;
     }

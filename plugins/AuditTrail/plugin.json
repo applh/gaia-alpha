@@ -1,0 +1,9 @@
+{
+    "name": "AuditTrail",
+    "description": "Immutable logging of system actions and API requests.",
+    "version": "1.0.0",
+    "author": "Antigravity",
+    "website": "https://gaia-alpha.com",
+    "required_version": "0.0.1",
+    "dependencies": []
+}

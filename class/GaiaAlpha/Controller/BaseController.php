@@ -45,4 +45,18 @@ abstract class BaseController
     {
         return 10;
     }
+
+    /**
+     * Helper to set Audit Logging Context
+     */
+    protected function setAuditContext(string $resourceType, $resourceId, ?array $oldValue = null)
+    {
+        if (class_exists('AuditTrail\\AuditService')) {
+            \AuditTrail\AuditService::setContext('resource_type', $resourceType);
+            \AuditTrail\AuditService::setContext('resource_id', $resourceId);
+            if ($oldValue) {
+                \AuditTrail\AuditService::setContext('old_value', $oldValue);
+            }
+        }
+    }
 }

@@ -1,0 +1,10 @@
+{
+    "name": "Comments",
+    "slug": "comments",
+    "version": "1.0.0",
+    "description": "A polymorphic comments and reviews system for any content type.",
+    "author": "Gaia Alpha",
+    "requires": {
+        "core": ">=1.0.0"
+    }
+}

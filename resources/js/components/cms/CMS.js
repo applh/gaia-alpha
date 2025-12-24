@@ -7,11 +7,12 @@ import MenuBuilder from 'builders/MenuBuilder.js';
 import Icon from 'ui/Icon.js';
 import ImageSelector from 'ui/ImageSelector.js';
 import CodeEditor from 'ui/CodeEditor.js';
+import AsyncForm from 'ui/AsyncForm.js';
 import { useSorting } from 'composables/useSorting.js';
 import { store } from 'store';
 
 export default {
-    components: { SortTh, TemplateBuilder, ComponentBuilder, MenuBuilder, LucideIcon: Icon, SlotEditor, ImageSelector, CodeEditor },
+    components: { SortTh, TemplateBuilder, ComponentBuilder, MenuBuilder, LucideIcon: Icon, SlotEditor, ImageSelector, CodeEditor, AsyncForm },
     template: `
         <div class="admin-page">
             <div class="admin-header">
@@ -110,7 +111,10 @@ export default {
             <!-- Form View -->
             <div v-if="showForm" class="cms-form">
                 <h3>{{ form.id ? 'Edit ' + (filterCat === 'template' ? 'Template' : 'Page') : 'New ' + (filterCat === 'template' ? 'Template' : 'Page') }}</h3>
-                <form @submit.prevent="savePage">
+                <AsyncForm 
+                    :action="savePage"
+                    :submitLabel="form.id ? 'Update' : 'Create'"
+                >
                     <div class="form-group">
                         <label>Title</label>
                         <input v-model="form.title" required placeholder="Page Title" @input="generateSlug">
@@ -272,11 +276,11 @@ export default {
                             <textarea v-model="form.schema_data" rows="4" placeholder='Custom JSON-LD properties (e.g. {"price": "99.99"})'></textarea>
                         </div>
                     </template>
-                    <div class="form-actions">
-                        <button type="submit">{{ form.id ? 'Update' : 'Create' }}</button>
+                    
+                    <template #extra-buttons>
                         <button type="button" @click="cancelForm" class="btn-secondary">Cancel</button>
-                    </div>
-                </form>
+                    </template>
+                </AsyncForm>
             </div>
         </div>
 
@@ -546,7 +550,7 @@ export default {
                 fetchPages();
             } else {
                 const err = await res.json();
-                console.error(err.error || 'Failed to save page');
+                throw new Error(err.error || 'Failed to save page');
             }
         };
 
@@ -577,11 +581,13 @@ export default {
         };
 
         const deletePartial = async (id) => {
-            // if (!confirm('Delete this partial?')) return;
-            await fetch(`/@/cms/partials/${id}`, { method: 'DELETE' });
-            await fetchPartials();
-            if (currentFile.value === 'partial' && currentPartial.value?.id === id) {
-                switchFile('main');
+            if (await store.showConfirm('Delete Partial', 'Are you sure you want to delete this partial?')) {
+                await fetch(`/@/cms/partials/${id}`, { method: 'DELETE' });
+                await fetchPartials();
+                if (currentFile.value === 'partial' && currentPartial.value?.id === id) {
+                    switchFile('main');
+                }
+                store.addNotification('Partial deleted', 'success');
             }
         };
 
@@ -599,12 +605,13 @@ export default {
         };
 
         const deleteComponent = async (id) => {
-            if (!confirm('Are you sure you want to delete this component?')) return;
+            if (!(await store.showConfirm('Delete Component', 'Are you sure you want to delete this component?'))) return;
             const res = await fetch(`/@/admin/component-builder/${id}`, { method: 'DELETE' });
             if (res.ok) {
                 fetchPages();
+                store.addNotification('Component deleted', 'success');
             } else {
-                alert('Failed to delete component');
+                store.addNotification('Failed to delete component', 'error');
             }
         };
 

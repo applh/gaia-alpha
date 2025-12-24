@@ -2,176 +2,11 @@ import { ref, onMounted, onActivated, computed, provide, inject } from 'vue';
 import CalendarView from '/min/js/plugins/Todo/CalendarView.js';
 import GanttView from '/min/js/plugins/Todo/GanttView.js';
 import ColorPicker from 'ui/ColorPicker.js';
-
+import TreeView from 'ui/TreeView.js';
 import Icon from 'ui/Icon.js';
 
-// Recursive Todo Item Component
-const TodoItem = {
-    name: 'TodoItem',
-    components: { LucideIcon: Icon },
-    props: {
-        todo: Object,
-        allTodos: Array,
-        level: { type: Number, default: 0 }
-    },
-    setup(props) {
-        const toggleTodo = inject('toggleTodo');
-        const deleteTodo = inject('deleteTodo');
-        const showEditForm = inject('showEditForm');
-        const parseLabels = inject('parseLabels');
-        const onDrop = inject('onDrop');
-
-        const isDragOver = ref(false);
-        const dragPlacement = ref(null); // 'before', 'after', 'inside'
-
-        const children = computed(() => {
-            // Sort by position ASC, then ID ASC
-            return props.allTodos
-                .filter(t => t.parent_id == props.todo.id)
-                .sort((a, b) => (a.position - b.position) || (a.id - b.id));
-        });
-
-        const onDragStart = (e) => {
-            e.dataTransfer.effectAllowed = 'move';
-            e.dataTransfer.setData('text/plain', props.todo.id);
-            e.target.classList.add('dragging');
-        };
-
-        const onDragEnd = (e) => {
-            e.target.classList.remove('dragging');
-            isDragOver.value = false;
-            dragPlacement.value = null;
-        };
-
-        const onDragOver = (e) => {
-            e.preventDefault(); // allow drop
-            e.stopPropagation();
-
-            const rect = e.currentTarget.getBoundingClientRect();
-            const y = e.clientY - rect.top;
-            const h = rect.height;
-
-            // Logic: Top 25% = before, Bottom 25% = after, Middle 50% = inside (if allowed)
-            // Or simpler: Top 50% = before, Bottom 50% = after?
-            // "Inside" is useful for Reparenting. Let's do:
-            // Top 1/3: Before
-            // Bottom 1/3: After
-            // Middle 1/3: Inside
-
-            if (y < h / 3) {
-                dragPlacement.value = 'before';
-            } else if (y > (h * 2) / 3) {
-                dragPlacement.value = 'after';
-            } else {
-                dragPlacement.value = 'inside';
-            }
-            isDragOver.value = true;
-        };
-
-        const onDragLeave = (e) => {
-            // Only clear if leaving the element itself, not entering children
-            // Simple check: clear styling
-            isDragOver.value = false;
-            dragPlacement.value = null;
-        };
-
-        const onDropHandler = (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            isDragOver.value = false;
-            const srcId = parseInt(e.dataTransfer.getData('text/plain'));
-            if (srcId && onDrop) {
-                onDrop(srcId, props.todo.id, dragPlacement.value);
-            }
-            dragPlacement.value = null;
-        };
-
-        return {
-            children,
-            toggleTodo,
-            deleteTodo,
-            showEditForm,
-            parseLabels,
-            onDragStart,
-            onDragEnd,
-            onDragOver,
-            onDragLeave,
-            onDropHandler,
-            isDragOver,
-            dragPlacement
-        };
-    },
-    template: `
-        <li 
-            class="todo-item-wrapper"
-            draggable="true"
-            @dragstart="onDragStart"
-            @dragend="onDragEnd"
-            @dragover="onDragOver"
-            @dragleave="onDragLeave"
-            @drop="onDropHandler"
-        >
-            <div 
-                class="todo-item-card" 
-                :class="{ 
-                    completed: todo.completed,
-                    'drag-over-top': isDragOver && dragPlacement === 'before',
-                    'drag-over-bottom': isDragOver && dragPlacement === 'after',
-                    'drag-over-inside': isDragOver && dragPlacement === 'inside'
-                }"
-                :style="{ borderLeft: todo.color ? '4px solid ' + todo.color : '' }"
-            >
-                <!-- Zone 1: Main Content -->
-                <div class="todo-main" :style="{ paddingLeft: (level * 24) + 'px' }">
-                     <span v-if="level > 0" class="child-indicator">
-                        <LucideIcon name="corner-down-right" size="14" />
-                     </span>
-                     
-                     <div @click.stop="toggleTodo(todo)" class="todo-checkbox" :class="{ checked: todo.completed }">
-                        <LucideIcon :name="todo.completed ? 'check-circle' : 'circle'" size="18" :color="todo.completed ? 'var(--success-color)' : 'var(--text-muted)'" />
-                     </div>
-                     
-                     <span class="todo-title">
-                        {{ todo.title }}
-                     </span>
-                </div>
-
-                <!-- Zone 2: Meta Data -->
-                <div class="todo-meta">
-                    <span v-if="todo.labels" class="todo-labels">
-                        <span v-for="label in parseLabels(todo.labels)" :key="label" class="label-tag">
-                            <LucideIcon name="tag" size="10" />
-                            {{ label }}
-                        </span>
-                    </span>
-                    <span v-if="todo.start_date || todo.end_date" class="todo-dates">
-                        <LucideIcon name="calendar" size="12" />
-                        <span v-if="todo.start_date">{{ todo.start_date }}</span>
-                        <span v-if="todo.start_date && todo.end_date">→</span>
-                        <span v-if="todo.end_date">{{ todo.end_date }}</span>
-                    </span>
-                </div>
-
-                <!-- Zone 3: Tools -->
-                <div class="todo-tools">
-                    <button @click="showEditForm(todo)" class="btn-small" title="Edit">Edit</button>
-                    <button @click="deleteTodo(todo.id)" class="btn-small btn-danger" title="Delete">Delete</button>
-                </div>
-            </div>
-        </li>
-        <!-- Recursively render children -->
-        <todo-item 
-            v-for="child in children" 
-            :key="child.id" 
-            :todo="child" 
-            :all-todos="allTodos"
-            :level="level + 1"
-        ></todo-item>
-    `
-};
-
 export default {
-    components: { TodoItem, CalendarView, GanttView, ColorPicker, LucideIcon: Icon },
+    components: { TreeView, CalendarView, GanttView, ColorPicker, LucideIcon: Icon },
     template: `
         <div class="admin-page">
             <div class="admin-header">
@@ -187,7 +22,6 @@ export default {
             
             <div v-if="viewMode === 'list'">
             
-            <!-- Add new todo -->
             <!-- Add new todo -->
             <div class="add-todo-container" style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; padding: 20px; background: var(--glass-bg); border: var(--glass-border); border-radius: var(--radius-lg);">
                 <div class="add-todo-row" style="display: flex; gap: 12px;">
@@ -265,12 +99,64 @@ export default {
                 >{{ label }}</button>
             </div>
             
-            <!-- Todo list with hierarchy -->
-            <ul class="todo-list">
-                <template v-for="todo in filteredRootTodos" :key="todo.id">
-                    <todo-item :todo="todo" :all-todos="todos"></todo-item>
-                </template>
-            </ul>
+            <!-- Todo list with TreeView -->
+            <div class="todo-tree-container">
+                <TreeView 
+                    :items="treeData" 
+                    idKey="id"
+                    childrenKey="children"
+                    labelKey="title"
+                    :draggable="true"
+                    :allowDrop="() => true" 
+                    @move="onMove"
+                    @toggle="onToggle"
+                >
+                     <template #item="{ item }">
+                        <div 
+                            class="todo-item-card" 
+                            :class="{ completed: item.completed }"
+                            :style="{ borderLeft: item.color ? '4px solid ' + item.color : '', width: '100%' }"
+                            style="display: flex; justify-content: space-between; align-items: center;"
+                        >
+                            <!-- Zone 1: Main Content -->
+                            <div class="todo-main" style="display: flex; align-items: center; gap: 8px;">
+                                 <div @click.stop="toggleTodo(item)" class="todo-checkbox" :class="{ checked: item.completed }">
+                                    <LucideIcon :name="item.completed ? 'check-circle' : 'circle'" size="18" :color="item.completed ? 'var(--success-color)' : 'var(--text-muted)'" />
+                                 </div>
+                                 <span class="todo-title">
+                                    {{ item.title }}
+                                 </span>
+                            </div>
+
+                            <!-- Zone 2: Meta Data -->
+                            <div class="todo-meta" style="display: flex; gap: 8px; align-items: center;">
+                                <span v-if="item.labels" class="todo-labels">
+                                    <span v-for="label in parseLabels(item.labels)" :key="label" class="label-tag">
+                                        <LucideIcon name="tag" size="10" />
+                                        {{ label }}
+                                    </span>
+                                </span>
+                                <span v-if="item.start_date || item.end_date" class="todo-dates">
+                                    <LucideIcon name="calendar" size="12" />
+                                    <span v-if="item.start_date">{{ item.start_date }}</span>
+                                    <span v-if="item.start_date && item.end_date">→</span>
+                                    <span v-if="item.end_date">{{ item.end_date }}</span>
+                                </span>
+                            
+                                <!-- Zone 3: Tools -->
+                                <div class="todo-tools" style="margin-left: 12px;">
+                                    <button @click.stop="showEditForm(item)" class="btn-small" title="Edit">Edit</button>
+                                    <button @click.stop="deleteTodo(item.id)" class="btn-small btn-danger" title="Delete">Delete</button>
+                                </div>
+                            </div>
+                        </div>
+                     </template>
+                </TreeView>
+                <div v-if="treeData.length === 0" class="text-center text-muted" style="padding: 20px;">
+                    No todos found. Add one above!
+                </div>
+            </div>
+
             </div>
 
             <div v-else-if="viewMode === 'calendar'">
@@ -364,11 +250,21 @@ export default {
         const editingTodo = ref(null);
         const editForm = ref({});
 
+        const expandedTodos = ref([]); // Track expanded state for tree if needed, though TreeView handles it internally if we don't bind strict
+
+        const onToggle = (item) => {
+            item.expanded = !item.expanded;
+        };
+
         const rootTodos = computed(() => {
             return todos.value.filter(t => !t.parent_id);
         });
 
         const filteredRootTodos = computed(() => {
+            // If filtered, we still might want to show children.
+            // But if filtering by label, we probably only want to show matches?
+            // Logic in TodoItem was: Root is filtered. Children are ALWAYS shown.
+            // We will maintain that logic.
             if (!selectedLabel.value) {
                 return rootTodos.value;
             }
@@ -377,13 +273,31 @@ export default {
             );
         });
 
+        const treeData = computed(() => {
+            // Transform flat list to hierarchy
+            const build = (parentId) => {
+                return todos.value
+                    .filter(t => t.parent_id == parentId)
+                    .sort((a, b) => (a.position - b.position) || (a.id - b.id))
+                    .map(t => ({
+                        ...t,
+                        children: build(t.id)
+                    }));
+            };
+
+            return filteredRootTodos.value.map(t => ({
+                ...t,
+                children: build(t.id)
+            }));
+        });
+
+
         const parseLabels = (labelsString) => {
             if (!labelsString) return [];
             return labelsString.split(',').map(l => l.trim()).filter(l => l);
         };
 
         const fetchSettings = async () => {
-            // Try to get setting from API if not in local storage or to refresh
             try {
                 const res = await fetch('/@/user/settings');
                 if (res.ok) {
@@ -391,8 +305,6 @@ export default {
                     if (data.settings && data.settings.default_todo_duration) {
                         defaultDuration.value = parseInt(data.settings.default_todo_duration);
                         localStorage.setItem('defaultDuration', defaultDuration.value);
-                        // Update end date if user hasn't touched it? 
-                        // Simplified: update it based on current start date
                         newEndDate.value = getEndDate(newStartDate.value, defaultDuration.value);
                     }
                     if (data.settings && data.settings.todo_palette) {
@@ -451,10 +363,10 @@ export default {
                     newParentId.value = null;
                 } else {
                     const error = await res.json();
-                    alert('Failed to add todo: ' + (error.error || 'Unknown error'));
+                    store.addNotification('Failed to add todo: ' + (error.error || 'Unknown error'), 'error');
                 }
             } catch (e) {
-                alert('Connection error: ' + e.message);
+                store.addNotification('Connection error: ' + e.message, 'error');
             }
         };
 
@@ -466,16 +378,21 @@ export default {
                 body: JSON.stringify({ completed: updated })
             });
             if (res.ok) {
-                todo.completed = updated ? 1 : 0;
+                // We need to update the original item in todos.value, NOT just the clone in treeData
+                const realTodo = todos.value.find(t => t.id === todo.id);
+                if (realTodo) realTodo.completed = updated ? 1 : 0;
             }
         };
 
         const deleteTodo = async (id) => {
-            // if (!confirm('Delete this todo?')) return;
+            if (!(await store.showConfirm('Delete Todo', 'Are you sure you want to delete this todo?'))) return;
 
             const res = await fetch(`/@/todos/${id}`, { method: 'DELETE' });
             if (res.ok) {
                 todos.value = todos.value.filter(t => t.id !== id);
+                store.addNotification('Todo deleted', 'success');
+            } else {
+                store.addNotification('Failed to delete todo', 'error');
             }
         };
 
@@ -499,13 +416,8 @@ export default {
             });
 
             if (res.ok) {
-                // Update local state is tricky with references, easier to refetch or find & update
-                // Given we rely on 'todos' for everything, updating the object in 'todos' works
-                // But finding it might be needed if objects were replaced
-                // Object.assign works if the object reference is the same
-                // We are passing objects from 'todos.value', so reference holds
-                Object.assign(editingTodo.value, editForm.value);
-                // Also need to handle parent_id change affecting hierarchy!
+                const realTodo = todos.value.find(t => t.id === editingTodo.value.id);
+                if (realTodo) Object.assign(realTodo, editForm.value);
                 cancelEdit();
             }
         };
@@ -515,95 +427,73 @@ export default {
             editForm.value = {};
         };
 
-        const handleDrop = async (srcId, targetId, position) => {
-            // Find src and target todos
-            const findTodo = (id) => todos.value.find(t => t.id === id);
-            const srcTodo = findTodo(srcId);
-            const targetTodo = findTodo(targetId);
+        // Handler for TreeView move event
+        const onMove = async ({ sourceId, target, placement }) => {
+            // sourceId: string/number
+            // target: object (node)
+            // placement: 'before', 'after', 'inside'
+
+            const srcTodo = todos.value.find(t => t.id == sourceId);
+            const targetTodo = todos.value.find(t => t.id == target.id);
 
             if (!srcTodo || !targetTodo) return;
-            if (srcId === targetId) return;
 
             let newParentId = targetTodo.parent_id;
-            let newPosition = 0;
+            // Calculations for new position
+            const siblings = todos.value.filter(t => t.parent_id == newParentId).sort((a, b) => (a.position - b.position) || (a.id - b.id));
 
-            // Simple logic: 
-            // If dropping ON target, make it child (if not already child of self)
-            // But for reordering, we usually want "insert before" or "insert after"
-            // Let's implement "insert after" target for simplicity, unless holding modifier?
-            // Or better: Drag and Drop API doesn't give precise "between" without complexity.
-            // Let's assume we drop "into" if target has kids, or "after" if it's a leaf?
-            // Actually, best simple UX for now: Drop ON = Make Child.
-            // But user asked for REORDERING.
-            // Complex logic needed: detect top/bottom half of target.
-            // This requires passing event Y coordinates.
-
-            // Re-implementing TodoItem to emit dragover details?
-            // Let's keep it simple first: 
-            // We need `reorder(id, parentId, position)` API call.
-            // We'll trust the child component to tell us WHERE it was dropped relative to target.
-        };
-
-        // Revised provided method to children
-        const onDrop = async (draggedId, targetId, placement) => {
-            // placement: 'before', 'after', 'inside'
-            const findTodo = (id) => todos.value.find(t => t.id === id);
-            const srcTodo = findTodo(draggedId);
-            const targetTodo = findTodo(targetId);
-
-            if (!draggedId || !targetId || draggedId === targetId) return;
-
-            let newParentId = null;
-            let newPosition = 0;
+            // ... [Logic similar to previous onDrop, adapted] ...
 
             if (placement === 'inside') {
-                newParentId = targetId;
-                // Add to end of children
-                const siblings = todos.value.filter(t => t.parent_id == targetId);
-                const maxPos = siblings.reduce((max, t) => Math.max(max, t.position || 0), 0);
-                newPosition = maxPos + 1024;
-            } else {
-                newParentId = targetTodo.parent_id;
-                const siblings = todos.value.filter(t => t.parent_id == newParentId).sort((a, b) => (a.position - b.position) || (a.id - b.id));
-                const targetIdx = siblings.findIndex(t => t.id === targetId);
+                newParentId = target.id;
+                const childSiblings = todos.value.filter(t => t.parent_id == newParentId);
+                const maxPos = childSiblings.reduce((max, t) => Math.max(max, t.position || 0), 0);
+                const newPosition = maxPos + 1024;
 
-                let prevPos = -1024;
-                let nextPos = 1000000;
+                // Update state
+                srcTodo.parent_id = newParentId;
+                srcTodo.position = newPosition;
 
-                if (placement === 'before') {
-                    if (targetIdx > 0) prevPos = siblings[targetIdx - 1].position;
-                    nextPos = targetTodo.position;
-                } else { // after
-                    prevPos = targetTodo.position;
-                    if (targetIdx < siblings.length - 1) nextPos = siblings[targetIdx + 1].position;
-                }
-
-                newPosition = (prevPos + nextPos) / 2;
+                // API call
+                await updatePosition(srcTodo.id, newParentId, newPosition);
+                return;
             }
 
-            // Optimistic Update
+            // Before/After logic
+            const targetIdx = siblings.findIndex(t => t.id === target.id);
+            let prevPos = -1024;
+            let nextPos = 1000000;
+            let newPosition = 0;
+
+            if (placement === 'before') {
+                if (targetIdx > 0) prevPos = siblings[targetIdx - 1].position;
+                nextPos = targetTodo.position;
+            } else { // after
+                prevPos = targetTodo.position;
+                if (targetIdx < siblings.length - 1) nextPos = siblings[targetIdx + 1].position;
+            }
+            newPosition = (prevPos + nextPos) / 2;
+
             srcTodo.parent_id = newParentId;
             srcTodo.position = newPosition;
-            todos.value.sort((a, b) => (a.position - b.position) || (a.id - b.id));
 
-            // API Call
+            await updatePosition(srcTodo.id, newParentId, newPosition);
+        };
+
+        const updatePosition = async (id, parentId, position) => {
             await fetch('/@/todos/reorder', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    id: draggedId,
-                    parent_id: newParentId,
-                    position: newPosition
+                    id,
+                    parent_id: parentId,
+                    position
                 })
             });
-        };
-
-        // Provide actions to children
-        provide('toggleTodo', toggleTodo);
-        provide('deleteTodo', deleteTodo);
-        provide('showEditForm', showEditForm);
-        provide('parseLabels', parseLabels);
-        provide('onDrop', onDrop);
+            // Force resort not needed as we updated state, and computed treeData resorts.
+            // But we might need to trigger array update.
+            todos.value = [...todos.value];
+        }
 
         onMounted(() => {
             fetchTodos();
@@ -617,6 +507,7 @@ export default {
         return {
             viewMode,
             todos,
+            treeData, // New for TreeView
             newTodo,
             newLabels,
             newStartDate,
@@ -625,8 +516,6 @@ export default {
             selectedLabel,
             editingTodo,
             editForm,
-            rootTodos,
-            filteredRootTodos,
             allLabels,
             addTodo,
             saveEdit,
@@ -634,7 +523,14 @@ export default {
             palette,
             newColor,
             showColorPicker,
-            showEditColorPicker
+            showEditColorPicker,
+            // Actions
+            toggleTodo,
+            deleteTodo,
+            showEditForm,
+            parseLabels,
+            onMove,
+            onToggle
         };
     }
 };

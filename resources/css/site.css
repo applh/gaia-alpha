@@ -246,13 +246,13 @@ input,
 textarea,
 select {
     width: 100%;
-    padding: var(--space-md);
-    background: rgba(0, 0, 0, 0.2);
+    padding: var(--space-sm) var(--space-md);
+    background: rgba(15, 17, 21, 0.4);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-sm);
     color: var(--text-primary);
     font-size: 1rem;
-    transition: all 0.2s ease;
+    transition: border-color 0.2s, background 0.2s;
 }
 
 textarea {
@@ -566,7 +566,7 @@ td {
 .user-controls {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: var(--space-md);
 }
 
 .user-info-item {
@@ -578,7 +578,7 @@ td {
 
 .button-group {
     display: flex;
-    gap: 10px;
+    gap: var(--space-md);
 }
 
 .todo-content {
@@ -887,7 +887,7 @@ body.layout-side .user-controls span {
 body.layout-side .button-group {
     display: flex;
     flex-direction: row;
-    gap: 10px;
+    gap: var(--space-md);
     width: 100%;
 }
 
@@ -1506,20 +1506,8 @@ h1 {
 
 /* Improved Form Contrast & Checkboxes */
 
-input[type="text"],
-input[type="email"],
-input[type="number"],
-input[type="password"],
-textarea,
-select {
-    background: rgba(15, 17, 21, 0.4);
-    /* Darker background for inputs */
-    border: 1px solid var(--border-color);
-    color: var(--text-primary);
-    padding: var(--space-sm) var(--space-md);
-    border-radius: var(--radius-sm);
-    transition: border-color 0.2s, background 0.2s;
-}
+/* Improved Form Contrast & Checkboxes merged into Base */
+
 
 input:focus,
 textarea:focus,
@@ -1737,7 +1725,7 @@ input[type="checkbox"]:checked::before {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
-    margin-bottom: 10px;
+    margin-bottom: var(--space-md);
 }
 
 .palette-swatch-manage {
@@ -1784,7 +1772,7 @@ input[type="checkbox"]:checked::before {
 
 .picker-tabs {
     display: flex;
-    margin-bottom: 10px;
+    margin-bottom: var(--space-md);
     border-bottom: 1px solid var(--border-color);
 }
 
@@ -1853,7 +1841,7 @@ input[type="checkbox"]:checked::before {
 .preview-box {
     height: 30px;
     border-radius: 4px;
-    margin-bottom: 10px;
+    margin-bottom: var(--space-md);
     border: 1px solid var(--border-color);
 }
 
@@ -2542,7 +2530,7 @@ input[type="checkbox"]:checked::before {
     height: auto;
     flex-direction: row;
     /* Force row for dropdown items */
-    gap: 10px;
+    gap: var(--space-md);
 }
 
 .nav-dropdown-menu button:hover {
@@ -3242,6 +3230,7 @@ body.layout-side .nav-group.open .nav-dropdown-menu {
     position: sticky;
     top: 0;
 }
+
 /* Component Builder Toolbox */
 .toolbox-grid {
     display: grid;
@@ -3274,4 +3263,236 @@ body.layout-side .nav-group.open .nav-dropdown-menu {
 .toolbox-icon {
     opacity: 0.8;
     flex-shrink: 0;
+}
+
+/* =========================================
+   6. COMPONENT UTILITIES (ADDED)
+   ========================================= */
+
+/* Button Sizes */
+.btn-sm {
+    padding: 4px 10px;
+    font-size: 0.8rem;
+}
+
+.btn-md {
+    /* Default size */
+    padding: 8px 16px;
+    font-size: 0.9rem;
+}
+
+.btn-lg {
+    padding: 12px 24px;
+    font-size: 1.1rem;
+}
+
+/* Button Variants */
+.btn-ghost {
+    background: transparent;
+    border-color: transparent;
+    color: var(--text-secondary);
+}
+
+.btn-ghost:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-primary);
+}
+
+.btn-link {
+    background: transparent;
+    border-color: transparent;
+    color: var(--accent-color);
+    padding: 0;
+    justify-content: flex-start;
+}
+
+.btn-link:hover {
+    text-decoration: underline;
+    background: transparent;
+    border-color: transparent;
+    transform: none;
+    box-shadow: none;
+}
+
+/* Badge / Tag Variants */
+.tag-primary {
+    background: var(--accent-color);
+    color: white;
+}
+
+.tag-secondary {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+}
+
+.tag-success {
+    background: var(--success-color);
+    color: white;
+}
+
+.tag-warning {
+    background: var(--warning-color);
+    color: white;
+}
+
+.tag-danger {
+    background: var(--danger-color);
+    color: white;
+}
+
+.tag-info {
+    background: var(--info-color);
+    color: white;
+}
+
+.rounded-full {
+    border-radius: 9999px;
+}
+
+/* Form Utilities */
+.form-control {
+    width: 100%;
+    padding: var(--space-md);
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    font-size: 1rem;
+    transition: all 0.2s ease;
+}
+
+.form-group.has-error .form-control {
+    border-color: var(--danger-color);
+}
+
+.error-message {
+    color: var(--danger-color);
+    font-size: 0.85rem;
+    margin-top: 4px;
+}
+
+.text-danger {
+    color: var(--danger-color);
+}
+
+/* Loading Spinner */
+.spinner {
+    width: 1em;
+    height: 1em;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.75s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Tree View Component */
+.tree-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.tree-item-wrapper {
+    display: flex;
+    flex-direction: column;
+}
+
+.tree-item-content {
+    display: flex;
+    align-items: center;
+    padding: 4px 8px;
+    cursor: pointer;
+    border-radius: var(--radius-sm);
+    transition: background 0.15s;
+    user-select: none;
+}
+
+.tree-item-wrapper.selected>.tree-item-content {
+    background: rgba(99, 102, 241, 0.2);
+    color: var(--accent-color);
+}
+
+.tree-item-content:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.tree-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    margin-right: 4px;
+    color: var(--text-secondary);
+    border-radius: 4px;
+    transition: background 0.15s;
+}
+
+.tree-toggle:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+}
+
+.tree-toggle-spacer {
+    width: 24px;
+}
+
+.tree-node-body {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    overflow: hidden;
+}
+
+.tree-children {
+    padding-left: 12px;
+    border-left: 1px solid rgba(255, 255, 255, 0.05);
+    /* Guide line */
+    margin-left: 10px;
+    /* Align guide line */
+}
+
+/* Animations */
+.slide-fade-enter-active,
+.slide-fade-leave-active {
+    transition: all 0.2s ease-out;
+    max-height: 500px;
+    opacity: 1;
+}
+
+.slide-fade-enter-from,
+.slide-fade-leave-to {
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+}
+
+
+/* Generic Tree Drag & Drop Feedback */
+.tree-item-wrapper.drag-over-top>.tree-item-content {
+    border-top: 2px solid var(--accent-color);
+    padding-top: 2px;
+    /* Adjust for border width to avoid jump */
+}
+
+.tree-item-wrapper.drag-over-bottom>.tree-item-content {
+    border-bottom: 2px solid var(--accent-color);
+    padding-bottom: 2px;
+}
+
+.tree-item-wrapper.drag-over-inside>.tree-item-content {
+    background: rgba(99, 102, 241, 0.15) !important;
+    border: 1px dashed var(--accent-color);
 }

@@ -71,6 +71,66 @@ Media library text/upload interface.
 ### 6. CodeEditor (`ui/CodeEditor.js`)
 Simple code editor component (often wraps a textarea or lightweight editor).
 
+### 7. TreeView (`ui/TreeView.js`)
+Recursive tree component with drag-and-drop support.
+```javascript
+import TreeView from 'ui/TreeView.js';
+// <TreeView 
+//    :items="treeData" 
+//    :draggable="true" 
+//    @move="onMove"
+// >
+//    <template #item="{ item }">{{ item.name }}</template>
+// </TreeView>
+```
+Features:
+-   **Recursion**: Automatically renders nested `children`.
+-   **Drag & Drop**: Supports `before`, `after`, and `inside` placements.
+-   **Slots**: `#item` for node content, `#toggle-icon` for expander.
+
+### 8. AsyncForm (`ui/AsyncForm.js`)
+Standardized form wrapper with auto-loading states and feedback.
+```javascript
+import AsyncForm from 'ui/AsyncForm.js';
+// <AsyncForm :action="saveFunction" submitLabel="Update">
+//     <input v-model="name">
+// </AsyncForm>
+```
+Features:
+-   **Smart Submit**: Auto-shows spinner, success checkmark, or error icon.
+-   **Error Handling**: Catches logic errors and displays them.
+
+### 9. Core Primitives (New)
+The following primitives are the foundation of the UI system:
+
+#### Button (`ui/Button.js`)
+Standard button component.
+```javascript
+import Button from 'ui/Button.js';
+// <ui-button variant="primary|secondary|danger|ghost|link" size="sm|md|lg" :loading="isLoading">Label</ui-button>
+```
+
+#### Input (`ui/Input.js`)
+Form input wrapper with label and error support.
+```javascript
+import Input from 'ui/Input.js';
+// <ui-input label="Username" v-model="name" :error="errors.name" required />
+```
+
+#### Card (`ui/Card.js`)
+Container component.
+```javascript
+import Card from 'ui/Card.js';
+// <ui-card title="My Card">Content...</ui-card>
+```
+
+#### Badge (`ui/Badge.js`)
+Status indicator.
+```javascript
+import Badge from 'ui/Badge.js';
+// <ui-badge variant="success|warning|danger">Active</ui-badge>
+```
+
 ## CSS Architecture
 Styles are located in `resources/css/`.
 *   `index.css`: Main entry point.

@@ -20,11 +20,20 @@ const SiteSettings = defineAsyncComponent(() => import('components/admin/setting
 
 
 
+const ConfirmModal = defineAsyncComponent(() => import('components/ui/ConfirmModal.js'));
+
 const App = {
-    components: { Login, ToastContainer, NavBar, LucideIcon: defineAsyncComponent(() => import('ui/Icon.js')) },
+    components: { Login, ToastContainer, NavBar, ConfirmModal, LucideIcon: defineAsyncComponent(() => import('ui/Icon.js')) },
     template: `
         <div class="app-container">
             <ToastContainer />
+            <ConfirmModal 
+                :show="store.state.confirm.show"
+                :title="store.state.confirm.title"
+                :message="store.state.confirm.message"
+                @confirm="store.closeConfirm(true)"
+                @cancel="store.closeConfirm(false)"
+            />
             <header>
                 <a href="/" style="text-decoration: none; color: inherit; display:flex; align-items:center;">
                     <img v-if="siteLogo" :src="siteLogo" :alt="siteTitle" style="height: 28px; margin-right: 10px;">

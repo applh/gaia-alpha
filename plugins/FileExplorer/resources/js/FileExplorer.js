@@ -1,6 +1,6 @@
 import { ref, onMounted, computed, watch } from 'vue';
 import Icon from 'ui/Icon.js';
-import TreeView from './components/TreeView.js';
+import TreeView from 'ui/TreeView.js';
 import FileEditor from './components/FileEditor.js';
 import ImageEditor from 'ui/ImageEditor.js';
 import VideoPlayer from 'ui/VideoPlayer.js';
@@ -53,13 +53,25 @@ export default {
                 <div v-if="loading" class="loading-state">Loading...</div>
                 <TreeView 
                     :items="treeItems" 
-                    :selectedPath="selectedPath" 
-                    :selectedId="selectedId"
+                    idKey="path" 
+                    childrenKey="children"
+                    labelKey="name"
+                    :selectedId="selectedPath" 
+                    :draggable="true"
+                    :allowDrop="allowDrop"
                     @select="onSelect" 
                     @toggle="onToggle"
                     @move="onMove"
                     @contextmenu="onContextMenu"
-                />
+                >
+                    <template #item="{ item }">
+                         <div style="display: flex; align-items: center; gap: 8px;">
+                            <LucideIcon :name="getIcon(item)" size="16" />
+                            <span>{{ item.name }}</span>
+                            <LucideIcon v-if="item.loading" name="refresh-cw" size="12" class="spin" />
+                        </div>
+                    </template>
+                </TreeView>
             </aside>
             
             <main class="explorer-main">
@@ -359,6 +371,29 @@ export default {
 
         watch([mode, selectedVfs], refresh);
 
+        const getIcon = (item) => {
+            if (item.isDir || item.type === 'folder') return 'folder';
+            const ext = item.ext || (item.name.includes('.') ? item.name.split('.').pop() : '');
+            switch (ext.toLowerCase()) {
+                case 'php': return 'code-2';
+                case 'js': return 'scroll';
+                case 'css': return 'palette';
+                case 'json': return 'braces';
+                case 'md': return 'file-text';
+                case 'png':
+                case 'jpg':
+                case 'jpeg':
+                case 'webp': return 'image';
+                case 'sql':
+                case 'sqlite': return 'database';
+                default: return 'file';
+            }
+        };
+
+        const allowDrop = (sourceId, target) => {
+            return target.isDir || target.type === 'folder';
+        };
+
         onMounted(() => {
             refresh();
             loadVfsList();
@@ -376,7 +411,8 @@ export default {
         return {
             mode, loading, treeItems, vfsList, selectedVfs, selectedItem, currentItemContent,
             selectedPath, selectedId, isImage, isVideo, isJson, itemUrl, contextMenu, contextMenuStyle,
-            viewMode, onSelect, onToggle, onMove, onContextMenu, saveContent, createItem, deleteItem, renameItem, createVfs, refresh
+            viewMode, onSelect, onToggle, onMove, onContextMenu, saveContent, createItem, deleteItem, renameItem, createVfs, refresh,
+            getIcon, allowDrop
         };
     }
 };

@@ -81,4 +81,24 @@ These documentation updates will help prevent:
 - ❌ `Controller not registered` errors
 - ❌ Multiple response sending issues
 
-All common errors encountered during the GraphsManagement plugin development are now documented with clear solutions.
+
+## Frontend Architecture Updates (2025-12-24)
+
+### New Standard Components
+1.  **TreeView (`ui/TreeView.js`)**: Generic, recursive tree component with advanced drag-and-drop (reordering & nesting).
+2.  **AsyncForm (`ui/AsyncForm.js`)**: Standardized form wrapper handling loading states, success/error feedback, and accessible errors.
+
+### Component Updates
+1.  **Refactored `FileExplorer.js`, `TodoList.js`, `ComponentTree.js`** to use shared `TreeView`.
+2.  **Refactored `SiteSettings.js`, `UsersAdmin.js`** to use shared `AsyncForm` (Enabling "Premium" UX feedback everywhere).
+
+### Key Frontend Patterns
+-   **Composition**: Use generic UI primitives (`ui/`) instead of duplicating logic.
+-   **Data-Driven**: Transform flat data to trees in computed properties (e.g. `TodoList`'s `treeData`) rather than managing nested state manually.
+-   **Async UX**: Always provide visual feedback for async actions (now automatic with `AsyncForm`).
+
+### Additional Refactoring (Login & CMS)
+-   **`Login.js`**: Standardized login form with `AsyncForm`.
+-   **`CMS.js`**: Replaced manual page/template form handling with `AsyncForm` for unified UX.
+-   **CSS Audit**: Standardized input styles (higher contrast) and refactored hardcoded spacing (`10px` -> `var(--space-md)`) in `site.css`.
+

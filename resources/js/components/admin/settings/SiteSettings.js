@@ -1,9 +1,10 @@
 import { ref, reactive, onMounted } from 'vue';
 import Icon from 'ui/Icon.js';
 import ImageSelector from 'ui/ImageSelector.js';
+import AsyncForm from 'ui/AsyncForm.js';
 
 export default {
-    components: { LucideIcon: Icon, ImageSelector },
+    components: { LucideIcon: Icon, ImageSelector, AsyncForm },
     template: `
         <div class="admin-page">
             <div class="admin-header">
@@ -20,7 +21,7 @@ export default {
                         These settings control how your site appears in search engines and browser tabs.
                     </p>
 
-                    <form @submit.prevent="saveSettings">
+                    <AsyncForm :action="saveSettings">
                         <div class="form-group">
                             <label>Site Title</label>
                             <input v-model="settings.site_title" placeholder="e.g. Gaia Alpha">
@@ -78,18 +79,7 @@ export default {
                                 Private: <code>User-agent: *<br>Disallow: /</code>
                             </div>
                         </div>
-
-                        <div class="form-actions">
-                            <button type="submit" class="btn-primary" :disabled="saving" style="min-width: 140px;">
-                                <LucideIcon v-if="saveStatus === 'saving'" name="loader" class="spin" size="18"></LucideIcon>
-                                <LucideIcon v-else-if="saveStatus === 'success'" name="check" size="18"></LucideIcon>
-                                <LucideIcon v-else-if="saveStatus === 'error'" name="alert-circle" size="18"></LucideIcon>
-                                <span v-else>Save Changes</span>
-                                <span v-if="saveStatus === 'success'" style="margin-left:8px;">Saved!</span>
-                                <span v-if="saveStatus === 'error'" style="margin-left:8px;">Error</span>
-                            </button>
-                        </div>
-                    </form>
+                    </AsyncForm>
                 </div>
             </div>
             
@@ -110,8 +100,6 @@ export default {
             site_logo: '',
             robots_txt: ''
         });
-        const saving = ref(false);
-        const saveStatus = ref('idle'); // idle, saving, success, error
         const showSelector = ref(false);
         const selectorMode = ref('');
         const showRobotsTips = ref(false);
@@ -131,31 +119,18 @@ export default {
         };
 
         const saveSettings = async () => {
-            saving.value = true;
-            saveStatus.value = 'saving';
-            try {
-                // Save each key individually as the API expects single key/value
-                // Or update API to handle bulk?
-                // API implementation in SettingsController::updateGlobal takes {key, value}.
-                // So we loop.
-                const promises = Object.keys(settings).map(key => {
-                    return fetch('/@/admin/settings', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ key, value: settings[key] })
-                    });
+            // Save each key individually as the API expects single key/value
+            const promises = Object.keys(settings).map(key => {
+                return fetch('/@/admin/settings', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ key, value: settings[key] })
                 });
+            });
 
-                await Promise.all(promises);
-                saveStatus.value = 'success';
-                setTimeout(() => { saveStatus.value = 'idle'; }, 2000);
-            } catch (e) {
-                console.error("Failed to save settings", e);
-                saveStatus.value = 'error';
-                setTimeout(() => { saveStatus.value = 'idle'; }, 3000);
-            } finally {
-                saving.value = false;
-            }
+            // If any fail, AsyncForm will catch the error
+            const responses = await Promise.all(promises);
+            // Optional: check individual responses if needed
         };
 
         const openSelector = (mode) => {
@@ -169,11 +144,10 @@ export default {
             } else if (selectorMode.value === 'logo') {
                 settings.site_logo = img.image;
             }
-            // Add other image fields here if needed (e.g. Logo)
         };
 
         onMounted(fetchSettings);
 
-        return { settings, saving, saveStatus, saveSettings, showSelector, openSelector, handleImageSelect, showRobotsTips };
+        return { settings, saveSettings, showSelector, openSelector, handleImageSelect, showRobotsTips };
     }
 };

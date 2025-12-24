@@ -79,11 +79,18 @@ export function useCrud(baseUrl, idField = 'id') {
     };
 
     const deleteItem = async (id) => {
-        // if (!confirm('Are you sure you want to delete this item?')) return;
+        if (window.store && window.store.showConfirm) {
+            const confirmed = await window.store.showConfirm('Delete Item', 'Are you sure you want to delete this item?');
+            if (!confirmed) return;
+        } else if (!confirm('Are you sure you want to delete this item?')) {
+            return;
+        }
+
         error.value = null;
         try {
             const res = await fetch(`${baseUrl}/${id}`, { method: 'DELETE' });
             if (res.ok) {
+                store.addNotification('Item deleted successfully', 'success');
                 await fetchItems();
             } else {
                 const data = await res.json();
@@ -91,7 +98,7 @@ export function useCrud(baseUrl, idField = 'id') {
             }
         } catch (e) {
             error.value = e.message;
-            alert(e.message);
+            store.addNotification(e.message, 'error');
         }
     };
 

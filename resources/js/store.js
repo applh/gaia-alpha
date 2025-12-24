@@ -10,7 +10,14 @@ const state = reactive({
     layout: localStorage.getItem('layout') || 'top', // 'top' | 'side'
     currentView: initialView, // 'dashboard', 'users', 'cms', 'map', etc.
     loginMode: 'login', // 'login' | 'register'
-    notifications: [] // Array of { id, message, type='info'|'success'|'error', duration }
+    notifications: [], // Array of { id, message, type='info'|'success'|'error', duration }
+    confirm: {
+        show: false,
+        title: '',
+        message: '',
+        resolve: null,
+        reject: null
+    }
 });
 
 // 2. Computed Getters
@@ -145,5 +152,25 @@ export const store = {
     logout,
     savePreference,
     addNotification,
-    removeNotification
+    removeNotification,
+
+    // Confirm Dialog Helper
+    showConfirm: (title, message) => {
+        return new Promise((resolve) => {
+            state.confirm = {
+                show: true,
+                title,
+                message,
+                resolve,
+                reject: null
+            };
+        });
+    },
+    closeConfirm: (result) => {
+        if (state.confirm.resolve) {
+            state.confirm.resolve(result);
+        }
+        state.confirm.show = false;
+        state.confirm.resolve = null;
+    }
 };

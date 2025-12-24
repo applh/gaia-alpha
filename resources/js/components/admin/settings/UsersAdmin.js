@@ -2,6 +2,7 @@ import { ref, reactive, onMounted, defineAsyncComponent } from 'vue';
 import SortTh from 'ui/SortTh.js';
 import Icon from 'ui/Icon.js';
 import Modal from 'ui/Modal.js';
+import AsyncForm from 'ui/AsyncForm.js';
 import { useSorting } from 'composables/useSorting.js';
 import { useCrud } from 'composables/useCrud.js';
 
@@ -9,6 +10,7 @@ export default {
     components: {
         SortTh,
         Modal,
+        AsyncForm,
         'password-input': defineAsyncComponent(() => import('ui/PasswordInput.js'))
     },
     template: `
@@ -59,7 +61,10 @@ export default {
             </div>
 
             <Modal :show="showModal" :title="editMode ? 'Edit User' : 'Create User'" @close="showModal = false">
-                <form @submit.prevent="saveUser">
+                <AsyncForm 
+                    :action="saveUser" 
+                    :submitLabel="editMode ? 'Update' : 'Create'"
+                >
                     <div class="form-group" v-if="!editMode">
                         <label>Username:</label>
                         <input v-model="form.username" required>
@@ -72,12 +77,11 @@ export default {
                         <label>Level:</label>
                         <input v-model.number="form.level" type="number" required>
                     </div>
-                    <div class="form-actions">
-                        <button class="btn-primary" type="submit">{{ editMode ? 'Update' : 'Create' }}</button>
+                    
+                    <template #extra-buttons>
                         <button type="button" @click="showModal = false" class="btn-secondary">Cancel</button>
-                    </div>
-                    <p v-if="error" class="error">{{ error }}</p>
-                </form>
+                    </template>
+                </AsyncForm>
             </Modal>
         </div>
     </div>
@@ -121,18 +125,23 @@ export default {
         };
 
         const saveUser = async () => {
-            try {
-                if (editMode.value) {
-                    await updateItem(form.id, form);
-                } else {
-                    await createItem(form);
-                }
-                showModal.value = false;
-            } catch (e) {
-                // Error is already set by useCrud, but we catch here to prevent modal closing if needed
-                // actually useCrud sets error.value but throws.
-                console.error("Save failed", e);
+            // AsyncForm handles try/catch and loading state.
+            // We just perform the logic.
+            // If error occurs, we throw, AsyncForm catches and shows error.
+
+            if (editMode.value) {
+                await updateItem(form.id, form);
+            } else {
+                await createItem(form);
             }
+            // Close modal after short success delay? 
+            // AsyncForm creates a success state. 
+            // In a modal we usually want to close.
+            // We can wait for AsyncForm to finish or close immediately?
+            // Let's close after 1s?
+            setTimeout(() => {
+                showModal.value = false;
+            }, 500);
         };
 
         onMounted(fetchItems);

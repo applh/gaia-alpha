@@ -28,6 +28,7 @@ class ScaffoldingService
             $pluginDir . '/class/Tool',
             $pluginDir . '/resources',
             $pluginDir . '/resources/js',
+            $pluginDir . '/docs',
         ];
 
         foreach ($dirs as $dir) {
@@ -46,16 +47,13 @@ class ScaffoldingService
             'version' => '1.0.0',
             'description' => "Description for $name plugin",
             'author' => 'Gaia Alpha',
+            'dependencies' => [],
         ], JSON_PRETTY_PRINT);
         file_put_contents($pluginDir . '/plugin.json', $jsonContent);
 
-        // Create docs file
-        $docsDir = Env::get('root_dir') . '/docs/plugins';
-        if (!is_dir($docsDir)) {
-            mkdir($docsDir, 0755, true);
-        }
-        $docContent = "# $name Plugin\n\nObjective: ...\n\n## Configuration\n\n## Hooks\n\n## CLI/MCP\n";
-        file_put_contents($docsDir . '/' . $name . '.md', $docContent);
+        // Create docs/index.md file
+        $docContent = "# $name Plugin\n\n## Overview\n\nObjective: ...\n\n## Configuration\n\n## Hooks\n\n## CLI/MCP\n";
+        file_put_contents($pluginDir . '/docs/index.md', $docContent);
 
         return [
             'success' => true,
@@ -63,7 +61,7 @@ class ScaffoldingService
             'files' => [
                 "plugins/$name/index.php",
                 "plugins/$name/plugin.json",
-                "docs/plugins/$name.md"
+                "plugins/$name/docs/index.md"
             ]
         ];
     }

@@ -16,6 +16,8 @@ plugins/YourPlugin/
 ├── index.php                # Entry point, hooks, registration
 ├── plugin.json              # Meta data
 ├── schema.sql               # Database schema (loaded on activation)
+├── docs/                    # Documentation directory
+│   └── index.md             # Main documentation file
 ├── class/                   # Auto-loaded PSR-4 namespace: YourPlugin\
 │   ├── Controller/
 │   │   └── YourController.php
@@ -35,6 +37,27 @@ Plugins can define their own database tables using a standard SQL file.
 - **Format**: Standard SQLite-compatible SQL (`CREATE TABLE IF NOT EXISTS ...`).
 - **Activation**: When a plugin is activated via the Admin Panel, the framework automatically runs this SQL file to create tables.
 - **Migration**: The framework tracks loaded schemas. Changes to `schema.sql` after activation are not automatically applied; you must handle migrations manually or re-activate the plugin (carefully).
+
+## Plugin Metadata (plugin.json)
+
+The `plugin.json` file defines your plugin's metadata and dependencies.
+
+```json
+{
+    "name": "YourPlugin",
+    "version": "1.0.0",
+    "description": "Description of your plugin",
+    "type": "standard",
+    "dependencies": {
+        "php": {
+            "vendor/package": "^1.0"
+        },
+        "js": {
+            "package": "^1.0"
+        }
+    }
+}
+```
 
 ## Golden Sample: index.php
 
@@ -74,13 +97,13 @@ Hook::add('auth_session_data', function ($data) {
 ```
 
 ## Frontend View Registration
- 
+
 Plugins verify their UI components dynamically using `\GaiaAlpha\UiManager`. **Do not** modify `resources/js/site.js`.
- 
+
 ### Registration in `index.php`
- 
+
 Add the following line to your plugin's `index.php`:
- 
+
 ```php
 // Register UI Component
 \GaiaAlpha\UiManager::registerComponent(
@@ -89,21 +112,23 @@ Add the following line to your plugin's `index.php`:
     true                             // adminOnly? true = admin only, false = public
 );
 ```
- 
+
 The framework automatically injects these components into the frontend configuration. The frontend router will dynamically load `YourPanel.js` when the user navigates to a menu item with `view: 'your_plugin_view_id'`.
 
 ## Dynamic Feature Discovery (MCP)
 
 Instead of hardcoding tools in `index.php`, the MCP server uses **Dynamic Discovery**. If you create a class in `plugins/YourPlugin/class/Tool/`, it will be automatically discovered if it extends the base tool class and follows the naming convention.
 
-```php
 ## Documentation Requirement
 
-All plugins **must** be accompanied by a dedicated documentation file in `docs/plugins/YourPlugin.md`. This file should cover:
-1.  **Objective**: What does the plugin solve?
-2.  **Configuration**: Any `Env` variables or `plugin.json` settings.
-3.  **Hooks**: Which core hooks does it listen to or trigger?
-4.  **CLI/MCP**: List any added commands or tools.
+All plugins **must** have a dedicated `docs/` directory containing an `index.md` file.
+
+- **Path**: `plugins/YourPlugin/docs/index.md`
+- **Content**:
+    1.  **Overview**: What does the plugin solve?
+    2.  **Configuration**: Any `Env` variables or `plugin.json` settings.
+    3.  **Hooks**: Which core hooks does it listen to or trigger?
+    4.  **CLI/MCP**: List any added commands or tools.
 
 Keeping this file updated as features are added is mandatory.
 

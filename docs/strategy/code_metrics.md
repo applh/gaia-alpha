@@ -1,100 +1,68 @@
 # Code Statistics
 
-Last updated: 2025-12-21
+Last updated: 2025-12-24
 
 ## Overall Project Statistics
 
 ```
 -------------------------------------------------------------------------------
-Language                     files          blank        comment           code
+Language                     files        blank       comment           code
 -------------------------------------------------------------------------------
-PHP                            198           3618           2067          16584
-JavaScript                      74           1236            445          10926
-Markdown                        97           2293              2           8062
-CSS                              4            556            172           3214
-SQL                             21             22             13            830
-JSON                            37              0              0            735
-HTML                             2             37              0            233
-Bourne Shell                     2             20             20             62
-Dockerfile                       2             11              9             59
-Text                             2              1              0             54
-YAML                             2              3              1             35
-SVG                              1              0              0              4
+PHP                            245         3813          2070          18525
+JavaScript                      95         1665           546          15451
+Markdown                       120         2700             2           9466
+CSS                              5          623           193           3662
+JSON                            44            0             0            727
+SQL                             27           29            33            712
+HTML                             2           37             0            233
+Python                           1           13             5             69
+YAML                             2            7            21             68
+Dockerfile                       2           11             9             63
+Bourne Shell                     2           20            20             62
+Text                             1            1             0             34
+SVG                              1            0             0              4
 -------------------------------------------------------------------------------
-SUM:                           442           7797           2729          40798
+SUM:                           547         8919          2899          49076
 -------------------------------------------------------------------------------
 ```
 
 ## Breakdown by Component
 
 ### Core Framework
-- **PHP Backend**: ~16,584 lines of code
-- **JavaScript Frontend**: ~10,926 lines of code
-- **CSS Styling**: ~3,214 lines of code
-- **SQL Migrations**: ~830 lines of code
+- **PHP Backend**: ~7,308 lines of code
+- **JavaScript Frontend**: ~5,838 lines of code
+- **CSS Styling**: ~2,670 lines of code
+- **SQL Migrations**: ~712 lines of code
 
 ### Plugin Ecosystem
 
-Total plugins: 18 active plugins
+Total plugins: 28 active plugins
 
 **Top 10 Largest Plugins by Code:**
 
-1. **McpServer** - 2,406 lines
-   - Model Context Protocol implementation
-   - 20+ tools, 5+ resources, and prompts
-
-2. **GraphsManagement** - 1,581 lines
-   - Chart.js integration
-   - Graph and Collection management
-
-3. **ComponentBuilder** - 1,057 lines
-   - Visual component builder
-   - Code generation
-
-4. **Todo** - 965 lines
-   - Hierarchical Todo list
-   - Drag-and-drop, Gantt, and Calendar views
-
-5. **DatabaseConnections** - 689 lines
-   - External database management
-   - Connection testing and query execution
-
-6. **DatabaseManager** - 494 lines
-   - Internal database schema management
-   - Table inspection
-
-7. **Map** - 434 lines
-   - Interactive maps with markers
-   - Location management
-
-8. **Analytics** - 415 lines
-   - Visit tracking and statistics
-   - Dashboard visualization
-
-9. **ApiBuilder** - 411 lines
-   - REST API endpoint generator
-   - Dynamic routing and CRUD
-
-10. **Mail** - 399 lines
-    - Email sending service
-    - Multiple drivers (SMTP, Log, Sendmail)
+1. **McpServer** - 2,745 lines
+2. **MediaLibrary** - 1,731 lines
+3. **GraphsManagement** - 1,580 lines
+4. **FileExplorer** - 1,553 lines
+5. **NodeEditor** - 1,422 lines
+6. **FormBuilder** - 1,159 lines
+7. **ComponentBuilder** - 1,055 lines
+8. **Todo** - 974 lines
+9. **Slides** - 888 lines
+10. **Mail** - 846 lines
 
 ### Code Quality Metrics
 
-- **Average lines per PHP file**: 79 lines
-- **Average lines per JS file**: 140 lines
-- **Comment ratio**: 13% (3,693 comments / 28,391 code)
-- **Blank line ratio**: 18% (5,178 blank / 28,391 code)
+- **Average lines per PHP file**: 75 lines
+- **Average lines per JS file**: 162 lines
+- **Comment ratio**: 5% (2,899 comments / 49,076 code)
+- **Blank line ratio**: 18% (8,919 blank / 49,076 code)
 
-### Recent Additions (2025-12-21)
+### Recent Additions (2025-12-24)
 
-**MediaLibrary Plugin:**
-- MediaLibraryService.php: 271 lines
-- MediaLibraryController.php: 253 lines
-- MediaLibrary.js (Vue): 501 lines
-- 4 MCP Tools: ~120 lines total
-- CSS styling: ~300 lines
-- **Total**: ~1,445 lines added
+**Growth:**
+- Codebase grew to 49,076 lines
+- Enhanced plugin ecosystem
 
 ## Growth Trends
 
@@ -133,4 +101,4 @@ gaia-alpha/
 
 ---
 
-*Generated using [cloc](https://github.com/AlDanial/cloc)*
+*Generated using [cloc](https://github.com/AlDanial/cloc) (excluding external libraries)*

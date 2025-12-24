@@ -21,6 +21,8 @@ The Node Editor plugin provides a visual, drag-and-drop interface for creating n
     - **Live Search**: Instantly find and teleport to nodes.
     - **Sticky Comments**: Add context with non-intrusive comment blocks.
 - **Management**: Create, Save, Load, and Delete diagrams.
+- **Improved Deletion**: Dedicated delete buttons for Nodes and Comments with visual feedback.
+- **Styling**: Enhanced CSS for comments and action buttons.
 
 ## Keyboard Shortcuts
 - `N`: Create new Process Node at mouse cursor.

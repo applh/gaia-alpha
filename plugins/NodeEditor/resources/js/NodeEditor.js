@@ -367,6 +367,26 @@ const STYLES = `
             pointer-events: none;
             z-index: 15;
         }
+        .node-content-text {
+            white-space: pre-wrap;
+            width: 100%;
+            word-break: break-word;
+        }
+        .node-comment-actions {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            cursor: pointer;
+            color: var(--text-muted);
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        .node-rect:hover .node-comment-actions {
+            opacity: 1;
+        }
+        .node-comment-actions:hover {
+            color: #ef4444; /* Danger color */
+        }
 `;
 
 export default {
@@ -560,9 +580,18 @@ export default {
                                 <LucideIcon name="x" size="12" @click.stop="deleteNode(node.id)" />
                             </div>
                         </div>
+                        
+                        <!-- Delete Action for Comment Nodes -->
+                        <div v-if="node.type === 'comment'" class="node-comment-actions" @click.stop="deleteNode(node.id)">
+                            <LucideIcon name="x" size="12" />
+                        </div>
+
                         <div class="node-body">
+                             <!-- Content for Notes/Comments -->
+                            <div v-if="['comment', 'note'].includes(node.type)" class="node-content-text">{{ node.data.content || (node.type === 'comment' ? 'Comment...' : 'Note...') }}</div>
+
                              <!-- Inputs -->
-                            <div class="node-inputs">
+                            <div class="node-inputs" v-if="getInputs(node.type).length > 0">
                                 <div 
                                     v-for="input in getInputs(node.type)" 
                                     :key="input.id"
@@ -574,7 +603,7 @@ export default {
                                 </div>
                             </div>
                             <!-- Outputs -->
-                            <div class="node-outputs">
+                            <div class="node-outputs" v-if="getOutputs(node.type).length > 0">
                                 <div 
                                     v-for="output in getOutputs(node.type)" 
                                     :key="output.id"
@@ -614,6 +643,13 @@ export default {
                  <div class="form-group">
                     <label>ID</label>
                     <input :value="selectedNodeData.id" class="form-input" disabled />
+                </div>
+                
+                 <div class="form-group mt-2">
+                    <button class="btn btn-danger" style="width: 100%" @click="deleteNode(selectedNodeData.id)">
+                        <LucideIcon name="trash-2" size="14" />
+                        Delete Node
+                    </button>
                 </div>
             </div>
         </div>

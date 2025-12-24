@@ -29,6 +29,7 @@ The plugin adds three tables to track media files and their organization:
 ### Frontend Component
 
 - **[MediaLibrary.js](file:///Users/lh/Downloads/antig/gaia-alpha/plugins/MediaLibrary/resources/js/MediaLibrary.js)**: Vue 3 component with grid/list views, drag-and-drop upload, tag management, search, and bulk operations
+- **Style Registration**: Automatically registers `media-library.css` for consistent styling across the admin panel.
 
 ## Configuration
 

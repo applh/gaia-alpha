@@ -36,16 +36,6 @@ class AdminController extends BaseController
                 'icon' => 'image'
             ],
             [
-                'label' => 'Total Forms',
-                'value' => \GaiaAlpha\Model\DB::query("SELECT COUNT(*) FROM forms")->fetchColumn(),
-                'icon' => 'clipboard-list'
-            ],
-            [
-                'label' => 'Form Submissions',
-                'value' => \GaiaAlpha\Model\DB::query("SELECT COUNT(*) FROM form_submissions")->fetchColumn(),
-                'icon' => 'inbox'
-            ],
-            [
                 'label' => 'Datastore',
                 'value' => \GaiaAlpha\Model\DB::query("SELECT COUNT(*) FROM data_store")->fetchColumn(),
                 'icon' => 'database'
@@ -55,6 +45,26 @@ class AdminController extends BaseController
         // Allow plugins to inject cards
         // Usage: Hook::add('admin_dashboard_cards', function($cards) { $cards[] = ['label' => '...', 'value' => ..., 'icon' => '...']; return $cards; });
         $cards = \GaiaAlpha\Hook::filter('admin_dashboard_cards', $cards);
+
+        // Load Active Plugins to check for FormBuilder
+        $activePlugins = [];
+        $activePluginsFile = \GaiaAlpha\Env::get('path_data') . '/active_plugins.json';
+        if (file_exists($activePluginsFile)) {
+            $activePlugins = json_decode(file_get_contents($activePluginsFile), true) ?: [];
+        }
+
+        if (in_array('FormBuilder', $activePlugins)) {
+            $cards[] = [
+                'label' => 'Total Forms',
+                'value' => \GaiaAlpha\Model\DB::query("SELECT COUNT(*) FROM forms")->fetchColumn(),
+                'icon' => 'clipboard-list'
+            ];
+            $cards[] = [
+                'label' => 'Form Submissions',
+                'value' => \GaiaAlpha\Model\DB::query("SELECT COUNT(*) FROM form_submissions")->fetchColumn(),
+                'icon' => 'inbox'
+            ];
+        }
 
         Response::json(['cards' => $cards]);
     }

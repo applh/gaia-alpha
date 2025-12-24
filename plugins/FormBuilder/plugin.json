@@ -3,5 +3,17 @@
     "version": "2.0.0",
     "description": "Advanced Form Builder with Quiz, Poll, and Reporting capabilities.",
     "author": "Gaia Alpha",
-    "require": []
+    "require": [],
+    "menu": {
+        "priority": 10,
+        "items": [
+            {
+                "group": "grp-content",
+                "label": "Forms",
+                "view": "forms",
+                "icon": "clipboard-list",
+                "adminOnly": true
+            }
+        ]
+    }
 }

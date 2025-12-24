@@ -38,10 +38,18 @@ class PluginController extends BaseController
                 foreach (File::glob($pluginsDir . '/*', GLOB_ONLYDIR) as $dir) {
                     $name = basename($dir);
                     if (File::exists($dir . '/index.php')) {
+                        $requires = [];
+                        $configFile = $dir . '/plugin.json';
+                        if (File::exists($configFile)) {
+                            $config = json_decode(File::read($configFile), true);
+                            $requires = $config['requires'] ?? [];
+                        }
+
                         $plugins[] = [
                             'name' => $name,
                             'active' => isset($allActive) ? true : in_array($name, $activePlugins),
-                            'is_core' => strpos($dir, $rootDir) === 0
+                            'is_core' => strpos($dir, $rootDir . '/plugins') === 0,
+                            'requires' => $requires
                         ];
                     }
                 }
@@ -91,7 +99,58 @@ class PluginController extends BaseController
         }
 
         $pathData = Env::get('path_data');
+        $rootDir = Env::get('root_dir');
         $activePluginsFile = $pathData . '/active_plugins.json';
+
+        // --- Dependency Validation Start ---
+        // 1. Build a map of all available plugins and their dependencies
+        $allPlugins = [];
+        $pluginDirs = [$pathData . '/plugins', $rootDir . '/plugins'];
+
+        foreach ($pluginDirs as $pluginsDir) {
+            if (File::isDirectory($pluginsDir)) {
+                foreach (File::glob($pluginsDir . '/*', GLOB_ONLYDIR) as $dir) {
+                    $name = basename($dir);
+                    if (File::exists($dir . '/index.php')) {
+                        $requires = [];
+                        $configFile = $dir . '/plugin.json';
+                        if (File::exists($configFile)) {
+                            $config = json_decode(File::read($configFile), true);
+                            $requires = $config['requires'] ?? [];
+                        }
+                        $allPlugins[$name] = [
+                            'requires' => $requires,
+                            'is_core' => strpos($dir, $rootDir) === 0
+                        ];
+                    }
+                }
+            }
+        }
+
+        // 2. Validate dependencies for all NEW active plugins
+        foreach ($newActivePlugins as $pluginName) {
+            if (!isset($allPlugins[$pluginName])) {
+                // Plugin might have been deleted but is still in the list? 
+                // Or just skip validation if we can't find it.
+                continue;
+            }
+
+            $requirements = $allPlugins[$pluginName]['requires'];
+            foreach ($requirements as $reqName => $reqVersion) {
+                // Ignore gaia-alpha core requirement for now or checking version
+                if ($reqName === 'gaia-alpha')
+                    continue;
+
+                // Check if absolute requirement is active
+                if (!in_array($reqName, $newActivePlugins)) {
+                    Response::json([
+                        'error' => "Cannot activate '$pluginName'. It requires '$reqName' to be active."
+                    ], 400);
+                    return;
+                }
+            }
+        }
+        // --- Dependency Validation End ---
 
         // 1. Read existing active plugins
         $currentActivePlugins = [];

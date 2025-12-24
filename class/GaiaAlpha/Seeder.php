@@ -15,26 +15,36 @@ class Seeder
         // echo "Starting seeder for user $userId...\n";
         $seedDir = Env::get('root_dir') . '/templates/seed';
 
+        // Load Active Plugins
+        $activePlugins = [];
+        $activePluginsFile = Env::get('path_data') . '/active_plugins.json';
+        if (file_exists($activePluginsFile)) {
+            $activePlugins = json_decode(file_get_contents($activePluginsFile), true) ?: [];
+        }
+
         // echo "1. Seeding Todos...\n";
-        $todosFile = $seedDir . '/todos.json';
-        if (File::exists($todosFile)) {
-            $todos = File::readJson($todosFile);
-            $getDate = fn($d) => $d ? date('Y-m-d', strtotime($d)) : null;
+        // Check if Todo plugin is active
+        if (in_array('Todo', $activePlugins)) {
+            $todosFile = $seedDir . '/todos.json';
+            if (File::exists($todosFile)) {
+                $todos = File::readJson($todosFile);
+                $getDate = fn($d) => $d ? date('Y-m-d', strtotime($d)) : null;
 
-            foreach ($todos as $todo) {
-                $start = $getDate($todo['start_date'] ?? null);
-                $end = $getDate($todo['end_date'] ?? null);
+                foreach ($todos as $todo) {
+                    $start = $getDate($todo['start_date'] ?? null);
+                    $end = $getDate($todo['end_date'] ?? null);
 
-                // If it has children vs flat
-                if (isset($todo['children'])) {
-                    $parentId = Todo::create($userId, $todo['title'], null, $todo['labels'] ?? null, $start, $end, $todo['color'] ?? null);
-                    foreach ($todo['children'] as $child) {
-                        $cStart = $getDate($child['start_date'] ?? null);
-                        $cEnd = $getDate($child['end_date'] ?? null);
-                        Todo::create($userId, $child['title'], $parentId, $child['labels'] ?? null, $cStart, $cEnd, $child['color'] ?? null);
+                    // If it has children vs flat
+                    if (isset($todo['children'])) {
+                        $parentId = Todo::create($userId, $todo['title'], null, $todo['labels'] ?? null, $start, $end, $todo['color'] ?? null);
+                        foreach ($todo['children'] as $child) {
+                            $cStart = $getDate($child['start_date'] ?? null);
+                            $cEnd = $getDate($child['end_date'] ?? null);
+                            Todo::create($userId, $child['title'], $parentId, $child['labels'] ?? null, $cStart, $cEnd, $child['color'] ?? null);
+                        }
+                    } else {
+                        Todo::create($userId, $todo['title'], null, $todo['labels'] ?? null, $start, $end, $todo['color'] ?? null);
                     }
-                } else {
-                    Todo::create($userId, $todo['title'], null, $todo['labels'] ?? null, $start, $end, $todo['color'] ?? null);
                 }
             }
         }
@@ -86,40 +96,44 @@ class Seeder
         }
 
         // 5. Forms & Submissions
-        $formsFile = $seedDir . '/forms.json';
-        if (File::exists($formsFile)) {
-            $forms = File::readJson($formsFile);
-            foreach ($forms as $form) {
-                $sql = "INSERT INTO forms (user_id, title, slug, description, schema, submit_label) VALUES (?, ?, ?, ?, ?, ?)";
-                DB::execute($sql, [
-                    $userId,
-                    $form['title'],
-                    $form['slug'],
-                    $form['description'],
-                    json_encode($form['schema']),
-                    $form['submit_label'] ?? 'Submit'
-                ]);
+        if (in_array('FormBuilder', $activePlugins)) {
+            $formsFile = $seedDir . '/forms.json';
+            if (File::exists($formsFile)) {
+                $forms = File::readJson($formsFile);
+                foreach ($forms as $form) {
+                    $sql = "INSERT INTO forms (user_id, title, slug, description, schema, submit_label) VALUES (?, ?, ?, ?, ?, ?)";
+                    DB::execute($sql, [
+                        $userId,
+                        $form['title'],
+                        $form['slug'],
+                        $form['description'],
+                        json_encode($form['schema']),
+                        $form['submit_label'] ?? 'Submit'
+                    ]);
 
-                $formId = DB::lastInsertId();
+                    $formId = DB::lastInsertId();
 
-                if (!empty($form['submissions'])) {
-                    foreach ($form['submissions'] as $sub) {
-                        DB::execute(
-                            "INSERT INTO form_submissions (form_id, data, ip_address, user_agent) VALUES (?, ?, ?, ?)",
-                            [$formId, json_encode($sub), '127.0.0.1', 'Mozilla/5.0 (Demo Agent)']
-                        );
+                    if (!empty($form['submissions'])) {
+                        foreach ($form['submissions'] as $sub) {
+                            DB::execute(
+                                "INSERT INTO form_submissions (form_id, data, ip_address, user_agent) VALUES (?, ?, ?, ?)",
+                                [$formId, json_encode($sub), '127.0.0.1', 'Mozilla/5.0 (Demo Agent)']
+                            );
+                        }
                     }
                 }
             }
         }
 
         // 6. Map Markers
-        $markersFile = $seedDir . '/markers.json';
-        if (File::exists($markersFile)) {
-            $markers = File::readJson($markersFile);
-            $sql = "INSERT INTO map_markers (user_id, label, lat, lng) VALUES (?, ?, ?, ?)";
-            foreach ($markers as $m) {
-                DB::execute($sql, [$userId, $m['label'], $m['lat'], $m['lng']]);
+        if (in_array('Map', $activePlugins)) {
+            $markersFile = $seedDir . '/markers.json';
+            if (File::exists($markersFile)) {
+                $markers = File::readJson($markersFile);
+                $sql = "INSERT INTO map_markers (user_id, label, lat, lng) VALUES (?, ?, ?, ?)";
+                foreach ($markers as $m) {
+                    DB::execute($sql, [$userId, $m['label'], $m['lat'], $m['lng']]);
+                }
             }
         }
 
@@ -157,46 +171,52 @@ class Seeder
         DB::execute($sql, [$userId, 'user_pref', 'language', 'en']);
 
         // 9. Messages
-        $msgsFile = $seedDir . '/messages.json';
-        if (File::exists($msgsFile)) {
-            $msgs = File::readJson($msgsFile);
-            $sql = "INSERT INTO messages (sender_id, receiver_id, content, is_read) VALUES (?, ?, ?, ?)";
-            foreach ($msgs as $msg) {
-                DB::execute($sql, [$userId, $userId, $msg['content'], $msg['is_read']]);
+        if (in_array('Chat', $activePlugins)) {
+            $msgsFile = $seedDir . '/messages.json';
+            if (File::exists($msgsFile)) {
+                $msgs = File::readJson($msgsFile);
+                $sql = "INSERT INTO messages (sender_id, receiver_id, content, is_read) VALUES (?, ?, ?, ?)";
+                foreach ($msgs as $msg) {
+                    DB::execute($sql, [$userId, $userId, $msg['content'], $msg['is_read']]);
+                }
             }
         }
 
         // 10. Bulk Generation (Show off power)
         // Todos: 25 extra items with random dates
-        for ($i = 1; $i <= 25; $i++) {
-            $hasDate = $i % 3 !== 0; // 2/3 items have dates
-            $start = null;
-            $end = null;
+        if (in_array('Todo', $activePlugins)) {
+            for ($i = 1; $i <= 25; $i++) {
+                $hasDate = $i % 3 !== 0; // 2/3 items have dates
+                $start = null;
+                $end = null;
 
-            if ($hasDate) {
-                $offset = rand(-5, 15);
-                $start = date('Y-m-d', strtotime((($offset >= 0) ? "+$offset" : "$offset") . " days"));
+                if ($hasDate) {
+                    $offset = rand(-5, 15);
+                    $start = date('Y-m-d', strtotime((($offset >= 0) ? "+$offset" : "$offset") . " days"));
 
-                // 50% chance of range vs single date
-                if (rand(0, 1)) {
-                    $duration = rand(1, 5);
-                    $end = date('Y-m-d', strtotime("$start +$duration days"));
+                    // 50% chance of range vs single date
+                    if (rand(0, 1)) {
+                        $duration = rand(1, 5);
+                        $end = date('Y-m-d', strtotime("$start +$duration days"));
+                    }
                 }
-            }
 
-            Todo::create($userId, "Bulk Task #$i - " . bin2hex(random_bytes(4)), null, "generated", $start, $end, $i % 2 == 0 ? '#64748b' : null);
+                Todo::create($userId, "Bulk Task #$i - " . bin2hex(random_bytes(4)), null, "generated", $start, $end, $i % 2 == 0 ? '#64748b' : null);
+            }
         }
 
         // Markers: 15 random locations around Paris
-        $sql = "INSERT INTO map_markers (user_id, label, lat, lng) VALUES (?, ?, ?, ?)";
-        for ($i = 1; $i <= 15; $i++) {
-            $lat = 48.8566 + (rand(-100, 100) / 1000);
-            $lng = 2.3522 + (rand(-100, 100) / 1000);
-            DB::execute($sql, [$userId, "Random Point #$i", $lat, $lng]);
+        if (in_array('Map', $activePlugins)) {
+            $sql = "INSERT INTO map_markers (user_id, label, lat, lng) VALUES (?, ?, ?, ?)";
+            for ($i = 1; $i <= 15; $i++) {
+                $lat = 48.8566 + (rand(-100, 100) / 1000);
+                $lng = 2.3522 + (rand(-100, 100) / 1000);
+                DB::execute($sql, [$userId, "Random Point #$i", $lat, $lng]);
+            }
         }
 
         // Submissions: 20 dummy entries for the Contact form
-        if (isset($formId)) {
+        if (in_array('FormBuilder', $activePlugins) && isset($formId)) {
             $sql = "INSERT INTO form_submissions (form_id, data, ip_address, user_agent) VALUES (?, ?, ?, ?)";
             for ($i = 1; $i <= 20; $i++) {
                 $subData = json_encode([

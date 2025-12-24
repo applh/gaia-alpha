@@ -33,32 +33,41 @@ class MediaController extends BaseController
             return;
         }
 
-        // Cache Key Logic
-        $width = isset($params['w']) ? (int) $params['w'] : 0;
-        $height = isset($params['h']) ? (int) $params['h'] : 0;
-        $quality = isset($params['q']) ? (int) $params['q'] : 80;
-        $fit = isset($params['fit']) ? $params['fit'] : 'contain'; // contain, cover
+        // Check if file is an image that we can process
+        $imageInfo = @getimagesize($sourcePath);
+        $supportedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/avif'];
 
-        $useAvif = function_exists('imageavif');
-        $ext = $useAvif ? '.avif' : '.webp';
+        if ($imageInfo && in_array($imageInfo['mime'], $supportedTypes)) {
+            // Cache Key Logic
+            $width = isset($params['w']) ? (int) $params['w'] : 0;
+            $height = isset($params['h']) ? (int) $params['h'] : 0;
+            $quality = isset($params['q']) ? (int) $params['q'] : 80;
+            $fit = isset($params['fit']) ? $params['fit'] : 'contain'; // contain, cover
 
-        $cacheKey = md5($userId . '_' . $filename . '_' . $width . '_' . $height . '_' . $quality . '_' . $fit);
-        $cachePath = $this->media->getCacheDir() . '/' . $cacheKey . $ext;
+            $useAvif = function_exists('imageavif');
+            $ext = $useAvif ? '.avif' : '.webp';
 
-        // Serve from cache if exists
-        if (file_exists($cachePath) && filemtime($cachePath) >= filemtime($sourcePath)) {
-            $this->media->serveFile($cachePath);
-            return;
-        }
+            $cacheKey = md5($userId . '_' . $filename . '_' . $width . '_' . $height . '_' . $quality . '_' . $fit);
+            $cachePath = $this->media->getCacheDir() . '/' . $cacheKey . $ext;
 
-        // Process Image
-        $this->media->processImage($sourcePath, $cachePath, $width, $height, $quality, $fit);
+            // Serve from cache if exists
+            if (file_exists($cachePath) && filemtime($cachePath) >= filemtime($sourcePath)) {
+                $this->media->serveFile($cachePath);
+                return;
+            }
 
-        if (file_exists($cachePath)) {
-            $this->media->serveFile($cachePath);
+            // Process Image
+            $this->media->processImage($sourcePath, $cachePath, $width, $height, $quality, $fit);
+
+            if (file_exists($cachePath)) {
+                $this->media->serveFile($cachePath);
+            } else {
+                http_response_code(500);
+                echo "Image processing failed";
+            }
         } else {
-            http_response_code(500);
-            echo "Image processing failed";
+            // Not an image or unsupported type, serve directly
+            $this->media->serveFile($sourcePath);
         }
     }
 

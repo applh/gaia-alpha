@@ -44,6 +44,12 @@ The Form Builder plugin replaces the legacy core form functionality with a robus
 -   `schema`: JSON array of fields.
 -   `settings`: JSON object for extra config.
 
+## Configuration
+
+### Menu Registration
+The plugin automatically registers a "Forms" menu item in the `grp-content` group via `plugin.json`.
+
+
 ### `form_submissions` Table
 -   `score`: Integer (points) for quizzes.
 -   `metadata`: JSON object containing detailed results (correct/incorrect per question).

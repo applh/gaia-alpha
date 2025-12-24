@@ -5,6 +5,7 @@ namespace GaiaAlpha;
 class UiManager
 {
     private static $components = [];
+    private static $styles = [];
 
     /**
      * Register a frontend component to be dynamically loaded.
@@ -21,8 +22,24 @@ class UiManager
         ];
     }
 
+    /**
+     * Register a CSS file to be loaded.
+     *
+     * @param string $id Unique identifier
+     * @param string $path Path to CSS file
+     */
+    public static function registerStyle(string $id, string $path)
+    {
+        self::$styles[$id] = $path;
+    }
+
     public static function getComponents()
     {
         return self::$components;
+    }
+
+    public static function getStyles()
+    {
+        return self::$styles;
     }
 }

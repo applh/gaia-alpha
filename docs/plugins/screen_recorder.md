@@ -59,3 +59,6 @@ The Screen Recorder plugin enables users to capture their screen activity alongs
 Configurations can be adjusted in `plugin.json`:
 - `RECORDING_MAX_DURATION`: Maximum allowed recording time in seconds (Default: `1800` / 30 mins).
 - `DEFAULT_VIDEO_BITRATE`: Target bitrate for the MediaRecorder (Default: `2500000`).
+
+## Dependencies
+- **MediaLibrary** (`>=1.0.0`): Required for saving recordings.

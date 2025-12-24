@@ -1,4 +1,7 @@
+import Icon from 'ui/Icon.js';
+
 export default {
+    components: { LucideIcon: Icon },
     props: {
         show: Boolean
     },

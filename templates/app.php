@@ -23,6 +23,11 @@
         window.siteConfig = <?= json_encode($globalSettings ?? []) ?>;
     </script>
     <link rel="stylesheet" href="<?= \GaiaAlpha\Asset::url('/css/site.css') ?>">
+    <?php if (!empty($globalSettings['ui_styles'])): ?>
+        <?php foreach ($globalSettings['ui_styles'] as $stylePath): ?>
+            <link rel="stylesheet" href="<?= \GaiaAlpha\Asset::url('/' . $stylePath) ?>">
+        <?php endforeach; ?>
+    <?php endif; ?>
     <script type="module" src="<?= \GaiaAlpha\Asset::url('/js/site.js?v=2') ?>"></script>
     <script src="<?= \GaiaAlpha\Asset::url('/js/vendor/lucide.min.js') ?>"></script>
     <link rel="stylesheet" href="<?= \GaiaAlpha\Asset::url('/css/fonts.css') ?>">

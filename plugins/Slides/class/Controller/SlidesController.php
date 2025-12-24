@@ -77,7 +77,10 @@ class SlidesController extends BaseController
         $pages = $this->service->getPages($deck_id);
         foreach ($pages as &$page) {
             if (is_string($page['content'])) {
-                $page['content'] = json_decode($page['content'], true);
+                $decoded = json_decode($page['content'], true);
+                if (json_last_error() === JSON_ERROR_NONE) {
+                    $page['content'] = $decoded;
+                }
             }
         }
         Response::json($pages);

@@ -28,7 +28,11 @@ class Media
 
     public function serveFile(string $path): void
     {
-        $mime = 'image/webp';
+        $mime = mime_content_type($path);
+        if (!$mime) {
+            $mime = 'application/octet-stream';
+        }
+
         header("Content-Type: $mime");
         header("Content-Length: " . filesize($path));
         header("Cache-Control: public, max-age=31536000, immutable"); // 1 year cache

@@ -15,7 +15,7 @@ export function useMenu() {
                 { label: 'CMS', view: 'cms', icon: 'file-text' },
                 { label: 'Templates', view: 'cms-templates', icon: 'layout-template', adminOnly: true },
                 // { label: 'Components', view: 'cms-components', icon: 'puzzle', adminOnly: true }, // Injected by Plugin
-                { label: 'Forms', view: 'forms', icon: 'clipboard-list' }
+                // { label: 'Forms', view: 'forms', icon: 'clipboard-list' }
             ]
         },
         {
@@ -78,7 +78,7 @@ export function useMenu() {
                 // Allow Core Views (hardcoded list matching static map in site.js)
                 const coreViews = [
                     'dashboard', 'users', 'cms', 'cms-templates', 'cms-components',
-                    'forms', 'settings', 'site-settings', 'plugins', 'todos', 'login'
+                    'settings', 'site-settings', 'plugins', 'todos', 'login'
                 ];
                 if (coreViews.includes(view)) return true;
 

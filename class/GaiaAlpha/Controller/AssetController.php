@@ -207,6 +207,17 @@ class AssetController extends BaseController
         // Matches /assets/... for static resources
         Router::get('/assets/(.+)', [$this, 'servePublic']);
 
+        // Matches /min/plugins/(.+) for Plugin Assets
+        Router::get('/min/plugins/(.+)', function ($path) {
+            if (substr($path, -4) === '.css') {
+                $this->serveCss('plugins/' . $path);
+            } elseif (substr($path, -3) === '.js') {
+                $this->serveJs('plugins/' . $path);
+            } else {
+                Response::send('Not Found', 404);
+            }
+        });
+
         // Serve Seed Data (Dev/Demo purpose)
         Router::get('/templates/seed/(.+)', function ($file) {
             $path = Env::get('root_dir') . '/templates/seed/' . $file;

@@ -39,7 +39,16 @@ export default {
                     <tbody>
                         <tr v-for="plugin in plugins" :key="plugin.name">
                             <td>
-                                <div class="plugin-name">{{ plugin.name }}</div>
+                                <div class="plugin-name">
+                                    {{ plugin.name }}
+                                    <span v-if="plugin.is_core" class="badge badge-info">Core</span>
+                                </div>
+                                <div v-if="plugin.requires && Object.keys(plugin.requires).length > 0" class="plugin-deps">
+                                    <span class="deps-label">Requires:</span>
+                                    <span v-for="(ver, dep) in plugin.requires" :key="dep" class="dep-tag" :class="{'dep-tag-core': dep === 'gaia-alpha'}">
+                                        {{ dep }} <span class="dep-ver">{{ ver }}</span>
+                                    </span>
+                                </div>
                             </td>
                             <td style="text-align: right;">
                                 <label class="switch">
@@ -193,19 +202,73 @@ export default {
             }
         };
 
-        onMounted(fetchPlugins);
+        onMounted(() => {
+            fetchPlugins();
+
+            // Inject Styles
+            const styleId = 'plugins-admin-styles';
+            if (!document.getElementById(styleId)) {
+                const style = document.createElement('style');
+                style.id = styleId;
+                style.textContent = `
+                    .plugin-name {
+                        font-weight: 500;
+                        font-size: 1.1em;
+                        display: flex;
+                        align-items: center;
+                        gap: 8px;
+                    }
+                    .badge {
+                        font-size: 0.7em;
+                        padding: 2px 6px;
+                        border-radius: 4px;
+                        text-transform: uppercase;
+                        font-weight: bold;
+                    }
+                    .badge-info {
+                        background: rgba(99, 102, 241, 0.1);
+                        color: #6366f1;
+                        border: 1px solid rgba(99, 102, 241, 0.2);
+                    }
+                    .plugin-deps {
+                        font-size: 0.85em;
+                        margin-top: 4px;
+                        color: #64748b;
+                    }
+                    .deps-label {
+                        margin-right: 4px;
+                        font-size: 0.9em;
+                        opacity: 0.7;
+                    }
+                    .dep-tag {
+                        display: inline-flex;
+                        align-items: center;
+                        background: #f1f5f9;
+                        padding: 1px 6px;
+                        border-radius: 4px;
+                        margin-right: 4px;
+                        border: 1px solid #e2e8f0;
+                        color: #475569;
+                    }
+                    .dep-tag-core {
+                        background: #fff;
+                        border-color: #e2e8f0;
+                        opacity: 0.7;
+                    }
+                    .dep-ver {
+                        font-size: 0.8em;
+                        opacity: 0.6;
+                        margin-left: 3px;
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+        });
 
         return {
             plugins, loading, error, togglePlugin,
             showInstallModal, installUrl, isRawUrl, installing, installError, installPlugin,
             isDirty, saving, saveChanges
         };
-    },
-    styles: `
-
-        .plugin-name {
-            font-weight: 500;
-            font-size: 1.1em;
-        }
-    `
+    }
 };

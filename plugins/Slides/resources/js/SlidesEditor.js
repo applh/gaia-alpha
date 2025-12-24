@@ -165,7 +165,12 @@ export default {
                         class="deck-card"
                         @click="openDeck(d)"
                     >
-                        <LucideIcon name="monitor" size="32" class="text-accent" />
+                        <div class="flex justify-between items-start w-full">
+                            <LucideIcon name="monitor" size="32" class="text-accent" />
+                            <button @click.stop="deleteDeck(d)" class="text-danger hover:text-red-400 p-1">
+                                <LucideIcon name="trash" size="16" />
+                            </button>
+                        </div>
                         <h3 class="font-bold">{{ d.title }}</h3>
                         <span class="text-xs text-muted">{{ formatDate(d.updated_at) }}</span>
                     </div>
@@ -253,6 +258,21 @@ export default {
                 </div>
             </div>
         </div>
+        
+        <!-- Delete Confirmation Modal -->
+        <div v-if="showDeleteModal" class="modal-overlay">
+            <div class="modal">
+                <div class="modal-header"><h3>Delete Deck</h3></div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete deck "<strong>{{ deckToDelete?.title }}</strong>"?</p>
+                    <p class="text-sm text-muted mt-2">This action cannot be undone.</p>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" @click="showDeleteModal = false">Cancel</button>
+                    <button class="btn btn-danger" @click="confirmDeleteDeck">Delete</button>
+                </div>
+            </div>
+        </div>
     </div>
     `,
     styles: STYLES,
@@ -264,6 +284,8 @@ export default {
         const showNewModal = ref(false);
         const newTitle = ref('');
         const isPlaying = ref(false);
+        const showDeleteModal = ref(false);
+        const deckToDelete = ref(null);
 
         // Drawing state
         const slideCanvas = ref(null);
@@ -441,6 +463,23 @@ export default {
             return d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         };
 
+        const deleteDeck = (deck) => {
+            deckToDelete.value = deck;
+            showDeleteModal.value = true;
+        };
+
+        const confirmDeleteDeck = async () => {
+            if (!deckToDelete.value) return;
+
+            const res = await fetch(`/@/slides/deck/${deckToDelete.value.id}`, { method: 'DELETE' });
+            if (res.ok) {
+                await loadDecks();
+                store.addNotification('Slide deck deleted', 'success');
+            }
+            showDeleteModal.value = false;
+            deckToDelete.value = null;
+        };
+
         onMounted(async () => {
             await loadDecks();
 
@@ -463,7 +502,8 @@ export default {
             strokeColor, brushSize, palette, isPlaying,
             loadDecks, createDeck, openDeck, addPage,
             startDrawing, draw, stopDrawing, clearPage, saveAll,
-            movePage, deletePage, formatDate, closeEditor, selectPage
+            movePage, deletePage, formatDate, closeEditor, selectPage,
+            deleteDeck, confirmDeleteDeck, showDeleteModal, deckToDelete
         };
     }
 }

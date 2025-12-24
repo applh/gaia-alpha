@@ -11,6 +11,7 @@ Hook::add('framework_load_controllers_after', function ($controllers) {
 
 // Register UI Component
 \GaiaAlpha\UiManager::registerComponent('media_library', 'plugins/MediaLibrary/MediaLibrary.js', true);
+\GaiaAlpha\UiManager::registerStyle('media_library', 'plugins/MediaLibrary/resources/css/media-library.css');
 
 // Inject Menu Item
 Hook::add('auth_session_data', function ($data) {

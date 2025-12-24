@@ -7,6 +7,7 @@ The Slides plugin allows users to create, edit, and play interactive slide decks
 - **Slide Decks**: Group multiple slides into a single deck.
 - **Drawing Canvas**: Full-featured drawing tool for each slide with palette and brush size controls.
 - **Slide Management**: Add, delete, and reorder slides visually.
+- **Deck Management**: Create and delete slide decks.
 - **Full-screen Player**: Play presentations with keyboard navigation (Right Arrow/Space to advance, Left Arrow to go back).
 - **Auto-save**: Content is saved locally and periodically to the server.
 

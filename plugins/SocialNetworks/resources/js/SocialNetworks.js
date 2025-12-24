@@ -1,8 +1,9 @@
 import SetupWizard from './components/SetupWizard.js';
 import Composer from './components/Composer.js';
+import Icon from 'ui/Icon.js';
 
 export default {
-    components: { SetupWizard, Composer },
+    components: { SetupWizard, Composer, LucideIcon: Icon },
     data() {
         return {
             accounts: [],
@@ -33,8 +34,8 @@ export default {
         }
     },
     template: `
-        <div class="social-networks-panel p-6">
-            <header class="flex justify-between items-center mb-8">
+        <div class="admin-page social-networks-panel p-6">
+            <div class="admin-header">
                 <div>
                     <h1 class="text-3xl font-bold mb-2">Social Networks</h1>
                     <p class="text-secondary">Publish content across all your social channels from one place.</p>
@@ -43,7 +44,7 @@ export default {
                     <lucide-icon name="settings" class="w-4 h-4" />
                     Connect Accounts
                 </button>
-            </header>
+            </div>
 
             <div v-if="loading" class="flex justify-center py-20">
                 <div class="spinner"></div>

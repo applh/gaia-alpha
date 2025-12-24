@@ -60,6 +60,7 @@ class ViewController extends BaseController
 
         // Inject Dynamic UI Components
         $globalSettings['ui_components'] = \GaiaAlpha\UiManager::getComponents();
+        $globalSettings['ui_styles'] = \GaiaAlpha\UiManager::getStyles();
 
         // Inject Active Plugins
         $globalSettings['root_dir'] = Env::get('root_dir');

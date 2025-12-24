@@ -101,7 +101,11 @@ export default {
                 class="media-card"
             >
                 <div class="media-thumbnail">
-                    <img :src="getFileUrl(file)" :alt="file.alt_text || file.original_filename" />
+                    <img v-if="isImage(file)" :src="getFileUrl(file)" :alt="file.alt_text || file.original_filename" />
+                    <div v-else class="media-icon-placeholder">
+                        <LucideIcon v-if="isVideo(file)" name="film" size="48" />
+                        <LucideIcon v-else name="file" size="48" />
+                    </div>
                     <div class="media-overlay">
                         <input 
                             type="checkbox" 

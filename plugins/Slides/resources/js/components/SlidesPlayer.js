@@ -1,4 +1,4 @@
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted, computed } from 'vue';
 import Icon from 'ui/Icon.js';
 
 const STYLES = `
@@ -94,7 +94,7 @@ export default {
     `,
     setup(props) {
         const currentIndex = ref(0);
-        const currentSlide = vue.computed(() => props.slides[currentIndex.value]);
+        const currentSlide = computed(() => props.slides[currentIndex.value]);
 
         const next = () => {
             if (currentIndex.value < props.slides.length - 1) {

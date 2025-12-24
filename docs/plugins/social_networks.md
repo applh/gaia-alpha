@@ -10,6 +10,7 @@ The Social Networks plugin allows users to connect their Gaia Alpha instance to 
 - **Unified Media Library Integration**: Pull assets directly from the [Media Library](media_library.md) for publishing.
 - **Smart Setup Wizard**: Integrated panel to help users find and enter API keys with platform-specific instructions and direct links.
 - **OAuth2 One-Click Connect**: Automatically retrieve access tokens for supported platforms (LinkedIn, YouTube, TikTok) without manual key entry.
+- **Unified Dashboard**: Clean admin-panel integrated layout with clear action headers.
 - **Scheduling**: (Upcoming) Schedule posts to be published at a later date.
 - **Analytics**: Track engagement and performance for published content.
 

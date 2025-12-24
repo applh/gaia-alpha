@@ -115,6 +115,18 @@
     object-fit: cover;
 }
 
+.media-icon-placeholder {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
+}
+
 .media-overlay {
     position: absolute;
     top: 8px;
@@ -204,6 +216,7 @@
     z-index: 1000;
 }
 
+/* Modal Improvements */
 .modal-content {
     background: var(--card-bg);
     border: 1px solid var(--border-color);
@@ -211,10 +224,22 @@
     width: 90%;
     max-width: 600px;
     max-height: 90vh;
-    overflow-y: auto;
+    /* Viewport constraint */
+    display: flex;
+    /* Flex layout for valid height distribution */
+    flex-direction: column;
+}
+
+.large-modal {
+    max-width: 900px;
+    /* Wider for media editing */
+    height: 80vh;
+    /* Fixed height for editor consistency */
 }
 
 .modal-header {
+    flex-shrink: 0;
+    /* Keep header constant */
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -246,6 +271,19 @@
 
 .modal-body {
     padding: 25px;
+    overflow-y: auto;
+    /* Scrollable content */
+    flex: 1;
+    /* Take remaining space */
+    min-height: 0;
+    /* Flexbox scroll fix */
+}
+
+/* Eliminate padding for editor body to maximize space */
+.modal-body.editor-body {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
 }
 
 .modal-footer {
@@ -254,6 +292,7 @@
     gap: 10px;
     padding: 20px 25px;
     border-top: 1px solid var(--border-color);
+    flex-shrink: 0;
 }
 
 .form-group {
@@ -328,4 +367,142 @@
 .text-muted {
     color: var(--text-muted);
     font-size: 0.9rem;
+}
+
+/* Video Player Styles */
+.video-editor-wrapper {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    gap: 15px;
+}
+
+.video-player {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    gap: 10px;
+}
+
+.video-player .editor-toolbar {
+    flex-shrink: 0;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.video-player .file-name {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.video-container {
+    flex: 1;
+    min-height: 0;
+    /* Allow shrinking */
+    background: #000;
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+    /* For absolute centering if needed */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.video-container video {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+/* Video Editor Styles */
+.video-editor {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+}
+
+.video-editor .editor-toolbar {
+    flex-shrink: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 15px;
+}
+
+.video-editor .actions {
+    display: flex;
+    gap: 10px;
+}
+
+.video-editor-body {
+    display: flex;
+    gap: 20px;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+    /* Prevent body scroll */
+}
+
+.video-preview {
+    flex: 1;
+    background: #000;
+    border-radius: 8px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 0;
+}
+
+.video-preview video {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.editor-controls {
+    width: 250px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    padding-left: 15px;
+    border-left: 1px solid var(--border-color);
+    overflow-y: auto;
+}
+
+.control-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: var(--text-primary);
+    font-size: 0.9rem;
+}
+
+.field {
+    margin-bottom: 10px;
+}
+
+.video-editor .loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
 }

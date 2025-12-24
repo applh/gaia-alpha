@@ -17,9 +17,9 @@ class Framework
         ];
 
         $activePluginsFile = $pathData . '/active_plugins.json';
-        $activePlugins = null;
+        $activePlugins = [];
         if (file_exists($activePluginsFile)) {
-            $activePlugins = json_decode(file_get_contents($activePluginsFile), true);
+            $activePlugins = json_decode(file_get_contents($activePluginsFile), true) ?: [];
         }
 
         foreach ($pluginDirs as $pluginsDir) {
@@ -41,7 +41,7 @@ class Framework
                 // If active_plugins.json exists, ONLY whitelist if NOT core
                 $isCore = isset($config['type']) && $config['type'] === 'core';
 
-                if ($activePlugins !== null && !in_array($pluginDirName, $activePlugins)) {
+                if (!in_array($pluginDirName, $activePlugins)) {
                     continue;
                 }
 
@@ -114,7 +114,7 @@ class Framework
 
         $rootDir = Env::get('root_dir');
         // Dynamically Init Controllers
-        $controllers = [];
+        $controllers = Env::get('controllers') ?: [];
         foreach (glob($rootDir . '/class/GaiaAlpha/Controller/*Controller.php') as $file) {
             $filename = basename($file, '.php');
             if ($filename === 'BaseController')

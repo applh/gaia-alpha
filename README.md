@@ -27,6 +27,11 @@
    php -S localhost:8000 -t www
    ```
 
+   *To increase upload size limit (e.g. 500MB):*
+   ```bash
+   php -d upload_max_filesize=500M -d post_max_size=500M -S localhost:8000 -t www
+   ```
+
 3. **Installation**
    Open [http://localhost:8000](http://localhost:8000). You will be automatically redirected to the **Installation Screen**. 
    

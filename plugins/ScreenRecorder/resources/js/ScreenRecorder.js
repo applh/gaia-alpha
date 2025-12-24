@@ -137,7 +137,7 @@ export default {
                 this.initCanvasMixer();
             } catch (err) {
                 console.error("Error sharing screen:", err);
-                this.$toast.error("Failed to share screen. Check permissions.");
+                if (this.$toast) this.$toast.error("Failed to share screen. Check permissions.");
             }
         },
 
@@ -151,7 +151,7 @@ export default {
                 } catch (err) {
                     console.error("Error accessing camera:", err);
                     this.cameraEnabled = false;
-                    this.$toast.error("Camera access denied.");
+                    if (this.$toast) this.$toast.error("Camera access denied.");
                 }
             } else {
                 if (this.cameraStream) {
@@ -291,7 +291,7 @@ export default {
                 const result = await response.json();
 
                 if (result.success) {
-                    this.$toast.success("Successfully saved to Media Library!");
+                    if (this.$toast) this.$toast.success("Successfully saved to Media Library!");
                     this.lastRecordingUrl = null;
                     this.lastRecordingBlob = null;
                 } else {
@@ -299,7 +299,11 @@ export default {
                 }
             } catch (err) {
                 console.error("Upload failed:", err);
-                this.$toast.error("Failed to save recording: " + err.message);
+                if (this.$toast) {
+                    this.$toast.error("Failed to save recording: " + err.message);
+                } else {
+                    alert("Failed to save recording: " + err.message);
+                }
             } finally {
                 this.isSaving = false;
             }

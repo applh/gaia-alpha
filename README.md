@@ -89,13 +89,15 @@ The Gaia Alpha documentation is organized topically for maximum discoverability.
 - **Reactive UI**: Vue 3 frontend without a build step (ES Modules).
 - **CLI Power**: Comprehensive command-line tools for DB, Media, and Files.
 - **Video Engine**: Advanced image and video processing on the fly.
+- **Learning Management System**: Complete course creation and enrollment platform.
+- **E-commerce Engine**: Sell digital and physical products with extendable hooks.
 - **Real-time Chat**: User-to-user messaging system.
 
 ### 📊 By the Numbers
 
 - **125,000+** lines of code
 - **~500** files
-- **20** active plugins
+- **22** active plugins
 - **50+** MCP tools for AI integration
 
 ---

@@ -4,5 +4,10 @@
     "description": "Model Context Protocol Server for external AI agents.",
     "type": "core",
     "author": "Gaia Alpha",
-    "menu": {}
+    "menu": {},
+    "dependencies": {
+        "php": {
+            "symfony/process": "^6.0"
+        }
+    }
 }

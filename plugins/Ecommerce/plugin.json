@@ -5,5 +5,9 @@
     "author": "Antigravity",
     "website": "https://gaia-alpha.com",
     "required_version": "0.0.1",
-    "dependencies": []
+    "dependencies": {
+        "php": {
+            "stripe/stripe-php": "^10.0"
+        }
+    }
 }

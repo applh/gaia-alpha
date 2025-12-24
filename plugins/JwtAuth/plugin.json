@@ -15,5 +15,10 @@
                 "adminOnly": true
             }
         ]
+    },
+    "dependencies": {
+        "php": {
+            "firebase/php-jwt": "^6.0"
+        }
     }
 }

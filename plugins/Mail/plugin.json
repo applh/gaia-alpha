@@ -51,5 +51,10 @@
                 "adminOnly": true
             }
         ]
+    },
+    "dependencies": {
+        "php": {
+            "phpmailer/phpmailer": "^6.8"
+        }
     }
 }

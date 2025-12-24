@@ -3,5 +3,9 @@
     "version": "1.0.0",
     "description": "Create and manage custom data visualizations and charts",
     "author": "Gaia Alpha",
-    "dependencies": []
+    "dependencies": {
+        "js": {
+            "chart.js": "^4.0"
+        }
+    }
 }

@@ -1,180 +1,190 @@
-import { ref, onMounted, computed, watch } from 'vue';
+import { ref, onMounted, computed, watch, h } from 'vue';
 import { useSorting } from 'composables/useSorting.js';
+import { store } from 'store';
 import Icon from 'ui/Icon.js';
+import UIButton from 'ui/Button.js';
+import Card from 'ui/Card.js';
+import Container from 'ui/Container.js';
+import Row from 'ui/Row.js';
+import Col from 'ui/Col.js';
 import Modal from 'ui/Modal.js';
+import Input from 'ui/Input.js';
+import Textarea from 'ui/Textarea.js';
+import DataTable from 'ui/DataTable.js';
+import { UITitle, UIText } from 'ui/Typography.js';
+import Divider from 'ui/Divider.js';
 
 export default {
-    components: { Modal },
+    components: {
+        LucideIcon: Icon,
+        'ui-button': UIButton,
+        'ui-card': Card,
+        'ui-container': Container,
+        'ui-row': Row,
+        'ui-col': Col,
+        'ui-modal': Modal,
+        'ui-input': Input,
+        'ui-textarea': Textarea,
+        'ui-data-table': DataTable,
+        'ui-title': UITitle,
+        'ui-text': UIText,
+        'ui-divider': Divider
+    },
     template: `
-        <div class="admin-page">
-            <div class="admin-header">
-                <h2 class="page-title">Database Manager</h2>
+        <ui-container class="database-manager">
+            <div class="admin-header" style="margin-bottom: 32px;">
+                <ui-title :level="1">
+                    <LucideIcon name="database" size="28" style="margin-right: 12px; vertical-align: middle; color: var(--accent-color);" />
+                    Database Manager
+                </ui-title>
             </div>
             
-            <!-- SQL Query Executor -->
-            <div class="admin-card sql-executor">
-                <h3>SQL Query Executor</h3>
-                <textarea 
-                    v-model="sqlQuery" 
-                    placeholder="Enter SQL query here..."
-                    rows="6"
-                    class="sql-input"
-                ></textarea>
-                <div class="executor-actions" style="display: flex; align-items: center; gap: 15px;">
-                    <button @click="executeQuery" class="btn-primary">Execute Query</button>
-                    <span class="hint">Use SELECT, INSERT, UPDATE, DELETE</span>
-                </div>
-                
-                <div v-if="queryResult" class="query-result">
-                    <h4>Result:</h4>
-                    <div v-if="queryResult.error" class="error">{{ queryResult.error }}</div>
-                    <div v-else>
-                        <p class="success">✓ {{ queryResult.type === 'select' ? 'Query executed' : 'Modification successful' }}</p>
-                        <p v-if="queryResult.type === 'select'">Rows returned: {{ queryResult.count }}</p>
-                        <p v-if="queryResult.type === 'modification'">Affected rows: {{ queryResult.affected_rows }}</p>
-                        
-                        <div v-if="queryResult.results && queryResult.results.length > 0" class="table-container">
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th v-for="key in Object.keys(queryResult.results[0])" :key="key">{{ key }}</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr v-for="(row, idx) in queryResult.results" :key="idx">
-                                        <td v-for="key in Object.keys(row)" :key="key">{{ row[key] }}</td>
-                                    </tr>
-                                </tbody>
-                            </table>
+            <ui-row :gutter="20">
+                <!-- SQL Query Executor -->
+                <ui-col :span="24">
+                    <ui-card style="margin-bottom: 24px;">
+                        <ui-title :level="3" style="margin-bottom: 16px;">SQL Query Executor</ui-title>
+                        <ui-textarea 
+                            v-model="sqlQuery" 
+                            placeholder="Enter SQL query here (e.g., SELECT * FROM cms_users)..."
+                            :rows="6"
+                            style="margin-bottom: 16px;"
+                        />
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div style="display: flex; gap: 12px; align-items: center;">
+                                <ui-button type="primary" @click="executeQuery">Execute Query</ui-button>
+                                <ui-text size="small" class="text-muted">Use SELECT, INSERT, UPDATE, DELETE</ui-text>
+                            </div>
+                            <ui-button size="small" @click="sqlQuery = ''">Clear</ui-button>
                         </div>
-                    </div>
-                </div>
-            </div>
+                        
+                        <template v-if="queryResult">
+                            <ui-divider style="margin: 24px 0;" />
+                            <ui-title :level="4" style="margin-bottom: 12px;">Result:</ui-title>
+                            <div v-if="queryResult.error" style="background: rgba(239, 68, 68, 0.1); color: #ef4444; padding: 12px; border-radius: 8px; border: 1px solid rgba(239, 68, 68, 0.2);">
+                                {{ queryResult.error }}
+                            </div>
+                            <div v-else>
+                                <div style="display: flex; gap: 16px; margin-bottom: 16px;">
+                                    <ui-text weight="bold" style="color: #22c55e;">✓ {{ queryResult.type === 'select' ? 'Query executed' : 'Modification successful' }}</ui-text>
+                                    <ui-text v-if="queryResult.type === 'select'" size="small">Rows returned: {{ queryResult.count }}</ui-text>
+                                    <ui-text v-if="queryResult.type === 'modification'" size="small">Affected rows: {{ queryResult.affected_rows }}</ui-text>
+                                </div>
+                                
+                                <ui-card v-if="queryResult.results && queryResult.results.length > 0" style="padding: 0;">
+                                    <ui-data-table 
+                                        :data="queryResult.results"
+                                        :columns="Object.keys(queryResult.results[0]).map(key => ({ label: key, prop: key }))"
+                                    />
+                                </ui-card>
+                            </div>
+                        </template>
+                    </ui-card>
+                </ui-col>
 
-            <!-- Table Browser -->
-            <div class="admin-card table-browser">
-                <h3>Table Browser</h3>
-                
-                <div class="table-selector">
-                    <label>Select Table:</label>
-                    <select v-model="selectedTable" @change="loadTableData">
-                        <option value="">-- Select a table --</option>
-                        <option v-for="table in tables" :key="table" :value="table">{{ table }}</option>
-                    </select>
-                    <button @click="loadTables" class="btn-secondary">Refresh Tables</button>
-                </div>
+                <!-- Table Browser -->
+                <ui-col :span="24">
+                    <ui-card>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                            <ui-title :level="3">Table Browser</ui-title>
+                            <div style="display: flex; gap: 12px; align-items: center;">
+                                <ui-text size="small" weight="bold">Table:</ui-text>
+                                <select v-model="selectedTable" @change="loadTableData" style="background: var(--card-bg); color: var(--text-color); border: 1px solid var(--border-color); padding: 8px 12px; border-radius: 8px; cursor: pointer;">
+                                    <option value="">-- Select a table --</option>
+                                    <option v-for="table in tables" :key="table" :value="table">{{ table }}</option>
+                                </select>
+                                <ui-button size="small" @click="loadTables">
+                                    <LucideIcon name="refresh-cw" size="14" />
+                                </ui-button>
+                            </div>
+                        </div>
 
-                <div v-if="tableData" class="table-data">
-                    <div class="table-header">
-                        <h4>{{ tableData.table }} ({{ tableData.count }} rows)</h4>
-                        <button @click="openCreateModal" class="btn-primary">Add New Record</button>
-                    </div>
+                        <div v-if="tableData">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                                <ui-title :level="4">{{ tableData.table }} <span style="font-weight: normal; opacity: 0.5;">({{ tableData.count }} rows)</span></ui-title>
+                                <ui-button type="primary" size="small" @click="openCreateModal">
+                                    <LucideIcon name="plus" size="14" style="margin-right: 8px;" /> Add Record
+                                </ui-button>
+                            </div>
 
-                    <!-- Schema Info -->
-                    <details class="schema-details">
-                        <summary>Schema Information</summary>
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Column</th>
-                                    <th>Type</th>
-                                    <th>PK</th>
-                                    <th>NotNull</th>
-                                    <th>Default</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr v-for="col in tableData.schema" :key="col.cid">
-                                    <td>{{ col.name }}</td>
-                                    <td>{{ col.type }}</td>
-                                    <td>{{ col.pk ? '✓' : '' }}</td>
-                                    <td>{{ col.notnull ? '✓' : '' }}</td>
-                                    <td>{{ col.dflt_value || '-' }}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </details>
+                            <!-- Schema Info -->
+                            <details style="margin-bottom: 24px; background: var(--bg-secondary); border-radius: 8px; overflow: hidden;">
+                                <summary style="padding: 12px 16px; cursor: pointer; font-weight: bold; background: var(--bg-secondary);">Schema Information</summary>
+                                <div style="padding: 0;">
+                                    <ui-data-table 
+                                        :data="tableData.schema"
+                                        :columns="[
+                                            { label: 'Column', prop: 'name' },
+                                            { label: 'Type', prop: 'type' },
+                                            { label: 'PK', render: (row) => row.pk ? '✓' : '' },
+                                            { label: 'Not Null', render: (row) => row.notnull ? '✓' : '' },
+                                            { label: 'Default', prop: 'dflt_value' }
+                                        ]"
+                                    />
+                                </div>
+                            </details>
 
-                    <!-- Data Table -->
-                    <div class="table-container">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th class="actions-header">Actions</th>
-                                    <th 
-                                        v-for="col in tableData.schema" 
-                                        :key="col.name"
-                                        @click="sortBy(col.name)"
-                                        class="sortable-header"
-                                    >
-                                        {{ col.name }}
-                                        <span v-if="sortColumn === col.name" class="sort-indicator">
-                                            {{ sortDirection === 'asc' ? '▲' : '▼' }}
-                                        </span>
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr v-for="row in sortedData" :key="row.id">
-                                    <td class="actions">
-                                        <button @click="openEditModal(row)" class="btn-small" title="Edit Record">Edit</button>
-                                        <button @click="deleteRecord(row.id)" class="btn-small btn-danger" title="Delete Record">Delete</button>
-                                    </td>
-                                    <td v-for="col in tableData.schema" :key="col.name">
-                                        {{ formatDisplayValue(row[col.name]) }}
-                                    </td>
-                                </tr>
-                                <tr v-if="sortedData.length === 0">
-                                    <td :colspan="(tableData.schema ? tableData.schema.length : 0) + 1" class="text-center">No records found</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+                            <!-- Data Table -->
+                            <ui-card style="padding: 0;">
+                                <ui-data-table 
+                                    :data="sortedData"
+                                    :columns="[
+                                        { 
+                                            label: 'Actions', 
+                                            width: '120px',
+                                            render: (row) => h('div', { style: 'display: flex; gap: 8px;' }, [
+                                                h(UIButton, { size: 'small', title: 'Edit', onClick: () => openEditModal(row) }, () => h(Icon, { name: 'edit-2', size: 14 })),
+                                                h(UIButton, { size: 'small', type: 'danger', title: 'Delete', onClick: () => deleteRecord(row.id) }, () => h(Icon, { name: 'trash', size: 14 }))
+                                            ])
+                                        },
+                                        ...tableData.schema.map(col => ({
+                                            label: col.name,
+                                            prop: col.name,
+                                            render: (row) => formatDisplayValue(row[col.name])
+                                        }))
+                                    ]"
+                                />
+                            </ui-card>
+                        </div>
+                        <div v-else style="padding: 60px; text-align: center; opacity: 0.3;">
+                            <LucideIcon name="table" size="48" style="margin-bottom: 16px;" />
+                            <ui-text style="display: block;">Select a table to browse its data</ui-text>
+                        </div>
+                    </ui-card>
+                </ui-col>
+            </ui-row>
 
             <!-- Edit/Create Modal -->
-            <Modal :show="showModal" :title="modalMode === 'create' ? 'Create New Record' : 'Edit Record #' + editingId" @close="closeModal">
-                <form @submit.prevent="saveRecord">
-                    <div v-for="col in formColumns" :key="col.name" class="form-group">
-                        <label>
+            <ui-modal v-model="showModal" :title="modalMode === 'create' ? 'Create New Record' : 'Edit Record #' + editingId" @close="closeModal">
+                <div style="display: flex; flex-direction: column; gap: 20px; padding: 10px 0;">
+                    <div v-for="col in formColumns" :key="col.name">
+                        <ui-text weight="bold" size="small" style="display: block; margin-bottom: 8px;">
                             {{ col.name }} 
-                            <span class="type-hint">{{ col.type }}</span>
-                            <span v-if="col.notnull" class="required">*</span>
-                        </label>
+                            <span style="opacity: 0.5; font-weight: normal; font-size: 0.8em; margin-left: 8px;">{{ col.type }}</span>
+                            <span v-if="col.notnull" style="color: #ef4444; margin-left: 4px;">*</span>
+                        </ui-text>
                         
-                        <!-- Textarea for text/clob -->
-                        <textarea 
+                        <ui-textarea 
                             v-if="isLongText(col.type)"
                             v-model="formData[col.name]"
-                            rows="4"
-                            :placeholder="col.dflt_value"
-                        ></textarea>
-                        
-                        <!-- Number input -->
-                        <input 
-                            v-else-if="isNumber(col.type)"
-                            type="number"
-                            v-model="formData[col.name]"
-                            :placeholder="col.dflt_value"
-                        >
-                        
-                        <!-- Standard input -->
-                        <input 
+                            :rows="4"
+                            :placeholder="col.dflt_value || '...'"
+                        />
+                        <ui-input 
                             v-else
-                            type="text"
+                            :type="isNumber(col.type) ? 'number' : 'text'"
                             v-model="formData[col.name]"
-                            :placeholder="col.dflt_value"
-                        >
+                            :placeholder="col.dflt_value || '...'"
+                        />
                     </div>
-                    
-                    <div class="form-actions">
-                        <button type="submit" class="btn-primary">Save {{ modalMode === 'create' ? 'Record' : 'Changes' }}</button>
-                        <button type="button" @click="closeModal" class="btn-secondary">Cancel</button>
-                    </div>
-                </form>
-            </Modal>
-        </div>
+                </div>
+                
+                <template #footer>
+                    <ui-button @click="closeModal">Cancel</ui-button>
+                    <ui-button type="primary" @click="saveRecord">Save {{ modalMode === 'create' ? 'Record' : 'Changes' }}</ui-button>
+                </template>
+            </ui-modal>
+        </ui-container>
     `,
     setup() {
         const tables = ref([]);
@@ -183,24 +193,15 @@ export default {
         const sqlQuery = ref('');
         const queryResult = ref(null);
 
-        // Use Composables
-        // Note: rawData is a computed prop that references tableData, so we need to bridge it slightly
-        const rawRows = computed(() => tableData.value ? tableData.value.data : []);
-        // We can't use useSorting directly on a Ref<Array> easily if the array is replaced entirely.
-        // Actually useSorting takes a Ref. So we can pass a computed or a ref that we update.
-        // But tableData.value.data is what we want to sort.
-        // Let's create a proxy ref
         const rowsProxy = ref([]);
-
         watch(() => tableData.value, (val) => {
             rowsProxy.value = val ? [...val.data] : [];
         });
 
         const { sortColumn, sortDirection, sortBy, sortedData } = useSorting(rowsProxy);
 
-        // Modal State
         const showModal = ref(false);
-        const modalMode = ref('create'); // 'create' or 'edit'
+        const modalMode = ref('create');
         const editingId = ref(null);
         const formData = ref({});
 
@@ -225,14 +226,13 @@ export default {
                     const data = await res.json();
                     if (data && data.schema) {
                         tableData.value = data;
-                        // Reset Sort
                         sortColumn.value = null;
                         sortDirection.value = 'asc';
                     } else {
                         throw new Error("Invalid table data received");
                     }
                 } else {
-                    tableData.value = null; // Clear on error
+                    tableData.value = null;
                     console.error('Failed to load table data: ' + res.status);
                 }
             } catch (e) {
@@ -243,7 +243,7 @@ export default {
 
         const executeQuery = async () => {
             if (!sqlQuery.value.trim()) {
-                alert('Please enter a SQL query');
+                store.addNotification('Please enter a SQL query', 'warning');
                 return;
             }
             try {
@@ -253,12 +253,17 @@ export default {
                     body: JSON.stringify({ query: sqlQuery.value })
                 });
                 queryResult.value = await res.json();
+                if (queryResult.value.error) {
+                    store.addNotification('Query failed: ' + queryResult.value.error, 'error');
+                } else {
+                    store.addNotification('Query executed successfully', 'success');
+                }
             } catch (e) {
                 queryResult.value = { error: 'Failed to execute query: ' + e.message };
+                store.addNotification('Query failed', 'error');
             }
         };
 
-        // Modal Logic
         const formColumns = computed(() => {
             if (!tableData.value) return [];
             return tableData.value.schema.filter(c => c.name !== 'id');
@@ -276,7 +281,7 @@ export default {
         const openEditModal = (row) => {
             modalMode.value = 'edit';
             editingId.value = row.id;
-            formData.value = { ...row }; // Clone row data
+            formData.value = { ...row };
             showModal.value = true;
         };
 
@@ -294,7 +299,6 @@ export default {
 
                 const method = modalMode.value === 'create' ? 'POST' : 'PATCH';
 
-                // Prepare payload: remove ID to avoid updating PK
                 const payload = { ...formData.value };
                 delete payload.id;
 
@@ -305,30 +309,41 @@ export default {
                 });
 
                 if (res.ok) {
+                    store.addNotification('Record saved successfully', 'success');
                     await loadTableData();
                     closeModal();
                 } else {
                     const error = await res.json();
-                    alert('Save failed: ' + (error.error || 'Unknown error'));
+                    store.addNotification('Save failed: ' + (error.error || 'Unknown error'), 'error');
                 }
             } catch (e) {
-                alert('Failed to save record: ' + e.message);
+                store.addNotification('Failed to save record', 'error');
             }
         };
 
         const deleteRecord = async (id) => {
+            const confirmed = await store.showConfirm({
+                title: 'Delete Record',
+                message: 'Are you sure you want to delete this record? This action cannot be undone.',
+                confirmText: 'Delete',
+                danger: true
+            });
+
+            if (!confirmed) return;
+
             try {
                 const res = await fetch(`/@/admin/db/table/${selectedTable.value}/${id}`, {
                     method: 'DELETE'
                 });
                 if (res.ok) {
+                    store.addNotification('Record deleted successfully', 'success');
                     await loadTableData();
                 } else {
                     const error = await res.json();
-                    alert('Delete failed: ' + (error.error || 'Unknown error'));
+                    store.addNotification('Delete failed: ' + (error.error || 'Unknown error'), 'error');
                 }
             } catch (e) {
-                alert('Failed to delete record: ' + e.message);
+                store.addNotification('Failed to delete record', 'error');
             }
         };
 
@@ -370,3 +385,4 @@ export default {
         };
     }
 };
+

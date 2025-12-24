@@ -1,9 +1,35 @@
 import SetupWizard from './components/SetupWizard.js';
 import Composer from './components/Composer.js';
 import Icon from 'ui/Icon.js';
+import UIButton from 'ui/Button.js';
+import Card from 'ui/Card.js';
+import Container from 'ui/Container.js';
+import Row from 'ui/Row.js';
+import Col from 'ui/Col.js';
+import Tabs from 'ui/Tabs.js';
+import TabPane from 'ui/TabPane.js';
+import DataTable from 'ui/DataTable.js';
+import Spinner from 'ui/Spinner.js';
+import { UITitle, UIText } from 'ui/Typography.js';
+import { store } from 'store';
 
 export default {
-    components: { SetupWizard, Composer, LucideIcon: Icon },
+    components: {
+        SetupWizard,
+        Composer,
+        LucideIcon: Icon,
+        'ui-button': UIButton,
+        'ui-card': Card,
+        'ui-container': Container,
+        'ui-row': Row,
+        'ui-col': Col,
+        'ui-tabs': Tabs,
+        'ui-tab-pane': TabPane,
+        'ui-data-table': DataTable,
+        'ui-spinner': Spinner,
+        'ui-title': UITitle,
+        'ui-text': UIText
+    },
     data() {
         return {
             accounts: [],
@@ -31,99 +57,87 @@ export default {
             } finally {
                 this.loading = false;
             }
+        },
+        async deleteAccount(accountId) {
+            if (!confirm('Are you sure you want to disconnect this account?')) return;
+
+            try {
+                const res = await fetch(`/@/social-networks/accounts/${accountId}`, { method: 'DELETE' });
+                if (res.ok) {
+                    store.addNotification('Account disconnected successfully', 'success');
+                    await this.loadData();
+                }
+            } catch (e) {
+                store.addNotification('Failed to disconnect account', 'error');
+            }
         }
     },
     template: `
-        <div class="admin-page social-networks-panel p-6">
-            <div class="admin-header">
+        <ui-container class="social-networks-panel">
+            <div class="admin-header" style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 32px;">
                 <div>
-                    <h1 class="text-3xl font-bold mb-2">Social Networks</h1>
-                    <p class="text-secondary">Publish content across all your social channels from one place.</p>
+                    <ui-title :level="1">Social Networks</ui-title>
+                    <ui-text class="text-secondary">Publish content across all your social channels from one place.</ui-text>
                 </div>
-                <button @click="showSetup = true" class="btn btn-secondary flex items-center gap-2">
-                    <lucide-icon name="settings" class="w-4 h-4" />
+                <ui-button @click="showSetup = true">
+                    <LucideIcon name="settings" size="18" style="margin-right: 8px;" />
                     Connect Accounts
-                </button>
+                </ui-button>
             </div>
 
-            <div v-if="loading" class="flex justify-center py-20">
-                <div class="spinner"></div>
+            <div v-if="loading" style="display: flex; justify-content: center; padding: 100px;">
+                <ui-spinner size="large" />
             </div>
 
             <div v-else>
-                <div class="tabs mb-6">
-                    <button 
-                        @click="activeTab = 'composer'" 
-                        :class="['tab-item', { active: activeTab === 'composer' }]">
-                        Composer
-                    </button>
-                    <button 
-                        @click="activeTab = 'history'" 
-                        :class="['tab-item', { active: activeTab === 'history' }]">
-                        Post History
-                    </button>
-                    <button 
-                        @click="activeTab = 'accounts'" 
-                        :class="['tab-item', { active: activeTab === 'accounts' }]">
-                        Accounts ({{ accounts.length }})
-                    </button>
-                </div>
-
-                <div v-if="activeTab === 'composer'">
-                    <Composer :accounts="accounts" @refresh="loadData" />
-                </div>
-
-                <div v-if="activeTab === 'history'">
-                    <div class="card overflow-hidden">
-                        <table class="w-full text-left">
-                            <thead class="bg-surface-alt text-secondary text-sm">
-                                <tr>
-                                    <th class="p-4">Content</th>
-                                    <th class="p-4">Platform</th>
-                                    <th class="p-4">Status</th>
-                                    <th class="p-4">Date</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr v-for="post in posts" :key="post.id" class="border-t border-border">
-                                    <td class="p-4 max-w-xs truncate">{{ post.content }}</td>
-                                    <td class="p-4">
-                                        <div class="flex items-center gap-2 capitalize">
-                                            <lucide-icon :name="post.platform" class="w-4 h-4" />
-                                            {{ post.platform }}
-                                        </div>
-                                    </td>
-                                    <td class="p-4">
-                                        <span :class="['status-badge', post.status]">
-                                            {{ post.status }}
-                                        </span>
-                                    </td>
-                                    <td class="p-4 text-sm text-secondary">{{ post.published_at || post.created_at }}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <div v-if="activeTab === 'accounts'">
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        <div v-for="acc in accounts" :key="acc.id" class="card p-4 flex justify-between items-center">
-                            <div class="flex items-center gap-3">
-                                <lucide-icon :name="acc.platform" class="w-8 h-8 text-primary" />
-                                <div>
-                                    <div class="font-bold capitalize">{{ acc.platform }}</div>
-                                    <div class="text-xs text-secondary">{{ acc.account_name || 'Connected' }}</div>
-                                </div>
-                            </div>
-                            <button @click="deleteAccount(acc.id)" class="text-danger hover:text-danger-light">
-                                <lucide-icon name="trash-2" class="w-4 h-4" />
-                            </button>
+                <ui-tabs v-model="activeTab">
+                    <ui-tab-pane name="composer" label="Composer">
+                        <div style="padding-top: 24px;">
+                            <Composer :accounts="accounts" @refresh="loadData" />
                         </div>
-                    </div>
-                </div>
+                    </ui-tab-pane>
+                    
+                    <ui-tab-pane name="history" label="Post History">
+                        <div style="padding-top: 24px;">
+                            <ui-card style="padding: 0;">
+                                <ui-data-table 
+                                    :data="posts"
+                                    :columns="[
+                                        { label: 'Content', prop: 'content', render: (row) => h('div', { class: 'truncate', style: 'max-width: 300px' }, row.content) },
+                                        { label: 'Platform', render: (row) => h('div', { style: 'display: flex; align-items: center; gap: 8px; text-transform: capitalize' }, [h(Icon, { name: row.platform, size: 16 }), row.platform]) },
+                                        { label: 'Status', render: (row) => h('span', { class: ['status-badge', row.status] }, row.status) },
+                                        { label: 'Date', render: (row) => row.published_at || row.created_at }
+                                    ]"
+                                />
+                            </ui-card>
+                        </div>
+                    </ui-tab-pane>
+                    
+                    <ui-tab-pane name="accounts" :label="'Accounts (' + accounts.length + ')'">
+                        <div style="padding-top: 24px;">
+                            <ui-row :gutter="20">
+                                <ui-col v-for="acc in accounts" :key="acc.id" :xs="24" :sm="12" :md="8">
+                                    <ui-card style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                                        <div style="display: flex; align-items: center; gap: 16px;">
+                                            <LucideIcon :name="acc.platform" size="32" style="color: var(--accent-color);" />
+                                            <div>
+                                                <ui-text weight="bold" style="display: block; text-transform: capitalize;">{{ acc.platform }}</ui-text>
+                                                <ui-text size="extra-small" class="text-muted">{{ acc.account_name || 'Connected' }}</ui-text>
+                                            </div>
+                                        </div>
+                                        <ui-button type="danger" size="small" @click="deleteAccount(acc.id)">
+                                            <LucideIcon name="trash-2" size="14" />
+                                        </ui-button>
+                                    </ui-card>
+                                </ui-col>
+                            </ui-row>
+                        </div>
+                    </ui-tab-pane>
+                </ui-tabs>
             </div>
 
             <SetupWizard :show="showSetup" @close="showSetup = false" @refresh="loadData" />
-        </div>
+        </ui-container>
     `
 };
+

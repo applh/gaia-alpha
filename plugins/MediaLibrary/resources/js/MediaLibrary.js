@@ -1,303 +1,280 @@
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, reactive, h } from 'vue';
+import { store } from 'store';
 import Icon from 'ui/Icon.js';
+import UIButton from 'ui/Button.js';
+import Card from 'ui/Card.js';
+import Container from 'ui/Container.js';
+import Row from 'ui/Row.js';
+import Col from 'ui/Col.js';
+import DataTable from 'ui/DataTable.js';
+import Modal from 'ui/Modal.js';
+import Input from 'ui/Input.js';
+import Textarea from 'ui/Textarea.js';
+import Tag from 'ui/Tag.js';
+import Checkbox from 'ui/Checkbox.js';
+import { UITitle, UIText } from 'ui/Typography.js';
 import ImageEditor from 'ui/ImageEditor.js';
 import VideoPlayer from 'ui/VideoPlayer.js';
 import VideoEditor from 'ui/VideoEditor.js';
 
 export default {
-    components: { LucideIcon: Icon, ImageEditor, VideoPlayer, VideoEditor },
+    components: {
+        LucideIcon: Icon,
+        'ui-button': UIButton,
+        'ui-card': Card,
+        'ui-container': Container,
+        'ui-row': Row,
+        'ui-col': Col,
+        'ui-data-table': DataTable,
+        'ui-modal': Modal,
+        'ui-input': Input,
+        'ui-textarea': Textarea,
+        'ui-tag': Tag,
+        'ui-checkbox': Checkbox,
+        'ui-title': UITitle,
+        'ui-text': UIText,
+        ImageEditor,
+        VideoPlayer,
+        VideoEditor
+    },
 
     template: `
-    <div class="media-library-page">
-        <div class="admin-header">
-            <h2 class="page-title">
-                <LucideIcon name="image" size="32" />
+    <ui-container class="media-library-page">
+        <div class="admin-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px;">
+            <ui-title :level="1">
+                <LucideIcon name="image" size="28" style="margin-right: 12px; vertical-align: middle; color: var(--accent-color);" />
                 Media Library
-            </h2>
-            <div class="button-group">
-                <button @click="viewMode = 'grid'" :class="{'btn-primary': viewMode === 'grid'}" class="btn">
-                    <LucideIcon name="grid" size="16" /> Grid
-                </button>
-                <button @click="viewMode = 'list'" :class="{'btn-primary': viewMode === 'list'}" class="btn">
-                    <LucideIcon name="list" size="16" /> List
-                </button>
-                <label class="btn btn-primary" style="cursor: pointer; margin: 0;">
-                    <LucideIcon name="upload" size="16" /> Upload
-                    <input type="file" @change="handleFileUpload" accept="image/*" multiple style="display: none;">
+            </ui-title>
+            <div style="display: flex; gap: 8px; align-items: center;">
+                <ui-button :type="viewMode === 'grid' ? 'primary' : 'default'" @click="viewMode = 'grid'">
+                    <LucideIcon name="grid" size="16" />
+                </ui-button>
+                <ui-button :type="viewMode === 'list' ? 'primary' : 'default'" @click="viewMode = 'list'">
+                    <LucideIcon name="list" size="16" />
+                </ui-button>
+                <label style="cursor: pointer; margin: 0;">
+                    <ui-button type="primary">
+                        <LucideIcon name="upload" size="16" style="margin-right: 8px;" /> Upload Media
+                    </ui-button>
+                    <input type="file" @change="handleFileUpload" accept="image/*,video/*" multiple style="display: none;">
                 </label>
             </div>
         </div>
 
-        <!-- Stats Bar -->
-        <div class="stats-bar" v-if="stats">
-            <div class="stat-item">
-                <LucideIcon name="file" size="16" />
-                <span>{{ stats.total_files }} files</span>
-            </div>
-            <div class="stat-item">
-                <LucideIcon name="hard-drive" size="16" />
-                <span>{{ stats.total_size_formatted }}</span>
-            </div>
+        <ui-row :gutter="20" style="margin-bottom: 24px;">
+            <ui-col :span="24">
+                <ui-card>
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+                        <div style="display: flex; gap: 12px; align-items: center; flex: 1; min-width: 300px;">
+                            <ui-input 
+                                v-model="searchQuery" 
+                                @input="debouncedSearch"
+                                placeholder="Search files..." 
+                                style="max-width: 400px; flex: 1;"
+                            >
+                                <template #prefix>
+                                    <LucideIcon name="search" size="16" />
+                                </template>
+                            </ui-input>
+                            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                                <ui-tag 
+                                    :type="selectedTag === null ? 'primary' : 'info'" 
+                                    style="cursor: pointer;"
+                                    @click="selectedTag = null"
+                                >
+                                    All Files
+                                </ui-tag>
+                                <ui-tag 
+                                    v-for="tag in tags" 
+                                    :key="tag.id"
+                                    :type="selectedTag === tag.slug ? 'primary' : 'info'"
+                                    :style="selectedTag === tag.slug ? {} : { border: '1px solid ' + tag.color, color: tag.color }"
+                                    style="cursor: pointer;"
+                                    @click="selectedTag = tag.slug"
+                                >
+                                    {{ tag.name }} ({{ tag.media_count }})
+                                </ui-tag>
+                                <ui-button size="small" @click="showTagModal = true">
+                                    <LucideIcon name="plus" size="14" />
+                                </ui-button>
+                            </div>
+                        </div>
+                        <div v-if="stats" style="display: flex; gap: 20px; align-items: center;">
+                            <div style="display: flex; align-items: center; gap: 8px; color: var(--text-muted); font-size: 0.9rem;">
+                                <LucideIcon name="file" size="16" />
+                                <span>{{ stats.total_files }} files</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 8px; color: var(--text-muted); font-size: 0.9rem;">
+                                <LucideIcon name="hard-drive" size="16" />
+                                <span>{{ stats.total_size_formatted }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </ui-card>
+            </ui-col>
+        </ui-row>
+
+        <div v-if="loading" style="text-align: center; padding: 100px;">
+            <div class="loading-spinner"></div>
+            <ui-text style="margin-top: 16px;">Loading media files...</ui-text>
         </div>
 
-        <!-- Search and Filters -->
-        <div class="admin-card" style="margin-bottom: 20px;">
-            <div class="search-filters">
-                <div class="search-box">
-                    <LucideIcon name="search" size="16" />
-                    <input 
-                        v-model="searchQuery" 
-                        @input="debouncedSearch"
-                        placeholder="Search files..." 
-                        class="search-input"
-                    />
-                </div>
-                <div class="tag-filters">
-                    <button 
-                        @click="selectedTag = null" 
-                        :class="{'active': selectedTag === null}"
-                        class="tag-filter-btn"
-                    >
-                        All Files
-                    </button>
-                    <button 
-                        v-for="tag in tags" 
-                        :key="tag.id"
-                        @click="selectedTag = tag.slug"
-                        :class="{'active': selectedTag === tag.slug}"
-                        :style="{borderColor: tag.color}"
-                        class="tag-filter-btn"
-                    >
-                        {{ tag.name }} ({{ tag.media_count }})
-                    </button>
-                    <button @click="showTagModal = true" class="btn btn-sm">
-                        <LucideIcon name="plus" size="14" /> New Tag
-                    </button>
-                </div>
-            </div>
-        </div>
+        <ui-card v-else-if="filteredFiles.length === 0" style="text-align: center; padding: 120px 20px;">
+            <LucideIcon name="image" size="64" style="opacity: 0.1; margin-bottom: 24px;" />
+            <ui-title :level="3">No media files found</ui-title>
+            <ui-text class="text-muted">Upload your first file to get started</ui-text>
+        </ui-card>
 
-        <!-- Loading State -->
-        <div v-if="loading" class="admin-card">
-            <div class="loading-state">Loading media files...</div>
-        </div>
-
-        <!-- Empty State -->
-        <div v-else-if="filteredFiles.length === 0" class="admin-card">
-            <div class="empty-state">
-                <LucideIcon name="image" size="48" />
-                <p>No media files found</p>
-                <p class="text-muted">Upload your first file to get started</p>
-            </div>
-        </div>
-
-        <!-- Grid View -->
-        <div v-else-if="viewMode === 'grid'" class="media-grid">
-            <div 
+        <ui-row v-else-if="viewMode === 'grid'" :gutter="20">
+            <ui-col 
                 v-for="file in filteredFiles" 
                 :key="file.id"
-                @click="selectFile(file)"
-                :class="{'selected': selectedFiles.includes(file.id)}"
-                class="media-card"
+                :xs="12" :sm="8" :md="6" :lg="4" :xl="3"
+                style="margin-bottom: 20px;"
             >
-                <div class="media-thumbnail">
-                    <img v-if="isImage(file)" :src="getFileUrl(file)" :alt="file.alt_text || file.original_filename" />
-                    <div v-else class="media-icon-placeholder">
-                        <LucideIcon v-if="isVideo(file)" name="film" size="48" />
-                        <LucideIcon v-else name="file" size="48" />
+                <ui-card 
+                    class="media-card" 
+                    :style="selectedFiles.includes(file.id) ? { ring: '2px solid var(--accent-color)', background: 'rgba(99, 102, 241, 0.05)' } : {}"
+                    style="padding: 0; overflow: hidden; cursor: pointer; transition: all 0.2s;"
+                    @click="selectFile(file)"
+                >
+                    <div style="position: relative; aspect-ratio: 1; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.05);">
+                        <img v-if="isImage(file)" :src="getFileUrl(file)" :alt="file.alt_text || file.original_filename" style="width: 100%; height: 100%; object-fit: cover;" />
+                        <div v-else>
+                            <LucideIcon v-if="isVideo(file)" name="film" size="48" style="opacity: 0.3;" />
+                            <LucideIcon v-else name="file" size="48" style="opacity: 0.3;" />
+                        </div>
+                        <div style="position: absolute; top: 12px; left: 12px; z-index: 5;">
+                            <ui-checkbox :modelValue="selectedFiles.includes(file.id)" @update:modelValue="toggleSelection(file.id)" @click.stop />
+                        </div>
                     </div>
-                    <div class="media-overlay">
-                        <input 
-                            type="checkbox" 
-                            :checked="selectedFiles.includes(file.id)"
-                            @click.stop="toggleSelection(file.id)"
-                        />
+                    <div style="padding: 12px;">
+                        <ui-text weight="medium" style="display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ file.original_filename }}</ui-text>
+                        <ui-text size="extra-small" class="text-muted">{{ formatFileSize(file.file_size) }}</ui-text>
                     </div>
-                </div>
-                <div class="media-info">
-                    <div class="media-title">{{ file.original_filename }}</div>
-                    <div class="media-meta">{{ formatFileSize(file.file_size) }}</div>
-                    <div class="media-tags" v-if="file.tags">
-                        <span v-for="tagName in file.tags.split(',')" :key="tagName" class="tag-badge">
-                            {{ tagName }}
-                        </span>
-                    </div>
-                </div>
-            </div>
-        </div>
+                </ui-card>
+            </ui-col>
+        </ui-row>
 
-        <!-- List View -->
-        <div v-else class="admin-card">
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th width="40">
-                            <input type="checkbox" @change="toggleSelectAll" :checked="allSelected" />
-                        </th>
-                        <th>Preview</th>
-                        <th>Filename</th>
-                        <th>Type</th>
-                        <th>Size</th>
-                        <th>Tags</th>
-                        <th>Created</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="file in filteredFiles" :key="file.id">
-                        <td>
-                            <input 
-                                type="checkbox" 
-                                :checked="selectedFiles.includes(file.id)"
-                                @change="toggleSelection(file.id)"
-                            />
-                        </td>
-                        <td>
-                            <img :src="getFileUrl(file)" class="thumbnail" />
-                        </td>
-                        <td>{{ file.original_filename }}</td>
-                        <td>{{ file.mime_type }}</td>
-                        <td>{{ formatFileSize(file.file_size) }}</td>
-                        <td>
-                            <span v-for="tagName in (file.tags || '').split(',')" :key="tagName" class="tag-badge">
-                                {{ tagName }}
-                            </span>
-                        </td>
-                        <td>{{ formatDate(file.created_at) }}</td>
-                        <td>
-                            <button @click="editFile(file)" class="btn btn-sm">
-                                <LucideIcon name="edit" size="14" />
-                            </button>
-                            <button @click="deleteFile(file.id)" class="btn btn-sm btn-danger">
-                                <LucideIcon name="trash" size="14" />
-                            </button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+        <ui-card v-else>
+            <ui-data-table 
+                :data="filteredFiles"
+                :columns="[
+                    { label: '', width: '50px', render: (row) => h(Checkbox, { modelValue: selectedFiles.includes(row.id), 'onUpdate:modelValue': () => toggleSelection(row.id) }) },
+                    { label: 'Preview', width: '80px', render: (row) => h('img', { src: getFileUrl(row), style: 'width: 40px; height: 40px; border-radius: 4px; object-fit: cover;' }) },
+                    { label: 'Filename', prop: 'original_filename' },
+                    { label: 'Type', prop: 'mime_type', width: '150px' },
+                    { label: 'Size', render: (row) => formatFileSize(row.file_size), width: '100px' },
+                    { label: 'Created', render: (row) => formatDate(row.created_at), width: '120px' },
+                    { label: 'Actions', width: '120px', align: 'right' }
+                ]"
+            >
+                <template #actions="{ row }">
+                    <div style="display: flex; gap: 8px; justify-content: flex-end;">
+                        <ui-button size="small" @click="editFile(row)">
+                            <LucideIcon name="edit" size="14" />
+                        </ui-button>
+                        <ui-button size="small" type="danger" @click="deleteFile(row.id)">
+                            <LucideIcon name="trash" size="14" />
+                        </ui-button>
+                    </div>
+                </template>
+            </ui-data-table>
+        </ui-card>
 
-        <!-- Bulk Actions Bar -->
-        <div v-if="selectedFiles.length > 0" class="bulk-actions-bar">
-            <span>{{ selectedFiles.length }} file(s) selected</span>
-            <button @click="bulkTag" class="btn btn-sm">
-                <LucideIcon name="tag" size="14" /> Tag Selected
-            </button>
-            <button @click="bulkDelete" class="btn btn-sm btn-danger">
-                <LucideIcon name="trash" size="14" /> Delete Selected
-            </button>
-            <button @click="selectedFiles = []" class="btn btn-sm">Clear</button>
+        <div v-if="selectedFiles.length > 0" class="bulk-actions-bar" style="position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%); background: var(--card-bg); border-radius: 99px; padding: 8px 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); border: 1px solid var(--border-color); display: flex; align-items: center; gap: 16px; z-index: 1000;">
+            <ui-text weight="bold">{{ selectedFiles.length }} selected</ui-text>
+            <ui-divider vertical height="24px" />
+            <ui-button size="small" @click="bulkTag">
+                <LucideIcon name="tag" size="14" style="margin-right: 8px;" /> Tag
+            </ui-button>
+            <ui-button size="small" type="danger" @click="bulkDelete">
+                <LucideIcon name="trash" size="14" style="margin-right: 8px;" /> Delete
+            </ui-button>
+            <ui-button size="small" @click="selectedFiles = []">Clear</ui-button>
         </div>
 
         <!-- Edit Modal -->
-        <div v-if="editingFile" class="modal-overlay" @click="editingFile = null">
-            <div class="modal-content" @click.stop>
-                <div class="modal-header">
-                    <h3>Edit Media</h3>
-                    <button @click="editingFile = null" class="btn-close">×</button>
-                </div>
-                <div class="modal-body">
-                    <div class="form-group">
-                        <label>Filename</label>
-                        <input v-model="editingFile.original_filename" class="form-control" />
+        <ui-modal v-model="!!editingFile" title="Edit Media Metadata" @close="editingFile = null">
+            <div v-if="editingFile" style="display: flex; flex-direction: column; gap: 20px;">
+                <ui-input v-model="editingFile.original_filename" label="Filename" placeholder="e.g. hero-image.jpg" />
+                <ui-input v-model="editingFile.alt_text" label="Alt Text" placeholder="Describe for accessibility" />
+                <ui-textarea v-model="editingFile.caption" label="Caption" placeholder="Brief description" :rows="3" />
+                
+                <div>
+                    <ui-text weight="medium" style="display: block; margin-bottom: 8px;">Tags</ui-text>
+                    <div style="display: flex; flex-wrap: wrap; gap: 12px;">
+                        <ui-checkbox 
+                            v-for="tag in tags" 
+                            :key="tag.id"
+                            :label="tag.name"
+                            :modelValue="editingFileTags.includes(tag.id)"
+                            @update:modelValue="v => v ? editingFileTags.push(tag.id) : editingFileTags = editingFileTags.filter(id => id !== tag.id)"
+                        />
                     </div>
-                    <div class="form-group">
-                        <label>Alt Text</label>
-                        <input v-model="editingFile.alt_text" class="form-control" placeholder="Describe the image" />
-                    </div>
-                    <div class="form-group">
-                        <label>Caption</label>
-                        <textarea v-model="editingFile.caption" class="form-control" rows="3"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label>Tags</label>
-                        <div class="tag-selector">
-                            <label v-for="tag in tags" :key="tag.id" class="tag-checkbox">
-                                <input 
-                                    type="checkbox" 
-                                    :value="tag.id"
-                                    v-model="editingFileTags"
-                                />
-                                <span :style="{color: tag.color}">{{ tag.name }}</span>
-                            </label>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button @click="editingFile = null" class="btn">Cancel</button>
-                    <button @click="saveFile" class="btn btn-primary">Save Changes</button>
                 </div>
             </div>
-        </div>
+            <template #footer>
+                <ui-button @click="editingFile = null">Cancel</ui-button>
+                <ui-button type="primary" @click="saveFile">Save Changes</ui-button>
+            </template>
+        </ui-modal>
 
         <!-- Tag Creation Modal -->
-        <div v-if="showTagModal" class="modal-overlay" @click="showTagModal = false">
-            <div class="modal-content" @click.stop>
-                <div class="modal-header">
-                    <h3>Create Tag</h3>
-                    <button @click="showTagModal = false" class="btn-close">×</button>
-                </div>
-                <div class="modal-body">
-                    <div class="form-group">
-                        <label>Tag Name</label>
-                        <input v-model="newTag.name" class="form-control" placeholder="e.g., Product Photos" />
-                    </div>
-                    <div class="form-group">
-                        <label>Color</label>
-                        <input v-model="newTag.color" type="color" class="form-control" />
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button @click="showTagModal = false" class="btn">Cancel</button>
-                    <button @click="createTag" class="btn btn-primary">Create Tag</button>
-                </div>
-                <div class="modal-footer">
-                    <button @click="showTagModal = false" class="btn">Cancel</button>
-                    <button @click="createTag" class="btn btn-primary">Create Tag</button>
+        <ui-modal v-model="showTagModal" title="Create New Tag" @close="showTagModal = false">
+            <div style="display: flex; flex-direction: column; gap: 20px;">
+                <ui-input v-model="newTag.name" label="Tag Name" placeholder="e.g. Product Photos" />
+                <div>
+                    <ui-text weight="medium" style="display: block; margin-bottom: 8px;">Color</ui-text>
+                    <input type="color" v-model="newTag.color" style="width: 100%; height: 40px; border: none; border-radius: 8px; cursor: pointer; background: none;" />
                 </div>
             </div>
-        </div>
+            <template #footer>
+                <ui-button @click="showTagModal = false">Cancel</ui-button>
+                <ui-button type="primary" @click="createTag">Create Tag</ui-button>
+            </template>
+        </ui-modal>
 
         <!-- Image/Video Editor Modal -->
-        <div v-if="mediaEditor.file" class="modal-overlay" @click="mediaEditor.file = null">
-            <div class="modal-content large-modal" @click.stop>
-                <div class="modal-header">
-                    <h3>Edit Media</h3>
-                    <button @click="mediaEditor.file = null" class="btn-close">×</button>
-                </div>
-                <div class="modal-body editor-body">
-                    <ImageEditor
-                        v-if="isImage(mediaEditor.file)"
+        <ui-modal v-model="!!mediaEditor.file" :title="'Editor: ' + (mediaEditor.file?.original_filename || '')" large @close="mediaEditor.file = null">
+            <div v-if="mediaEditor.file" style="min-height: 500px;">
+                <ImageEditor
+                    v-if="isImage(mediaEditor.file)"
+                    :src="getFileUrl(mediaEditor.file)"
+                    :path="mediaEditor.file.path"
+                    processUrl="/@/media-library/process-image"
+                    @save="onMediaSaved"
+                />
+                <div v-else-if="isVideo(mediaEditor.file)">
+                    <div style="display: flex; justify-content: center; margin-bottom: 24px;">
+                        <div style="background: var(--bg-secondary); padding: 4px; border-radius: 12px; display: flex; gap: 4px;">
+                            <ui-button :type="mediaEditor.mode === 'view' ? 'primary' : 'default'" size="small" @click="mediaEditor.mode = 'view'">Player</ui-button>
+                            <ui-button :type="mediaEditor.mode === 'edit' ? 'primary' : 'default'" size="small" @click="mediaEditor.mode = 'edit'">Editor</ui-button>
+                        </div>
+                    </div>
+
+                    <VideoPlayer
+                        v-if="mediaEditor.mode === 'view'"
                         :src="getFileUrl(mediaEditor.file)"
-                        :path="mediaEditor.file.path"
-                        processUrl="/@/media-library/process-image"
+                        :fileName="mediaEditor.file.original_filename"
+                    />
+                    <VideoEditor
+                        v-else
+                        :src="getFileUrl(mediaEditor.file)"
+                        :path="mediaEditor.file.path || ''" 
+                        :fileName="mediaEditor.file.original_filename"
+                        processUrl="/@/media-library/process-video"
                         @save="onMediaSaved"
                     />
-                    <div v-else-if="isVideo(mediaEditor.file)" class="video-editor-wrapper">
-                         <div class="editor-view-toggle in-modal">
-                            <button @click="mediaEditor.mode = 'view'" :class="{active: mediaEditor.mode === 'view'}">Player</button>
-                            <button @click="mediaEditor.mode = 'edit'" :class="{active: mediaEditor.mode === 'edit'}">Editor</button>
-                        </div>
-
-                        <VideoPlayer
-                            v-if="mediaEditor.mode === 'view'"
-                            :src="getFileUrl(mediaEditor.file)"
-                            :fileName="mediaEditor.file.original_filename"
-                        />
-                        <VideoEditor
-                            v-else
-                            :src="getFileUrl(mediaEditor.file)"
-                            :path="mediaEditor.file.path || ''" 
-                            :fileName="mediaEditor.file.original_filename"
-                            processUrl="/@/media-library/process-video"
-                            @save="onMediaSaved"
-                        />
-                    </div>
                 </div>
             </div>
-        </div>
-    </div>
+            <template #footer>
+                <ui-button @click="mediaEditor.file = null">Close</ui-button>
+            </template>
+        </ui-modal>
+    </ui-container>
     `,
+
 
     setup() {
         const files = ref([]);

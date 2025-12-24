@@ -1,5 +1,13 @@
 import { ref, onMounted, computed, watch } from 'vue';
+import { store } from 'store';
 import Icon from 'ui/Icon.js';
+import UIButton from 'ui/Button.js';
+import Card from 'ui/Card.js';
+import Container from 'ui/Container.js';
+import Row from 'ui/Row.js';
+import Col from 'ui/Col.js';
+import Spinner from 'ui/Spinner.js';
+import { UITitle, UIText } from 'ui/Typography.js';
 import TreeView from 'ui/TreeView.js';
 import FileEditor from './components/FileEditor.js';
 import ImageEditor from 'ui/ImageEditor.js';
@@ -10,6 +18,14 @@ import JsonEditor from './components/JsonEditor.js';
 export default {
     components: {
         LucideIcon: Icon,
+        'ui-button': UIButton,
+        'ui-card': Card,
+        'ui-container': Container,
+        'ui-row': Row,
+        'ui-col': Col,
+        'ui-spinner': Spinner,
+        'ui-title': UITitle,
+        'ui-text': UIText,
         TreeView,
         FileEditor,
         ImageEditor,
@@ -18,130 +34,149 @@ export default {
         JsonEditor
     },
     template: `
-    <div class="file-explorer-container admin-page">
-        <div class="admin-header">
-            <h2 class="page-title">
-                <LucideIcon name="folder-tree" size="32" />
+    <ui-container class="file-explorer-container">
+        <div class="admin-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px;">
+            <ui-title :level="1">
+                <LucideIcon name="folder-tree" size="28" style="margin-right: 12px; vertical-align: middle; color: var(--accent-color);" />
                 File Explorer
-            </h2>
-            <div class="explorer-toolbar">
-                <div class="btn-group">
-                    <button @click="mode = 'real'" :class="['btn btn-sm', mode === 'real' ? 'btn-primary' : 'btn-outline']">Real FS</button>
-                    <button @click="mode = 'vfs'" :class="['btn btn-sm', mode === 'vfs' ? 'btn-primary' : 'btn-outline']">Virtual FS</button>
+            </ui-title>
+            <div style="display: flex; gap: 12px; align-items: center;">
+                <div style="background: var(--bg-secondary); padding: 4px; border-radius: 12px; display: flex; gap: 4px;">
+                    <ui-button :type="mode === 'real' ? 'primary' : 'default'" size="small" @click="mode = 'real'">Real FS</ui-button>
+                    <ui-button :type="mode === 'vfs' ? 'primary' : 'default'" size="small" @click="mode = 'vfs'">Virtual FS</ui-button>
                 </div>
                 
                 <template v-if="mode === 'vfs'">
-                    <select v-model="selectedVfs" class="vfs-select">
+                    <select v-model="selectedVfs" style="background: var(--card-bg); color: var(--text-color); border: 1px solid var(--border-color); padding: 6px 12px; border-radius: 8px; cursor: pointer;">
                         <option value="">Select VFS...</option>
                         <option v-for="vfs in vfsList" :key="vfs.path" :value="vfs.path">{{ vfs.name }}</option>
                     </select>
-                    <button @click="createVfs" class="btn btn-sm btn-secondary">New VFS</button>
+                    <ui-button size="small" @click="createVfs">New VFS</ui-button>
                 </template>
                 
-                <div class="spacer"></div>
-                
-                <div class="btn-group">
-                    <button @click="createItem('folder')" class="btn btn-sm btn-outline" title="New Folder"><LucideIcon name="folder-plus" size="18"/></button>
-                    <button @click="createItem('file')" class="btn btn-sm btn-outline" title="New File"><LucideIcon name="file-plus" size="18"/></button>
-                    <button @click="refresh" class="btn btn-sm btn-outline" title="Refresh"><LucideIcon name="refresh-cw" size="18"/></button>
+                <div style="display: flex; gap: 8px;">
+                    <ui-button size="small" @click="createItem('folder')" title="New Folder"><LucideIcon name="folder-plus" size="18"/></ui-button>
+                    <ui-button size="small" @click="createItem('file')" title="New File"><LucideIcon name="file-plus" size="18"/></ui-button>
+                    <ui-button size="small" @click="refresh" title="Refresh"><LucideIcon name="refresh-cw" size="18"/></ui-button>
                 </div>
             </div>
         </div>
 
-        <div class="explorer-layout">
-            <aside class="explorer-sidebar">
-                <div v-if="loading" class="loading-state">Loading...</div>
-                <TreeView 
-                    :items="treeItems" 
-                    idKey="path" 
-                    childrenKey="children"
-                    labelKey="name"
-                    :selectedId="selectedPath" 
-                    :draggable="true"
-                    :allowDrop="allowDrop"
-                    @select="onSelect" 
-                    @toggle="onToggle"
-                    @move="onMove"
-                    @contextmenu="onContextMenu"
-                >
-                    <template #item="{ item }">
-                         <div style="display: flex; align-items: center; gap: 8px;">
-                            <LucideIcon :name="getIcon(item)" size="16" />
-                            <span>{{ item.name }}</span>
-                            <LucideIcon v-if="item.loading" name="refresh-cw" size="12" class="spin" />
+        <ui-row :gutter="20" style="height: calc(100vh - 200px); min-height: 500px;">
+            <!-- Sidebar -->
+            <ui-col :span="6" style="height: 100%;">
+                <ui-card style="height: 100%; display: flex; flex-direction: column; overflow: hidden; padding: 0;">
+                    <div style="padding: 16px; border-bottom: 1px solid var(--border-color);">
+                        <ui-text weight="bold" size="small" style="text-transform: uppercase; color: var(--text-muted);">Structure</ui-text>
+                    </div>
+                    <div style="flex: 1; overflow-y: auto; padding: 12px;">
+                        <ui-spinner v-if="loading" style="display: block; margin: 40px auto;" />
+                        <TreeView 
+                            v-else
+                            :items="treeItems" 
+                            idKey="path" 
+                            childrenKey="children"
+                            labelKey="name"
+                            :selectedId="selectedPath" 
+                            :draggable="true"
+                            :allowDrop="allowDrop"
+                            @select="onSelect" 
+                            @toggle="onToggle"
+                            @move="onMove"
+                            @contextmenu="onContextMenu"
+                        >
+                            <template #item="{ item }">
+                                 <div style="display: flex; align-items: center; gap: 8px;">
+                                    <LucideIcon :name="getIcon(item)" size="16" style="color: var(--accent-color);" />
+                                    <span style="font-size: 0.9rem;">{{ item.name }}</span>
+                                    <LucideIcon v-if="item.loading" name="refresh-cw" size="12" class="spin" />
+                                </div>
+                            </template>
+                        </TreeView>
+                    </div>
+                </ui-card>
+            </ui-col>
+            
+            <!-- Main Content -->
+            <ui-col :span="18" style="height: 100%;">
+                <ui-card style="height: 100%; padding: 0; display: flex; flex-direction: column; overflow: hidden;">
+                    <div v-if="!selectedItem" style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0.2;">
+                        <LucideIcon name="mouse-pointer-2" size="64" style="margin-bottom: 24px;" />
+                        <ui-title :level="3">Select a file to view or edit</ui-title>
+                    </div>
+                    
+                    <template v-else>
+                        <div style="padding: 12px 20px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
+                            <ui-text weight="bold">{{ selectedItem.name }}</ui-text>
+                            <div v-if="isVideo || isJson" style="background: var(--bg-secondary); padding: 4px; border-radius: 8px; display: flex; gap: 4px;">
+                                <template v-if="isVideo">
+                                    <ui-button :type="viewMode === 'view' ? 'primary' : 'default'" size="small" @click="viewMode = 'view'">Player</ui-button>
+                                    <ui-button :type="viewMode === 'edit' ? 'primary' : 'default'" size="small" @click="viewMode = 'edit'">Editor</ui-button>
+                                </template>
+                                <template v-else-if="isJson">
+                                    <ui-button :type="viewMode === 'code' ? 'primary' : 'default'" size="small" @click="viewMode = 'code'">Code</ui-button>
+                                    <ui-button :type="viewMode === 'tree' ? 'primary' : 'default'" size="small" @click="viewMode = 'tree'">Tree</ui-button>
+                                </template>
+                            </div>
+                        </div>
+
+                        <div style="flex: 1; overflow: hidden; position: relative;">
+                            <ImageEditor 
+                                v-if="isImage" 
+                                :src="itemUrl" 
+                                :path="selectedPath"
+                                @save="refresh"
+                            />
+                            <VideoEditor
+                                v-else-if="isVideo && viewMode === 'edit'"
+                                :src="itemUrl"
+                                :path="selectedItem.path"
+                                :fileName="selectedItem.name"
+                                @save="refresh"
+                            />
+                            <VideoPlayer
+                                v-else-if="isVideo"
+                                :src="itemUrl"
+                                :fileName="selectedItem.name"
+                            />
+                            
+                            <template v-else-if="isJson">
+                                <JsonEditor
+                                    v-if="viewMode === 'tree'"
+                                    v-model="currentItemContent"
+                                    @save="saveContent"
+                                />
+                                <FileEditor 
+                                    v-else
+                                    v-model="currentItemContent" 
+                                    :filePath="selectedPath || selectedItem.name"
+                                    language="json"
+                                    @save="saveContent"
+                                />
+                            </template>
+
+                            <FileEditor 
+                                v-else 
+                                v-model="currentItemContent" 
+                                :filePath="selectedPath || selectedItem.name"
+                                :readOnly="selectedItem.isDir || selectedItem.type === 'folder'"
+                                @save="saveContent"
+                            />
                         </div>
                     </template>
-                </TreeView>
-            </aside>
-            
-            <main class="explorer-main">
-                <div v-if="!selectedItem" class="empty-state">
-                    <LucideIcon name="mouse-pointer-2" size="48" />
-                    <p>Select a file to view or edit</p>
-                </div>
-                
-                <template v-else>
-                    <ImageEditor 
-                        v-if="isImage" 
-                        :src="itemUrl" 
-                        :path="selectedPath"
-                        @save="refresh"
-                    />
-                    <VideoEditor
-                        v-else-if="isVideo && viewMode === 'edit'"
-                        :src="itemUrl"
-                        :path="selectedItem.path"
-                        :fileName="selectedItem.name"
-                        @save="refresh"
-                    />
-                    <VideoPlayer
-                        v-else-if="isVideo"
-                        :src="itemUrl"
-                        :fileName="selectedItem.name"
-                    />
-                    
-                    <div v-else-if="isJson" style="height: 100%; display: flex; flex-direction: column;">
-                         <div class="editor-view-toggle">
-                            <button @click="viewMode = 'code'" :class="{active: viewMode === 'code'}">Code</button>
-                            <button @click="viewMode = 'tree'" :class="{active: viewMode === 'tree'}">Tree</button>
-                        </div>
-                        
-                        <JsonEditor
-                            v-if="viewMode === 'tree'"
-                            v-model="currentItemContent"
-                            @save="saveContent"
-                        />
-                        <FileEditor 
-                            v-else
-                            v-model="currentItemContent" 
-                            :filePath="selectedPath || selectedItem.name"
-                            language="json"
-                            @save="saveContent"
-                        />
-                    </div>
-
-                    <FileEditor 
-                        v-else 
-                        v-model="currentItemContent" 
-                        :filePath="selectedPath || selectedItem.name"
-                        :readOnly="selectedItem.isDir || selectedItem.type === 'folder'"
-                        @save="saveContent"
-                    />
-
-                    <!-- Video View/Edit Toggle -->
-                    <div v-if="isVideo" class="editor-view-toggle">
-                        <button @click="viewMode = 'view'" :class="{active: viewMode === 'view'}">Player</button>
-                        <button @click="viewMode = 'edit'" :class="{active: viewMode === 'edit'}">Editor</button>
-                    </div>
-                </template>
-            </main>
-        </div>
+                </ui-card>
+            </ui-col>
+        </ui-row>
         
-        <div v-if="contextMenu.visible" class="context-menu" :style="contextMenuStyle">
-            <button @click="renameItem">Rename</button>
-            <button @click="deleteItem" class="btn-danger">Delete</button>
+        <!-- Context Menu -->
+        <div v-if="contextMenu.visible" class="context-menu" :style="contextMenuStyle" style="position: fixed; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); min-width: 150px; z-index: 1000; overflow: hidden;">
+            <div style="padding: 4px;">
+                <button @click="renameItem" style="width: 100%; text-align: left; padding: 8px 12px; border: none; background: none; color: var(--text-color); cursor: pointer; border-radius: 4px; font-size: 0.9rem;" onmouseover="this.style.background='var(--bg-secondary)'" onmouseout="this.style.background='none'">Rename</button>
+                <div style="height: 1px; background: var(--border-color); margin: 4px 0;"></div>
+                <button @click="deleteItem" style="width: 100%; text-align: left; padding: 8px 12px; border: none; background: none; color: #ef4444; cursor: pointer; border-radius: 4px; font-size: 0.9rem;" onmouseover="this.style.background='rgba(239, 68, 68, 0.1)'" onmouseout="this.style.background='none'">Delete</button>
+            </div>
         </div>
-    </div>
+    </ui-container>
     `,
     setup() {
         const mode = ref('real');
@@ -259,7 +294,7 @@ export default {
                     content: currentItemContent.value
                 })
             });
-            if (res.ok) alert('Saved successfully');
+            if (res.ok) store.addNotification('File saved successfully', 'success');
         };
 
         const createItem = async (type) => {
@@ -278,7 +313,10 @@ export default {
                     itemType: type
                 })
             });
-            if (res.ok) refresh();
+            if (res.ok) {
+                store.addNotification(`${type} created successfully`, 'success');
+                refresh();
+            }
         };
 
         const onMove = async ({ source, target }) => {
@@ -294,7 +332,10 @@ export default {
                     newParentId: target.id
                 })
             });
-            if (res.ok) refresh();
+            if (res.ok) {
+                store.addNotification('Item moved successfully', 'success');
+                refresh();
+            }
         };
 
         const onContextMenu = (e, item) => {
@@ -325,7 +366,10 @@ export default {
                     path: item.path
                 })
             });
-            if (res.ok) refresh();
+            if (res.ok) {
+                store.addNotification('Item deleted successfully', 'success');
+                refresh();
+            }
         };
 
         const renameItem = async () => {
@@ -345,7 +389,10 @@ export default {
                     newName: newName
                 })
             });
-            if (res.ok) refresh();
+            if (res.ok) {
+                store.addNotification('Item renamed successfully', 'success');
+                refresh();
+            }
         };
 
         const createVfs = async () => {
@@ -357,6 +404,7 @@ export default {
                 body: JSON.stringify({ name })
             });
             if (res.ok) {
+                store.addNotification('VFS created successfully', 'success');
                 await loadVfsList();
                 const data = await res.json();
                 selectedVfs.value = data.path;
@@ -397,15 +445,6 @@ export default {
         onMounted(() => {
             refresh();
             loadVfsList();
-
-            // Inject CSS
-            if (!document.getElementById('file-explorer-css')) {
-                const link = document.createElement('link');
-                link.id = 'file-explorer-css';
-                link.rel = 'stylesheet';
-                link.href = '/min/css/plugins/FileExplorer/resources/js/FileExplorer.css';
-                document.head.appendChild(link);
-            }
         });
 
         return {

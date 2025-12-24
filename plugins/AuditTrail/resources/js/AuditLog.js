@@ -1,8 +1,20 @@
 import { ref, onMounted, computed } from 'vue';
 import Icon from 'ui/Icon.js';
+import DataTable from 'ui/DataTable.js';
+import Pagination from 'ui/Pagination.js';
+import Modal from 'ui/Modal.js';
+import Input from 'ui/Input.js';
+import UIButton from 'ui/Button.js';
 
 export default {
-    components: { LucideIcon: Icon },
+    components: {
+        LucideIcon: Icon,
+        'ui-data-table': DataTable,
+        'ui-pagination': Pagination,
+        'ui-modal': Modal,
+        'ui-input': Input,
+        'ui-button': UIButton
+    },
     template: `
     <div class="audit-log-page">
         <div class="admin-header">
@@ -11,71 +23,61 @@ export default {
                 Audit Trail
             </h2>
             <div class="button-group">
-                <button @click="loadLogs" class="btn btn-primary">
+                <ui-button type="primary" @click="loadLogs">
                     <LucideIcon name="refresh-cw" size="16" />
                     Refresh
-                </button>
+                </ui-button>
             </div>
         </div>
 
         <div class="admin-card">
             <div class="filters" style="display: flex; gap: 10px; margin-bottom: 20px;">
-                <input v-model="filters.user_id" placeholder="User ID" class="form-input" style="width: 150px;" @keyup.enter="loadLogs">
-                <input v-model="filters.action" placeholder="Action (e.g. POST)" class="form-input" @keyup.enter="loadLogs">
-                <button @click="loadLogs" class="btn btn-secondary">Filter</button>
+                <ui-input v-model="filters.user_id" placeholder="User ID" style="width: 150px;" @keyup.enter="loadLogs" />
+                <ui-input v-model="filters.action" placeholder="Action (e.g. POST)" @keyup.enter="loadLogs" />
+                <ui-button @click="loadLogs">Filter</ui-button>
             </div>
 
-            <table class="admin-table">
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>User</th>
-                        <th>Action</th>
-                        <th>Method</th>
-                        <th>Resource</th>
-                        <th>Details</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="log in logs" :key="log.id">
-                        <td>{{ formatDate(log.created_at) }}</td>
-                        <td>{{ log.user_id ? 'User ' + log.user_id : 'System' }}</td>
-                        <td>
-                            <span class="badge" :style="getActionStyle(log.action)">{{ log.action }}</span>
-                        </td>
-                        <td>{{ log.method }}</td>
-                        <td>
-                            <span v-if="log.resource_type">{{ log.resource_type }} #{{ log.resource_id }}</span>
-                            <span v-else class="text-muted">-</span>
-                        </td>
-                        <td>
-                            <button @click="viewDetails(log)" class="btn btn-sm btn-outline">View</button>
-                        </td>
-                    </tr>
-                    <tr v-if="logs.length === 0">
-                        <td colspan="6" class="text-center text-muted" style="padding: 20px;">No logs found.</td>
-                    </tr>
-                </tbody>
-            </table>
+            <ui-data-table 
+                :data="logs" 
+                :columns="columns"
+            >
+                <template #col-created_at="{ row }">
+                    {{ formatDate(row.created_at) }}
+                </template>
+                <template #col-user_id="{ row }">
+                    {{ row.user_id ? 'User ' + row.user_id : 'System' }}
+                </template>
+                <template #col-action="{ row }">
+                    <span class="badge" :style="getActionStyle(row.action)">{{ row.action }}</span>
+                </template>
+                <template #col-resource="{ row }">
+                    <span v-if="row.resource_type">{{ row.resource_type }} #{{ row.resource_id }}</span>
+                    <span v-else class="text-muted">-</span>
+                </template>
+                <template #col-actions="{ row }">
+                    <ui-button size="small" @click="viewDetails(row)">View</ui-button>
+                </template>
+            </ui-data-table>
 
-            <div class="pagination" style="margin-top: 20px; display: flex; justify-content: space-between; align-items: center;">
-                <span class="text-muted">Page {{ meta.page }} of {{ meta.pages }} ({{ meta.total }} records)</span>
-                <div class="btn-group">
-                    <button @click="changePage(meta.page - 1)" :disabled="meta.page <= 1" class="btn btn-sm">Prev</button>
-                    <button @click="changePage(meta.page + 1)" :disabled="meta.page >= meta.pages" class="btn btn-sm">Next</button>
-                </div>
+            <div class="pagination-container" style="margin-top: 20px; display: flex; justify-content: space-between; align-items: center;">
+                <span class="text-muted">Total: {{ meta.total }} records</span>
+                <ui-pagination 
+                    v-model:currentPage="meta.page"
+                    :total="meta.total"
+                    :page-size="meta.limit"
+                    @current-change="loadLogs"
+                />
             </div>
         </div>
 
-        <!-- Details Modal (Simplified as fixed overlay for now) -->
-        <div v-if="selectedLog" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 9999; display: flex; align-items: center; justify-content: center;">
-            <div class="admin-card" style="width: 800px; max-height: 90vh; overflow-y: auto;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <h3>Log Details #{{ selectedLog.id }}</h3>
-                    <button @click="selectedLog = null" class="btn btn-sm btn-danger">Close</button>
-                </div>
-
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+        <!-- Details Modal -->
+        <ui-modal 
+            v-model="modalVisible" 
+            :title="'Log Details #' + (selectedLog?.id || '')"
+            size="large"
+        >
+            <div v-if="selectedLog">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
                     <div>
                         <strong>Action:</strong> {{ selectedLog.action }}<br>
                         <strong>Endpoint:</strong> {{ selectedLog.endpoint }}<br>
@@ -84,22 +86,27 @@ export default {
                     </div>
                 </div>
 
-                <hr style="margin: 20px 0; border: 0; border-top: 1px solid #eee;">
+                <hr style="margin: 20px 0; border: 0; border-top: 1px solid var(--border-color);">
 
-                <h4>Payload</h4>
-                <pre style="background: #f4f4f5; padding: 10px; border-radius: 4px; overflow-x: auto;">{{ formatJson(selectedLog.payload) }}</pre>
+                <div style="margin-bottom: 24px;">
+                    <h4 style="margin-bottom: 12px;">Payload</h4>
+                    <pre style="background: rgba(0,0,0,0.2); padding: 12px; border-radius: var(--radius-sm); overflow-x: auto; font-size: 0.85rem;">{{ formatJson(selectedLog.payload) }}</pre>
+                </div>
 
-                <div v-if="selectedLog.old_value">
-                    <h4>Old Value</h4>
-                    <pre style="background: #fef2f2; padding: 10px; border-radius: 4px; overflow-x: auto;">{{ formatJson(selectedLog.old_value) }}</pre>
+                <div v-if="selectedLog.old_value" style="margin-bottom: 24px;">
+                    <h4 style="margin-bottom: 12px; color: var(--danger-color);">Old Value</h4>
+                    <pre style="background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.1); padding: 12px; border-radius: var(--radius-sm); overflow-x: auto; font-size: 0.85rem;">{{ formatJson(selectedLog.old_value) }}</pre>
                 </div>
 
                 <div v-if="selectedLog.new_value">
-                    <h4>New Value</h4>
-                    <pre style="background: #f0fdf4; padding: 10px; border-radius: 4px; overflow-x: auto;">{{ formatJson(selectedLog.new_value) }}</pre>
+                    <h4 style="margin-bottom: 12px; color: var(--success-color);">New Value</h4>
+                    <pre style="background: rgba(16, 185, 129, 0.05); border: 1px solid rgba(16, 185, 129, 0.1); padding: 12px; border-radius: var(--radius-sm); overflow-x: auto; font-size: 0.85rem;">{{ formatJson(selectedLog.new_value) }}</pre>
                 </div>
             </div>
-        </div>
+            <template #footer>
+                <ui-button @click="modalVisible = false">Close</ui-button>
+            </template>
+        </ui-modal>
     </div>
     `,
     setup() {
@@ -107,18 +114,31 @@ export default {
         const meta = ref({ page: 1, limit: 20, total: 0, pages: 1 });
         const loading = ref(false);
         const selectedLog = ref(null);
+        const modalVisible = ref(false);
         const filters = ref({ user_id: '', action: '' });
 
+        const columns = [
+            { label: 'Date', prop: 'created_at', width: '200px' },
+            { label: 'User', prop: 'user_id' },
+            { label: 'Action', prop: 'action' },
+            { label: 'Method', prop: 'method', width: '100px' },
+            { label: 'Resource', prop: 'resource' },
+            { label: 'Details', prop: 'actions', align: 'center', width: '100px' }
+        ];
+
         const loadLogs = async (page = 1) => {
+            // Handle pagination component sending page via event or using meta.page
+            const targetPage = typeof page === 'number' ? page : meta.value.page;
+
             loading.value = true;
             try {
                 const params = new URLSearchParams({
-                    page: page,
+                    page: targetPage,
                     limit: meta.value.limit,
                     user_id: filters.value.user_id,
                     action: filters.value.action
                 });
-                
+
                 const res = await fetch('/api/audit-logs?' + params.toString());
                 if (res.ok) {
                     const data = await res.json();
@@ -132,14 +152,9 @@ export default {
             }
         };
 
-        const changePage = (newPage) => {
-            if (newPage > 0 && newPage <= meta.value.pages) {
-                loadLogs(newPage);
-            }
-        };
-
         const viewDetails = (log) => {
             selectedLog.value = log;
+            modalVisible.value = true;
         };
 
         const formatDate = (dateStr) => {
@@ -147,6 +162,7 @@ export default {
         };
 
         const formatJson = (jsonStr) => {
+            if (!jsonStr) return '-';
             try {
                 return JSON.stringify(JSON.parse(jsonStr), null, 2);
             } catch (e) {
@@ -155,9 +171,9 @@ export default {
         };
 
         const getActionStyle = (action) => {
-            if (action.includes('DELETE')) return { background: '#fee2e2', color: '#991b1b' };
-            if (action.includes('POST')) return { background: '#dcfce7', color: '#166534' };
-            return { background: '#e0f2fe', color: '#075985' };
+            if (action.includes('DELETE')) return { background: 'rgba(239, 68, 68, 0.1)', color: '#fca5a5', border: '1px solid rgba(239, 68, 68, 0.2)' };
+            if (action.includes('POST') || action.includes('CREATE')) return { background: 'rgba(16, 185, 129, 0.1)', color: '#6ee7b7', border: '1px solid rgba(16, 185, 129, 0.2)' };
+            return { background: 'rgba(59, 130, 246, 0.1)', color: '#93c5fd', border: '1px solid rgba(59, 130, 246, 0.2)' };
         };
 
         onMounted(() => {
@@ -169,9 +185,10 @@ export default {
             meta,
             loading,
             selectedLog,
+            modalVisible,
             filters,
+            columns,
             loadLogs,
-            changePage,
             viewDetails,
             formatDate,
             formatJson,
@@ -179,3 +196,4 @@ export default {
         };
     }
 }
+

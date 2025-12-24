@@ -1,4 +1,24 @@
+import Icon from 'ui/Icon.js';
+import UIButton from 'ui/Button.js';
+import Card from 'ui/Card.js';
+import Container from 'ui/Container.js';
+import Input from 'ui/Input.js';
+import Textarea from 'ui/Textarea.js';
+import Divider from 'ui/Divider.js';
+import { UITitle, UIText } from 'ui/Typography.js';
+
 export default {
+    components: {
+        LucideIcon: Icon,
+        'ui-button': UIButton,
+        'ui-card': Card,
+        'ui-container': Container,
+        'ui-input': Input,
+        'ui-textarea': Textarea,
+        'ui-divider': Divider,
+        'ui-title': UITitle,
+        'ui-text': UIText
+    },
     data() {
         return {
             cart: { items: [], total: 0 },
@@ -21,43 +41,52 @@ export default {
             const data = await res.json();
 
             if (data.success) {
-                alert('Order Paid! ID: ' + data.order.order_id);
+                store.addNotification('Order Paid! ID: ' + data.order.order_id, 'success');
                 this.cart = { items: [], total: 0 };
                 this.showCheckout = false;
             } else {
-                alert('Error: ' + data.error);
+                store.addNotification('Error: ' + data.error, 'error');
             }
         }
     },
     template: `
-        <div class="p-6 max-w-md mx-auto">
-            <h1 class="text-2xl font-bold mb-4">Your Cart</h1>
-            
-            <div v-if="cart.items.length === 0" class="text-gray-500">Cart is empty.</div>
-            
-            <div v-else>
-                <div v-for="item in cart.items" :key="item.product.id" class="flex justify-between mb-2">
-                    <span>{{ item.product.title }} (x{{ item.quantity }})</span>
-                    <span>\${{ item.subtotal }}</span>
-                </div>
-                <div class="border-t mt-4 pt-2 font-bold flex justify-between">
-                    <span>Total</span>
-                    <span>\${{ cart.total }}</span>
+        <ui-container class="p-6" style="max-width: 600px; margin: 0 auto;">
+            <ui-card>
+                <ui-title :level="2" style="margin-bottom: 24px;">Your Cart</ui-title>
+                
+                <div v-if="cart.items.length === 0" style="padding: 24px; text-align: center; color: var(--text-muted);">
+                    Cart is empty.
                 </div>
                 
-                <button v-if="!showCheckout" @click="showCheckout = true" class="w-full bg-green-500 text-white py-2 rounded mt-4">
-                    Proceed to Checkout
-                </button>
-                
-                <div v-if="showCheckout" class="mt-6 border p-4 rounded bg-gray-50">
-                    <h3 class="font-bold mb-2">Checkout</h3>
-                    <input v-model="email" placeholder="Email" class="w-full border p-2 mb-2 rounded">
-                    <textarea v-model="address" placeholder="Address" class="w-full border p-2 mb-2 rounded"></textarea>
-                    <button @click="checkout" class="w-full bg-black text-white py-2 rounded">
-                        Pay Now
-                    </button>
+                <div v-else>
+                    <div v-for="item in cart.items" :key="item.product.id" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding: 8px 0;">
+                        <ui-text>{{ item.product.title }} (x{{ item.quantity }})</ui-text>
+                        <ui-text weight="bold">\${{ item.subtotal }}</ui-text>
+                    </div>
+                    
+                    <ui-divider />
+                    
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 16px; margin-bottom: 24px;">
+                        <ui-text size="large" weight="bold">Total</ui-text>
+                        <ui-text size="large" weight="bold" style="color: var(--accent-color);">\${{ cart.total }}</ui-text>
+                    </div>
+                    
+                    <ui-button v-if="!showCheckout" type="primary" size="large" @click="showCheckout = true" style="width: 100%;">
+                        Proceed to Checkout
+                    </ui-button>
+                    
+                    <div v-if="showCheckout" style="margin-top: 32px; padding-top: 32px; border-top: 1px dashed var(--border-color);">
+                        <ui-title :level="3" style="margin-bottom: 20px;">Checkout</ui-title>
+                        <ui-input v-model="email" label="Email Address" placeholder="you@example.com" style="margin-bottom: 16px;" />
+                        <ui-textarea v-model="address" label="Shipping Address" placeholder="Street, City, State, Zip" style="margin-bottom: 24px;" />
+                        <ui-button type="primary" size="large" @click="checkout" style="width: 100%;">
+                            <LucideIcon name="credit-card" size="18" style="margin-right: 8px;" />
+                            Pay Now
+                        </ui-button>
+                    </div>
                 </div>
-            </div>
-        </div>
+            </ui-card>
+        </ui-container>
     `
 }
+

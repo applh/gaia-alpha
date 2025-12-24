@@ -1,158 +1,43 @@
 import { ref, reactive, onMounted, computed } from 'vue';
-import Icon from 'ui/Icon.js'; // Assuming this exists based on NodeEditor
+import Icon from 'ui/Icon.js';
+import UIButton from 'ui/Button.js';
+import Card from 'ui/Card.js';
+import Textarea from 'ui/Textarea.js';
+import Avatar from 'ui/Avatar.js';
+import { UITitle, UIText } from 'ui/Typography.js';
+import Divider from 'ui/Divider.js';
 
 const STYLES = `
-.comments-section {
-    font-family: var(--font-stack, sans-serif);
-    margin-top: 2rem;
-    padding: 1rem;
-    background: var(--bg-secondary, #f9fafb);
-    border-radius: 8px;
-    border: 1px solid var(--border-color, #e5e7eb);
-}
-
-.comments-header {
+.comments-list {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1.5rem;
+    flex-direction: column;
+    gap: 1.5rem;
 }
-
-.comments-title {
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: var(--text-primary, #111827);
-}
-
-.comment-form {
-    margin-bottom: 2rem;
-    background: var(--bg-primary, #ffffff);
-    padding: 1rem;
-    border-radius: 6px;
-    border: 1px solid var(--border-color, #e5e7eb);
-}
-
-.comment-input {
-    width: 100%;
-    min-height: 80px;
-    padding: 0.75rem;
-    border: 1px solid var(--border-color, #d1d5db);
-    border-radius: 4px;
-    margin-bottom: 0.5rem;
-    font-family: inherit;
-    resize: vertical;
-}
-
-.comment-actions {
+.comment-item-wrapper {
     display: flex;
-    justify-content: flex-end; /* Right align buttons */
-    align-items: center;
+    flex-direction: column;
     gap: 1rem;
 }
-
+.replies-list {
+    margin-left: 3rem;
+    padding-left: 1.5rem;
+    border-left: 2px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 1rem;
+}
 .rating-select {
     display: flex;
     gap: 0.25rem;
     cursor: pointer;
 }
-
 .star {
     color: #ffd700;
 }
-
 .star.empty {
-    color: #d1d5db;
-}
-
-.btn-submit {
-    background: var(--primary-color, #2563eb);
-    color: white;
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
-    border: none;
-    cursor: pointer;
-    font-weight: 500;
-}
-
-.btn-submit:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-.comments-list {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-}
-
-.comment-item {
-    display: flex;
-    gap: 1rem;
-    padding: 1rem;
-    background: var(--bg-primary, #ffffff);
-    border-radius: 6px;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-}
-
-.comment-avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: #e5e7eb;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    color: #6b7280;
-    flex-shrink: 0;
-}
-
-.comment-content {
-    flex: 1;
-}
-
-.comment-meta {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 0.5rem;
-    font-size: 0.875rem;
-    color: var(--text-muted, #6b7280);
-}
-
-.comment-author {
-    font-weight: 600;
-    color: var(--text-primary, #111827);
-    margin-right: 0.5rem;
-}
-
-.comment-body {
-    color: var(--text-primary, #374151);
-    line-height: 1.5;
-    white-space: pre-line;
-}
-
-.comment-reply-btn {
-    margin-top: 0.5rem;
-    background: none;
-    border: none;
-    color: var(--text-muted, #6b7280);
-    cursor: pointer;
-    font-size: 0.875rem;
-    padding: 0;
-}
-
-.comment-reply-btn:hover {
-    color: var(--primary-color, #2563eb);
-}
-
-.replies-list {
-    margin-top: 1rem;
-    margin-left: 2rem; /* Indent replies */
-    border-left: 2px solid var(--border-color, #e5e7eb);
-    padding-left: 1rem;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
+    color: var(--border-color);
+    opacity: 0.3;
 }
 `;
 
@@ -163,27 +48,36 @@ export default {
         allowRating: { type: Boolean, default: false },
         title: { type: String, default: 'Comments' }
     },
-    components: { Icon },
+    components: {
+        LucideIcon: Icon,
+        'ui-button': UIButton,
+        'ui-card': Card,
+        'ui-textarea': Textarea,
+        'ui-avatar': Avatar,
+        'ui-title': UITitle,
+        'ui-text': UIText,
+        'ui-divider': Divider
+    },
     template: `
         <div class="comments-section">
             <div class="style-injector" v-html="'<style>' + styles + '</style>'"></div>
             
-            <div class="comments-header">
-                <h3 class="comments-title">{{ title }} ({{ totalComments }})</h3>
+            <div class="comments-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                <ui-title :level="3" style="margin: 0;">{{ title }} ({{ totalComments }})</ui-title>
             </div>
 
             <!-- New Comment Form -->
-            <div class="comment-form">
-                <textarea 
+            <ui-card style="margin-bottom: 32px;">
+                <ui-textarea 
                     v-model="newComment.content" 
-                    class="comment-input" 
                     placeholder="Write a comment..."
-                ></textarea>
+                    style="margin-bottom: 16px;"
+                />
                 
-                <div class="comment-actions">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
                     <!-- Rating Input -->
                     <div v-if="allowRating" class="rating-select">
-                        <Icon 
+                        <LucideIcon 
                             v-for="i in 5" 
                             :key="i" 
                             name="star" 
@@ -193,62 +87,70 @@ export default {
                             @click="setRating(i)"
                         />
                     </div>
+                    <div v-else></div>
                     
-                    <button class="btn-submit" @click="submitComment" :disabled="submitting || !newComment.content">
-                        {{ submitting ? 'Posting...' : 'Post Comment' }}
-                    </button>
+                    <ui-button type="primary" @click="submitComment" :disabled="submitting || !newComment.content" :loading="submitting">
+                        Post Comment
+                    </ui-button>
                 </div>
-            </div>
+            </ui-card>
 
             <!-- Comments List -->
             <div class="comments-list">
-                <div v-if="loading" class="text-center text-muted">Loading comments...</div>
-                <div v-else-if="comments.length === 0" class="text-center text-muted">No comments yet. Be the first!</div>
+                <div v-if="loading" style="text-align: center; padding: 24px;">
+                    <ui-text class="text-muted">Loading comments...</ui-text>
+                </div>
+                <div v-else-if="comments.length === 0" style="text-align: center; padding: 48px; border: 1px dashed var(--border-color); border-radius: 12px;">
+                    <LucideIcon name="message-square" size="40" style="opacity: 0.2; margin-bottom: 12px;" />
+                    <ui-text class="text-muted">No comments yet. Be the first!</ui-text>
+                </div>
                 
                 <div v-for="comment in comments" :key="comment.id" class="comment-item-wrapper">
-                    <!-- Comment Component (Recursive via Render or just nested logic) -->
-                    <!-- Simplification: Just rendering top level and one level deep for now, or building a recursive component -->
-                    <div class="comment-item">
-                        <div class="comment-avatar">
-                            {{ getInitials(comment.author_name || comment.user_username || 'Guest') }}
-                        </div>
-                        <div class="comment-content">
-                            <div class="comment-meta">
-                                <div>
-                                    <span class="comment-author">{{ comment.author_name || comment.user_username || 'Guest' }}</span>
-                                    <span v-if="comment.rating" class="comment-rating">
-                                        <Icon name="star" size="12" fill="#ffd700" color="#ffd700" v-for="r in comment.rating" :key="r" style="display:inline-block"/>
-                                    </span>
+                    <ui-card style="padding: 16px;">
+                        <div style="display: flex; gap: 16px;">
+                            <ui-avatar :name="comment.author_name || comment.user_username || 'Guest'" size="small" />
+                            <div style="flex: 1;">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                    <div>
+                                        <ui-text weight="bold" style="margin-right: 8px;">{{ comment.author_name || comment.user_username || 'Guest' }}</ui-text>
+                                        <span v-if="comment.rating" style="display: inline-flex; gap: 2px; vertical-align: middle;">
+                                            <LucideIcon name="star" size="12" style="color: #ffd700;" v-for="r in comment.rating" :key="r" />
+                                        </span>
+                                    </div>
+                                    <ui-text size="extra-small" class="text-muted">{{ formatDate(comment.created_at) }}</ui-text>
                                 </div>
-                                <span class="comment-date">{{ formatDate(comment.created_at) }}</span>
-                            </div>
-                            <div class="comment-body">{{ comment.content }}</div>
-                            <button class="comment-reply-btn" @click="toggleReply(comment.id)">Reply</button>
-                            
-                            <!-- Reply Form -->
-                            <div v-if="replyingTo === comment.id" class="comment-form mt-2">
-                                <textarea v-model="replyContent" class="comment-input" placeholder="Write a reply..."></textarea>
-                                <div class="comment-actions">
-                                    <button class="btn-submit" @click="submitReply(comment.id)">Reply</button>
+                                <ui-text style="display: block; margin-bottom: 12px; white-space: pre-line;">{{ comment.content }}</ui-text>
+                                <ui-button size="small" @click="toggleReply(comment.id)">
+                                    <LucideIcon name="reply" size="14" style="margin-right: 4px;" />
+                                    Reply
+                                </ui-button>
+                                
+                                <!-- Reply Form -->
+                                <div v-if="replyingTo === comment.id" style="margin-top: 16px;">
+                                    <ui-textarea v-model="replyContent" placeholder="Write a reply..." style="margin-bottom: 12px;" />
+                                    <div style="display: flex; gap: 8px; justify-content: flex-end;">
+                                        <ui-button size="small" @click="replyingTo = null">Cancel</ui-button>
+                                        <ui-button size="small" type="primary" @click="submitReply(comment.id)">Post Reply</ui-button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </ui-card>
 
                     <!-- Nested Replies -->
                     <div v-if="comment.replies && comment.replies.length > 0" class="replies-list">
-                        <div v-for="reply in comment.replies" :key="reply.id" class="comment-item">
-                            <div class="comment-avatar">
-                                {{ getInitials(reply.author_name || reply.user_username || 'Guest') }}
-                            </div>
-                            <div class="comment-content">
-                                <div class="comment-meta">
-                                    <span class="comment-author">{{ reply.author_name || reply.user_username || 'Guest' }}</span>
-                                    <span class="comment-date">{{ formatDate(reply.created_at) }}</span>
+                        <ui-card v-for="reply in comment.replies" :key="reply.id" style="padding: 12px 16px; background: rgba(255,255,255,0.02);">
+                            <div style="display: flex; gap: 12px;">
+                                <ui-avatar :name="reply.author_name || reply.user_username || 'Guest'" size="small" />
+                                <div style="flex: 1;">
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                                        <ui-text weight="bold" size="small">{{ reply.author_name || reply.user_username || 'Guest' }}</ui-text>
+                                        <ui-text size="extra-small" class="text-muted">{{ formatDate(reply.created_at) }}</ui-text>
+                                    </div>
+                                    <ui-text size="small" style="display: block; white-space: pre-line;">{{ reply.content }}</ui-text>
                                 </div>
-                                <div class="comment-body">{{ reply.content }}</div>
                             </div>
-                        </div>
+                        </ui-card>
                     </div>
                 </div>
             </div>
@@ -310,9 +212,10 @@ export default {
                     newComment.content = '';
                     newComment.rating = 0;
                     await fetchComments();
+                    store.addNotification('Comment posted', 'success');
                 }
             } catch (e) {
-                alert('Error posting comment');
+                store.addNotification('Error posting comment', 'error');
             } finally {
                 submitting.value = false;
             }
@@ -346,9 +249,10 @@ export default {
                     replyingTo.value = null;
                     replyContent.value = '';
                     await fetchComments();
+                    store.addNotification('Reply posted', 'success');
                 }
             } catch (e) {
-                alert('Error posting reply');
+                store.addNotification('Error posting reply', 'error');
             }
         };
 
@@ -356,10 +260,6 @@ export default {
             if (props.allowRating) {
                 newComment.rating = r;
             }
-        };
-
-        const getInitials = (name) => {
-            return name ? name.substring(0, 2).toUpperCase() : '??';
         };
 
         const formatDate = (dateStr) => {
@@ -383,8 +283,8 @@ export default {
             toggleReply,
             submitReply,
             setRating,
-            getInitials,
             formatDate
         };
     }
 }
+

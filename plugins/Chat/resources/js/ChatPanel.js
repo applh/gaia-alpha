@@ -1,86 +1,123 @@
-import { ref, onMounted, onUnmounted, nextTick, watch } from 'vue';
+import { ref, onMounted, onUnmounted, nextTick } from 'vue';
 import { store } from 'store';
 import Icon from 'ui/Icon.js';
+import UIButton from 'ui/Button.js';
+import Card from 'ui/Card.js';
+import Container from 'ui/Container.js';
+import Row from 'ui/Row.js';
+import Col from 'ui/Col.js';
+import Input from 'ui/Input.js';
+import Avatar from 'ui/Avatar.js';
+import Tag from 'ui/Tag.js';
+import { UITitle, UIText } from 'ui/Typography.js';
 
 export default {
-    components: { LucideIcon: Icon },
+    components: {
+        LucideIcon: Icon,
+        'ui-button': UIButton,
+        'ui-card': Card,
+        'ui-container': Container,
+        'ui-row': Row,
+        'ui-col': Col,
+        'ui-input': Input,
+        'ui-avatar': Avatar,
+        'ui-tag': Tag,
+        'ui-title': UITitle,
+        'ui-text': UIText
+    },
     template: `
-        <div class="admin-page chat-page">
-            <div class="chat-layout">
+        <ui-container class="admin-page chat-page">
+            <ui-row :gutter="20" class="chat-layout" style="height: calc(100vh - 180px); min-height: 500px;">
                 <!-- Sidebar: User List -->
-                <div class="chat-sidebar admin-card">
-                    <div class="chat-header">
-                        <h3>Messages</h3>
-                    </div>
-                    <div class="user-list">
-                        <div 
-                            v-for="user in users" 
-                            :key="user.id" 
-                            class="user-item" 
-                            :class="{ active: selectedUser && selectedUser.id === user.id }"
-                            @click="selectUser(user)"
-                        >
-                            <div class="user-avatar">
-                                <LucideIcon name="user" size="20" />
-                            </div>
-                            <div class="user-info-chat">
-                                <span class="username">{{ user.username }}</span>
-                                <span v-if="user.unread" class="unread-badge">{{ user.unread }}</span>
+                <ui-col :xs="24" :md="8" :lg="6" style="height: 100%;">
+                    <ui-card style="height: 100%; display: flex; flex-direction: column; padding: 0;">
+                        <div class="chat-header" style="padding: 20px; border-bottom: 1px solid var(--border-color);">
+                            <ui-title :level="3" style="margin: 0;">Messages</ui-title>
+                        </div>
+                        <div class="user-list" style="flex: 1; overflow-y: auto; padding: 10px;">
+                            <div 
+                                v-for="user in users" 
+                                :key="user.id" 
+                                class="user-item" 
+                                :class="{ active: selectedUser && selectedUser.id === user.id }"
+                                @click="selectUser(user)"
+                                style="display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 8px; cursor: pointer; transition: all 0.2s; margin-bottom: 4px;"
+                            >
+                                <ui-avatar :name="user.username" size="small" />
+                                <div class="user-info-chat" style="flex: 1; display: flex; justify-content: space-between; align-items: center;">
+                                    <ui-text weight="medium" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ user.username }}</ui-text>
+                                    <ui-tag v-if="user.unread" type="danger" size="small" effect="dark">{{ user.unread }}</ui-tag>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </div>
+                    </ui-card>
+                </ui-col>
 
                 <!-- Main: Chat Window -->
-                <div class="chat-window admin-card">
-                    <template v-if="selectedUser">
-                        <div class="chat-window-header">
-                            <div class="header-user">
-                                <LucideIcon name="user" size="18" />
-                                <span>{{ selectedUser.username }}</span>
+                <ui-col :xs="24" :md="16" :lg="18" style="height: 100%;">
+                    <ui-card style="height: 100%; display: flex; flex-direction: column; padding: 0;">
+                        <template v-if="selectedUser">
+                            <div class="chat-window-header" style="padding: 16px 20px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.02);">
+                                <ui-avatar :name="selectedUser.username" size="small" />
+                                <ui-text weight="bold">{{ selectedUser.username }}</ui-text>
                             </div>
-                        </div>
-                        
-                        <div class="messages-container" ref="messagesContainer">
-                            <div v-if="isLoading" class="loading">Loading...</div>
-                            <div v-else-if="messages.length === 0" class="empty-state">
-                                No messages yet. Say hi!
+                            
+                            <div class="messages-container" ref="messagesContainer" style="flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 12px;">
+                                <div v-if="isLoading" style="display: flex; justify-content: center; padding: 20px;">
+                                    <ui-text class="text-muted">Loading messages...</ui-text>
+                                </div>
+                                <div v-else-if="messages.length === 0" style="text-align: center; padding: 40px; color: var(--text-muted);">
+                                    <LucideIcon name="message-circle" size="48" style="opacity: 0.1; margin-bottom: 12px;" />
+                                    <p>No messages yet. Say hi!</p>
+                                </div>
+                                <div 
+                                    v-for="msg in messages" 
+                                    :key="msg.id" 
+                                    class="message-bubble"
+                                    :class="{ 
+                                        'sent': msg.sender_id === currentUser.id,
+                                        'received': msg.sender_id !== currentUser.id
+                                    }"
+                                    style="max-width: 80%; display: flex; flex-direction: column;"
+                                    :style="msg.sender_id === currentUser.id ? 'align-self: flex-end; align-items: flex-end;' : 'align-self: flex-start; align-items: flex-start;'"
+                                >
+                                    <div 
+                                        class="message-content" 
+                                        style="padding: 10px 16px; border-radius: 18px; position: relative;"
+                                        :style="msg.sender_id === currentUser.id 
+                                            ? 'background: var(--accent-color); color: white; border-bottom-right-radius: 4px;' 
+                                            : 'background: var(--card-bg-light); color: var(--text-color); border-bottom-left-radius: 4px;'
+                                        "
+                                    >
+                                        {{ msg.content }}
+                                    </div>
+                                    <ui-text size="extra-small" class="text-muted" style="margin-top: 4px; padding: 0 4px;">{{ formatTime(msg.created_at) }}</ui-text>
+                                </div>
                             </div>
-                            <div 
-                                v-for="msg in messages" 
-                                :key="msg.id" 
-                                class="message-bubble"
-                                :class="{ 
-                                    'sent': msg.sender_id === currentUser.id,
-                                    'received': msg.sender_id !== currentUser.id
-                                }"
-                            >
-                                <div class="message-content">{{ msg.content }}</div>
-                                <div class="message-time">{{ formatTime(msg.created_at) }}</div>
-                            </div>
-                        </div>
 
-                        <div class="chat-input-area">
-                            <input 
-                                v-model="newMessage" 
-                                @keyup.enter="sendMessage"
-                                placeholder="Type a message..."
-                                :disabled="isSending"
-                                ref="inputField"
-                            >
-                            <button @click="sendMessage" class="btn-primary btn-icon" :disabled="!newMessage.trim() || isSending">
-                                <LucideIcon name="send" size="18" />
-                            </button>
+                            <div class="chat-input-area" style="padding: 20px; border-top: 1px solid var(--border-color); display: flex; gap: 12px; align-items: flex-end;">
+                                <ui-input 
+                                    v-model="newMessage" 
+                                    @keyup.enter="sendMessage"
+                                    placeholder="Type a message..."
+                                    :disabled="isSending"
+                                    ref="inputField"
+                                    style="flex: 1;"
+                                />
+                                <ui-button type="primary" size="large" @click="sendMessage" :disabled="!newMessage.trim() || isSending" style="width: 48px; border-radius: 50%; padding: 0;">
+                                    <LucideIcon name="send" size="18" />
+                                </ui-button>
+                            </div>
+                        </template>
+                        
+                        <div v-else style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0.3;">
+                            <LucideIcon name="message-square" size="64" />
+                            <ui-title :level="3" style="margin-top: 16px;">Select a user to start chatting</ui-title>
                         </div>
-                    </template>
-                    
-                    <div v-else class="empty-selection">
-                        <LucideIcon name="message-square" size="48" class="text-muted" />
-                        <p>Select a user to start chatting</p>
-                    </div>
-                </div>
-            </div>
-        </div>
+                    </ui-card>
+                </ui-col>
+            </ui-row>
+        </ui-container>
     `,
     setup() {
         const users = ref([]);
@@ -108,14 +145,9 @@ export default {
         const fetchMessages = async () => {
             if (!selectedUser.value) return;
             try {
-                // Don't set isLoading on poll, only initial
                 const res = await fetch(`/@/chat/messages/${selectedUser.value.id}`);
                 if (res.ok) {
                     const newData = await res.json();
-
-                    // Only update if length changed to avoid jitter, or better, smart merge?
-                    // For now, simple replace is okay but might impact scroll if we are not at bottom.
-                    // Let's replace and see.
                     const initialLoad = messages.value.length === 0;
                     const diff = newData.length !== messages.value.length;
 
@@ -125,8 +157,6 @@ export default {
                             scrollToBottom();
                         }
 
-                        // If we have messages from them in the new batch, mark read?
-                        // Simple logic: If window is open, mark unread messages as read
                         if (selectedUser.value.unread > 0) {
                             markRead(selectedUser.value.id);
                         }
@@ -144,7 +174,6 @@ export default {
             startPolling();
             setTimeout(() => inputField.value?.focus(), 100);
 
-            // Mark read immediately upon selection
             if (user.unread > 0) {
                 markRead(user.id);
             }
@@ -152,7 +181,6 @@ export default {
 
         const markRead = async (senderId) => {
             await fetch(`/@/chat/read/${senderId}`, { method: 'PATCH' });
-            // Update local badge
             const u = users.value.find(u => u.id === senderId);
             if (u) u.unread = 0;
         };
@@ -161,7 +189,7 @@ export default {
             if (!newMessage.value.trim() || !selectedUser.value) return;
 
             const content = newMessage.value;
-            newMessage.value = ''; // optimistic clear
+            newMessage.value = '';
             isSending.value = true;
 
             try {
@@ -176,7 +204,6 @@ export default {
 
                 if (res.ok) {
                     const data = await res.json();
-                    // Optimistic append
                     messages.value.push({
                         id: data.id,
                         sender_id: currentUser.id,
@@ -186,12 +213,12 @@ export default {
                     });
                     scrollToBottom();
                 } else {
-                    newMessage.value = content; // restore
-                    alert('Failed to send');
+                    newMessage.value = content;
+                    store.addNotification('Failed to send message', 'error');
                 }
             } catch (e) {
                 newMessage.value = content;
-                alert('Error sending');
+                store.addNotification('Error sending message', 'error');
             } finally {
                 isSending.value = false;
                 inputField.value?.focus();
@@ -201,8 +228,8 @@ export default {
         const startPolling = () => {
             if (pollInterval) clearInterval(pollInterval);
             pollInterval = setInterval(async () => {
-                await fetchMessages(); // poll active chat
-                await fetchUsers(); // poll user list (for unread badges)
+                await fetchMessages();
+                await fetchUsers();
             }, 3000);
         };
 
@@ -222,7 +249,6 @@ export default {
 
         onMounted(() => {
             fetchUsers();
-            // We can also poll users list even if no chat selected?
             pollInterval = setInterval(fetchUsers, 5000);
         });
 
@@ -246,3 +272,4 @@ export default {
         };
     }
 };
+

@@ -1,45 +1,26 @@
 import { ref, onMounted, computed, watch } from 'vue';
 import Icon from 'ui/Icon.js';
+import UIButton from 'ui/Button.js';
+import Card from 'ui/Card.js';
+import Container from 'ui/Container.js';
+import Row from 'ui/Row.js';
+import Col from 'ui/Col.js';
+import Modal from 'ui/Modal.js';
+import Input from 'ui/Input.js';
+import { UITitle, UIText } from 'ui/Typography.js';
+import Divider from 'ui/Divider.js';
 import { store } from 'store';
 import SlidesPlayer from './components/SlidesPlayer.js';
 
 const STYLES = `
-    .slides-container {
-        display: flex;
-        flex-direction: column;
-        height: calc(100vh - 100px);
-        background: var(--bg-color);
-        color: var(--text-primary);
-    }
-    .slides-header {
-        padding: 1rem;
-        background: var(--card-bg);
-        border-bottom: 1px solid var(--border-color);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
     .slides-body {
         flex: 1;
         display: flex;
         overflow: hidden;
+        height: calc(100vh - 180px);
+        min-height: 500px;
     }
-    .slides-sidebar {
-        width: 280px;
-        background: var(--card-bg);
-        border-right: 1px solid var(--border-color);
-        display: flex;
-        flex-direction: column;
-    }
-    .page-list {
-        flex: 1;
-        overflow-y: auto;
-        padding: 1rem;
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-    }
-    .page-item {
+    .page-list-item {
         aspect-ratio: 16/9;
         background: #333;
         border: 2px solid transparent;
@@ -51,9 +32,10 @@ const STYLES = `
         justify-content: center;
         align-items: center;
         transition: all 0.2s;
+        margin-bottom: 12px;
     }
-    .page-item:hover { border-color: var(--border-color); }
-    .page-item.active { border-color: var(--accent-color); box-shadow: 0 0 10px var(--accent-color); }
+    .page-list-item:hover { border-color: var(--border-color); }
+    .page-list-item.active { border-color: var(--accent-color); box-shadow: 0 0 10px rgba(99, 102, 241, 0.3); }
     .page-number {
         position: absolute;
         top: 4px; left: 8px;
@@ -66,7 +48,7 @@ const STYLES = `
     }
     .editor-view {
         flex: 1;
-        background: #222;
+        background: rgba(0,0,0,0.1);
         padding: 2rem;
         display: flex;
         flex-direction: column;
@@ -78,164 +60,165 @@ const STYLES = `
         max-width: 960px;
         aspect-ratio: 16/9;
         background: white;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        box-shadow: 0 20px 50px rgba(0,0,0,0.3);
         position: relative;
-    }
-    .deck-list {
-        padding: 2rem;
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-        gap: 1.5rem;
-    }
-    .deck-card {
-        background: var(--card-bg);
-        border: 1px solid var(--border-color);
-        border-radius: 12px;
-        padding: 1.5rem;
-        cursor: pointer;
-        transition: all 0.3s;
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-    }
-    .deck-card:hover { 
-        transform: translateY(-5px); 
-        border-color: var(--accent-color);
-        background: var(--glass-bg);
-    }
-    .empty-state {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        height: 100%;
-        gap: 1rem;
-        color: var(--text-muted);
-    }
-    .btn-icon {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
+        border-radius: 8px;
+        overflow: hidden;
     }
 `;
 
 export default {
-    components: { LucideIcon: Icon, SlidesPlayer },
+    components: {
+        LucideIcon: Icon,
+        'ui-button': UIButton,
+        'ui-card': Card,
+        'ui-container': Container,
+        'ui-row': Row,
+        'ui-col': Col,
+        'ui-modal': Modal,
+        'ui-input': Input,
+        'ui-title': UITitle,
+        'ui-text': UIText,
+        'ui-divider': Divider,
+        SlidesPlayer
+    },
     template: `
-    <div class="slides-container">
+    <ui-container class="slides-container">
+        <div class="style-injector" v-html="'<style>' + styles + '</style>'"></div>
+        
         <!-- Header -->
-        <div class="slides-header">
-            <div class="flex items-center gap-4">
-                <LucideIcon name="monitor" size="24" />
-                <h2 v-if="currentDeck" class="text-xl font-bold">{{ currentDeck.title }}</h2>
-                <h2 v-else class="text-xl font-bold">Slides</h2>
-            </div>
-            <div class="flex gap-2">
+        <div class="admin-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px;">
+            <ui-title :level="1">
+                <LucideIcon name="monitor" size="28" style="margin-right: 12px; vertical-align: middle; color: var(--accent-color);" />
+                {{ currentDeck ? currentDeck.title : 'Slide Decks' }}
+            </ui-title>
+            <div style="display: flex; gap: 12px;">
                 <template v-if="currentDeck">
-                    <button @click="saveAll" class="btn btn-primary btn-icon">
-                        <LucideIcon name="save" size="18" /> Save
-                    </button>
-                    <button @click="isPlaying = true" class="btn btn-secondary btn-icon">
-                        <LucideIcon name="play" size="18" /> Play
-                    </button>
-                    <button @click="closeEditor" class="btn btn-ghost btn-icon">
-                        <LucideIcon name="x" size="18" /> Close
-                    </button>
+                    <ui-button type="primary" @click="saveAll">
+                        <LucideIcon name="save" size="18" style="margin-right: 8px;" /> Save
+                    </ui-button>
+                    <ui-button @click="isPlaying = true">
+                        <LucideIcon name="play" size="18" style="margin-right: 8px;" /> Play
+                    </ui-button>
+                    <ui-button @click="closeEditor">
+                        <LucideIcon name="x" size="18" style="margin-right: 8px;" /> Close
+                    </ui-button>
                 </template>
                 <template v-else>
-                    <button @click="showNewModal = true" class="btn btn-primary btn-icon">
-                        <LucideIcon name="plus" size="18" /> New Slide Deck
-                    </button>
+                    <ui-button type="primary" @click="showNewModal = true">
+                        <LucideIcon name="plus" size="18" style="margin-right: 8px;" /> New Slide Deck
+                    </ui-button>
                 </template>
             </div>
         </div>
 
         <div class="slides-body">
             <!-- List View -->
-            <div v-if="!currentDeck" class="w-full">
-                <div v-if="decks.length === 0" class="empty-state">
-                    <LucideIcon name="monitor" size="64" />
-                    <p>No slide decks found. Create your first one!</p>
-                    <button @click="showNewModal = true" class="btn btn-primary">Create Deck</button>
-                </div>
-                <div v-else class="deck-list">
-                    <div 
-                        v-for="d in decks" 
-                        :key="d.id" 
-                        class="deck-card"
-                        @click="openDeck(d)"
-                    >
-                        <div class="flex justify-between items-start w-full">
-                            <LucideIcon name="monitor" size="32" class="text-accent" />
-                            <button @click.stop="deleteDeck(d)" class="text-danger hover:text-red-400 p-1">
-                                <LucideIcon name="trash" size="16" />
-                            </button>
-                        </div>
-                        <h3 class="font-bold">{{ d.title }}</h3>
-                        <span class="text-xs text-muted">{{ formatDate(d.updated_at) }}</span>
-                    </div>
-                </div>
+            <div v-if="!currentDeck" style="width: 100%;">
+                <ui-card v-if="decks.length === 0" style="text-align: center; padding: 100px 20px;">
+                    <LucideIcon name="monitor" size="64" style="opacity: 0.1; margin-bottom: 24px;" />
+                    <ui-title :level="3">No slide decks found</ui-title>
+                    <ui-text class="text-muted" style="display: block; margin-bottom: 24px;">Create your first one to start presenting!</ui-text>
+                    <ui-button type="primary" @click="showNewModal = true">Create Deck</ui-button>
+                </ui-card>
+                
+                <ui-row v-else :gutter="20">
+                    <ui-col v-for="d in decks" :key="d.id" :xs="24" :sm="12" :md="8" :lg="6">
+                        <ui-card style="margin-bottom: 20px; transition: transform 0.2s;" @click="openDeck(d)">
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+                                <LucideIcon name="monitor" size="32" style="color: var(--accent-color);" />
+                                <ui-button size="small" type="danger" @click.stop="deleteDeck(d)">
+                                    <LucideIcon name="trash" size="14" />
+                                </ui-button>
+                            </div>
+                            <ui-text weight="bold" style="display: block; font-size: 1.1rem; margin-bottom: 4px;">{{ d.title }}</ui-text>
+                            <ui-text size="extra-small" class="text-muted">Updated: {{ formatDate(d.updated_at) }}</ui-text>
+                        </ui-card>
+                    </ui-col>
+                </ui-row>
             </div>
 
             <!-- Editor View -->
             <template v-else>
-                <div class="slides-sidebar">
-                    <div class="p-4 border-bottom flex justify-between items-center bg-muted">
-                        <label class="text-xs font-bold uppercase text-muted">Pages</label>
-                        <button @click="addPage" class="btn btn-secondary btn-xs">
-                            <LucideIcon name="plus" size="14" />
-                        </button>
-                    </div>
-                    <div class="page-list">
-                        <div 
-                            v-for="(page, index) in pages" 
-                            :key="page.id"
-                            :class="['page-item', { active: currentPageIndex === index }]"
-                            @click="selectPage(index)"
-                        >
-                            <span class="page-number">{{ index + 1 }}</span>
-                            <LucideIcon v-if="page.slide_type === 'drawing'" name="pen-tool" size="24" class="text-muted" />
-                            <div v-if="index > 0" @click.stop="movePage(index, -1)" class="absolute top-0 right-8 p-1 text-xs hover:text-accent">▲</div>
-                            <div v-if="index < pages.length - 1" @click.stop="movePage(index, 1)" class="absolute top-0 right-4 p-1 text-xs hover:text-accent">▼</div>
-                            <button @click.stop="deletePage(index)" class="absolute bottom-1 right-1 text-danger hover:text-red-400">
-                                <LucideIcon name="trash" size="14" />
-                            </button>
-                        </div>
-                    </div>
-                </div>
+                <ui-row :gutter="20" style="width: 100%; height: 100%; margin: 0;">
+                    <!-- Sidebar: Pages -->
+                    <ui-col :span="6" style="height: 100%;">
+                        <ui-card style="height: 100%; display: flex; flex-direction: column; padding: 0;">
+                            <div style="padding: 16px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
+                                <ui-text weight="bold" size="small" style="text-transform: uppercase; color: var(--text-muted);">Pages</ui-text>
+                                <ui-button size="small" @click="addPage">
+                                    <LucideIcon name="plus" size="14" />
+                                </ui-button>
+                            </div>
+                            <div style="flex: 1; overflow-y: auto; padding: 16px;">
+                                <div 
+                                    v-for="(page, index) in pages" 
+                                    :key="page.id"
+                                    class="page-list-item"
+                                    :class="{ active: currentPageIndex === index }"
+                                    @click="selectPage(index)"
+                                >
+                                    <span class="page-number">{{ index + 1 }}</span>
+                                    <LucideIcon v-if="page.slide_type === 'drawing'" name="pen-tool" size="24" style="opacity: 0.3;" />
+                                    
+                                    <div style="position: absolute; top: 4px; right: 4px; display: flex; gap: 2px;">
+                                        <ui-button v-if="index > 0" size="small" @click.stop="movePage(index, -1)" style="padding: 2px; height: auto;">▲</ui-button>
+                                        <ui-button v-if="index < pages.length - 1" size="small" @click.stop="movePage(index, 1)" style="padding: 2px; height: auto;">▼</ui-button>
+                                        <ui-button size="small" type="danger" @click.stop="deletePage(index)" style="padding: 2px; height: auto;">
+                                            <LucideIcon name="trash" size="10" />
+                                        </ui-button>
+                                    </div>
+                                </div>
+                            </div>
+                        </ui-card>
+                    </ui-col>
 
-                <div class="editor-view" v-if="currentPage">
-                    <div class="flex flex-col gap-4 w-full items-center">
-                        <div class="flex gap-4 items-center w-full max-w-[960px]">
-                            <select v-model="currentPage.slide_type" class="form-input" style="width: auto;">
-                                <option value="drawing">Drawing Page</option>
-                                <option value="markdown">Markdown Page (Coming Soon)</option>
-                            </select>
+                    <!-- Main Canvas Area -->
+                    <ui-col :span="18" style="height: 100%;">
+                        <div class="editor-view" v-if="currentPage">
+                            <div style="display: flex; flex-direction: column; gap: 24px; width: 100%; align-items: center;">
+                                <div style="display: flex; gap: 12px; width: 100%; max-width: 960px;">
+                                    <select v-model="currentPage.slide_type" class="form-input" style="background: var(--card-bg); color: var(--text-color); border: 1px solid var(--border-color); padding: 8px 12px; border-radius: 8px; cursor: pointer;">
+                                        <option value="drawing">Drawing Page</option>
+                                        <option value="markdown">Markdown Page (Coming Soon)</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="slide-canvas-wrapper" ref="canvasWrapper">
+                                    <canvas 
+                                        ref="slideCanvas"
+                                        width="1920"
+                                        height="1080"
+                                        style="width: 100%; height: 100%; touch-action: none;"
+                                        @mousedown="startDrawing"
+                                        @mousemove="draw"
+                                        @mouseup="stopDrawing"
+                                        @mouseleave="stopDrawing"
+                                    ></canvas>
+                                </div>
+
+                                <ui-card style="width: 100%; max-width: 960px;">
+                                    <div style="display: flex; gap: 16px; align-items: center; justify-content: center;">
+                                        <div v-for="c in palette" :key="c" 
+                                            style="width: 32px; height: 32px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: transform 0.1s;"
+                                            :style="{ background: c, borderColor: strokeColor === c ? 'var(--accent-color)' : 'transparent', transform: strokeColor === c ? 'scale(1.2)' : 'none' }"
+                                            @click="strokeColor = c"
+                                        ></div>
+                                        <ui-divider vertical height="32px" style="margin: 0 8px;" />
+                                        <div style="display: flex; align-items: center; gap: 12px;">
+                                            <input type="range" v-model="brushSize" min="1" max="50" style="cursor: pointer;" />
+                                            <ui-text size="small" style="width: 40px;">{{ brushSize }}px</ui-text>
+                                        </div>
+                                        <ui-divider vertical height="32px" style="margin: 0 8px;" />
+                                        <ui-button size="small" type="danger" @click="clearPage">
+                                            <LucideIcon name="trash" size="14" style="margin-right: 4px;" /> Clear
+                                        </ui-button>
+                                    </div>
+                                </ui-card>
+                            </div>
                         </div>
-                        <div class="slide-canvas-wrapper" ref="canvasWrapper">
-                            <canvas 
-                                ref="slideCanvas"
-                                width="1920"
-                                height="1080"
-                                class="w-full h-full"
-                                @mousedown="startDrawing"
-                                @mousemove="draw"
-                                @mouseup="stopDrawing"
-                                @mouseleave="stopDrawing"
-                            ></canvas>
-                        </div>
-                        <div class="flex gap-4 items-center bg-card p-4 rounded-xl border w-full max-w-[960px] justify-center">
-                            <div v-for="c in palette" :key="c" 
-                                class="w-8 h-8 rounded-full cursor-pointer border-2"
-                                :style="{ background: c, borderColor: strokeColor === c ? 'var(--accent-color)' : 'transparent' }"
-                                @click="strokeColor = c"
-                            ></div>
-                            <input type="range" v-model="brushSize" min="1" max="50" class="ml-4">
-                            <span class="text-xs w-8">{{ brushSize }}px</span>
-                            <button @click="clearPage" class="btn btn-ghost btn-sm text-danger">Clear</button>
-                        </div>
-                    </div>
-                </div>
+                    </ui-col>
+                </ui-row>
             </template>
         </div>
 
@@ -243,38 +226,26 @@ export default {
         <SlidesPlayer v-if="isPlaying" :slides="pages" :onClose="() => isPlaying = false" />
 
         <!-- New Deck Modal -->
-        <div v-if="showNewModal" class="modal-overlay">
-            <div class="modal">
-                <div class="modal-header"><h3>New Slide Deck</h3></div>
-                <div class="modal-body">
-                    <div class="form-group">
-                        <label>Title</label>
-                        <input v-model="newTitle" class="form-input" placeholder="Enter deck title..." @keyup.enter="createDeck" />
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button class="btn btn-secondary" @click="showNewModal = false">Cancel</button>
-                    <button class="btn btn-primary" @click="createDeck">Create</button>
-                </div>
-            </div>
-        </div>
+        <ui-modal v-model="showNewModal" title="New Slide Deck" @close="showNewModal = false">
+            <ui-input v-model="newTitle" label="Deck Title" placeholder="Enter deck title..." @keyup.enter="createDeck" />
+            <template #footer>
+                <ui-button @click="showNewModal = false">Cancel</ui-button>
+                <ui-button type="primary" @click="createDeck">Create Deck</ui-button>
+            </template>
+        </ui-modal>
         
         <!-- Delete Confirmation Modal -->
-        <div v-if="showDeleteModal" class="modal-overlay">
-            <div class="modal">
-                <div class="modal-header"><h3>Delete Deck</h3></div>
-                <div class="modal-body">
-                    <p>Are you sure you want to delete deck "<strong>{{ deckToDelete?.title }}</strong>"?</p>
-                    <p class="text-sm text-muted mt-2">This action cannot be undone.</p>
-                </div>
-                <div class="modal-footer">
-                    <button class="btn btn-secondary" @click="showDeleteModal = false">Cancel</button>
-                    <button class="btn btn-danger" @click="confirmDeleteDeck">Delete</button>
-                </div>
-            </div>
-        </div>
-    </div>
+        <ui-modal v-model="showDeleteModal" title="Delete Slide Deck" @close="showDeleteModal = false">
+            <ui-text>Are you sure you want to delete deck "<strong>{{ deckToDelete?.title }}</strong>"?</ui-text>
+            <ui-text size="small" class="text-muted" style="display: block; margin-top: 12px;">This action cannot be undone and will remove all pages.</ui-text>
+            <template #footer>
+                <ui-button @click="showDeleteModal = false">Cancel</ui-button>
+                <ui-button type="danger" @click="confirmDeleteDeck">Delete Deck</ui-button>
+            </template>
+        </ui-modal>
+    </ui-container>
     `,
+
     styles: STYLES,
     setup() {
         const decks = ref([]);

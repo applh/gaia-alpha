@@ -12,12 +12,19 @@ class TestRunner
     private $failed = 0;
     private $errors = 0;
 
-    public function run($directory)
+    public function run($directories)
     {
-        $files = $this->scanDirectory($directory);
+        if (is_string($directories)) {
+            $directories = [$directories];
+        }
+
+        $files = [];
+        foreach ($directories as $dir) {
+            $files = array_merge($files, $this->scanDirectory($dir));
+        }
 
         echo "Gaia Alpha Test Runner\n";
-        echo "Running tests in: $directory\n\n";
+        echo "Running tests in: " . implode(', ', $directories) . "\n\n";
 
         foreach ($files as $file) {
             $this->runTestFile($file);

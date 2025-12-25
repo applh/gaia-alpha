@@ -9,6 +9,7 @@
         {
             "imports": {
                 "vue": "<?= \GaiaAlpha\Asset::url('/js/vendor/vue.esm-browser.js') ?>",
+                "marked": "<?= \GaiaAlpha\Asset::url('/js/vendor/marked.esm.js') ?>",
                 "@/": "/min/js/",
                 "components/": "/min/js/components/",
                 "ui/": "/min/js/components/ui/",

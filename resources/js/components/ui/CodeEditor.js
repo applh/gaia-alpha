@@ -48,7 +48,7 @@ export default {
             editor = window.ace.edit(editorContainer.value);
             editor.setTheme("ace/theme/" + (props.theme || 'monokai'));
             editor.session.setMode("ace/mode/" + (props.mode || 'php'));
-            editor.setValue(props.modelValue || '', -1); // -1 moves cursor to start
+            editor.setValue(String(props.modelValue || ''), -1); // -1 moves cursor to start
 
             editor.setOptions({
                 fontSize: "14px",
@@ -68,7 +68,7 @@ export default {
 
         watch(() => props.modelValue, (newVal) => {
             if (editor && newVal !== editor.getValue()) {
-                editor.setValue(newVal || '', -1);
+                editor.setValue(String(newVal || ''), -1);
             }
         });
 

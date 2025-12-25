@@ -1,8 +1,8 @@
 import { reactive, computed } from 'vue';
 
 // 1. Reactive State
-const params = new URLSearchParams(window.location.search);
-const initialView = params.get('view') || '';
+const getHashView = () => window.location.hash.replace(/^#/, '') || '';
+const initialView = getHashView();
 
 const state = reactive({
     user: null,
@@ -17,6 +17,14 @@ const state = reactive({
         message: '',
         resolve: null,
         reject: null
+    }
+});
+
+// Update view on hash change (Back/Forward buttons)
+window.addEventListener('hashchange', () => {
+    const newView = getHashView();
+    if (newView !== state.currentView) {
+        state.currentView = newView;
     }
 });
 
@@ -88,6 +96,10 @@ const toggleTheme = () => {
 
 const setView = (view) => {
     state.currentView = view;
+    // Sync URL with view
+    if (window.location.hash !== `#${view}`) {
+        window.location.hash = view;
+    }
 };
 
 const setLoginMode = (mode) => {
@@ -130,7 +142,7 @@ const logout = async () => {
     try {
         await fetch('/@/logout', { method: 'POST' });
         state.user = null;
-        state.currentView = 'todos'; // Reset view
+        setView('todos'); // Reset view and URL
         // Optional: reset theme to system default or keep current
     } catch (e) {
         console.error("Logout failed", e);

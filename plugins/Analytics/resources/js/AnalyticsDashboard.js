@@ -34,25 +34,25 @@ export default {
         </div>
 
         <ui-row :gutter="20" style="margin-bottom: 32px;">
-            <ui-col :xs="24" :sm="12" :md="6">
+            <ui-col :xs="24" :sm="12" :md="12" :lg="8" :xl="6">
                 <ui-card class="stats-card">
                     <ui-text size="small" class="text-muted">Total Visits</ui-text>
                     <ui-title :level="2" style="margin: 8px 0 0 0;">{{ stats.total_visits }}</ui-title>
                 </ui-card>
             </ui-col>
-            <ui-col :xs="24" :sm="12" :md="6">
+            <ui-col :xs="24" :sm="12" :md="12" :lg="8" :xl="6">
                 <ui-card class="stats-card">
                     <ui-text size="small" class="text-muted">Unique Visitors</ui-text>
                     <ui-title :level="2" style="margin: 8px 0 0 0;">{{ stats.unique_visitors }}</ui-title>
                 </ui-card>
             </ui-col>
-            <ui-col :xs="24" :sm="12" :md="6">
+            <ui-col :xs="24" :sm="12" :md="12" :lg="8" :xl="6">
                 <ui-card class="stats-card">
                     <ui-text size="small" class="text-muted">Visits Today</ui-text>
                     <ui-title :level="2" style="margin: 8px 0 0 0; color: var(--accent-color);">{{ stats.today_visits }}</ui-title>
                 </ui-card>
             </ui-col>
-            <ui-col :xs="24" :sm="12" :md="6">
+            <ui-col :xs="24" :sm="12" :md="12" :lg="8" :xl="6">
                 <ui-card class="stats-card">
                     <ui-text size="small" class="text-muted">Unique Today</ui-text>
                     <ui-title :level="2" style="margin: 8px 0 0 0; color: var(--accent-color);">{{ stats.today_unique }}</ui-title>
@@ -61,7 +61,7 @@ export default {
         </ui-row>
 
         <ui-row :gutter="20" style="margin-bottom: 32px;">
-            <ui-col :xs="24" :md="6">
+            <ui-col :xs="24" :md="12" :lg="8" :xl="6">
                 <ui-card title="Devices" style="height: 100%;">
                     <ul class="admin-list" style="list-style: none; padding: 0; margin: 0;">
                         <li v-for="d in stats.devices" :key="d.name" style="padding: 12px 0; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
@@ -71,7 +71,7 @@ export default {
                     </ul>
                 </ui-card>
             </ui-col>
-            <ui-col :xs="24" :md="6">
+            <ui-col :xs="24" :md="12" :lg="8" :xl="6">
                 <ui-card title="Browsers" style="height: 100%;">
                     <ul class="admin-list" style="list-style: none; padding: 0; margin: 0;">
                         <li v-for="b in stats.browsers" :key="b.name" style="padding: 12px 0; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
@@ -81,7 +81,7 @@ export default {
                     </ul>
                 </ui-card>
             </ui-col>
-            <ui-col :xs="24" :md="6">
+            <ui-col :xs="24" :md="12" :lg="8" :xl="6">
                 <ui-card title="OS" style="height: 100%;">
                     <ul class="admin-list" style="list-style: none; padding: 0; margin: 0;">
                         <li v-for="o in stats.os" :key="o.name" style="padding: 12px 0; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
@@ -91,7 +91,7 @@ export default {
                     </ul>
                 </ui-card>
             </ui-col>
-            <ui-col :xs="24" :md="6">
+            <ui-col :xs="24" :md="12" :lg="8" :xl="6">
                 <ui-card title="Referrers" style="height: 100%;">
                     <ul class="admin-list" style="list-style: none; padding: 0; margin: 0;">
                         <li v-for="ref in stats.referrers" :key="ref.referrer" style="padding: 12px 0; border-bottom: 1px solid var(--border-color);">

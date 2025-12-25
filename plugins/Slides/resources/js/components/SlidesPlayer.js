@@ -1,5 +1,6 @@
 import { ref, onMounted, onUnmounted, computed } from 'vue';
 import Icon from 'ui/Icon.js';
+import { marked } from 'marked';
 
 const STYLES = `
     .player-overlay {
@@ -59,6 +60,22 @@ const STYLES = `
         background: var(--accent-color);
         transition: width 0.3s;
     }
+    .markdown-slide {
+        padding: 4rem;
+        width: 100%;
+        height: 100%;
+        overflow-y: auto;
+        color: black;
+        text-align: left;
+        font-size: 1.5rem;
+    }
+    .markdown-slide h1 { font-size: 3em; margin-bottom: 0.5em; border-bottom: 1px solid #eee; padding-bottom: 0.2em; }
+    .markdown-slide h2 { font-size: 2.5em; margin-bottom: 0.5em; }
+    .markdown-slide p { margin-bottom: 1em; line-height: 1.6; }
+    .markdown-slide ul, .markdown-slide ol { margin-left: 1.5em; margin-bottom: 1em; }
+    .markdown-slide code { background: #eee; padding: 0.2em 0.4em; border-radius: 4px; font-size: 0.9em; }
+    .markdown-slide pre { background: #eee; padding: 1em; border-radius: 8px; overflow-x: auto; font-size: 0.8em; }
+    .markdown-slide blockquote { border-left: 8px solid #ccc; padding-left: 1em; color: #555; }
 `;
 
 export default {
@@ -75,8 +92,11 @@ export default {
         
         <div class="player-body">
             <div class="player-slide">
-                <img v-if="currentSlide && currentSlide.content" :src="currentSlide.content" class="w-full h-full object-contain" />
-                <div v-else class="text-black">Empty Slide</div>
+                <template v-if="currentSlide">
+                    <img v-if="(!currentSlide.slide_type || currentSlide.slide_type === 'drawing') && currentSlide.content" :src="currentSlide.content" class="w-full h-full object-contain" />
+                    <div v-else-if="currentSlide.slide_type === 'markdown'" class="markdown-slide" v-html="renderSlide(currentSlide.content)"></div>
+                    <div v-else class="text-black">Empty Slide</div>
+                </template>
                 <div class="slide-progress" :style="{ width: ((currentIndex + 1) / slides.length * 100) + '%' }"></div>
             </div>
         </div>
@@ -95,6 +115,11 @@ export default {
     setup(props) {
         const currentIndex = ref(0);
         const currentSlide = computed(() => props.slides[currentIndex.value]);
+
+        const renderSlide = (text) => {
+            if (!text) return '';
+            try { return marked.parse(text); } catch (e) { return ''; }
+        };
 
         const next = () => {
             if (currentIndex.value < props.slides.length - 1) {
@@ -129,6 +154,6 @@ export default {
             window.removeEventListener('keydown', handleKeydown);
         });
 
-        return { currentIndex, currentSlide, next, prev };
+        return { currentIndex, currentSlide, next, prev, renderSlide };
     }
 }

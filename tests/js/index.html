@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gaia Alpha JS Tests</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            padding: 20px;
+            background: #f4f4f4;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        .suite {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .suite-title {
+            font-weight: bold;
+            font-size: 1.2em;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+        }
+
+        .test {
+            padding: 8px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            align-items: center;
+        }
+
+        .test:last-child {
+            border-bottom: none;
+        }
+
+        .status {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 10px;
+        }
+
+        .passed .status {
+            background: #4caf50;
+        }
+
+        .failed .status {
+            background: #f44336;
+        }
+
+        .test.failed {
+            background-color: #ffebee;
+        }
+
+        .error-msg {
+            color: #d32f2f;
+            font-family: monospace;
+            font-size: 0.9em;
+            margin-top: 5px;
+            margin-left: 30px;
+            display: block;
+            width: 100%;
+        }
+
+        .summary {
+            margin-top: 20px;
+            padding: 15px;
+            background: #333;
+            color: white;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Gaia Alpha JS Test Runner</h1>
+    <div id="results"></div>
+    <div id="summary" class="summary">Running...</div>
+
+    <script type="module">
+        import { suites } from './framework/test-utils.js';
+
+        // Import Test Registry (which imports all tests)
+        import './tests.js';
+
+        async function run() {
+            const resultsEl = document.getElementById('results');
+            let passedCount = 0;
+            let failedCount = 0;
+
+            for (const suite of suites) {
+                const suiteEl = document.createElement('div');
+                suiteEl.className = 'suite';
+                suiteEl.innerHTML = `<div class="suite-title">${suite.name}</div>`;
+
+                for (const test of suite.tests) {
+                    const testEl = document.createElement('div');
+                    testEl.className = 'test';
+
+                    try {
+                        // Support async tests
+                        await test.fn();
+                        testEl.classList.add('passed');
+                        testEl.innerHTML = `<span class="status"></span> ${test.name}`;
+                        passedCount++;
+                    } catch (e) {
+                        testEl.classList.add('failed');
+                        testEl.innerHTML = `<span class="status"></span> <div>${test.name} <span class="error-msg">${e.message}</span></div>`;
+                        failedCount++;
+                        console.error(e);
+                    }
+                    suiteEl.appendChild(testEl);
+                }
+                resultsEl.appendChild(suiteEl);
+            }
+
+            const summaryEl = document.getElementById('summary');
+            summaryEl.innerHTML = `Tests Completed. <strong style="color: #4caf50">Passed: ${passedCount}</strong> | <strong style="color: #f44336">Failed: ${failedCount}</strong>`;
+        }
+
+        // Wait a tick for imports to settle then run
+        setTimeout(run, 100);
+    </script>
+</body>
+
+</html>

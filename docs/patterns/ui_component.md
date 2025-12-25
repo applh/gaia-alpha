@@ -131,4 +131,32 @@ Complex UI components **must** be documented to explain their purpose and state 
 - [x] Exports a valid Vue 3 component object.
 - [x] Uses `import` for dependencies.
 - [x] Template is defined as a string or template literal.
+
 - [x] UI states and interactions are documented.
+
+## Debugging & Development
+
+To improve the developer experience and get detailed validation warnings (e.g., for props), it is highly recommended to use the **Development Build** of Vue during local development.
+
+### Vue Development vs. Production
+-   **Development Build** (`vue.esm-browser.js`): Includes full warnings, prop validation, and internal checks. Useful for catching bugs early.
+-   **Production Build** (`vue.esm-browser.prod.js`): Minified and stripped of development-only checks. Optimized for performance.
+
+### Configuration
+The Vue version is defined in the Import Map within `templates/app.php`. TO enable better debugging, ensure the map points to the non-prod version:
+
+```php
+// templates/app.php
+"imports": {
+    // Development (Recommended for local)
+    "vue": "<?= \GaiaAlpha\Asset::url('/js/vendor/vue.esm-browser.js') ?>", 
+    
+    // Production (Use for deployment)
+    // "vue": "<?= \GaiaAlpha\Asset::url('/js/vendor/vue.esm-browser.prod.js') ?>",
+    ...
+}
+```
+
+> [!TIP]
+> If you see console errors like "Invalid prop: custom validator check failed", switching to the development build will often tell you exactly which component and prop is causing the issue.
+

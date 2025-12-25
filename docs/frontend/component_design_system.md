@@ -18,7 +18,7 @@ To simplify imports and avoid relative path hell, we use Native Import Maps defi
 
 | Alias | Path | Description |
 | :--- | :--- | :--- |
-| `vue` | `/js/vendor/vue.esm-browser.js` | Vue 3 ESM build |
+| `vue` | `/js/vendor/vue.esm-browser.js` | Vue 3 Dev Build (use `.prod.js` for production) |
 | `@/` | `/min/js/` | Javascript Root |
 | `components/` | `/min/js/components/` | Components Root |
 | `ui/` | `/min/js/components/ui/` | UI Primitives |

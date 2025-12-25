@@ -86,7 +86,7 @@ export default {
                             </td>
                             <td>{{ page.title || page.name }}</td>
                             <td v-if="filterCat === 'page'">
-                                <a :href="'/page/' + page.slug" target="_blank">{{ page.slug }}</a>
+                                <a :href="'/' + page.slug" target="_blank">{{ page.slug }}</a>
                             </td>
                             <td v-else-if="filterCat === 'template'">{{ page.slug }}</td>
                             <td v-else-if="filterCat === 'component'">

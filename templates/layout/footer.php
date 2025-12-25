@@ -92,7 +92,7 @@ $footerItems = $footerMenu ? json_decode($footerMenu['items'], true) : [];
                 <a href="<?= htmlspecialchars($item['href']) ?>"
                     class="footer-link"><?= htmlspecialchars($item['text']) ?></a>
             <?php endforeach; ?>
-            <a href="/page/contact" class="footer-link">Contact</a>
+            <a href="/contact" class="footer-link">Contact</a>
         </div>
     </div>
     <div class="footer-bottom">

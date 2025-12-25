@@ -10,17 +10,17 @@
             },
             {
                 "text": "About Us",
-                "href": "/page/about",
+                "href": "/about",
                 "target": "_self"
             },
             {
                 "text": "Services",
-                "href": "/page/services",
+                "href": "/services",
                 "target": "_self"
             },
             {
                 "text": "Contact",
-                "href": "/page/contact",
+                "href": "/contact",
                 "target": "_self"
             },
             {
@@ -36,17 +36,17 @@
         "items": [
             {
                 "text": "Privacy Policy",
-                "href": "/page/privacy",
+                "href": "/privacy",
                 "target": "_self"
             },
             {
                 "text": "Terms of Service",
-                "href": "/page/terms",
+                "href": "/terms",
                 "target": "_self"
             },
             {
                 "text": "Careers",
-                "href": "/page/careers",
+                "href": "/careers",
                 "target": "_self"
             }
         ]

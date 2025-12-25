@@ -457,6 +457,11 @@ HTML;
         }
     }
 
+    public function home()
+    {
+        $this->render('home');
+    }
+
     public function registerRoutes()
     {
         \GaiaAlpha\Router::add('GET', '/@/public/pages', [$this, 'index']);
@@ -467,6 +472,9 @@ HTML;
         \GaiaAlpha\Router::add('GET', '/robots.txt', [$this, 'robots']);
 
         // Public HTML Views
+        \GaiaAlpha\Router::add('GET', '/', [$this, 'home']);
+        \GaiaAlpha\Router::add('GET', '/([\w-]+)', [$this, 'render']);
+        // Legacy support
         \GaiaAlpha\Router::add('GET', '/page/([\w-]+)', [$this, 'render']);
     }
 }

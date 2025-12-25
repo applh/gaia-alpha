@@ -71,7 +71,7 @@ export default {
                         <ui-text size="large" weight="bold" style="color: var(--accent-color);">\${{ cart.total }}</ui-text>
                     </div>
                     
-                    <ui-button v-if="!showCheckout" type="primary" size="large" @click="showCheckout = true" style="width: 100%;">
+                    <ui-button v-if="!showCheckout" variant="primary" size="lg" @click="showCheckout = true" style="width: 100%;">
                         Proceed to Checkout
                     </ui-button>
                     
@@ -79,7 +79,7 @@ export default {
                         <ui-title :level="3" style="margin-bottom: 20px;">Checkout</ui-title>
                         <ui-input v-model="email" label="Email Address" placeholder="you@example.com" style="margin-bottom: 16px;" />
                         <ui-textarea v-model="address" label="Shipping Address" placeholder="Street, City, State, Zip" style="margin-bottom: 24px;" />
-                        <ui-button type="primary" size="large" @click="checkout" style="width: 100%;">
+                        <ui-button variant="primary" size="lg" @click="checkout" style="width: 100%;">
                             <LucideIcon name="credit-card" size="18" style="margin-right: 8px;" />
                             Pay Now
                         </ui-button>

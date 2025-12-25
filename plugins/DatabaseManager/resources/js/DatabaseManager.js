@@ -52,10 +52,10 @@ export default {
                         />
                         <div style="display: flex; justify-content: space-between; align-items: center;">
                             <div style="display: flex; gap: 12px; align-items: center;">
-                                <ui-button type="primary" @click="executeQuery">Execute Query</ui-button>
-                                <ui-text size="small" class="text-muted">Use SELECT, INSERT, UPDATE, DELETE</ui-text>
+                                <ui-button variant="primary" @click="executeQuery">Execute Query</ui-button>
+                                <ui-text size="sm" class="text-muted">Use SELECT, INSERT, UPDATE, DELETE</ui-text>
                             </div>
-                            <ui-button size="small" @click="sqlQuery = ''">Clear</ui-button>
+                            <ui-button size="sm" @click="sqlQuery = ''">Clear</ui-button>
                         </div>
                         
                         <template v-if="queryResult">
@@ -67,8 +67,8 @@ export default {
                             <div v-else>
                                 <div style="display: flex; gap: 16px; margin-bottom: 16px;">
                                     <ui-text weight="bold" style="color: #22c55e;">✓ {{ queryResult.type === 'select' ? 'Query executed' : 'Modification successful' }}</ui-text>
-                                    <ui-text v-if="queryResult.type === 'select'" size="small">Rows returned: {{ queryResult.count }}</ui-text>
-                                    <ui-text v-if="queryResult.type === 'modification'" size="small">Affected rows: {{ queryResult.affected_rows }}</ui-text>
+                                    <ui-text v-if="queryResult.type === 'select'" size="sm">Rows returned: {{ queryResult.count }}</ui-text>
+                                    <ui-text v-if="queryResult.type === 'modification'" size="sm">Affected rows: {{ queryResult.affected_rows }}</ui-text>
                                 </div>
                                 
                                 <ui-card v-if="queryResult.results && queryResult.results.length > 0" style="padding: 0;">
@@ -88,12 +88,12 @@ export default {
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                             <ui-title :level="3">Table Browser</ui-title>
                             <div style="display: flex; gap: 12px; align-items: center;">
-                                <ui-text size="small" weight="bold">Table:</ui-text>
+                                <ui-text size="sm" weight="bold">Table:</ui-text>
                                 <select v-model="selectedTable" @change="loadTableData" style="background: var(--card-bg); color: var(--text-color); border: 1px solid var(--border-color); padding: 8px 12px; border-radius: 8px; cursor: pointer;">
                                     <option value="">-- Select a table --</option>
                                     <option v-for="table in tables" :key="table" :value="table">{{ table }}</option>
                                 </select>
-                                <ui-button size="small" @click="loadTables">
+                                <ui-button size="sm" @click="loadTables">
                                     <LucideIcon name="refresh-cw" size="14" />
                                 </ui-button>
                             </div>
@@ -102,7 +102,7 @@ export default {
                         <div v-if="tableData">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
                                 <ui-title :level="4">{{ tableData.table }} <span style="font-weight: normal; opacity: 0.5;">({{ tableData.count }} rows)</span></ui-title>
-                                <ui-button type="primary" size="small" @click="openCreateModal">
+                                <ui-button variant="primary" size="sm" @click="openCreateModal">
                                     <LucideIcon name="plus" size="14" style="margin-right: 8px;" /> Add Record
                                 </ui-button>
                             </div>
@@ -133,8 +133,8 @@ export default {
                                             label: 'Actions', 
                                             width: '120px',
                                             render: (row) => h('div', { style: 'display: flex; gap: 8px;' }, [
-                                                h(UIButton, { size: 'small', title: 'Edit', onClick: () => openEditModal(row) }, () => h(Icon, { name: 'edit-2', size: 14 })),
-                                                h(UIButton, { size: 'small', type: 'danger', title: 'Delete', onClick: () => deleteRecord(row.id) }, () => h(Icon, { name: 'trash', size: 14 }))
+                                                h(UIButton, { size: 'sm', title: 'Edit', onClick: () => openEditModal(row) }, () => h(Icon, { name: 'edit-2', size: 14 })),
+                                                h(UIButton, { size: 'sm', variant: 'danger', title: 'Delete', onClick: () => deleteRecord(row.id) }, () => h(Icon, { name: 'trash', size: 14 }))
                                             ])
                                         },
                                         ...tableData.schema.map(col => ({
@@ -158,7 +158,7 @@ export default {
             <ui-modal v-model="showModal" :title="modalMode === 'create' ? 'Create New Record' : 'Edit Record #' + editingId" @close="closeModal">
                 <div style="display: flex; flex-direction: column; gap: 20px; padding: 10px 0;">
                     <div v-for="col in formColumns" :key="col.name">
-                        <ui-text weight="bold" size="small" style="display: block; margin-bottom: 8px;">
+                        <ui-text weight="bold" size="sm" style="display: block; margin-bottom: 8px;">
                             {{ col.name }} 
                             <span style="opacity: 0.5; font-weight: normal; font-size: 0.8em; margin-left: 8px;">{{ col.type }}</span>
                             <span v-if="col.notnull" style="color: #ef4444; margin-left: 4px;">*</span>
@@ -181,7 +181,7 @@ export default {
                 
                 <template #footer>
                     <ui-button @click="closeModal">Cancel</ui-button>
-                    <ui-button type="primary" @click="saveRecord">Save {{ modalMode === 'create' ? 'Record' : 'Changes' }}</ui-button>
+                    <ui-button variant="primary" @click="saveRecord">Save {{ modalMode === 'create' ? 'Record' : 'Changes' }}</ui-button>
                 </template>
             </ui-modal>
         </ui-container>

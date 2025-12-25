@@ -59,7 +59,7 @@ export default {
         <ui-container class="p-4">
             <div class="admin-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
                 <ui-title :level="1">LMS Dashboard</ui-title>
-                <ui-button type="primary" @click="createCourse">
+                <ui-button variant="primary" @click="createCourse">
                     <LucideIcon name="plus" size="18" style="margin-right: 8px;" />
                     New Course
                 </ui-button>
@@ -76,14 +76,14 @@ export default {
                             <ui-title :level="3" style="margin: 0;">{{ course.title }}</ui-title>
                             <ui-tag :type="course.status === 'published' ? 'success' : 'info'">{{ course.status }}</ui-tag>
                         </div>
-                        <ui-text size="small" class="text-muted" style="margin-bottom: 16px; display: block;">
+                        <ui-text size="sm" class="text-muted" style="margin-bottom: 16px; display: block;">
                             Course ID: #{{ course.id }}
                         </ui-text>
-                        <ui-text weight="bold" size="large" style="color: var(--accent-color);">
+                        <ui-text weight="bold" size="lg" style="color: var(--accent-color);">
                             \${{ course.price }}
                         </ui-text>
                         <template #footer>
-                            <ui-button size="small" style="width: 100%;">Manage Course</ui-button>
+                            <ui-button size="sm" style="width: 100%;">Manage Course</ui-button>
                         </template>
                     </ui-card>
                 </ui-col>

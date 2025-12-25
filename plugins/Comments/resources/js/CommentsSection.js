@@ -89,7 +89,7 @@ export default {
                     </div>
                     <div v-else></div>
                     
-                    <ui-button type="primary" @click="submitComment" :disabled="submitting || !newComment.content" :loading="submitting">
+                    <ui-button variant="primary" @click="submitComment" :disabled="submitting || !newComment.content" :loading="submitting">
                         Post Comment
                     </ui-button>
                 </div>
@@ -108,7 +108,7 @@ export default {
                 <div v-for="comment in comments" :key="comment.id" class="comment-item-wrapper">
                     <ui-card style="padding: 16px;">
                         <div style="display: flex; gap: 16px;">
-                            <ui-avatar :name="comment.author_name || comment.user_username || 'Guest'" size="small" />
+                            <ui-avatar :name="comment.author_name || comment.user_username || 'Guest'" size="sm" />
                             <div style="flex: 1;">
                                 <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
                                     <div>
@@ -120,7 +120,7 @@ export default {
                                     <ui-text size="extra-small" class="text-muted">{{ formatDate(comment.created_at) }}</ui-text>
                                 </div>
                                 <ui-text style="display: block; margin-bottom: 12px; white-space: pre-line;">{{ comment.content }}</ui-text>
-                                <ui-button size="small" @click="toggleReply(comment.id)">
+                                <ui-button size="sm" @click="toggleReply(comment.id)">
                                     <LucideIcon name="reply" size="14" style="margin-right: 4px;" />
                                     Reply
                                 </ui-button>
@@ -129,8 +129,8 @@ export default {
                                 <div v-if="replyingTo === comment.id" style="margin-top: 16px;">
                                     <ui-textarea v-model="replyContent" placeholder="Write a reply..." style="margin-bottom: 12px;" />
                                     <div style="display: flex; gap: 8px; justify-content: flex-end;">
-                                        <ui-button size="small" @click="replyingTo = null">Cancel</ui-button>
-                                        <ui-button size="small" type="primary" @click="submitReply(comment.id)">Post Reply</ui-button>
+                                        <ui-button size="sm" @click="replyingTo = null">Cancel</ui-button>
+                                        <ui-button size="sm" variant="primary" @click="submitReply(comment.id)">Post Reply</ui-button>
                                     </div>
                                 </div>
                             </div>
@@ -141,13 +141,13 @@ export default {
                     <div v-if="comment.replies && comment.replies.length > 0" class="replies-list">
                         <ui-card v-for="reply in comment.replies" :key="reply.id" style="padding: 12px 16px; background: rgba(255,255,255,0.02);">
                             <div style="display: flex; gap: 12px;">
-                                <ui-avatar :name="reply.author_name || reply.user_username || 'Guest'" size="small" />
+                                <ui-avatar :name="reply.author_name || reply.user_username || 'Guest'" size="sm" />
                                 <div style="flex: 1;">
                                     <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-                                        <ui-text weight="bold" size="small">{{ reply.author_name || reply.user_username || 'Guest' }}</ui-text>
+                                        <ui-text weight="bold" size="sm">{{ reply.author_name || reply.user_username || 'Guest' }}</ui-text>
                                         <ui-text size="extra-small" class="text-muted">{{ formatDate(reply.created_at) }}</ui-text>
                                     </div>
-                                    <ui-text size="small" style="display: block; white-space: pre-line;">{{ reply.content }}</ui-text>
+                                    <ui-text size="sm" style="display: block; white-space: pre-line;">{{ reply.content }}</ui-text>
                                 </div>
                             </div>
                         </ui-card>

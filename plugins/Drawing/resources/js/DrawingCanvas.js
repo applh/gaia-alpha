@@ -270,6 +270,7 @@ export default {
             }
             if (skillLevel.value === 'expert') {
                 tools.push({ id: 'path', name: 'Path', icon: 'git-branch' });
+                tools.push({ id: 'bezier', name: 'Bezier', icon: 'spline' });
             }
             return tools;
         });
@@ -285,7 +286,7 @@ export default {
             const x = e.clientX - rect.left;
             const y = e.clientY - rect.top;
 
-            if (currentTool.value === 'path') {
+            if (currentTool.value === 'path' || currentTool.value === 'bezier') {
                 if (!isDrawing.value) {
                     // Start new path
                     isDrawing.value = true;
@@ -350,6 +351,37 @@ export default {
                 ctx.lineTo(currentX, currentY);
                 ctx.stroke();
 
+            } else if (currentTool.value === 'bezier') {
+                if (!savedImageData.value || pathPoints.value.length === 0) return;
+
+                ctx.putImageData(savedImageData.value, 0, 0);
+
+                ctx.beginPath();
+                ctx.strokeStyle = strokeColor.value;
+                ctx.lineWidth = brushSize.value;
+                ctx.globalAlpha = brushOpacity.value / 100;
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+
+                const points = [...pathPoints.value, { x: currentX, y: currentY }];
+
+                if (points.length < 2) return;
+
+                ctx.moveTo(points[0].x, points[0].y);
+
+                if (points.length === 2) {
+                    ctx.lineTo(points[1].x, points[1].y);
+                } else {
+                    for (let i = 1; i < points.length - 1; i++) {
+                        const xc = (points[i].x + points[i + 1].x) / 2;
+                        const yc = (points[i].y + points[i + 1].y) / 2;
+                        ctx.quadraticCurveTo(points[i].x, points[i].y, xc, yc);
+                    }
+                    // For the preview, we can just lineTo the last point or keep it smooth
+                    ctx.lineTo(points[points.length - 1].x, points[points.length - 1].y);
+                }
+                ctx.stroke();
+
             } else if (savedImageData.value) {
                 // Restore state before drawing new shape frame
                 ctx.putImageData(savedImageData.value, 0, 0);
@@ -376,7 +408,7 @@ export default {
 
             // For path tool, we DON'T stop drawing on mouseup. 
             // We only stop on dblclick or Escape/Enter.
-            if (currentTool.value === 'path') return;
+            if (currentTool.value === 'path' || currentTool.value === 'bezier') return;
 
             isDrawing.value = false;
             savedImageData.value = null;
@@ -385,7 +417,7 @@ export default {
         };
 
         const finishPath = () => {
-            if (currentTool.value !== 'path' || !isDrawing.value) return;
+            if (!isDrawing.value || !['path', 'bezier'].includes(currentTool.value)) return;
 
             // Logic to finalize path is mostly implicit because we've been drawing on the canvas.
             // But we might want to ensure the last segment is drawn cleanly if double click happens.
@@ -409,8 +441,21 @@ export default {
                     ctx.lineJoin = 'round';
 
                     ctx.moveTo(pathPoints.value[0].x, pathPoints.value[0].y);
-                    for (let i = 1; i < pathPoints.value.length; i++) {
-                        ctx.lineTo(pathPoints.value[i].x, pathPoints.value[i].y);
+                    if (currentTool.value === 'path') {
+                        for (let i = 1; i < pathPoints.value.length; i++) {
+                            ctx.lineTo(pathPoints.value[i].x, pathPoints.value[i].y);
+                        }
+                    } else if (currentTool.value === 'bezier') {
+                        if (pathPoints.value.length === 2) {
+                            ctx.lineTo(pathPoints.value[1].x, pathPoints.value[1].y);
+                        } else {
+                            for (let i = 1; i < pathPoints.value.length - 1; i++) {
+                                const xc = (pathPoints.value[i].x + pathPoints.value[i + 1].x) / 2;
+                                const yc = (pathPoints.value[i].y + pathPoints.value[i + 1].y) / 2;
+                                ctx.quadraticCurveTo(pathPoints.value[i].x, pathPoints.value[i].y, xc, yc);
+                            }
+                            ctx.lineTo(pathPoints.value[pathPoints.value.length - 1].x, pathPoints.value[pathPoints.value.length - 1].y);
+                        }
                     }
                     ctx.stroke();
                 }
@@ -422,7 +467,7 @@ export default {
         };
 
         const cancelPath = () => {
-            if (currentTool.value !== 'path' || !isDrawing.value) return;
+            if (!isDrawing.value || !['path', 'bezier'].includes(currentTool.value)) return;
 
             // Restore original state (wiping out the path in progress)
             if (savedImageData.value) {
@@ -557,7 +602,7 @@ export default {
         });
 
         const handleKeydown = (e) => {
-            if (currentTool.value === 'path' && isDrawing.value) {
+            if (isDrawing.value && ['path', 'bezier'].includes(currentTool.value)) {
                 if (e.key === 'Enter') {
                     finishPath();
                 } else if (e.key === 'Escape') {

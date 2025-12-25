@@ -114,7 +114,7 @@ export default {
             </ui-title>
             <div style="display: flex; gap: 12px;">
                 <template v-if="currentDeck">
-                    <ui-button type="primary" @click="saveAll">
+                    <ui-button variant="primary" @click="saveAll">
                         <LucideIcon name="save" size="18" style="margin-right: 8px;" /> Save
                     </ui-button>
                     <ui-button @click="isPlaying = true">
@@ -125,7 +125,7 @@ export default {
                     </ui-button>
                 </template>
                 <template v-else>
-                    <ui-button type="primary" @click="showNewModal = true">
+                    <ui-button variant="primary" @click="showNewModal = true">
                         <LucideIcon name="plus" size="18" style="margin-right: 8px;" /> New Slide Deck
                     </ui-button>
                 </template>
@@ -139,7 +139,7 @@ export default {
                     <LucideIcon name="monitor" size="64" style="opacity: 0.1; margin-bottom: 24px;" />
                     <ui-title :level="3">No slide decks found</ui-title>
                     <ui-text class="text-muted" style="display: block; margin-bottom: 24px;">Create your first one to start presenting!</ui-text>
-                    <ui-button type="primary" @click="showNewModal = true">Create Deck</ui-button>
+                    <ui-button variant="primary" @click="showNewModal = true">Create Deck</ui-button>
                 </ui-card>
                 
                 <ui-row v-else :gutter="20">
@@ -147,7 +147,7 @@ export default {
                         <ui-card style="margin-bottom: 20px; transition: transform 0.2s;" @click="openDeck(d)">
                             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
                                 <LucideIcon name="monitor" size="32" style="color: var(--accent-color);" />
-                                <ui-button size="sm" type="danger" @click.stop="deleteDeck(d)">
+                                <ui-button size="sm" variant="danger" @click.stop="deleteDeck(d)">
                                     <LucideIcon name="trash" size="14" />
                                 </ui-button>
                             </div>
@@ -184,7 +184,7 @@ export default {
                                     <div style="position: absolute; top: 4px; right: 4px; display: flex; gap: 2px;">
                                         <ui-button v-if="index > 0" size="sm" @click.stop="movePage(index, -1)" style="padding: 2px; height: auto;">▲</ui-button>
                                         <ui-button v-if="index < pages.length - 1" size="sm" @click.stop="movePage(index, 1)" style="padding: 2px; height: auto;">▼</ui-button>
-                                        <ui-button size="sm" type="danger" @click.stop="deletePage(index)" style="padding: 2px; height: auto;">
+                                        <ui-button size="sm" variant="danger" @click.stop="deletePage(index)" style="padding: 2px; height: auto;">
                                             <LucideIcon name="trash" size="10" />
                                         </ui-button>
                                     </div>
@@ -236,7 +236,7 @@ export default {
                                                 <ui-text size="sm" style="width: 40px;">{{ brushSize }}px</ui-text>
                                             </div>
                                             <ui-divider vertical height="32px" style="margin: 0 8px;" />
-                                            <ui-button size="sm" type="danger" @click="clearPage">
+                                            <ui-button size="sm" variant="danger" @click="clearPage">
                                                 <LucideIcon name="trash" size="14" style="margin-right: 4px;" /> Clear
                                             </ui-button>
                                         </div>
@@ -271,7 +271,7 @@ export default {
             <ui-input v-model="newTitle" label="Deck Title" placeholder="Enter deck title..." @keyup.enter="createDeck" />
             <template #footer>
                 <ui-button @click="showNewModal = false">Cancel</ui-button>
-                <ui-button type="primary" @click="createDeck">Create Deck</ui-button>
+                <ui-button variant="primary" @click="createDeck">Create Deck</ui-button>
             </template>
         </ui-modal>
         
@@ -281,7 +281,7 @@ export default {
             <ui-text size="sm" class="text-muted" style="display: block; margin-top: 12px;">This action cannot be undone and will remove all pages.</ui-text>
             <template #footer>
                 <ui-button @click="showDeleteModal = false">Cancel</ui-button>
-                <ui-button type="danger" @click="confirmDeleteDeck">Delete Deck</ui-button>
+                <ui-button variant="danger" @click="confirmDeleteDeck">Delete Deck</ui-button>
             </template>
         </ui-modal>
     </ui-container>

@@ -23,7 +23,7 @@ export default {
                 Audit Trail
             </h2>
             <div class="button-group">
-                <ui-button type="primary" @click="loadLogs">
+                <ui-button variant="primary" @click="loadLogs">
                     <LucideIcon name="refresh-cw" size="16" />
                     Refresh
                 </ui-button>
@@ -55,7 +55,7 @@ export default {
                     <span v-else class="text-muted">-</span>
                 </template>
                 <template #col-actions="{ row }">
-                    <ui-button size="small" @click="viewDetails(row)">View</ui-button>
+                    <ui-button size="sm" @click="viewDetails(row)">View</ui-button>
                 </template>
             </ui-data-table>
 

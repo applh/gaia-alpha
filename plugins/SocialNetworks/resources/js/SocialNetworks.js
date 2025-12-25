@@ -125,7 +125,7 @@ export default {
                                                 <ui-text size="extra-small" class="text-muted">{{ acc.account_name || 'Connected' }}</ui-text>
                                             </div>
                                         </div>
-                                        <ui-button type="danger" size="small" @click="deleteAccount(acc.id)">
+                                        <ui-button variant="danger" size="sm" @click="deleteAccount(acc.id)">
                                             <LucideIcon name="trash-2" size="14" />
                                         </ui-button>
                                     </ui-card>

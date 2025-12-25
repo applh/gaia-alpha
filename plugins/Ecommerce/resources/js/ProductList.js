@@ -46,7 +46,7 @@ export default {
                         <ui-text size="large" weight="bold" style="color: var(--accent-color); margin-bottom: 16px;">
                             \${{ product.price }}
                         </ui-text>
-                        <ui-button type="primary" @click="addToCart(product)" style="width: 100%;">
+                        <ui-button variant="primary" @click="addToCart(product)" style="width: 100%;">
                             <LucideIcon name="shopping-cart" size="18" style="margin-right: 8px;" />
                             Add to Cart
                         </ui-button>

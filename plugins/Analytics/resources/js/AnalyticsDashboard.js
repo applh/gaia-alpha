@@ -27,7 +27,7 @@ export default {
                 <LucideIcon name="activity" size="28" style="margin-right: 12px; vertical-align: middle; color: var(--accent-color);" />
                 Analytics Dashboard
             </ui-title>
-            <ui-button type="primary" @click="loadData" :loading="loading">
+            <ui-button variant="primary" @click="loadData" :loading="loading">
                 <LucideIcon name="refresh-cw" size="16" style="margin-right: 8px;" />
                 Refresh
             </ui-button>
@@ -36,25 +36,25 @@ export default {
         <ui-row :gutter="20" style="margin-bottom: 32px;">
             <ui-col :xs="24" :sm="12" :md="12" :lg="8" :xl="6">
                 <ui-card class="stats-card">
-                    <ui-text size="small" class="text-muted">Total Visits</ui-text>
+                    <ui-text size="sm" class="text-muted">Total Visits</ui-text>
                     <ui-title :level="2" style="margin: 8px 0 0 0;">{{ stats.total_visits }}</ui-title>
                 </ui-card>
             </ui-col>
             <ui-col :xs="24" :sm="12" :md="12" :lg="8" :xl="6">
                 <ui-card class="stats-card">
-                    <ui-text size="small" class="text-muted">Unique Visitors</ui-text>
+                    <ui-text size="sm" class="text-muted">Unique Visitors</ui-text>
                     <ui-title :level="2" style="margin: 8px 0 0 0;">{{ stats.unique_visitors }}</ui-title>
                 </ui-card>
             </ui-col>
             <ui-col :xs="24" :sm="12" :md="12" :lg="8" :xl="6">
                 <ui-card class="stats-card">
-                    <ui-text size="small" class="text-muted">Visits Today</ui-text>
+                    <ui-text size="sm" class="text-muted">Visits Today</ui-text>
                     <ui-title :level="2" style="margin: 8px 0 0 0; color: var(--accent-color);">{{ stats.today_visits }}</ui-title>
                 </ui-card>
             </ui-col>
             <ui-col :xs="24" :sm="12" :md="12" :lg="8" :xl="6">
                 <ui-card class="stats-card">
-                    <ui-text size="small" class="text-muted">Unique Today</ui-text>
+                    <ui-text size="sm" class="text-muted">Unique Today</ui-text>
                     <ui-title :level="2" style="margin: 8px 0 0 0; color: var(--accent-color);">{{ stats.today_unique }}</ui-title>
                 </ui-card>
             </ui-col>
@@ -98,7 +98,7 @@ export default {
                             <div style="font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px; color: var(--text-color);" :title="ref.referrer || 'Direct'">
                                 {{ ref.referrer || 'Direct' }}
                             </div>
-                            <ui-text size="small" class="text-muted">{{ ref.count }} visits</ui-text>
+                            <ui-text size="sm" class="text-muted">{{ ref.count }} visits</ui-text>
                         </li>
                         <li v-if="stats.referrers && stats.referrers.length === 0" style="padding: 24px; text-align: center;">
                             <ui-text class="text-muted">No discovery data yet.</ui-text>

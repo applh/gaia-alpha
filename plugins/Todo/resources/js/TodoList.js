@@ -58,7 +58,7 @@ export default {
                             />
                         </ui-col>
                         <ui-col :span="4">
-                            <ui-button type="primary" @click="addTodo" style="width: 100%;">
+                            <ui-button variant="primary" @click="addTodo" style="width: 100%;">
                                 <LucideIcon name="plus" size="18" style="margin-right: 4px;" />
                                 Add
                             </ui-button>
@@ -91,7 +91,8 @@ export default {
                                     <ui-card v-if="showColorPicker" style="position: absolute; top: 100%; left: 0; z-index: 100; margin-top: 8px; width: 200px;">
                                          <ColorPicker v-model="newColor" :palette="palette" />
                                          <div class="picker-footer" style="margin-top: 8px; text-align: right;">
-                                            <ui-button size="small" @click="showColorPicker = false">Close</ui-button>
+                                                                                        <ui-button size="sm" @click="showColorPicker = false">Close</ui-button>
+
                                          </div>
                                     </ui-card>
                                 </div>
@@ -126,6 +127,7 @@ export default {
                         childrenKey="children"
                         labelKey="title"
                         :draggable="true"
+                        :expandedIds="expandedIds"
                         :allowDrop="() => true" 
                         @move="onMove"
                         @toggle="onToggle"
@@ -150,7 +152,7 @@ export default {
                                 <!-- Zone 2: Meta Data -->
                                 <div class="todo-meta" style="display: flex; gap: 8px; align-items: center;">
                                     <div v-if="item.labels" style="display: flex; gap: 4px;">
-                                        <ui-tag v-for="label in parseLabels(item.labels)" :key="label" size="small" type="info">
+                                        <ui-tag v-for="label in parseLabels(item.labels)" :key="label" size="sm" type="info">
                                             <LucideIcon name="tag" size="10" style="margin-right: 2px;" />
                                             {{ label }}
                                         </ui-tag>
@@ -164,8 +166,8 @@ export default {
                                 
                                     <!-- Zone 3: Tools -->
                                     <div class="todo-tools" style="margin-left: 12px; display: flex; gap: 4px;">
-                                        <ui-button size="small" @click.stop="showEditForm(item)">Edit</ui-button>
-                                        <ui-button size="small" type="danger" @click.stop="deleteTodo(item.id)">Delete</ui-button>
+                                        <ui-button size="sm" @click.stop="showEditForm(item)">Edit</ui-button>
+                                        <ui-button size="sm" variant="danger" @click.stop="deleteTodo(item.id)">Delete</ui-button>
                                     </div>
                                 </div>
                             </div>
@@ -231,7 +233,7 @@ export default {
                                 <ui-card v-if="showEditColorPicker" style="position: absolute; top: 100%; left: 0; z-index: 100; margin-top: 8px; width: 200px;">
                                     <ColorPicker v-model="editForm.color" :palette="palette" />
                                     <div class="picker-footer" style="margin-top: 8px; text-align: right;">
-                                        <ui-button size="small" @click="showEditColorPicker = false">Close</ui-button>
+                                        <ui-button size="sm" @click="showEditColorPicker = false">Close</ui-button>
                                     </div>
                                 </ui-card>
                             </div>
@@ -242,7 +244,7 @@ export default {
                     </ui-row>
                 </div>
                 <template #footer>
-                    <ui-button type="primary" @click="saveEdit">Save Changes</ui-button>
+                    <ui-button variant="primary" @click="saveEdit">Save Changes</ui-button>
                     <ui-button @click="cancelEdit">Cancel</ui-button>
                 </template>
             </ui-modal>
@@ -273,6 +275,8 @@ export default {
         const editingTodo = ref(null);
         const editForm = ref({});
         const modalVisible = ref(false);
+        const expandedIds = ref([]);
+
 
         const parentOptions = computed(() => {
             return [
@@ -292,7 +296,12 @@ export default {
         });
 
         const onToggle = (item) => {
-            item.expanded = !item.expanded;
+            const index = expandedIds.value.indexOf(item.id);
+            if (index > -1) {
+                expandedIds.value.splice(index, 1);
+            } else {
+                expandedIds.value.push(item.id);
+            }
         };
 
         const rootTodos = computed(() => {
@@ -480,6 +489,11 @@ export default {
                 srcTodo.parent_id = newParentId;
                 srcTodo.position = newPosition;
 
+                // Expand the parent automatically
+                if (!expandedIds.value.includes(newParentId)) {
+                    expandedIds.value.push(newParentId);
+                }
+
                 await updatePosition(srcTodo.id, newParentId, newPosition);
                 return;
             }
@@ -514,7 +528,7 @@ export default {
                     position
                 })
             });
-            todos.value = [...todos.value];
+            await fetchTodos();
         }
 
         onMounted(() => {
@@ -554,7 +568,8 @@ export default {
             showEditForm,
             parseLabels,
             onMove,
-            onToggle
+            onToggle,
+            expandedIds
         };
     }
 };

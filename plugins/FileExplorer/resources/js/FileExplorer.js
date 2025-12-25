@@ -67,7 +67,7 @@ export default {
             <ui-col :span="6" style="height: 100%;">
                 <ui-card style="height: 100%; display: flex; flex-direction: column; overflow: hidden; padding: 0;">
                     <div style="padding: 16px; border-bottom: 1px solid var(--border-color);">
-                        <ui-text weight="bold" size="small" style="text-transform: uppercase; color: var(--text-muted);">Structure</ui-text>
+                        <ui-text weight="bold" size="sm" style="text-transform: uppercase; color: var(--text-muted);">Structure</ui-text>
                     </div>
                     <div style="flex: 1; overflow-y: auto; padding: 12px;">
                         <ui-spinner v-if="loading" style="display: block; margin: 40px auto;" />

@@ -46,14 +46,14 @@ export default {
                 Media Library
             </ui-title>
             <div style="display: flex; gap: 8px; align-items: center;">
-                <ui-button :type="viewMode === 'grid' ? 'primary' : 'default'" @click="viewMode = 'grid'">
+                <ui-button :variant="viewMode === 'grid' ? 'primary' : 'default'" @click="viewMode = 'grid'">
                     <LucideIcon name="grid" size="16" />
                 </ui-button>
-                <ui-button :type="viewMode === 'list' ? 'primary' : 'default'" @click="viewMode = 'list'">
+                <ui-button :variant="viewMode === 'list' ? 'primary' : 'default'" @click="viewMode = 'list'">
                     <LucideIcon name="list" size="16" />
                 </ui-button>
                 <label style="cursor: pointer; margin: 0;">
-                    <ui-button type="primary">
+                    <ui-button variant="primary">
                         <LucideIcon name="upload" size="16" style="margin-right: 8px;" /> Upload Media
                     </ui-button>
                     <input type="file" @change="handleFileUpload" accept="image/*,video/*" multiple style="display: none;">
@@ -78,7 +78,7 @@ export default {
                             </ui-input>
                             <div style="display: flex; gap: 8px; flex-wrap: wrap;">
                                 <ui-tag 
-                                    :type="selectedTag === null ? 'primary' : 'info'" 
+                                    :variant="selectedTag === null ? 'primary' : 'info'" 
                                     style="cursor: pointer;"
                                     @click="selectedTag = null"
                                 >
@@ -87,7 +87,7 @@ export default {
                                 <ui-tag 
                                     v-for="tag in tags" 
                                     :key="tag.id"
-                                    :type="selectedTag === tag.slug ? 'primary' : 'info'"
+                                    :variant="selectedTag === tag.slug ? 'primary' : 'info'"
                                     :style="selectedTag === tag.slug ? {} : { border: '1px solid ' + tag.color, color: tag.color }"
                                     style="cursor: pointer;"
                                     @click="selectedTag = tag.slug"
@@ -174,7 +174,7 @@ export default {
                         <ui-button size="sm" @click="editFile(row)">
                             <LucideIcon name="edit" size="14" />
                         </ui-button>
-                        <ui-button size="sm" type="danger" @click="deleteFile(row.id)">
+                        <ui-button size="sm" variant="danger" @click="deleteFile(row.id)">
                             <LucideIcon name="trash" size="14" />
                         </ui-button>
                     </div>
@@ -188,7 +188,7 @@ export default {
             <ui-button size="sm" @click="bulkTag">
                 <LucideIcon name="tag" size="14" style="margin-right: 8px;" /> Tag
             </ui-button>
-            <ui-button size="sm" type="danger" @click="bulkDelete">
+            <ui-button size="sm" variant="danger" @click="bulkDelete">
                 <LucideIcon name="trash" size="14" style="margin-right: 8px;" /> Delete
             </ui-button>
             <ui-button size="sm" @click="selectedFiles = []">Clear</ui-button>
@@ -216,7 +216,7 @@ export default {
             </div>
             <template #footer>
                 <ui-button @click="editingFile = null">Cancel</ui-button>
-                <ui-button type="primary" @click="saveFile">Save Changes</ui-button>
+                <ui-button variant="primary" @click="saveFile">Save Changes</ui-button>
             </template>
         </ui-modal>
 
@@ -231,7 +231,7 @@ export default {
             </div>
             <template #footer>
                 <ui-button @click="showTagModal = false">Cancel</ui-button>
-                <ui-button type="primary" @click="createTag">Create Tag</ui-button>
+                <ui-button variant="primary" @click="createTag">Create Tag</ui-button>
             </template>
         </ui-modal>
 
@@ -248,8 +248,8 @@ export default {
                 <div v-else-if="isVideo(mediaEditor.file)">
                     <div style="display: flex; justify-content: center; margin-bottom: 24px;">
                         <div style="background: var(--bg-secondary); padding: 4px; border-radius: 12px; display: flex; gap: 4px;">
-                            <ui-button :type="mediaEditor.mode === 'view' ? 'primary' : 'default'" size="sm" @click="mediaEditor.mode = 'view'">Player</ui-button>
-                            <ui-button :type="mediaEditor.mode === 'edit' ? 'primary' : 'default'" size="sm" @click="mediaEditor.mode = 'edit'">Editor</ui-button>
+                            <ui-button :variant="mediaEditor.mode === 'view' ? 'primary' : 'default'" size="sm" @click="mediaEditor.mode = 'view'">Player</ui-button>
+                            <ui-button :variant="mediaEditor.mode === 'edit' ? 'primary' : 'default'" size="sm" @click="mediaEditor.mode = 'edit'">Editor</ui-button>
                         </div>
                     </div>
 

@@ -43,10 +43,10 @@ export default {
                                 @click="selectUser(user)"
                                 style="display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 8px; cursor: pointer; transition: all 0.2s; margin-bottom: 4px;"
                             >
-                                <ui-avatar :name="user.username" size="small" />
+                                <ui-avatar :name="user.username" size="sm" />
                                 <div class="user-info-chat" style="flex: 1; display: flex; justify-content: space-between; align-items: center;">
                                     <ui-text weight="medium" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ user.username }}</ui-text>
-                                    <ui-tag v-if="user.unread" type="danger" size="small" effect="dark">{{ user.unread }}</ui-tag>
+                                    <ui-tag v-if="user.unread" type="danger" size="sm" effect="dark">{{ user.unread }}</ui-tag>
                                 </div>
                             </div>
                         </div>
@@ -58,7 +58,7 @@ export default {
                     <ui-card style="height: 100%; display: flex; flex-direction: column; padding: 0;">
                         <template v-if="selectedUser">
                             <div class="chat-window-header" style="padding: 16px 20px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.02);">
-                                <ui-avatar :name="selectedUser.username" size="small" />
+                                <ui-avatar :name="selectedUser.username" size="sm" />
                                 <ui-text weight="bold">{{ selectedUser.username }}</ui-text>
                             </div>
                             
@@ -104,7 +104,7 @@ export default {
                                     ref="inputField"
                                     style="flex: 1;"
                                 />
-                                <ui-button type="primary" size="large" @click="sendMessage" :disabled="!newMessage.trim() || isSending" style="width: 48px; border-radius: 50%; padding: 0;">
+                                <ui-button variant="primary" size="lg" @click="sendMessage" :disabled="!newMessage.trim() || isSending" style="width: 48px; border-radius: 50%; padding: 0;">
                                     <LucideIcon name="send" size="18" />
                                 </ui-button>
                             </div>

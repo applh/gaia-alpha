@@ -28,7 +28,7 @@ export default {
             <ui-container v-if="view === 'list'" class="admin-page">
                 <div class="admin-header">
                     <h2 class="page-title">Form Builder</h2>
-                    <ui-button type="primary" @click="openBuilder(null)">
+                    <ui-button variant="primary" @click="openBuilder(null)">
                         <LucideIcon name="plus" size="18" style="margin-right: 8px;" />
                         Create New
                     </ui-button>
@@ -48,7 +48,7 @@ export default {
                         <template #col-slug="{ row }">
                             <div style="display: flex; gap: 8px; align-items: center;">
                                 <a :href="getPublicLink(row.slug)" target="_blank" class="text-link">/f/{{ row.slug }}</a>
-                                <ui-button size="small" @click="copyLink(row.slug)" title="Copy Link">
+                                <ui-button size="sm" @click="copyLink(row.slug)" title="Copy Link">
                                     <LucideIcon name="copy" size="14" />
                                 </ui-button>
                             </div>
@@ -58,10 +58,10 @@ export default {
                         </template>
                         <template #col-actions="{ row }">
                             <div style="display: flex; gap: 4px;">
-                                <ui-button size="small" @click="openBuilder(row.id)">Edit</ui-button>
-                                <ui-button size="small" @click="openSubmissions(row.id)">Submissions</ui-button>
-                                <ui-button size="small" @click="openStats(row.id)">Stats</ui-button>
-                                <ui-button size="small" type="danger" @click="deleteForm(row.id)">Delete</ui-button>
+                                <ui-button size="sm" @click="openBuilder(row.id)">Edit</ui-button>
+                                <ui-button size="sm" @click="openSubmissions(row.id)">Submissions</ui-button>
+                                <ui-button size="sm" @click="openStats(row.id)">Stats</ui-button>
+                                <ui-button size="sm" variant="danger" @click="deleteForm(row.id)">Delete</ui-button>
                             </div>
                         </template>
                     </ui-data-table>
@@ -69,7 +69,7 @@ export default {
                     <div v-else class="text-center" style="padding: 48px;">
                         <LucideIcon name="form-input" size="48" style="margin-bottom: 16px; opacity: 0.3;" />
                         <p class="text-muted" style="margin-bottom: 24px;">No forms or quizzes created yet.</p>
-                        <ui-button type="primary" @click="openBuilder(null)">Create your first one</ui-button>
+                        <ui-button variant="primary" @click="openBuilder(null)">Create your first one</ui-button>
                     </div>
                 </ui-card>
             </ui-container>

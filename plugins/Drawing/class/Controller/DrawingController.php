@@ -40,7 +40,10 @@ class DrawingController extends BaseController
         }
 
         if (is_string($artwork['content'])) {
-            $artwork['content'] = json_decode($artwork['content'], true);
+            $decoded = json_decode($artwork['content'], true);
+            if (json_last_error() === JSON_ERROR_NONE) {
+                $artwork['content'] = $decoded;
+            }
         }
 
         Response::json($artwork);

@@ -15,10 +15,18 @@ export default {
             isMobile.value = window.innerWidth <= 768;
         };
 
+        const closeDropdown = (e) => {
+            if (activeDropdown.value && !e.target.closest('.nav-group')) {
+                activeDropdown.value = null;
+            }
+        };
+
         window.addEventListener('resize', onResize);
+        window.addEventListener('click', closeDropdown);
 
         onUnmounted(() => {
             window.removeEventListener('resize', onResize);
+            window.removeEventListener('click', closeDropdown);
         });
 
         const isGroupActive = (item) => {
@@ -60,9 +68,7 @@ export default {
                     <!-- Dropdown Group -->
                     <div v-else class="nav-group" 
                         :class="{ 'open': activeDropdown === item.id, 'active': isGroupActive(item) }"
-                        @mouseenter="!isMobile && (activeDropdown = item.id)"
-                        @mouseleave="!isMobile && (activeDropdown = null)"
-                        @click="isMobile && toggleDropdown(item.id)">
+                        @click="toggleDropdown(item.id)">
                         
                         <button class="nav-group-trigger" :class="{ 'group-active': isGroupActive(item) }">
                             <span class="nav-icon"><LucideIcon :name="item.icon" size="20"></LucideIcon></span>

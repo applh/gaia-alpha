@@ -1,5 +1,6 @@
-import { ref, onMounted, computed, watch } from 'vue';
+import { ref, onMounted, computed, watch, onUnmounted } from 'vue';
 import Icon from 'ui/Icon.js';
+import ConfirmModal from 'ui/ConfirmModal.js';
 import { store } from 'store';
 
 const STYLES = `
@@ -31,6 +32,7 @@ const STYLES = `
         display: flex;
         flex-direction: column;
         gap: 1.5rem;
+        overflow-y: auto;
     }
     .canvas-wrapper {
         flex: 1;
@@ -101,7 +103,7 @@ const STYLES = `
 `;
 
 export default {
-    components: { LucideIcon: Icon },
+    components: { LucideIcon: Icon, ConfirmModal },
     template: `
     <div class="drawing-container">
         <div class="drawing-header">
@@ -184,6 +186,7 @@ export default {
                     @mousemove="draw"
                     @mouseup="stopDrawing"
                     @mouseleave="stopDrawing"
+                    @dblclick="finishPath"
                 ></canvas>
             </div>
         </div>
@@ -204,6 +207,41 @@ export default {
                 </div>
             </div>
         </div>
+
+        <div v-if="showListModal" class="modal-overlay">
+            <div class="modal" style="height: 500px; display: flex; flex-direction: column;">
+                <div class="modal-header"><h3>Load Drawing</h3></div>
+                <div class="modal-body" style="flex: 1; overflow: auto;">
+                    <div v-if="savedArtworks.length === 0" class="p-4 text-center text-muted">
+                        No saved drawings found.
+                    </div>
+                     <div v-else class="flex flex-col gap-2">
+                        <div v-for="art in savedArtworks" :key="art.id" class="p-3 bg-white/5 rounded border border-gray-700 flex justify-between items-center group">
+                            <div>
+                                <div class="font-bold">{{ art.title }}</div>
+                                <div class="text-xs text-muted">{{ new Date(art.updated_at).toLocaleDateString() }}</div>
+                            </div>
+                            <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <button class="btn btn-sm btn-primary" @click="loadArtwork(art.id)">Load</button>
+                                <button class="btn btn-sm btn-danger icon-only" @click="deleteArtwork(art.id)"><LucideIcon name="trash" size="14" /></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" @click="showListModal = false">Close</button>
+                </div>
+            </div>
+        </div>
+
+        <ConfirmModal
+            :show="showClearConfirm"
+            title="Clear Canvas"
+            message="Are you sure you want to clear the canvas? This action cannot be undone."
+            confirm-text="Clear"
+            @cancel="showClearConfirm = false"
+            @confirm="performClear"
+        />
     </div>
     `,
     styles: STYLES,
@@ -217,8 +255,10 @@ export default {
         const backgroundImage = ref(null);
         const isDrawing = ref(false);
         const currentArtwork = ref({ id: null, title: 'Untitled' });
+        const savedArtworks = ref([]);
         const showSaveModal = ref(false);
         const showListModal = ref(false);
+        const showClearConfirm = ref(false);
 
         const palette = ['#000000', '#ffffff', '#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff'];
 
@@ -234,35 +274,175 @@ export default {
             return tools;
         });
 
+        const startX = ref(0);
+        const startY = ref(0);
+        const savedImageData = ref(null);
+        const pathPoints = ref([]); // Array of {x, y}
+
         const startDrawing = (e) => {
-            isDrawing.value = true;
-            const ctx = canvasRef.value.getContext('2d');
+            const ctx = canvasRef.value.getContext('2d', { willReadFrequently: true });
             const rect = canvasRef.value.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            if (currentTool.value === 'path') {
+                if (!isDrawing.value) {
+                    // Start new path
+                    isDrawing.value = true;
+                    // Save background ONLY at the very start of the path
+                    savedImageData.value = ctx.getImageData(0, 0, canvasRef.value.width, canvasRef.value.height);
+                    pathPoints.value = [{ x, y }];
+                } else {
+                    // Add point to existing path
+                    pathPoints.value.push({ x, y });
+                }
+                return;
+            }
+
+            isDrawing.value = true;
+            startX.value = x;
+            startY.value = y;
+
+            // Save canvas state for shapes
+            if (['rect', 'circle', 'line'].includes(currentTool.value)) {
+                savedImageData.value = ctx.getImageData(0, 0, canvasRef.value.width, canvasRef.value.height);
+            }
+
             ctx.beginPath();
-            ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+            ctx.moveTo(startX.value, startY.value);
             ctx.strokeStyle = currentTool.value === 'eraser' ? '#ffffff' : strokeColor.value;
             ctx.lineWidth = brushSize.value;
             ctx.globalAlpha = brushOpacity.value / 100;
             ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
         };
 
         const draw = (e) => {
             if (!isDrawing.value) return;
-            const ctx = canvasRef.value.getContext('2d');
+            const ctx = canvasRef.value.getContext('2d', { willReadFrequently: true });
             const rect = canvasRef.value.getBoundingClientRect();
-            ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
-            ctx.stroke();
+            const currentX = e.clientX - rect.left;
+            const currentY = e.clientY - rect.top;
+
+            if (currentTool.value === 'pencil' || currentTool.value === 'eraser') {
+                ctx.lineTo(currentX, currentY);
+                ctx.stroke();
+            } else if (currentTool.value === 'path') {
+                if (!savedImageData.value || pathPoints.value.length === 0) return;
+
+                // Restore background
+                ctx.putImageData(savedImageData.value, 0, 0);
+
+                ctx.beginPath();
+                ctx.strokeStyle = strokeColor.value;
+                ctx.lineWidth = brushSize.value;
+                ctx.globalAlpha = brushOpacity.value / 100;
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+
+                // Draw established path
+                ctx.moveTo(pathPoints.value[0].x, pathPoints.value[0].y);
+                for (let i = 1; i < pathPoints.value.length; i++) {
+                    ctx.lineTo(pathPoints.value[i].x, pathPoints.value[i].y);
+                }
+
+                // Draw rubber band to current mouse pos
+                ctx.lineTo(currentX, currentY);
+                ctx.stroke();
+
+            } else if (savedImageData.value) {
+                // Restore state before drawing new shape frame
+                ctx.putImageData(savedImageData.value, 0, 0);
+
+                ctx.beginPath();
+                ctx.strokeStyle = strokeColor.value;
+                ctx.lineWidth = brushSize.value;
+                ctx.globalAlpha = brushOpacity.value / 100;
+
+                if (currentTool.value === 'rect') {
+                    ctx.rect(startX.value, startY.value, currentX - startX.value, currentY - startY.value);
+                    ctx.stroke();
+                } else if (currentTool.value === 'circle') {
+                    const radius = Math.sqrt(Math.pow(currentX - startX.value, 2) + Math.pow(currentY - startY.value, 2));
+                    ctx.beginPath();
+                    ctx.arc(startX.value, startY.value, radius, 0, 2 * Math.PI);
+                    ctx.stroke();
+                }
+            }
         };
 
         const stopDrawing = () => {
             if (!isDrawing.value) return;
+
+            // For path tool, we DON'T stop drawing on mouseup. 
+            // We only stop on dblclick or Escape/Enter.
+            if (currentTool.value === 'path') return;
+
             isDrawing.value = false;
+            savedImageData.value = null;
+            const ctx = canvasRef.value.getContext('2d', { willReadFrequently: true });
+            ctx.beginPath(); // Close path
+        };
+
+        const finishPath = () => {
+            if (currentTool.value !== 'path' || !isDrawing.value) return;
+
+            // Logic to finalize path is mostly implicit because we've been drawing on the canvas.
+            // But we might want to ensure the last segment is drawn cleanly if double click happens.
+            // Actually, the double click itself might fire a mousedown/up sequence.
+            // We just need to reset state so the "rubber band" stops.
+
+            // However, because we restore `savedImageData` on every frame, we need to make sure
+            // the FINAL render includes the lines we want, WITHOUT the rubber band to cursor.
+
+            const ctx = canvasRef.value.getContext('2d', { willReadFrequently: true });
+            if (savedImageData.value) {
+                ctx.putImageData(savedImageData.value, 0, 0); // Restore back to BEFORE path started
+
+                // Redraw the FULL path
+                if (pathPoints.value.length > 1) {
+                    ctx.beginPath();
+                    ctx.strokeStyle = strokeColor.value;
+                    ctx.lineWidth = brushSize.value;
+                    ctx.globalAlpha = brushOpacity.value / 100;
+                    ctx.lineCap = 'round';
+                    ctx.lineJoin = 'round';
+
+                    ctx.moveTo(pathPoints.value[0].x, pathPoints.value[0].y);
+                    for (let i = 1; i < pathPoints.value.length; i++) {
+                        ctx.lineTo(pathPoints.value[i].x, pathPoints.value[i].y);
+                    }
+                    ctx.stroke();
+                }
+            }
+
+            isDrawing.value = false;
+            savedImageData.value = null;
+            pathPoints.value = [];
+        };
+
+        const cancelPath = () => {
+            if (currentTool.value !== 'path' || !isDrawing.value) return;
+
+            // Restore original state (wiping out the path in progress)
+            if (savedImageData.value) {
+                const ctx = canvasRef.value.getContext('2d', { willReadFrequently: true });
+                ctx.putImageData(savedImageData.value, 0, 0);
+            }
+
+            isDrawing.value = false;
+            savedImageData.value = null;
+            pathPoints.value = [];
         };
 
         const clearCanvas = () => {
-            if (!confirm('Clear canvas?')) return;
-            const ctx = canvasRef.value.getContext('2d');
+            showClearConfirm.value = true;
+        };
+
+        const performClear = () => {
+            const ctx = canvasRef.value.getContext('2d', { willReadFrequently: true });
             ctx.clearRect(0, 0, canvasRef.value.width, canvasRef.value.height);
+            showClearConfirm.value = false;
         };
 
         const selectBackgroundImage = () => {
@@ -291,8 +471,74 @@ export default {
                 currentArtwork.value.id = result.id;
                 showSaveModal.value = false;
                 store.addNotification('Drawing saved!', 'success');
+                // Refresh list if open or just invalidate
+                fetchArtworks();
             }
         };
+
+        const fetchArtworks = async () => {
+            try {
+                const res = await fetch('/@/drawing/artworks');
+                if (res.ok) {
+                    savedArtworks.value = await res.json();
+                }
+            } catch (e) {
+                console.error('Failed to fetch artworks', e);
+            }
+        };
+
+        const loadArtwork = async (id) => {
+            try {
+                const res = await fetch(`/@/drawing/artworks/${id}`);
+                if (res.ok) {
+                    const artwork = await res.json();
+
+                    // Update State
+                    currentArtwork.value = { id: artwork.id, title: artwork.title };
+                    skillLevel.value = artwork.level || 'beginner';
+                    backgroundImage.value = artwork.background_image;
+
+                    // Restore Canvas
+                    const img = new Image();
+                    img.onload = () => {
+                        const ctx = canvasRef.value.getContext('2d', { willReadFrequently: true });
+                        ctx.clearRect(0, 0, canvasRef.value.width, canvasRef.value.height);
+                        ctx.drawImage(img, 0, 0);
+                        // Save this state as base for shapes
+                        savedImageData.value = null;
+                    };
+                    img.src = artwork.content;
+
+                    showListModal.value = false;
+                    store.addNotification('Drawing loaded!', 'success');
+                }
+            } catch (e) {
+                console.error('Failed to load artwork', e);
+                store.addNotification('Failed to load drawing', 'error');
+            }
+        };
+
+        const deleteArtwork = async (id) => {
+            if (!confirm('Are you sure you want to delete this drawing?')) return;
+            try {
+                const res = await fetch(`/@/drawing/artworks/${id}`, { method: 'DELETE' });
+                if (res.ok) {
+                    savedArtworks.value = savedArtworks.value.filter(a => a.id !== id);
+                    if (currentArtwork.value.id === id) {
+                        currentArtwork.value.id = null; // Detach current if deleted
+                    }
+                    store.addNotification('Drawing deleted', 'success');
+                }
+            } catch (e) {
+                store.addNotification('Failed to delete drawing', 'error');
+            }
+        };
+
+        watch(showListModal, (newVal) => {
+            if (newVal) {
+                fetchArtworks();
+            }
+        });
 
         onMounted(() => {
             const styleId = 'drawing-plugin-styles';
@@ -302,13 +548,30 @@ export default {
                 style.textContent = STYLES;
                 document.head.appendChild(style);
             }
+
+            window.addEventListener('keydown', handleKeydown);
         });
+
+        onUnmounted(() => {
+            window.removeEventListener('keydown', handleKeydown);
+        });
+
+        const handleKeydown = (e) => {
+            if (currentTool.value === 'path' && isDrawing.value) {
+                if (e.key === 'Enter') {
+                    finishPath();
+                } else if (e.key === 'Escape') {
+                    cancelPath();
+                }
+            }
+        };
 
         return {
             canvasRef, skillLevel, currentTool, strokeColor, brushSize, brushOpacity,
             backgroundImage, isDrawing, currentArtwork, showSaveModal, showListModal,
             palette, availableTools, startDrawing, draw, stopDrawing, clearCanvas,
-            selectBackgroundImage, confirmSave
+            selectBackgroundImage, confirmSave, showClearConfirm, performClear,
+            savedArtworks, loadArtwork, deleteArtwork, fetchArtworks, finishPath
         };
     }
 }

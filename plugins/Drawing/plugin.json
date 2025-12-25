@@ -1,13 +1,12 @@
 {
     "name": "Drawing",
+    "description": "A collaborative drawing tool for creating and sharing artworks.",
     "version": "1.0.0",
-    "description": "A versatile drawing plugin with 3 usage levels and background image support",
-    "author": "Gaia Alpha",
-    "license": "MIT",
+    "author": "Antigravity",
     "category": "Creative",
     "tags": [
-        "art",
+        "drawing",
         "canvas",
-        "drawing"
+        "art"
     ]
 }

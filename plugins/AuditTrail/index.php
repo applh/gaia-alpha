@@ -4,6 +4,7 @@ use AuditTrail\AuditService;
 use GaiaAlpha\Hook;
 use GaiaAlpha\Request;
 use GaiaAlpha\Response;
+use AuditTrail\AuditController;
 
 // 1. Initialize Audit Context on Route Match
 Hook::add('router_matched', function ($route, $matches) {
@@ -64,13 +65,10 @@ Hook::add('db_delete_before', function ($table, $id) {
 });
 
 
-// 3. Register Routes
-use GaiaAlpha\Router;
-use AuditTrail\AuditController;
-
-Hook::add('router_matched', function () {
-    Router::get('/api/audit-logs', [AuditController::class, 'getLogs']);
-}, 5);
+// 3. Register Controller
+Hook::add('framework_load_controllers_after', function () {
+    \GaiaAlpha\Framework::registerController('audit_trail', AuditController::class);
+});
 
 
 // 3. Log 404s on sensitive paths?

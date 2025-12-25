@@ -50,4 +50,12 @@ class EcommerceController
             Response::json(['error' => $e->getMessage()], 400);
         }
     }
+
+    public function registerRoutes()
+    {
+        \GaiaAlpha\Router::get('/api/ecommerce/products', [$this, 'getProducts']);
+        \GaiaAlpha\Router::get('/api/ecommerce/cart', [$this, 'getCart']);
+        \GaiaAlpha\Router::post('/api/ecommerce/cart', [$this, 'addToCart']);
+        \GaiaAlpha\Router::post('/api/ecommerce/checkout', [$this, 'checkout']);
+    }
 }

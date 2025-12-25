@@ -197,7 +197,10 @@ export default {
                     body: JSON.stringify({ active_plugins: activePlugins })
                 });
 
-                if (!res.ok) throw new Error('Failed to save changes');
+                if (!res.ok) {
+                    const data = await res.json();
+                    throw new Error(data.error || 'Failed to save changes');
+                }
 
                 isDirty.value = false;
                 store.addNotification('Plugins updated successfully! Reloading...', 'success');
@@ -227,7 +230,12 @@ export default {
                     })
                 });
 
-                const data = await res.json();
+                let data;
+                try {
+                    data = await res.json();
+                } catch (e) {
+                    throw new Error('Failed to parse response from server');
+                }
 
                 if (!res.ok) {
                     throw new Error(data.error || 'Installation failed');

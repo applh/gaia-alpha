@@ -1,4 +1,9 @@
+import Pagination from './Pagination.js';
+
 export default {
+    components: {
+        Pagination
+    },
     props: {
         data: {
             type: Array,

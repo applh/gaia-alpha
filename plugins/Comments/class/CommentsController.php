@@ -110,4 +110,12 @@ class CommentsController
             return Response::json(['error' => $e->getMessage()], 500);
         }
     }
+
+    public function registerRoutes()
+    {
+        \GaiaAlpha\Router::add('GET', '/api/comments', [$this, 'index']);
+        \GaiaAlpha\Router::add('POST', '/api/comments', [$this, 'store']);
+        \GaiaAlpha\Router::add('PUT', '/api/comments/(\d+)', [$this, 'update']);
+        \GaiaAlpha\Router::add('DELETE', '/api/comments/(\d+)', [$this, 'delete']);
+    }
 }

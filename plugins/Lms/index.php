@@ -4,12 +4,10 @@ use GaiaAlpha\Hook;
 use GaiaAlpha\Router;
 use Lms\LmsController;
 
-// Register API Routes
-Hook::add('router_matched', function () {
-    Router::get('/api/lms/courses', [LmsController::class, 'getCourses']);
-    Router::get('/api/lms/courses/(\d+)', [LmsController::class, 'getCourse']);
-    Router::post('/api/lms/courses', [LmsController::class, 'createCourse']);
-}, 20);
+// Register Controller
+Hook::add('framework_load_controllers_after', function () {
+    \GaiaAlpha\Framework::registerController('lms', LmsController::class);
+});
 
 // Integration: Listen for E-commerce orders
 Hook::add('ecommerce_order_paid', function ($order, $items) {

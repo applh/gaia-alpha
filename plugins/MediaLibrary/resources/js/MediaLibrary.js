@@ -94,7 +94,7 @@ export default {
                                 >
                                     {{ tag.name }} ({{ tag.media_count }})
                                 </ui-tag>
-                                <ui-button size="small" @click="showTagModal = true">
+                                <ui-button size="sm" @click="showTagModal = true">
                                     <LucideIcon name="plus" size="14" />
                                 </ui-button>
                             </div>
@@ -171,10 +171,10 @@ export default {
             >
                 <template #actions="{ row }">
                     <div style="display: flex; gap: 8px; justify-content: flex-end;">
-                        <ui-button size="small" @click="editFile(row)">
+                        <ui-button size="sm" @click="editFile(row)">
                             <LucideIcon name="edit" size="14" />
                         </ui-button>
-                        <ui-button size="small" type="danger" @click="deleteFile(row.id)">
+                        <ui-button size="sm" type="danger" @click="deleteFile(row.id)">
                             <LucideIcon name="trash" size="14" />
                         </ui-button>
                     </div>
@@ -184,18 +184,18 @@ export default {
 
         <div v-if="selectedFiles.length > 0" class="bulk-actions-bar" style="position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%); background: var(--card-bg); border-radius: 99px; padding: 8px 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); border: 1px solid var(--border-color); display: flex; align-items: center; gap: 16px; z-index: 1000;">
             <ui-text weight="bold">{{ selectedFiles.length }} selected</ui-text>
-            <ui-divider vertical height="24px" />
-            <ui-button size="small" @click="bulkTag">
+            <div style="width: 1px; height: 24px; background: var(--border-color); margin: 0 4px;"></div>
+            <ui-button size="sm" @click="bulkTag">
                 <LucideIcon name="tag" size="14" style="margin-right: 8px;" /> Tag
             </ui-button>
-            <ui-button size="small" type="danger" @click="bulkDelete">
+            <ui-button size="sm" type="danger" @click="bulkDelete">
                 <LucideIcon name="trash" size="14" style="margin-right: 8px;" /> Delete
             </ui-button>
-            <ui-button size="small" @click="selectedFiles = []">Clear</ui-button>
+            <ui-button size="sm" @click="selectedFiles = []">Clear</ui-button>
         </div>
 
         <!-- Edit Modal -->
-        <ui-modal v-model="!!editingFile" title="Edit Media Metadata" @close="editingFile = null">
+        <ui-modal :show="!!editingFile" title="Edit Media Metadata" @close="editingFile = null">
             <div v-if="editingFile" style="display: flex; flex-direction: column; gap: 20px;">
                 <ui-input v-model="editingFile.original_filename" label="Filename" placeholder="e.g. hero-image.jpg" />
                 <ui-input v-model="editingFile.alt_text" label="Alt Text" placeholder="Describe for accessibility" />
@@ -221,7 +221,7 @@ export default {
         </ui-modal>
 
         <!-- Tag Creation Modal -->
-        <ui-modal v-model="showTagModal" title="Create New Tag" @close="showTagModal = false">
+        <ui-modal :show="showTagModal" title="Create New Tag" @close="showTagModal = false">
             <div style="display: flex; flex-direction: column; gap: 20px;">
                 <ui-input v-model="newTag.name" label="Tag Name" placeholder="e.g. Product Photos" />
                 <div>
@@ -236,7 +236,7 @@ export default {
         </ui-modal>
 
         <!-- Image/Video Editor Modal -->
-        <ui-modal v-model="!!mediaEditor.file" :title="'Editor: ' + (mediaEditor.file?.original_filename || '')" large @close="mediaEditor.file = null">
+        <ui-modal :show="!!mediaEditor.file" :title="'Editor: ' + (mediaEditor.file?.original_filename || '')" large @close="mediaEditor.file = null">
             <div v-if="mediaEditor.file" style="min-height: 500px;">
                 <ImageEditor
                     v-if="isImage(mediaEditor.file)"
@@ -248,8 +248,8 @@ export default {
                 <div v-else-if="isVideo(mediaEditor.file)">
                     <div style="display: flex; justify-content: center; margin-bottom: 24px;">
                         <div style="background: var(--bg-secondary); padding: 4px; border-radius: 12px; display: flex; gap: 4px;">
-                            <ui-button :type="mediaEditor.mode === 'view' ? 'primary' : 'default'" size="small" @click="mediaEditor.mode = 'view'">Player</ui-button>
-                            <ui-button :type="mediaEditor.mode === 'edit' ? 'primary' : 'default'" size="small" @click="mediaEditor.mode = 'edit'">Editor</ui-button>
+                            <ui-button :type="mediaEditor.mode === 'view' ? 'primary' : 'default'" size="sm" @click="mediaEditor.mode = 'view'">Player</ui-button>
+                            <ui-button :type="mediaEditor.mode === 'edit' ? 'primary' : 'default'" size="sm" @click="mediaEditor.mode = 'edit'">Editor</ui-button>
                         </div>
                     </div>
 

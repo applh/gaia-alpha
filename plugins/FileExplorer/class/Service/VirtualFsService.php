@@ -42,7 +42,13 @@ class VirtualFsService
             return [];
         $stmt = self::$db->getPdo()->prepare("SELECT * FROM vfs_items WHERE parent_id = ? ORDER BY type DESC, name ASC");
         $stmt->execute([$parentId]);
-        return $stmt->fetchAll();
+        $items = $stmt->fetchAll();
+
+        return array_map(function ($item) {
+            $item['hasChildren'] = ($item['type'] === 'folder');
+            $item['isDir'] = ($item['type'] === 'folder');
+            return $item;
+        }, $items);
     }
 
     public static function getItem(int $id): ?array

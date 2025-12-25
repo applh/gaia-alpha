@@ -66,7 +66,7 @@ export default {
             </div>
             
             <div v-if="loading" style="display: flex; justify-content: center; padding: 48px;">
-                <ui-spinner size="large" />
+                <ui-spinner size="lg" />
             </div>
             
             <ui-row v-else :gutter="20">

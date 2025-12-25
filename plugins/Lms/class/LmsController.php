@@ -41,4 +41,11 @@ class LmsController
         $id = Course::create($data);
         Response::json(['id' => $id, 'message' => 'Course created'], 201);
     }
+
+    public function registerRoutes()
+    {
+        \GaiaAlpha\Router::get('/api/lms/courses', [$this, 'getCourses']);
+        \GaiaAlpha\Router::get('/api/lms/courses/(\d+)', [$this, 'getCourse']);
+        \GaiaAlpha\Router::post('/api/lms/courses', [$this, 'createCourse']);
+    }
 }

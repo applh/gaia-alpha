@@ -27,6 +27,7 @@ class FileExplorerService
                 'name' => $file,
                 'path' => $fullPath,
                 'isDir' => $isDir,
+                'hasChildren' => $isDir,
                 'size' => $isDir ? 0 : filesize($fullPath),
                 'mtime' => filemtime($fullPath),
                 'ext' => $isDir ? '' : strtolower(pathinfo($file, PATHINFO_EXTENSION))

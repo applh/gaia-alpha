@@ -474,7 +474,8 @@ export default {
             loadDecks, createDeck, openDeck, addPage,
             startDrawing, draw, stopDrawing, clearPage, saveAll,
             movePage, deletePage, formatDate, closeEditor, selectPage,
-            deleteDeck, confirmDeleteDeck, showDeleteModal, deckToDelete
+            deleteDeck, confirmDeleteDeck, showDeleteModal, deckToDelete,
+            styles: STYLES
         };
     }
 }

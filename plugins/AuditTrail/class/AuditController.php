@@ -74,4 +74,9 @@ class AuditController extends BaseController
             ]
         ]);
     }
+
+    public function registerRoutes()
+    {
+        \GaiaAlpha\Router::get('/api/audit-logs', [$this, 'getLogs']);
+    }
 }

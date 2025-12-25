@@ -4,10 +4,7 @@ use GaiaAlpha\Hook;
 use GaiaAlpha\Router;
 use Ecommerce\EcommerceController;
 
-// Register API Routes
-Hook::add('router_matched', function () {
-    Router::get('/api/ecommerce/products', [EcommerceController::class, 'getProducts']);
-    Router::get('/api/ecommerce/cart', [EcommerceController::class, 'getCart']);
-    Router::post('/api/ecommerce/cart', [EcommerceController::class, 'addToCart']);
-    Router::post('/api/ecommerce/checkout', [EcommerceController::class, 'checkout']);
-}, 20);
+// Register Controller
+Hook::add('framework_load_controllers_after', function () {
+    \GaiaAlpha\Framework::registerController('ecommerce', EcommerceController::class);
+});

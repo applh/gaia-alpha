@@ -42,8 +42,8 @@ export default {
             </ui-title>
             <div style="display: flex; gap: 12px; align-items: center;">
                 <div style="background: var(--bg-secondary); padding: 4px; border-radius: 12px; display: flex; gap: 4px;">
-                    <ui-button :type="mode === 'real' ? 'primary' : 'default'" size="small" @click="mode = 'real'">Real FS</ui-button>
-                    <ui-button :type="mode === 'vfs' ? 'primary' : 'default'" size="small" @click="mode = 'vfs'">Virtual FS</ui-button>
+                    <ui-button :variant="mode === 'real' ? 'primary' : 'secondary'" size="sm" @click="mode = 'real'">Real FS</ui-button>
+                    <ui-button :variant="mode === 'vfs' ? 'primary' : 'secondary'" size="sm" @click="mode = 'vfs'">Virtual FS</ui-button>
                 </div>
                 
                 <template v-if="mode === 'vfs'">
@@ -51,13 +51,13 @@ export default {
                         <option value="">Select VFS...</option>
                         <option v-for="vfs in vfsList" :key="vfs.path" :value="vfs.path">{{ vfs.name }}</option>
                     </select>
-                    <ui-button size="small" @click="createVfs">New VFS</ui-button>
+                    <ui-button size="sm" @click="createVfs">New VFS</ui-button>
                 </template>
                 
                 <div style="display: flex; gap: 8px;">
-                    <ui-button size="small" @click="createItem('folder')" title="New Folder"><LucideIcon name="folder-plus" size="18"/></ui-button>
-                    <ui-button size="small" @click="createItem('file')" title="New File"><LucideIcon name="file-plus" size="18"/></ui-button>
-                    <ui-button size="small" @click="refresh" title="Refresh"><LucideIcon name="refresh-cw" size="18"/></ui-button>
+                    <ui-button size="sm" @click="createItem('folder')" title="New Folder"><LucideIcon name="folder-plus" size="18"/></ui-button>
+                    <ui-button size="sm" @click="createItem('file')" title="New File"><LucideIcon name="file-plus" size="18"/></ui-button>
+                    <ui-button size="sm" @click="refresh" title="Refresh"><LucideIcon name="refresh-cw" size="18"/></ui-button>
                 </div>
             </div>
         </div>
@@ -110,12 +110,12 @@ export default {
                             <ui-text weight="bold">{{ selectedItem.name }}</ui-text>
                             <div v-if="isVideo || isJson" style="background: var(--bg-secondary); padding: 4px; border-radius: 8px; display: flex; gap: 4px;">
                                 <template v-if="isVideo">
-                                    <ui-button :type="viewMode === 'view' ? 'primary' : 'default'" size="small" @click="viewMode = 'view'">Player</ui-button>
-                                    <ui-button :type="viewMode === 'edit' ? 'primary' : 'default'" size="small" @click="viewMode = 'edit'">Editor</ui-button>
+                                    <ui-button :variant="viewMode === 'view' ? 'primary' : 'secondary'" size="sm" @click="viewMode = 'view'">Player</ui-button>
+                                    <ui-button :variant="viewMode === 'edit' ? 'primary' : 'secondary'" size="sm" @click="viewMode = 'edit'">Editor</ui-button>
                                 </template>
                                 <template v-else-if="isJson">
-                                    <ui-button :type="viewMode === 'code' ? 'primary' : 'default'" size="small" @click="viewMode = 'code'">Code</ui-button>
-                                    <ui-button :type="viewMode === 'tree' ? 'primary' : 'default'" size="small" @click="viewMode = 'tree'">Tree</ui-button>
+                                    <ui-button :variant="viewMode === 'code' ? 'primary' : 'secondary'" size="sm" @click="viewMode = 'code'">Code</ui-button>
+                                    <ui-button :variant="viewMode === 'tree' ? 'primary' : 'secondary'" size="sm" @click="viewMode = 'tree'">Tree</ui-button>
                                 </template>
                             </div>
                         </div>

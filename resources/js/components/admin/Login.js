@@ -15,7 +15,7 @@ export default {
         <div class="login-container">
             <AsyncForm 
                 :action="login" 
-                :submitLabel="loading ? 'Logging in...' : 'Login'"
+                submitLabel="Login"
             >
                 <h1>Gaia Alpha</h1>
                 <ui-input 

@@ -142,7 +142,7 @@ class PluginController extends BaseController
             $requirements = $allPlugins[$pluginName]['requires'];
             foreach ($requirements as $reqName => $reqVersion) {
                 // Ignore gaia-alpha core requirement for now or checking version
-                if ($reqName === 'gaia-alpha')
+                if ($reqName === 'gaia-alpha' || $reqName === 'core' || $reqName === 'php')
                     continue;
 
                 // Check if absolute requirement is active

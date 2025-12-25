@@ -5,6 +5,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gaia Alpha JS Tests</title>
+    <script type="importmap">
+    {
+        "imports": {
+            "vue": "/resources/js/vendor/vue.esm-browser.js",
+            "store": "/resources/js/store.js",
+            "ui/": "/resources/js/components/ui/",
+            "components/": "/resources/js/components/",
+            "composables/": "/resources/js/composables/",
+            "@/": "/resources/js/",
+            "builders/": "/resources/js/components/builders/",
+            "plugins/": "/plugins/",
+            "/min/js/plugins/Todo/": "/plugins/Todo/resources/js/",
+            "plugins/ComponentBuilder/": "/plugins/ComponentBuilder/resources/js/"
+        }
+    }
+    </script>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -88,6 +104,10 @@
     <div id="results"></div>
     <div id="summary" class="summary">Running...</div>
 
+    <script type="module">
+        import * as Vue from 'vue';
+        window.Vue = Vue;
+    </script>
     <script type="module">
         import { suites } from './framework/test-utils.js';
 

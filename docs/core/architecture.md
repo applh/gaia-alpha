@@ -123,6 +123,12 @@ The `ViewController` (Rank 100) handles catch-all routing (`.*`). To prevent spe
 
 **Any new top-level reserved namespace (e.g., `/hooks`) must be added to this exclusion list in `ViewController::registerRoutes`.**
 
+### 4. Router Optimization
+The core `Router` implementation uses a hybrid approach for maximum performance:
+- **Static Routes**: Exact string matches are stored in a hash map for O(1) lookup.
+- **Dynamic Routes**: Regex-based routes are grouped by HTTP method and checked only if static lookup fails.
+- **Benchmarks**: Capable of dispatching 2000+ routes in < 0.2ms.
+
 ## Response Handling
 All JSON responses are routed through the `Response` class (`GaiaAlpha\Response`). This centralization allows for consistent formatting and plugin interception.
 

@@ -7,15 +7,33 @@ use GaiaAlpha\Request;
 
 class Router
 {
-    private static array $routes = [];
+    private static array $staticRoutes = [];
+    private static array $dynamicRoutes = [];
 
     public static function add(string $method, string $path, callable $handler)
     {
-        self::$routes[] = [
-            'method' => strtoupper($method),
-            'path' => $path,
-            'handler' => $handler
-        ];
+        $method = strtoupper($method);
+        // Check for regex characters
+        // Note: This is a simplistic check. FastRoute uses more complex parsing.
+        // Assuming standard regex delimiters are not used in simple paths, but user might use them.
+        // If path contains [, (, *, ?, + it is likely dynamic.
+        if (preg_match('/[\[\(\*\?\+]/', $path)) {
+            self::$dynamicRoutes[$method][] = [
+                'regex' => '#^' . $path . '$#',
+                'handler' => $handler,
+                'path' => $path // Keep original path for hooks if needed
+            ];
+        } else {
+            self::$staticRoutes[$method][$path] = $handler;
+        }
+
+        // Keep legacy array if needed for backward compatibility or simple listing?
+        // The original implementation exposed self::$routes implicitly via internal usage.
+        // Depending on if other classes read it. But it was private. 
+        // So we can remove the flat list or keep it if we want to support 'HEAD' logic easily for all.
+        // Let's keep a flattened structure ONLY if strictly necessary, but for memory efficiency better not to duplicate too much.
+        // However, the original code had: foreach (self::$routes as $route) logic.
+        // We are replacing that completely.
     }
 
     public static function get(string $path, callable $handler)
@@ -46,30 +64,53 @@ class Router
         // Hook before dispatch
         Hook::run('router_dispatch_before', $method, $uri);
 
-        // Simple exact match or regex
-        foreach (self::$routes as $route) {
-            if ($route['method'] !== $method) {
-                // Allow HEAD requests for GET routes
-                if ($method === 'HEAD' && $route['method'] === 'GET') {
-                    // Continue matching
-                } else {
-                    continue;
+        // 1. Check Static Routes
+        if (isset(self::$staticRoutes[$method][$uri])) {
+            $handler = self::$staticRoutes[$method][$uri];
+            $route = ['method' => $method, 'path' => $uri, 'handler' => $handler];
+
+            Hook::run('router_matched', $route, []);
+            call_user_func($handler);
+            Hook::run('router_dispatch_after', $route, []);
+            return true;
+        }
+
+        // 1.5 Handle HEAD requests for GET routes in static map
+        if ($method === 'HEAD' && isset(self::$staticRoutes['GET'][$uri])) {
+            $handler = self::$staticRoutes['GET'][$uri];
+            $route = ['method' => 'GET', 'path' => $uri, 'handler' => $handler];
+
+            Hook::run('router_matched', $route, []);
+            call_user_func($handler);
+            Hook::run('router_dispatch_after', $route, []);
+            return true;
+        }
+
+        // 2. Check Dynamic Routes
+        $methodsToCheck = [$method];
+        if ($method === 'HEAD') {
+            $methodsToCheck[] = 'GET';
+        }
+
+        foreach ($methodsToCheck as $checkMethod) {
+            if (!empty(self::$dynamicRoutes[$checkMethod])) {
+                foreach (self::$dynamicRoutes[$checkMethod] as $route) {
+                    if (preg_match($route['regex'], $uri, $matches)) {
+                        array_shift($matches); // Remove full match
+
+                        // Construct route array for hooks (mimicking old structure)
+                        $routeData = [
+                            'method' => $checkMethod,
+                            'path' => $route['path'],
+                            'handler' => $route['handler']
+                        ];
+
+                        Hook::run('router_matched', $routeData, $matches);
+                        call_user_func_array($route['handler'], $matches);
+                        Hook::run('router_dispatch_after', $routeData, $matches);
+                        return true;
+                    }
                 }
-            }
-
-            // Convert route path to regex
-            // e.g., /api/todos/(\d+)
-            $pattern = '#^' . $route['path'] . '$#';
-
-            if (preg_match($pattern, $uri, $matches)) {
-                array_shift($matches); // Remove full match
-
-                // Hook when route is matched
-                Hook::run('router_matched', $route, $matches);
-
-                $result = call_user_func_array($route['handler'], $matches);
-                Hook::run('router_dispatch_after', $route, $matches);
-                return true;
             }
         }
 

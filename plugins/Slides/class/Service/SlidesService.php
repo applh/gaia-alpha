@@ -46,7 +46,7 @@ class SlidesService
         );
     }
 
-    public function addPage($deck_id, $content, $slide_type = 'drawing', $order_index = null)
+    public function addPage($deck_id, $content, $slide_type = 'drawing', $order_index = null, $background_color = '#ffffff')
     {
         if ($order_index === null) {
             $maxOrder = DB::fetchColumn(
@@ -57,23 +57,23 @@ class SlidesService
         }
 
         DB::execute(
-            "INSERT INTO cms_slide_pages (deck_id, content, slide_type, order_index) VALUES (?, ?, ?, ?)",
-            [$deck_id, $content, $slide_type, $order_index]
+            "INSERT INTO cms_slide_pages (deck_id, content, slide_type, order_index, background_color) VALUES (?, ?, ?, ?, ?)",
+            [$deck_id, $content, $slide_type, $order_index, $background_color]
         );
         return DB::lastInsertId();
     }
 
-    public function updatePage($id, $content, $slide_type = null)
+    public function updatePage($id, $content, $slide_type = null, $background_color = null)
     {
         if ($slide_type) {
             return DB::execute(
-                "UPDATE cms_slide_pages SET content = ?, slide_type = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?",
-                [$content, $slide_type, $id]
+                "UPDATE cms_slide_pages SET content = ?, slide_type = ?, background_color = COALESCE(?, background_color), updated_at = CURRENT_TIMESTAMP WHERE id = ?",
+                [$content, $slide_type, $background_color, $id]
             );
         }
         return DB::execute(
-            "UPDATE cms_slide_pages SET content = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?",
-            [$content, $id]
+            "UPDATE cms_slide_pages SET content = ?, background_color = COALESCE(?, background_color), updated_at = CURRENT_TIMESTAMP WHERE id = ?",
+            [$content, $background_color, $id]
         );
     }
 

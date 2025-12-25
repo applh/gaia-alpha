@@ -197,16 +197,20 @@ export default {
                     <ui-col :span="18" style="height: 100%;">
                         <div class="editor-view" v-if="currentPage">
                             <div style="display: flex; flex-direction: column; gap: 24px; width: 100%; align-items: center;">
-                                <div style="display: flex; gap: 12px; width: 100%; max-width: 960px;">
-                                    <select v-model="currentPage.slide_type" class="form-input" style="background: var(--card-bg); color: var(--text-color); border: 1px solid var(--border-color); padding: 8px 12px; border-radius: 8px; cursor: pointer;">
+                                <div style="display: flex; gap: 12px; width: 100%; max-width: 960px; align-items: center;">
+                                    <select v-model="currentPage.slide_type" class="form-input" style="flex: 1; background: var(--card-bg); color: var(--text-color); border: 1px solid var(--border-color); padding: 8px 12px; border-radius: 8px; cursor: pointer;">
                                         <option value="drawing">Drawing Page</option>
                                         <option value="markdown">Markdown Page</option>
                                     </select>
+                                    <div style="display: flex; align-items: center; gap: 8px; background: var(--card-bg); padding: 4px 8px; border-radius: 8px; border: 1px solid var(--border-color);">
+                                        <ui-text size="sm" weight="bold">Background:</ui-text>
+                                        <input type="color" v-model="currentPage.background_color" style="width: 32px; height: 32px; padding: 0; border: none; background: none; cursor: pointer;" />
+                                    </div>
                                 </div>
                                 
                                 <!-- Drawing Mode -->
                                 <template v-if="currentPage.slide_type === 'drawing'">
-                                    <div class="slide-canvas-wrapper" ref="canvasWrapper">
+                                    <div class="slide-canvas-wrapper" ref="canvasWrapper" :style="{ background: currentPage.background_color || '#ffffff' }">
                                         <canvas 
                                             ref="slideCanvas"
                                             width="1920"
@@ -248,7 +252,7 @@ export default {
                                         </div>
                                         <div style="flex: 1; height: 100%; display: flex; flex-direction: column;">
                                             <ui-text weight="bold" size="sm" style="margin-bottom: 8px;">Preview</ui-text>
-                                            <div class="markdown-preview" v-html="renderMarkdown(currentPage.content)"></div>
+                                            <div class="markdown-preview" :style="{ background: currentPage.background_color || '#ffffff' }" v-html="renderMarkdown(currentPage.content)"></div>
                                         </div>
                                     </div>
                                 </template>
@@ -333,6 +337,9 @@ export default {
             if (pages.value.length === 0) {
                 await addPage();
             } else {
+                pages.value.forEach(p => {
+                    if (!p.background_color) p.background_color = '#ffffff';
+                });
                 currentPageIndex.value = 0;
                 renderCurrentPage();
             }
@@ -348,7 +355,7 @@ export default {
             const res = await fetch(`/@/slides/deck/${currentDeck.value.id}/pages/add`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ content: '[]', slide_type: 'drawing' })
+                body: JSON.stringify({ content: '[]', slide_type: 'drawing', background_color: '#ffffff' })
             });
             if (res.ok) {
                 const resPages = await fetch(`/@/slides/deck/${currentDeck.value.id}/pages`);
@@ -430,7 +437,8 @@ export default {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         content: page.content,
-                        slide_type: page.slide_type
+                        slide_type: page.slide_type,
+                        background_color: page.background_color
                     })
                 });
             }

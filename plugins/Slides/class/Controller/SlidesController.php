@@ -92,8 +92,9 @@ class SlidesController extends BaseController
         $content = isset($data['content']) ? (is_array($data['content']) ? json_encode($data['content']) : $data['content']) : '[]';
         $slide_type = $data['slide_type'] ?? 'drawing';
         $order_index = $data['order_index'] ?? null;
+        $background_color = $data['background_color'] ?? '#ffffff';
 
-        $id = $this->service->addPage($deck_id, $content, $slide_type, $order_index);
+        $id = $this->service->addPage($deck_id, $content, $slide_type, $order_index, $background_color);
         Response::json(['success' => true, 'id' => $id]);
     }
 
@@ -102,13 +103,14 @@ class SlidesController extends BaseController
         $data = Request::input();
         $content = isset($data['content']) ? (is_array($data['content']) ? json_encode($data['content']) : $data['content']) : null;
         $slide_type = $data['slide_type'] ?? null;
+        $background_color = $data['background_color'] ?? null;
 
         if ($content === null) {
             Response::json(['error' => 'Content is required'], 400);
             return;
         }
 
-        $this->service->updatePage($id, $content, $slide_type);
+        $this->service->updatePage($id, $content, $slide_type, $background_color);
         Response::json(['success' => true]);
     }
 

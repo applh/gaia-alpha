@@ -91,7 +91,7 @@ export default {
         </div>
         
         <div class="player-body">
-            <div class="player-slide">
+            <div class="player-slide" :style="{ background: currentSlide?.background_color || '#ffffff' }">
                 <template v-if="currentSlide">
                     <img v-if="(!currentSlide.slide_type || currentSlide.slide_type === 'drawing') && currentSlide.content" :src="currentSlide.content" class="w-full h-full object-contain" />
                     <div v-else-if="currentSlide.slide_type === 'markdown'" class="markdown-slide" v-html="renderSlide(currentSlide.content)"></div>

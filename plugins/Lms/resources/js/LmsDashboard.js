@@ -10,6 +10,8 @@ import Col from 'ui/Col.js';
 import Spinner from 'ui/Spinner.js';
 import Tag from 'ui/Tag.js';
 import { UITitle, UIText } from 'ui/Typography.js';
+import Modal from 'ui/Modal.js';
+import Input from 'ui/Input.js';
 
 export default {
     components: {
@@ -22,12 +24,17 @@ export default {
         'ui-spinner': Spinner,
         'ui-tag': Tag,
         'ui-title': UITitle,
-        'ui-text': UIText
+        'ui-text': UIText,
+        'ui-modal': Modal,
+        'ui-input': Input
     },
     data() {
         return {
             courses: [],
-            loading: true
+            loading: true,
+            showCreateModal: false,
+            newCourseTitle: '',
+            creating: false
         }
     },
     async mounted() {
@@ -44,19 +51,26 @@ export default {
                 this.loading = false;
             }
         },
-        async createCourse() {
-            const title = prompt("Course Title:");
-            if (!title) return;
+        openCreateModal() {
+            this.newCourseTitle = '';
+            this.showCreateModal = true;
+        },
+        async submitCreateCourse() {
+            if (!this.newCourseTitle) return;
 
+            this.creating = true;
             try {
                 await api.post('lms/courses', {
-                    title,
-                    slug: title.toLowerCase().replace(/ /g, '-')
+                    title: this.newCourseTitle,
+                    slug: this.newCourseTitle.toLowerCase().replace(/ /g, '-')
                 });
+                this.showCreateModal = false;
                 await this.loadCourses();
                 store.addNotification('Course created', 'success');
             } catch (err) {
                 store.addNotification('Error creating course: ' + err.message, 'error');
+            } finally {
+                this.creating = false;
             }
         }
     },
@@ -64,7 +78,7 @@ export default {
         <ui-container class="p-4">
             <div class="admin-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
                 <ui-title :level="1">LMS Dashboard</ui-title>
-                <ui-button variant="primary" @click="createCourse">
+                <ui-button variant="primary" @click="openCreateModal">
                     <LucideIcon name="plus" size="18" style="margin-right: 8px;" />
                     New Course
                 </ui-button>
@@ -99,6 +113,24 @@ export default {
                     </ui-card>
                 </ui-col>
             </ui-row>
+
+            <ui-modal :show="showCreateModal" title="Create New Course" @close="showCreateModal = false">
+                <ui-input
+                    v-model="newCourseTitle"
+                    label="Course Title"
+                    placeholder="Enter course title"
+                    required
+                    :disabled="creating"
+                    @keyup.enter="submitCreateCourse"
+                />
+                <template #footer>
+                    <ui-button variant="secondary" @click="showCreateModal = false" style="margin-right: 10px;" :disabled="creating">Cancel</ui-button>
+                    <ui-button variant="primary" @click="submitCreateCourse" :disabled="!newCourseTitle || creating">
+                        <span v-if="creating">Creating...</span>
+                        <span v-else>Create Course</span>
+                    </ui-button>
+                </template>
+            </ui-modal>
         </ui-container>
     `
 }

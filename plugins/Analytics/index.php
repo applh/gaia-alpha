@@ -9,7 +9,7 @@ use Analytics\Service\AnalyticsService;
 // 1. Register Controller
 Hook::add('framework_load_controllers_after', function ($controllers) {
     \GaiaAlpha\Framework::registerController('analytics', AnalyticsController::class);
-});
+}, 10, 'admin');
 
 // 2. Register UI Component
 \GaiaAlpha\UiManager::registerComponent(
@@ -58,7 +58,7 @@ Hook::add('auth_session_data', function ($data) {
         }
     }
     return $data;
-});
+}, 10, 'admin');
 
 // 4. Track Page Visits
 Hook::add('router_dispatch_after', function ($route, $params) {
@@ -84,4 +84,4 @@ Hook::add('router_dispatch_after', function ($route, $params) {
         Request::server('REMOTE_ADDR'),
         Request::server('HTTP_REFERER')
     );
-});
+}, 10, 'public');

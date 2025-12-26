@@ -12,8 +12,9 @@ class Hook
      * @param string $name Name of the hook
      * @param callable $callback Function to execute
      * @param int $priority Priority (lower numbers run first)
+     * @param string|null $context Optional context (public, admin, api, all)
      */
-    public static function add(string $name, callable $callback, int $priority = 10)
+    public static function add(string $name, callable $callback, int $priority = 10, ?string $context = null)
     {
         if (!isset(self::$hooks[$name])) {
             self::$hooks[$name] = [];
@@ -21,7 +22,8 @@ class Hook
 
         self::$hooks[$name][] = [
             'callback' => $callback,
-            'priority' => $priority
+            'priority' => $priority,
+            'context' => $context
         ];
     }
 
@@ -37,12 +39,18 @@ class Hook
             return;
         }
 
+        $context = Request::context();
+
         // Sort by priority
         usort(self::$hooks[$name], function ($a, $b) {
             return $a['priority'] <=> $b['priority'];
         });
 
         foreach (self::$hooks[$name] as $hook) {
+            // Context check
+            if ($hook['context'] && $hook['context'] !== 'all' && $hook['context'] !== $context) {
+                continue;
+            }
             call_user_func_array($hook['callback'], $args);
         }
     }
@@ -61,12 +69,18 @@ class Hook
             return $value;
         }
 
+        $context = Request::context();
+
         // Sort by priority
         usort(self::$hooks[$name], function ($a, $b) {
             return $a['priority'] <=> $b['priority'];
         });
 
         foreach (self::$hooks[$name] as $hook) {
+            // Context check
+            if ($hook['context'] && $hook['context'] !== 'all' && $hook['context'] !== $context) {
+                continue;
+            }
             // Pass value as first argument, then others
             $callArgs = array_merge([$value], $args);
             $newValue = call_user_func_array($hook['callback'], $callArgs);

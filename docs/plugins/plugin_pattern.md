@@ -48,6 +48,7 @@ The `plugin.json` file defines your plugin's metadata and dependencies.
     "version": "1.0.0",
     "description": "Description of your plugin",
     "type": "standard",
+    "context": "admin",      // Optional: admin, public, api, or all (default)
     "dependencies": {
         "php": {
             "vendor/package": "^1.0"
@@ -61,7 +62,7 @@ The `plugin.json` file defines your plugin's metadata and dependencies.
 
 ## Golden Sample: index.php
 
-This file handles **Hook Registration** and **Menu Injection**. Note that specific feature logic should reside in dedicated classes to keep this file lightweight.
+This file handles **Hook Registration** and **Menu Injection**. Use context-specific hooks to optimize performance.
 
 ```php
 <?php
@@ -70,30 +71,30 @@ use GaiaAlpha\Hook;
 use GaiaAlpha\Env;
 use YourPlugin\Controller\YourController;
 
-// 1. Dynamic Controller Registration
+// 1. Dynamic Controller Registration (Admin context)
 Hook::add('framework_load_controllers_after', function ($controllers) {
     \GaiaAlpha\Framework::registerController('your_plugin', YourController::class);
-});
+}, 10, 'admin');
 
 // 2. Register UI Component (Dynamic Loading)
 \GaiaAlpha\UiManager::registerComponent('your_plugin', 'plugins/YourPlugin/YourPanel.js', true);
 
-// 3. Inject Menu Item (Preferred for Groups/Icons)
+// 3. Inject Menu Item (Admin context)
 Hook::add('auth_session_data', function ($data) {
     if (isset($data['user'])) {
         $data['user']['menu_items'][] = [
-            'id' => 'grp-tools', // Optional: Add to existing group
+            'id' => 'grp-tools',
             'label' => 'Tools', 
             'icon' => 'pen-tool',
             'children' => [[
                 'label' => 'Your Plugin', 
-                'view' => 'your_plugin', // Maps to registered component key
+                'view' => 'your_plugin', 
                 'icon' => 'box'
             ]]
         ];
     }
     return $data;
-});
+}, 10, 'admin');
 ```
 
 ## Frontend View Registration

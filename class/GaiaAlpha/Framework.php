@@ -10,6 +10,29 @@ class Framework
     {
         $rootDir = Env::get('root_dir');
         $pathData = Env::get('path_data');
+        $manifestFile = $pathData . '/cache/plugins_manifest.json';
+        $currentContext = Request::context();
+
+        // Try to load from manifest first
+        if (!isset($_GET['clear_cache']) && file_exists($manifestFile)) {
+            $manifest = json_decode(file_get_contents($manifestFile), true);
+            if (is_array($manifest)) {
+                foreach ($manifest as $pluginData) {
+                    $pluginPath = is_array($pluginData) ? $pluginData['path'] : $pluginData;
+                    $pluginContext = is_array($pluginData) ? ($pluginData['context'] ?? 'all') : 'all';
+
+                    if ($pluginContext !== 'all' && $pluginContext !== $currentContext) {
+                        continue;
+                    }
+
+                    if (file_exists($pluginPath)) {
+                        include_once $pluginPath;
+                    }
+                }
+                Hook::run('plugins_loaded');
+                return;
+            }
+        }
 
         $pluginDirs = [
             $pathData . '/plugins',
@@ -22,6 +45,7 @@ class Framework
             $activePlugins = json_decode(file_get_contents($activePluginsFile), true) ?: [];
         }
 
+        $manifest = [];
         foreach ($pluginDirs as $pluginsDir) {
             if (!is_dir($pluginsDir)) {
                 continue;
@@ -31,28 +55,40 @@ class Framework
                 $pluginDir = dirname($plugin);
                 $pluginDirName = basename($pluginDir);
 
-                // Read config to check for type="core"
-                $configFile = $pluginDir . '/plugin.json';
-                $config = [];
-                if (file_exists($configFile)) {
-                    $config = json_decode(file_get_contents($configFile), true);
-                }
-
-                // If active_plugins.json exists, ONLY whitelist if NOT core
-                $isCore = isset($config['type']) && $config['type'] === 'core';
-
                 if (!in_array($pluginDirName, $activePlugins)) {
                     continue;
                 }
 
-                // Check for declarative menu config
-                if (is_array($config) && isset($config['menu'])) {
-                    self::registerPluginMenuItems($config['menu'], $pluginDirName);
+                $pluginContext = 'all';
+
+                // Read config for context and declarative menu config
+                $configFile = $pluginDir . '/plugin.json';
+                if (file_exists($configFile)) {
+                    $config = json_decode(file_get_contents($configFile), true);
+                    if (is_array($config)) {
+                        $pluginContext = $config['context'] ?? 'all';
+                        if (isset($config['menu'])) {
+                            self::registerPluginMenuItems($config['menu'], $pluginDirName);
+                        }
+                    }
                 }
 
-                include_once $plugin;
+                $manifest[] = [
+                    'path' => $plugin,
+                    'context' => $pluginContext
+                ];
+
+                if ($pluginContext === 'all' || $pluginContext === $currentContext) {
+                    include_once $plugin;
+                }
             }
         }
+
+        // Save manifest
+        if (!is_dir(dirname($manifestFile))) {
+            mkdir(dirname($manifestFile), 0755, true);
+        }
+        file_put_contents($manifestFile, json_encode($manifest));
 
         Hook::run('plugins_loaded');
     }
@@ -113,18 +149,43 @@ class Framework
         Hook::run('framework_load_controllers_before');
 
         $rootDir = Env::get('root_dir');
-        // Dynamically Init Controllers
+        $pathData = Env::get('path_data');
+        $manifestFile = $pathData . '/cache/controllers_manifest.json';
+
         $controllers = Env::get('controllers') ?: [];
+
+        if (!isset($_GET['clear_cache']) && file_exists($manifestFile)) {
+            $manifest = json_decode(file_get_contents($manifestFile), true);
+            if (is_array($manifest)) {
+                foreach ($manifest as $key => $className) {
+                    Debug::startTask("load_ctrl_$key", "Load $className");
+                    if (class_exists($className)) {
+                        $controller = new $className();
+                        if (method_exists($controller, 'init')) {
+                            $controller->init();
+                        }
+                        Hook::run('controller_init', $controller, $key);
+                        $controllers[$key] = $controller;
+                    }
+                    Debug::endTask("load_ctrl_$key", "Load $className");
+                }
+                Env::set('controllers', $controllers);
+                Hook::run('framework_load_controllers_after', $controllers);
+                return;
+            }
+        }
+
+        // Dynamically Init Controllers
+        $manifest = [];
         foreach (glob($rootDir . '/class/GaiaAlpha/Controller/*Controller.php') as $file) {
             $filename = basename($file, '.php');
             if ($filename === 'BaseController')
                 continue;
 
             $key = strtolower(str_replace('Controller', '', $filename));
+            $className = "GaiaAlpha\\Controller\\$filename";
 
             Debug::startTask("load_ctrl_$key", "Load $filename");
-
-            $className = "GaiaAlpha\\Controller\\$filename";
 
             if (class_exists($className)) {
                 $controller = new $className();
@@ -136,10 +197,17 @@ class Framework
                 Hook::run('controller_init', $controller, $key);
 
                 $controllers[$key] = $controller;
+                $manifest[$key] = $className;
             }
 
             Debug::endTask("load_ctrl_$key", "Load $filename");
         }
+
+        // Save manifest
+        if (!is_dir(dirname($manifestFile))) {
+            mkdir(dirname($manifestFile), 0755, true);
+        }
+        file_put_contents($manifestFile, json_encode($manifest));
 
         Env::set('controllers', $controllers);
         Hook::run('framework_load_controllers_after', $controllers);

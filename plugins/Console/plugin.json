@@ -9,6 +9,7 @@
         "debug"
     ],
     "type": "core",
+    "context": "admin",
     "author": "Gaia Alpha",
     "menu": {
         "items": [

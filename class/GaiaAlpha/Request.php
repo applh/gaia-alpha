@@ -169,6 +169,24 @@ class Request
     }
 
     /**
+     * Determine the request context (public, admin, api)
+     */
+    public static function context(): string
+    {
+        $path = self::path();
+        if (strpos($path, '/@/') === 0) {
+            return 'admin';
+        }
+        if (strpos($path, '/api/') === 0) {
+            return 'api';
+        }
+        if ($path === '/app') {
+            return 'admin'; // /app is also admin-only
+        }
+        return 'public';
+    }
+
+    /**
      * Helper for testing/mocking
      */
     public static function mock(array $data = [], array $query = [], array $files = [], array $server = [])

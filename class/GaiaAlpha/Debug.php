@@ -26,37 +26,49 @@ class Debug
     }
 
     /**
-     * Injects Debug Header or Replaces Body Placeholder
+     * Injects Debug Headers or Replaces Body Placeholder
      * 
      * @param array|null $context Context array with content reference (e.g. ['content' => &$content])
      */
     public static function injectHeader($context = null)
     {
-        // Only inject for Admins
-        if (!\GaiaAlpha\Session::isAdmin()) {
+        $isAdmin = \GaiaAlpha\Session::isAdmin();
+        $isPublicDebug = isset($_GET['debug']) && $_GET['debug'] == '1';
+
+        // Only proceed if Admin or Public Debug is enabled via param
+        if (!$isAdmin && !$isPublicDebug) {
             return;
         }
 
         $debugData = self::getData();
 
-        // Strip traces to reduce header size for X-Gaia-Debug
-        $headerData = $debugData;
-        foreach ($headerData['queries'] as &$query) {
-            unset($query['trace']);
+        // 1. Injected Header for Admins (X-Gaia-Debug)
+        if ($isAdmin) {
+            $headerData = $debugData;
+            // Strip traces to reduce header size
+            foreach ($headerData['queries'] as &$query) {
+                unset($query['trace']);
+            }
+
+            $json = json_encode($headerData);
+            $json = str_replace(["\r", "\n"], '', $json);
+            header('X-Gaia-Debug: ' . $json);
         }
 
-        $json = json_encode($headerData);
-        // Ensure valid header value (no newlines)
-        $json = str_replace(["\r", "\n"], '', $json);
+        // 2. Server-Timing Header (Standard, visible in DevTools Network tab)
+        $timings = [];
+        $timings[] = 'total;dur=' . round($debugData['time']['total'] * 1000, 2);
 
-        header('X-Gaia-Debug: ' . $json);
+        foreach ($debugData['tasks'] as $task) {
+            $name = str_replace(['::', '\\', ' ', '(', ')'], '_', $task['task']);
+            $timings[] = $name . ';dur=' . round($task['duration'] * 1000, 2);
+        }
 
-        // If content is passed (from Response::send hook), replace placeholder
-        if (is_array($context) && isset($context['content'])) {
+        header('Server-Timing: ' . implode(', ', $timings));
+
+        // 3. Body Injection for Admins (Placeholder replacement)
+        if ($isAdmin && is_array($context) && isset($context['content'])) {
             $fullJson = json_encode($debugData);
-
-            // Modify content reference inside array
-            // Replace the string literal placeholder with the JSON object
             $search = '"__GAIA_DEBUG_DATA_PLACEHOLDER__"';
             if (strpos($context['content'], $search) !== false) {
                 $context['content'] = str_replace($search, $fullJson, $context['content']);

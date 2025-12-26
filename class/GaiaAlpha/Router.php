@@ -9,31 +9,20 @@ class Router
 {
     private static array $staticRoutes = [];
     private static array $dynamicRoutes = [];
+    private static bool $isBooted = false;
 
     public static function add(string $method, string $path, callable $handler)
     {
         $method = strtoupper($method);
-        // Check for regex characters
-        // Note: This is a simplistic check. FastRoute uses more complex parsing.
-        // Assuming standard regex delimiters are not used in simple paths, but user might use them.
-        // If path contains [, (, *, ?, + it is likely dynamic.
         if (preg_match('/[\[\(\*\?\+]/', $path)) {
             self::$dynamicRoutes[$method][] = [
                 'regex' => '#^' . $path . '$#',
                 'handler' => $handler,
-                'path' => $path // Keep original path for hooks if needed
+                'path' => $path
             ];
         } else {
             self::$staticRoutes[$method][$path] = $handler;
         }
-
-        // Keep legacy array if needed for backward compatibility or simple listing?
-        // The original implementation exposed self::$routes implicitly via internal usage.
-        // Depending on if other classes read it. But it was private. 
-        // So we can remove the flat list or keep it if we want to support 'HEAD' logic easily for all.
-        // Let's keep a flattened structure ONLY if strictly necessary, but for memory efficiency better not to duplicate too much.
-        // However, the original code had: foreach (self::$routes as $route) logic.
-        // We are replacing that completely.
     }
 
     public static function get(string $path, callable $handler)
@@ -57,8 +46,6 @@ class Router
         self::add('DELETE', $path, $handler);
     }
 
-
-
     public static function dispatch(string $method, string $uri)
     {
         // Hook before dispatch
@@ -70,6 +57,13 @@ class Router
             $route = ['method' => $method, 'path' => $uri, 'handler' => $handler];
 
             Hook::run('router_matched', $route, []);
+
+            if (is_array($handler) && is_string($handler[0])) {
+                // Instantiate on demand if it's a class string
+                $className = $handler[0];
+                $handler[0] = new $className();
+            }
+
             call_user_func($handler);
             Hook::run('router_dispatch_after', $route, []);
             return true;
@@ -81,6 +75,12 @@ class Router
             $route = ['method' => 'GET', 'path' => $uri, 'handler' => $handler];
 
             Hook::run('router_matched', $route, []);
+
+            if (is_array($handler) && is_string($handler[0])) {
+                $className = $handler[0];
+                $handler[0] = new $className();
+            }
+
             call_user_func($handler);
             Hook::run('router_dispatch_after', $route, []);
             return true;
@@ -106,7 +106,14 @@ class Router
                         ];
 
                         Hook::run('router_matched', $routeData, $matches);
-                        call_user_func_array($route['handler'], $matches);
+
+                        $handler = $route['handler'];
+                        if (is_array($handler) && is_string($handler[0])) {
+                            $className = $handler[0];
+                            $handler[0] = new $className();
+                        }
+
+                        call_user_func_array($handler, $matches);
                         Hook::run('router_dispatch_after', $routeData, $matches);
                         return true;
                     }

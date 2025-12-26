@@ -95,39 +95,28 @@ define('GAIA_DB_DSN', 'sqlite:' . GAIA_DB_PATH);
    - It allows plugins to modify the full response body via the `response_send` hook.
    - Buffering is DISABLED for CLI commands to allow real-time feedback.
 
-## Routing Strategy
-The framework employs a two-tiered strategy to manage route priority and prevent conflicts between API endpoints and frontend "catch-all" routes.
-
-### 1. Controller Ranking
-Controllers are loaded dynamically by `Framework`. To ensure specific API controllers take precedence over generic frontend controllers (like `ViewController`), a ranking system is used:
-- **`BaseController::getRank()`**: Returns an integer priority (Default: `10`).
-- **`Framework::sortControllers()`**: Sorts controllers by rank (ascending) before registering routes.
-
-**Example**:
-- `DbController` (Rank 10): Registers `/api/admin/...` first.
-- `ViewController` (Rank 100): Registers catch-all `.*` routes last.
-
-### 2. Route Definition Order
-Within a single controller, routes are matched in the order they are defined.
-**Best Practice**: Define specific paths *before* wildcard patterns.
-```php
-// Correct
-Router::get('/api/users/me', ...);
-Router::get('/api/users/(\d+)', ...);
-```
-
-### 3. Reserved Namespaces
-The `ViewController` (Rank 100) handles catch-all routing (`.*`). To prevent specific namespaces from falling back to the homepage (e.g., a 404 on an API route showing the home template), the global catch-all regex **explicitly excludes** the following prefixes:
-- `/api/`
-- `/media/`
-
-**Any new top-level reserved namespace (e.g., `/hooks`) must be added to this exclusion list in `ViewController::registerRoutes`.**
-
-### 4. Router Optimization
-The core `Router` implementation uses a hybrid approach for maximum performance:
-- **Static Routes**: Exact string matches are stored in a hash map for O(1) lookup.
-- **Dynamic Routes**: Regex-based routes are grouped by HTTP method and checked only if static lookup fails.
 - **Benchmarks**: Capable of dispatching 2000+ routes in < 0.2ms.
+- **On-Demand Instantiation**: Controllers are now instantiated only when a specific route matches, reducing the overhead of loading multiple plugins.
+
+## Performance & Caching
+Gaia Alpha uses a multi-layered caching strategy to maintain sub-10ms response times even with dozens of active plugins.
+
+### 1. Manifest Caching
+The framework maintains JSON manifests in `my-data/cache/` to avoid repeated filesystem scans:
+- **`plugins_manifest.json`**: Stores paths and context metadata for active plugins.
+- **`controllers_manifest.json`**: Maps route prefixes to controller class names.
+Regeneration is triggered by `?clear_cache=1` or when the manifests are missing.
+
+### 2. Contextual Loading
+To minimize memory usage, code is loaded only when relevant to the current `Request::context()`:
+- **`public`**: Frontend pages (Lightweight).
+- **`admin`**: Managed panels like `/@/admin` or `/app`.
+- **`api`**: Stateless endpoints under `/api/`.
+Plugins can restrict their loading to specific contexts via `plugin.json`.
+
+### 3. Model & Data Caching
+- **Static Caching**: Models like `Page` and `DataStore` use in-memory static arrays to cache query results within a single request.
+- **File Caching**: Frequently accessed global settings are serialized to `my-data/cache/datastore_{user}_{type}.json`.
 
 ## Response Handling
 All JSON responses are routed through the `Response` class (`GaiaAlpha\Response`). This centralization allows for consistent formatting and plugin interception.

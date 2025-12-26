@@ -9,6 +9,7 @@
         "context"
     ],
     "type": "core",
+    "context": "admin",
     "author": "Gaia Alpha",
     "menu": {},
     "dependencies": {

@@ -108,7 +108,6 @@ Controllers often become bloated. Apply these patterns to keep them lean:
 2.  **Strategy**: If an endpoint behaves differently based on input (e.g., `payment_method: 'stripe'` vs `'paypal'`), defining a Strategy interface allows you to swap implementations without `if/else` spaghetti in the controller.
 3.  **Command**: For complex actions (like "Publish Page"), encapsulate the logic in a Command class. The controller simply instantiates and executes the command.
  
-}
 ```
 
 ## Security & Validation

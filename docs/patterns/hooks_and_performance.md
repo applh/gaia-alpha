@@ -46,20 +46,23 @@ public function save($data)
 1.  **No External HTTP Calls**: Never make an API call (e.g., to Slack, Stripe, or an AI service) inside a main thread hook. Use a background job or queue instead.
 2.  **Lightweight Logic**: Keep listeners fast. 
 3.  **Database Queries**: A single SQL query is usually fine. N+1 queries in a loop are not.
-4.  **File I/O**: Avoid heavy file operations.
+4.  **File I/O**: Avoid heavy file operations. Use cached manifests for discovery logic.
+5.  **Context Alignment**: Ensure hooks only run where they are needed.
 
-### Measuring Impact
-If you suspect a hook is slowing down the system, use `microtime` to measure it.
+### Contextual Hook Filtering
+Gaia Alpha supports request context filtering (`public`, `admin`, `api`). Use this to prevent unnecessary code execution.
 
 ```php
-$start = microtime(true);
-Hook::run('suspect_hook');
-$duration = microtime(true) - $start;
+// Only run this hook on public frontend pages
+Hook::add('router_dispatch_after', [$this, 'trackVisit'], 10, 'public');
 
-if ($duration > 0.05) { // Warning if > 50ms
-    error_log("Slow hook detected: " . $duration);
-}
+// Only run this hook in the admin panel
+Hook::add('auth_session_data', [$this, 'injectMenu'], 10, 'admin');
 ```
+
+This ensures that "heavy" admin listeners don't slow down public page delivery.
+
+### Measuring Impact
 
 ## 5. Case Study: Database Hooks
 We recently added hooks to `GaiaAlpha\Model\DB` to support the [Audit Trail plugin](../plugins/audit_trail.md).

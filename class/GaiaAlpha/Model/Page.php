@@ -7,12 +7,9 @@ use PDO;
 
 class Page
 {
+    private static array $cache = [];
 
-
-    public static function findAllByUserId(int $userId, string $cat = 'page')
-    {
-        return DB::fetchAll("SELECT * FROM cms_pages WHERE user_id = ? AND cat = ? ORDER BY created_at DESC", [$userId, $cat]);
-    }
+    // ... (findAllByUserId unchanged)
 
     public static function getLatestPublic(int $limit = 10)
     {
@@ -27,11 +24,18 @@ class Page
 
     public static function findBySlug(string $slug)
     {
-        return DB::fetch("
+        if (isset(self::$cache[$slug])) {
+            return self::$cache[$slug];
+        }
+
+        $page = DB::fetch("
             SELECT id, title, slug, content, image, created_at, user_id, template_slug, meta_description, meta_keywords, content_format, canonical_url, schema_type, schema_data
             FROM cms_pages 
             WHERE slug = ? AND cat = 'page'
         ", [$slug]);
+
+        self::$cache[$slug] = $page;
+        return $page;
     }
 
     public static function create(int $userId, array $data)

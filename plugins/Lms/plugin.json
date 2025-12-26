@@ -11,5 +11,16 @@
     "author": "Antigravity",
     "website": "https://gaia-alpha.com",
     "required_version": "0.0.1",
-    "dependencies": []
+    "dependencies": [],
+    "menu": {
+        "items": [
+            {
+                "label": "LMS",
+                "view": "lms_dashboard",
+                "icon": "book-open",
+                "group": "grp-education",
+                "adminOnly": true
+            }
+        ]
+    }
 }

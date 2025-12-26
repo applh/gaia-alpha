@@ -178,8 +178,12 @@ A menu item object can have the following properties:
 
 ## Best Practices
 
-1. **Check Permissions**: Always verify `$data['user']['level']` if your feature is restricted.
-2. **Use Existing Groups**: Try to integrate into `Projects`, `Content`, or `System` before creating new top-level groups to keep the UI clean.
-3. **Unique View Names**: namespace your view names (e.g., `pluginname-viewname`) to avoid conflicts.
-4. **Don't Overwrite**: Always append to `$data['user']['menu_items'][]`, never overwrite the entire array.
-5. **Return Data**: **Crucial!** You must return the `$data` array, or you will break the login chain.
+1. **Mandatory Registration**: Every `view` used in a menu must be registered via `UiManager::registerComponent` in your plugin's `index.php`.
+   ```php
+   \GaiaAlpha\UiManager::registerComponent('my-tool', 'plugins/MyPlugin/resources/js/MyTool.js', true);
+   ```
+2. **Check Permissions**: Always verify `$data['user']['level']` if your feature is restricted.
+3. **Use Existing Groups**: Try to integrate into `Projects`, `Content`, or `System` before creating new top-level groups to keep the UI clean.
+4. **Unique View Names**: namespace your view names (e.g., `pluginname-viewname`) to avoid conflicts.
+5. **Don't Overwrite**: Always append to `$data['user']['menu_items'][]`, never overwrite the entire array.
+6. **Return Data**: **Crucial!** You must return the `$data` array, or you will break the login chain.

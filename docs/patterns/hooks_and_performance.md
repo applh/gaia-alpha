@@ -58,7 +58,29 @@ public function save($data)
 }
 ```
 
-## 4. Performance Assessment
+## 4. Filter Hooks (Crucial)
+Filter hooks allow plugins to modify a value. Unlike `Hook::run`, `Hook::filter` expects the listener to return the modified (or original) value.
+
+> [!CAUTION]
+> If a filter listener fails to return the `$data`, it will break the entire chain, often resulting in "null" or missing data in subsequent hooks or controllers (e.g., losing all sidebar menus).
+
+**Bad Example:**
+```php
+Hook::add('auth_session_data', function ($data) {
+    $data['user']['menu_items'][] = [...];
+    // Forgot to return $data!
+});
+```
+
+**Good Example:**
+```php
+Hook::add('auth_session_data', function ($data) {
+    if (isset($data['user'])) {
+        $data['user']['menu_items'][] = [...];
+    }
+    return $data; // Must return the value
+});
+```
 **CRITICAL**: Hooks in Gaia Alpha execute **synchronously**. If a hook takes 1 second to run, the user waits 1 extra second.
 
 ### Performance Rules

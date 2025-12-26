@@ -105,8 +105,12 @@ store.addNotification("Loading...", "info", 5000);
 
 ## Global Integration
     1.  **Plugins**: Register the component in `index.php` using `\GaiaAlpha\UiManager::registerComponent('view_key', 'plugins/Name/File.js', true)`.
+        > [!IMPORTANT]
+        > This registration is **mandatory** for any view that will be navigated to via the sidebar or frontend router.
     2.  **Core**: Register via static map in `resources/js/site.js` (legacy/core only).
-    3.  **Menu**: Inject the menu item via `auth_session_data` hook, ensuring the `view` key matches the registered ID.
+    3.  **Menu**: Inject the menu item via `auth_session_data` hook.
+        > [!WARNING]
+        > The `view` key in the menu item MUST exactly match the `view_key` used in `registerComponent`.
 
 ## Documentation Requirement
 

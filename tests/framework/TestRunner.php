@@ -20,8 +20,13 @@ class TestRunner
         }
 
         $files = [];
-        foreach ($directories as $dir) {
-            $files = array_merge($files, $this->scanDirectory($dir));
+        $files = [];
+        foreach ($directories as $target) {
+            if (is_file($target)) {
+                $files[] = realpath($target);
+            } elseif (is_dir($target)) {
+                $files = array_merge($files, $this->scanDirectory($target));
+            }
         }
 
         echo "Gaia Alpha Test Runner\n";

@@ -39,62 +39,63 @@ class Cli
         }
 
         // Initialize Input with arguments following the command
-        \GaiaAlpha\Cli\Input::initFromArgv(array_slice($args, $commandIndex + 1));
+        $inputArgs = array_slice($args, $commandIndex + 1);
 
         try {
-            if ($command === 'help') {
-                self::showHelp();
-                return;
-            }
-
-            if ($command === 'sql') {
-                $className = TableCommands::class;
-                $action = 'handleQuery'; // handleSql was not found in TableCommands earlier
-            } else {
-                $parts = explode(':', $command);
-                if (count($parts) !== 2) {
-                    \GaiaAlpha\Cli\Output::error("Unknown command format: $command");
-                    self::showHelp();
-                    exit(1);
-                }
-
-                $group = ucfirst($parts[0]);
-                $action = 'handle' . str_replace('-', '', ucwords($parts[1], '-'));
-
-                $className = "GaiaAlpha\\Cli\\{$group}Commands";
-            }
-
-            // Hook for plugins to resolve commands
-            if (!class_exists($className)) {
-                $resolved = \GaiaAlpha\Hook::filter('cli_resolve_command', null, $parts[0], $parts);
-                if ($resolved && class_exists($resolved)) {
-                    $className = $resolved;
-                }
-            }
-
-            if (!class_exists($className)) {
-                \GaiaAlpha\Cli\Output::error("Unknown command group: {$parts[0]}");
-                self::showHelp();
-                exit(1);
-            }
-
-            if (!method_exists($className, $action)) {
-                \GaiaAlpha\Cli\Output::error("Unknown action: {$parts[1]} for group {$parts[0]}");
-                self::showHelp();
-                exit(1);
-            }
-
-            Hook::run('cli_command_before', $command, $className, $action);
-
-            call_user_func([$className, $action]);
-
-            Hook::run('cli_command_after', $command);
-
+            self::execute($command, $inputArgs);
         } catch (Exception $e) {
             Hook::run('cli_exception', $e);
             \GaiaAlpha\Cli\Output::error($e->getMessage());
             exit(1);
         }
+    }
+
+    public static function execute(string $command, array $args = []): void
+    {
+        \GaiaAlpha\Cli\Input::initFromArgv($args);
+
+        if ($command === 'help') {
+            self::showHelp();
+            return;
+        }
+
+        if ($command === 'sql') {
+            $className = TableCommands::class;
+            $action = 'handleQuery';
+        } else {
+            $parts = explode(':', $command);
+            if (count($parts) !== 2) {
+                // Throwing exception instead of exit to allow catching in basic usage
+                throw new Exception("Unknown command format: $command");
+            }
+
+            $group = ucfirst($parts[0]);
+            $action = 'handle' . str_replace('-', '', ucwords($parts[1], '-'));
+
+            $className = "GaiaAlpha\\Cli\\{$group}Commands";
+        }
+
+        // Hook for plugins to resolve commands
+        if (!class_exists($className)) {
+            $resolved = \GaiaAlpha\Hook::filter('cli_resolve_command', null, $command, $parts ?? null);
+            if ($resolved && class_exists($resolved)) {
+                $className = $resolved;
+            }
+        }
+
+        if (!class_exists($className)) {
+            throw new Exception("Unknown command group: " . ($parts[0] ?? $command));
+        }
+
+        if (!method_exists($className, $action)) {
+            throw new Exception("Unknown action: " . ($parts[1] ?? $action) . " for  " . ($parts[0] ?? $command));
+        }
+
+        Hook::run('cli_command_before', $command, $className, $action);
+
+        call_user_func([$className, $action]);
+
+        Hook::run('cli_command_after', $command);
     }
 
     private static function showHelp(): void

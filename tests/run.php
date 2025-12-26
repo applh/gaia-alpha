@@ -16,8 +16,20 @@ require_once __DIR__ . '/../class/GaiaAlpha/Hook.php';
 use GaiaAlpha\Tests\Framework\TestRunner;
 
 $runner = new TestRunner();
-// Scan 'tests' directory and 'plugins' directory
-$runner->run([
-    __DIR__,
-    realpath(__DIR__ . '/../plugins')
-]);
+// Parse Arguments
+$paths = [];
+if (isset($argv) && count($argv) > 1) {
+    for ($i = 1; $i < count($argv); $i++) {
+        $paths[] = $argv[$i];
+    }
+}
+
+if (empty($paths)) {
+    // Default: Scan 'tests' directory and 'plugins' directory
+    $paths = [
+        __DIR__,
+        realpath(__DIR__ . '/../plugins')
+    ];
+}
+
+$runner->run($paths);

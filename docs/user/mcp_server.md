@@ -100,6 +100,10 @@ The server currently exposes the following tools for content and system manageme
   - `install_plugin`: Installs a new plugin.
   - `generate_template_schema`: Suggest template metadata based on natural language description.
   - `db_migration_assistant`: Suggest SQL migration scripts based on schema change description.
+  - `list_routes`: Lists all registered routes in the system (static and dynamic).
+  - `debug_route`: Test a URL path against the router to see match details.
+  - `run_console_command`: Execute internal console commands (e.g. `cache:clear`).
+  - `run_tests`: Run the project test suite or specific tests.
 
 ## Available Resources
 

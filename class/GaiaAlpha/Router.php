@@ -65,44 +65,36 @@ class Router
         return array_unique(array_merge($admin, $app));
     }
 
-    public static function dispatch(string $method, string $uri)
+    public static function getRoutes(): array
     {
-        // Hook before dispatch
-        Hook::run('router_dispatch_before', $method, $uri);
+        return [
+            'static' => self::$staticRoutes,
+            'dynamic' => self::$dynamicRoutes
+        ];
+    }
 
+    public static function matchRoute(string $method, string $uri): ?array
+    {
         // 1. Check Static Routes
         if (isset(self::$staticRoutes[$method][$uri])) {
-            $handler = self::$staticRoutes[$method][$uri];
-            $route = ['method' => $method, 'path' => $uri, 'handler' => $handler];
-
-            Hook::run('router_matched', $route, []);
-
-            if (is_array($handler) && is_string($handler[0])) {
-                // Instantiate on demand if it's a class string
-                $className = $handler[0];
-                $handler[0] = new $className();
-            }
-
-            call_user_func($handler);
-            Hook::run('router_dispatch_after', $route, []);
-            return true;
+            return [
+                'type' => 'static',
+                'method' => $method,
+                'path' => $uri,
+                'handler' => self::$staticRoutes[$method][$uri],
+                'params' => []
+            ];
         }
 
         // 1.5 Handle HEAD requests for GET routes in static map
         if ($method === 'HEAD' && isset(self::$staticRoutes['GET'][$uri])) {
-            $handler = self::$staticRoutes['GET'][$uri];
-            $route = ['method' => 'GET', 'path' => $uri, 'handler' => $handler];
-
-            Hook::run('router_matched', $route, []);
-
-            if (is_array($handler) && is_string($handler[0])) {
-                $className = $handler[0];
-                $handler[0] = new $className();
-            }
-
-            call_user_func($handler);
-            Hook::run('router_dispatch_after', $route, []);
-            return true;
+            return [
+                'type' => 'static',
+                'method' => 'GET',
+                'path' => $uri,
+                'handler' => self::$staticRoutes['GET'][$uri],
+                'params' => []
+            ];
         }
 
         // 2. Check Dynamic Routes
@@ -116,28 +108,53 @@ class Router
                 foreach (self::$dynamicRoutes[$checkMethod] as $route) {
                     if (preg_match($route['regex'], $uri, $matches)) {
                         array_shift($matches); // Remove full match
-
-                        // Construct route array for hooks (mimicking old structure)
-                        $routeData = [
+                        return [
+                            'type' => 'dynamic',
                             'method' => $checkMethod,
                             'path' => $route['path'],
-                            'handler' => $route['handler']
+                            'regex' => $route['regex'],
+                            'handler' => $route['handler'],
+                            'params' => $matches
                         ];
-
-                        Hook::run('router_matched', $routeData, $matches);
-
-                        $handler = $route['handler'];
-                        if (is_array($handler) && is_string($handler[0])) {
-                            $className = $handler[0];
-                            $handler[0] = new $className();
-                        }
-
-                        call_user_func_array($handler, $matches);
-                        Hook::run('router_dispatch_after', $routeData, $matches);
-                        return true;
                     }
                 }
             }
+        }
+
+        return null;
+    }
+
+    public static function dispatch(string $method, string $uri)
+    {
+        // Hook before dispatch
+        Hook::run('router_dispatch_before', $method, $uri);
+
+        $match = self::matchRoute($method, $uri);
+
+        if ($match) {
+            $routeData = [
+                'method' => $match['method'],
+                'path' => $match['path'],
+                'handler' => $match['handler']
+            ];
+
+            Hook::run('router_matched', $routeData, $match['params']);
+
+            $handler = $match['handler'];
+            if (is_array($handler) && is_string($handler[0])) {
+                // Instantiate on demand if it's a class string
+                $className = $handler[0];
+                $handler[0] = new $className();
+            }
+
+            if ($match['type'] === 'dynamic') {
+                call_user_func_array($handler, $match['params']);
+            } else {
+                call_user_func($handler);
+            }
+
+            Hook::run('router_dispatch_after', $routeData, $match['params']);
+            return true;
         }
 
         return false;

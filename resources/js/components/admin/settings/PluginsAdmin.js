@@ -63,7 +63,8 @@ export default {
                             <td>
                                 <div class="plugin-name">
                                     {{ plugin.name }}
-                                    <span v-if="plugin.is_core" class="badge badge-info">Core</span>
+                                    <span v-if="plugin.is_system" class="badge badge-error">System</span>
+                                    <span v-else-if="plugin.is_core" class="badge badge-info">Core</span>
                                     <span v-for="tag in plugin.tags" :key="tag" class="badge badge-tag">{{ tag }}</span>
                                 </div>
                                 <div v-if="plugin.requires && Object.keys(plugin.requires).length > 0" class="plugin-deps">
@@ -81,6 +82,7 @@ export default {
                                     <input 
                                         type="checkbox" 
                                         :checked="plugin.active" 
+                                        :disabled="plugin.is_system"
                                         @change="togglePlugin(plugin)"
                                     >
                                     <span class="slider round"></span>
@@ -330,6 +332,11 @@ export default {
                         font-size: 0.8em;
                         opacity: 0.6;
                         margin-left: 3px;
+                    }
+                    .badge-error {
+                        background: rgba(239, 68, 68, 0.1);
+                        color: #ef4444;
+                        border: 1px solid rgba(239, 68, 68, 0.2);
                     }
                 `;
                 document.head.appendChild(style);

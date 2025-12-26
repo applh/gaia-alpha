@@ -9,7 +9,13 @@ class Router
 {
     private static array $staticRoutes = [];
     private static array $dynamicRoutes = [];
+    private static array $globalMiddleware = [];
     private static bool $isBooted = false;
+
+    public static function pushMiddleware($middleware)
+    {
+        self::$globalMiddleware[] = $middleware;
+    }
 
     public static function add(string $method, string $path, callable $handler)
     {
@@ -142,17 +148,20 @@ class Router
         $uri = Request::path();
         $method = Request::server('REQUEST_METHOD', 'GET');
 
-        $handled = self::dispatch($method, $uri);
+        $pipeline = new Pipeline();
+        $pipeline->send(self::$globalMiddleware)->then(function () use ($method, $uri) {
+            $handled = self::dispatch($method, $uri);
 
-        if (!$handled) {
-            $context = Request::context();
-            Hook::run('router_404', $uri);
+            if (!$handled) {
+                $context = Request::context();
+                Hook::run('router_404', $uri);
 
-            if ($context === 'api' || $context === 'admin') {
-                Response::json(['error' => 'Endpoint Not Found'], 404);
-            } else {
-                echo "File not found";
+                if ($context === 'api' || $context === 'admin') {
+                    Response::json(['error' => 'Endpoint Not Found'], 404);
+                } else {
+                    echo "File not found";
+                }
             }
-        }
+        });
     }
 }

@@ -1,30 +1,8 @@
 {
     "name": "JwtAuth",
-    "description": "JSON Web Token (JWT) management for authentication and stateless APIs.",
-    "category": "Security",
-    "tags": [
-        "auth",
-        "jwt",
-        "token"
-    ],
+    "description": "Stateless JWT Authentication for Gaia Alpha",
     "version": "1.0.0",
     "author": "Antigravity",
-    "type": "core",
-    "enabled": true,
-    "menu": {
-        "items": [
-            {
-                "label": "JWT Settings",
-                "view": "jwt-settings",
-                "icon": "key",
-                "group": "grp-system",
-                "adminOnly": true
-            }
-        ]
-    },
-    "dependencies": {
-        "php": {
-            "firebase/php-jwt": "^6.0"
-        }
-    }
+    "context": "all",
+    "system": true
 }

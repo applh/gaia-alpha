@@ -4,6 +4,7 @@ namespace GaiaAlpha\Tests\Framework;
 
 require_once __DIR__ . '/Assert.php';
 require_once __DIR__ . '/TestCase.php';
+require_once __DIR__ . '/ApiTestCase.php';
 
 class TestRunner
 {

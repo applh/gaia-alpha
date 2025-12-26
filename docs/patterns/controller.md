@@ -153,5 +153,6 @@ Always use the fully qualified `\GaiaAlpha\Router::add()` to avoid namespace con
 
 ## See Also
 
-- [AssetController Pattern](../frontend/asset_controller.md): For details on serving static assets.
+- [AssetController Pattern](../frontend/asset_controller.md): For details on serving serving static assets.
+- [API Authentication Pattern](api_authentication.md): For details on handling JWT vs Session auth.
 ```

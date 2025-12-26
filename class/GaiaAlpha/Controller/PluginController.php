@@ -45,12 +45,14 @@ class PluginController extends BaseController
                             $requires = $config['requires'] ?? [];
                             $category = $config['category'] ?? 'Uncategorized';
                             $tags = $config['tags'] ?? [];
+                            $isSystem = $config['system'] ?? false;
                         }
 
                         $plugins[] = [
                             'name' => $name,
                             'active' => isset($allActive) ? true : in_array($name, $activePlugins),
                             'is_core' => strpos($dir, $rootDir . '/plugins') === 0,
+                            'is_system' => $isSystem ?? false,
                             'requires' => $requires,
                             'category' => $category,
                             'tags' => $tags

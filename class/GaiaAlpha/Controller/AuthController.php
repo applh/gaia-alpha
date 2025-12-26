@@ -27,14 +27,25 @@ class AuthController extends BaseController
         if ($user && password_verify($data['password'] ?? '', $user['password_hash'])) {
             \GaiaAlpha\Session::login($user);
 
-            Response::json([
+            $response = [
                 'success' => true,
                 'user' => [
                     'username' => $user['username'],
                     'level' => (int) $user['level']
                 ],
                 'admin_prefix' => \GaiaAlpha\Router::adminPrefix()
-            ]);
+            ];
+
+            // Generate JWT if plugin is available
+            if (class_exists('JwtAuth\\Service')) {
+                $response['token'] = \JwtAuth\Service::generateToken([
+                    'user_id' => $user['id'],
+                    'username' => $user['username'],
+                    'level' => (int) $user['level']
+                ]);
+            }
+
+            Response::json($response);
         } else {
             Response::json(['error' => 'Invalid credentials'], 401);
         }

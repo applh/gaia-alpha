@@ -64,6 +64,32 @@ public function testPluginContextFiltering()
 }
 ```
 
+## Mocking Authenticated Requests (JWT)
+
+Testing authenticated endpoints is significantly easier with JWTs than with Sessions. You do not need to manage a cookie jar. Simply generate a token and inject it into the `HTTP_AUTHORIZATION` server variable.
+
+```php
+public function testAuthenticatedApiEndpoint()
+{
+    // 1. Generate a valid token (requires JwtAuth plugin)
+    $token = \JwtAuth\Service::generateToken([
+        'user_id' => 1,
+        'username' => 'test_admin',
+        'level' => 100
+    ]);
+
+    // 2. Inject into the Request
+    $_SERVER['HTTP_AUTHORIZATION'] = 'Bearer ' . $token;
+    $_SERVER['REQUEST_URI'] = '/@/api/protected-resource';
+    
+    // 3. Dispatch
+    $response = $this->dispatch();
+    
+    // 4. Verify
+    Assert::assertEquals(200, $response->statusCode);
+}
+```
+
 ## Best Practices
 - **Reset State**: Always reset server variables or environment settings in `tearDown()` if they might affect other tests.
 - **Isolate Logic**: Focus on testing the detection logic separately from the functional behavior it triggers.

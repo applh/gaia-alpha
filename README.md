@@ -51,12 +51,9 @@ Our comprehensive **UI Design System** is built to be "Agent-Friendly," allowing
 
 2. **Run Server** (No build required!)
    ```bash
-   php -S localhost:8000 -t www
-   ```
-
-   *To increase upload size limit (e.g. 500MB):*
-   ```bash
-   php -d upload_max_filesize=500M -d post_max_size=500M -S localhost:8000 -t www
+   ./scripts/start_server.sh
+   # Or specify a custom port:
+   ./scripts/start_server.sh 8080
    ```
 
 3. **Installation**
@@ -91,6 +88,34 @@ Our comprehensive **UI Design System** is built to be "Agent-Friendly," allowing
 - **[Front-end Guide](docs/frontend/component_guide.md)**: Mastering the Design System.
 
 ---
+ 
+ ## 🤝 Call for Contributors
+ 
+ We are actively seeking contributors to help shape the future of AI-native web development. Whether you're an AI researcher, a Vue wizard, or a backend architect, there's a place for you in Gaia Alpha.
+ 
+ ### How to Contribute
+ 1. Check out our **[Roadmap](../../docs/strategy/roadmap.md)** to see where we're heading.
+ 2. Browse existing **Issues** or propose new features.
+ 3. Fork the repository and create a Pull Request.
+ 
+ We especially welcome contributions in:
+ - **MCP Tooling**: Expanding the capabilities of our AI agents.
+ - **Plugin Ecosystem**: Building new modules for the community.
+ - **UI/UX Refinements**: Polishing the Design System.
+ 
+ Join us in building the first autonomous-ready PHP framework!
+ 
+ ---
+ 
+ ## ❤️ Support the Project
+ 
+ Gaia Alpha is an ambitious open-source initiative. Your sponsorship helps maintain the core framework, develop new AI agents, and ensure the ecosystem remains free and accessible.
+ 
+ [**Become a Sponsor**](https://github.com/sponsors/applh)
+ 
+ Special thanks to our early adopters and community members!
+ 
+ ---
 
 ## 📜 License
 

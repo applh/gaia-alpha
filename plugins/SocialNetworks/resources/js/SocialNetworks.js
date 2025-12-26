@@ -12,6 +12,7 @@ import DataTable from 'ui/DataTable.js';
 import Spinner from 'ui/Spinner.js';
 import { UITitle, UIText } from 'ui/Typography.js';
 import { store } from 'store';
+import { h } from 'vue';
 
 export default {
     components: {

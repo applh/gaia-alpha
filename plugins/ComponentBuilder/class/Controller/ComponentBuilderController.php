@@ -21,20 +21,18 @@ class ComponentBuilderController extends BaseController
 
     public function registerRoutes()
     {
-        Router::add('GET', '/@/admin/component-builder/list', [$this, 'handleList']);
-        Router::add('GET', '/@/admin/component-builder/templates', [$this, 'handleTemplates']);
-        Router::add('POST', '/@/admin/component-builder', [$this, 'handleCreate']);
+        $prefix = Router::adminPrefix();
 
-        // Dynamic routes with ID need to be handled carefully with Router. 
-        // Assuming Router supports regex or parameter capture.
-        // Checking Router.php is needed to confirm syntax. 
-        // Assuming standard /path/:id format for now based on plan.
+        Router::add('GET', $prefix . '/component-builder/list', [$this, 'handleList']);
+        Router::add('GET', $prefix . '/component-builder/templates', [$this, 'handleTemplates']);
+        Router::add('POST', $prefix . '/component-builder', [$this, 'handleCreate']);
 
-        Router::add('GET', '/@/admin/component-builder/([0-9]+)', [$this, 'handleGet']);
-        Router::add('PUT', '/@/admin/component-builder/([0-9]+)', [$this, 'handleUpdate']);
-        Router::add('DELETE', '/@/admin/component-builder/([0-9]+)', [$this, 'handleDelete']);
-        Router::add('POST', '/@/admin/component-builder/([0-9]+)/generate', [$this, 'handleGenerate']);
-        Router::add('POST', '/@/admin/component-builder/([0-9]+)/preview', [$this, 'handlePreview']); // Keep logic API
+        // Dynamic routes
+        Router::add('GET', $prefix . '/component-builder/([0-9]+)', [$this, 'handleGet']);
+        Router::add('PUT', $prefix . '/component-builder/([0-9]+)', [$this, 'handleUpdate']);
+        Router::add('DELETE', $prefix . '/component-builder/([0-9]+)', [$this, 'handleDelete']);
+        Router::add('POST', $prefix . '/component-builder/([0-9]+)/generate', [$this, 'handleGenerate']);
+        Router::add('POST', $prefix . '/component-builder/([0-9]+)/preview', [$this, 'handlePreview']); // Keep logic API
         Router::add('GET', '/component-preview/([a-zA-Z0-9_-]+)', [$this, 'handlePreviewRender']); // Standalone Viewer
     }
 

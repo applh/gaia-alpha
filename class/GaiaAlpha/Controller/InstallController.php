@@ -108,6 +108,13 @@ class InstallController extends BaseController
                 }
             }
 
+            // Save Active Plugins
+            $plugins = [];
+            if (isset($data['plugins']) && is_array($data['plugins'])) {
+                $plugins = $data['plugins'];
+            }
+            file_put_contents($dataPath . '/active_plugins.json', json_encode($plugins));
+
             // Test Connection and Initialize Schema
             // We pass parameters to the Database constructor to test connectivity
             // Error will be caught by the catch block below
@@ -131,44 +138,35 @@ class InstallController extends BaseController
             // Re-inject DB instance into Model Layer
             \GaiaAlpha\Model\DB::setConnection($db);
 
-            // Save Active Plugins
-            $plugins = [];
-            if (isset($data['plugins']) && is_array($data['plugins'])) {
-                $plugins = $data['plugins'];
-            }
-            file_put_contents($dataPath . '/active_plugins.json', json_encode($plugins));
 
             // Create Admin User (Level 100)
             $id = User::create($data['username'], $data['password'], 100);
 
-            // Create App Page if requested
-            if (!empty($data['create_app'])) {
-                $slug = $data['app_slug'] ?? 'app';
-                // Basic validation for slug
-                $slug = preg_replace('/[^a-z0-9-_]/', '', strtolower($slug));
-                if (empty($slug))
-                    $slug = 'app';
+            // Save Site Settings
+            $siteTitle = $data['site_title'] ?? 'Gaia Alpha';
+            $siteDesc = $data['site_description'] ?? 'The unified open-source operating system.';
+            $appSlug = $data['app_slug'] ?? 'app';
+            $appSlug = preg_replace('/[^a-z0-9-_]/', '', strtolower($appSlug));
+            if (empty($appSlug))
+                $appSlug = 'app';
 
-                \GaiaAlpha\Model\Page::create($id, [
-                    'title' => 'App Dashboard',
-                    'slug' => $slug,
-                    'content' => '',
-                    'cat' => 'page',
-                    'template_slug' => 'app'
-                ]);
-            }
+            $adminSlug = $data['admin_slug'] ?? 'admin';
+            $adminSlug = preg_replace('/[^a-z0-9-_]/', '', strtolower($adminSlug));
+            if (empty($adminSlug))
+                $adminSlug = 'admin';
+
+            \GaiaAlpha\Model\DataStore::set(0, 'global_config', 'site_title', $siteTitle);
+            \GaiaAlpha\Model\DataStore::set(0, 'global_config', 'site_description', $siteDesc);
+            \GaiaAlpha\Model\DataStore::set(0, 'global_config', 'admin_slug', $adminSlug);
+            \GaiaAlpha\Model\DataStore::set(0, 'global_config', 'app_slug', $appSlug);
+
+            // Create App Page if requested - REMOVED per user request
+            // if (!empty($data['create_app'])) { ... }
 
             // Seed Demo Data if requested
             if (!empty($data['demo_data'])) {
                 \GaiaAlpha\Seeder::run($id);
             }
-
-            // Save Site Settings
-            $siteTitle = $data['site_title'] ?? 'Gaia Alpha';
-            $siteDesc = $data['site_description'] ?? 'The unified open-source operating system.';
-
-            \GaiaAlpha\Model\DataStore::set(0, 'global_config', 'site_title', $siteTitle);
-            \GaiaAlpha\Model\DataStore::set(0, 'global_config', 'site_description', $siteDesc);
 
             // Auto login? For now let client handle redirect.
 
@@ -230,6 +228,8 @@ class InstallController extends BaseController
         }
 
         try {
+            // Check if users table exists and has records
+            // If the database connection itself fails, we'll catch it and return false
             if (User::count() > 0) {
                 // Self-heal: create lock file
                 if (is_dir($dataPath)) {
@@ -238,6 +238,8 @@ class InstallController extends BaseController
                 return true;
             }
         } catch (\Exception $e) {
+            return false;
+        } catch (\Throwable $t) {
             return false;
         }
         return false;

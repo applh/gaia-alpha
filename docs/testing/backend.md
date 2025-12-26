@@ -1,6 +1,6 @@
 # Backend Testing Guide
 
-Our PHP testing framework mimics standard xUnit patterns (like PHPUnit) but is built from scratch.
+Our PHP testing framework mimics standard xUnit patterns (like PHPUnit) but is built from scratch to remain lightweight and dependency-free.
 
 ## File Structure
 - Tests must be located in the `tests/` directory.
@@ -38,6 +38,11 @@ The `GaiaAlpha\Tests\Framework\Assert` class provides:
 - `assertCount($expectedCount, $array, $msg)`
 - `assertArrayHasKey($key, $array, $msg)`
 - `assertStringContains($needle, $haystack, $msg)`
+
+## Test Controller
+GaiaAlpha provides a `TestController` to help run tests via the browser or CLI.
+- **Browser**: Navigate to `/tests` (if enabled in `config.php`) to see a dashboard of test results.
+- **CLI**: Run `php cli.php test:run` for automated suites.
 
 ## Running Tests
 Execute the runner from the project root:

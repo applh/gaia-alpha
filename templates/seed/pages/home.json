@@ -3,7 +3,7 @@
     "slug": "home",
     "meta_description": "Welcome to Gaia Alpha - The unified open-source operating system for your digital life. Fast, secure, and modern platform for enterprise.",
     "meta_keywords": "gaia alpha, enterprise, software, open source, framework",
-    "content": "<div class='hero'><h1>Welcome to Gaia Alpha</h1><p class='lead'>The unified open-source operating system for your digital life.</p><a href='/app' class='btn btn-primary'>Launch App</a></div><div class='features'><h2>Why Choose Us?</h2><p>Speed, Simplicity, and Security.</p></div>",
+    "content": "<div class='hero'><h1>Welcome to Gaia Alpha</h1><p class='lead'>The unified open-source operating system for your digital life.</p><a href='/@/app' class='btn btn-primary'>Launch App</a></div><div class='features'><h2>Why Choose Us?</h2><p>Speed, Simplicity, and Security.</p></div>",
     "cat": "page",
     "template_slug": "home_template"
 }

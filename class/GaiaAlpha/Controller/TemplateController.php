@@ -12,9 +12,10 @@ class TemplateController extends BaseController
 {
     public function index()
     {
-        $this->requireAdmin();
+        if (!$this->requireAdmin())
+            return;
         // Get DB Templates
-        $dbTemplates = Template::findAllByUserId($_SESSION['user_id']);
+        $dbTemplates = Template::findAllByUserId(\GaiaAlpha\Session::id());
 
         // Get File Templates
         $fileTemplates = [];
@@ -42,7 +43,8 @@ class TemplateController extends BaseController
 
     public function show($id)
     {
-        $this->requireAdmin();
+        if (!$this->requireAdmin())
+            return;
         // If ID starts with file_, it's a file
         if (strpos($id, 'file_') === 0) {
             $slug = substr($id, 5);
@@ -73,7 +75,8 @@ class TemplateController extends BaseController
 
     public function create()
     {
-        $this->requireAdmin();
+        if (!$this->requireAdmin())
+            return;
         $data = Request::input();
 
         if (empty($data['title']) || empty($data['slug'])) {
@@ -82,7 +85,7 @@ class TemplateController extends BaseController
         }
 
         try {
-            $id = Template::create($_SESSION['user_id'], $data);
+            $id = Template::create(\GaiaAlpha\Session::id(), $data);
             Response::json(['success' => true, 'id' => $id]);
         } catch (\PDOException $e) {
             Response::json(['error' => 'Slug already exists'], 400);
@@ -91,16 +94,18 @@ class TemplateController extends BaseController
 
     public function update($id)
     {
-        $this->requireAdmin();
+        if (!$this->requireAdmin())
+            return;
         $data = Request::input();
-        Template::update($id, $_SESSION['user_id'], $data);
+        Template::update($id, \GaiaAlpha\Session::id(), $data);
         Response::json(['success' => true]);
     }
 
     public function delete($id)
     {
-        $this->requireAdmin();
-        Template::delete($id, $_SESSION['user_id']);
+        if (!$this->requireAdmin())
+            return;
+        Template::delete($id, \GaiaAlpha\Session::id());
         Response::json(['success' => true]);
     }
 

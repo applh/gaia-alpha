@@ -32,7 +32,8 @@ class AuthController extends BaseController
                 'user' => [
                     'username' => $user['username'],
                     'level' => (int) $user['level']
-                ]
+                ],
+                'admin_prefix' => \GaiaAlpha\Router::adminPrefix()
             ]);
         } else {
             Response::json(['error' => 'Invalid credentials'], 401);
@@ -68,7 +69,8 @@ class AuthController extends BaseController
                 'user' => [
                     'username' => \GaiaAlpha\Session::get('username'),
                     'level' => \GaiaAlpha\Session::level()
-                ]
+                ],
+                'admin_prefix' => \GaiaAlpha\Router::adminPrefix()
             ];
 
             // Allow plugins to inject data (e.g. menu items)

@@ -24,8 +24,8 @@
                 "target": "_self"
             },
             {
-                "text": "App Dashboard",
-                "href": "/app",
+                "text": "Launch App",
+                "href": "/@/app",
                 "target": "_self"
             }
         ]

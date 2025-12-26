@@ -46,6 +46,12 @@ class Router
         self::add('DELETE', $path, $handler);
     }
 
+    public static function adminPrefix(): string
+    {
+        $prefixes = Env::get('admin_prefixes', ['/@/admin']);
+        return is_array($prefixes) ? $prefixes[0] : $prefixes;
+    }
+
     public static function dispatch(string $method, string $uri)
     {
         // Hook before dispatch

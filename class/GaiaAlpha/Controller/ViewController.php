@@ -324,7 +324,7 @@ HTML;
 
     public function registerRoutes()
     {
-        Router::get('/app', [$this, 'app']);
+        Router::get('/@/app', [$this, 'app']);
         Router::get('/f/([\w-]+)', [$this, 'form']);
 
         // Catch-all (Home)

@@ -1,4 +1,6 @@
 
+import { ref, computed } from 'vue';
+
 const MlPca = {
     template: `
         <div class="p-6">
@@ -100,7 +102,6 @@ const MlPca = {
         </div>
     `,
     setup() {
-        const { ref, computed } = Vue;
 
         const inputRaw = ref("5.1,3.5,1.4,0.2\n4.9,3.0,1.4,0.2\n4.7,3.2,1.3,0.2\n4.6,3.1,1.5,0.2\n5.0,3.6,1.4,0.2");
         const hasHeader = ref(false);

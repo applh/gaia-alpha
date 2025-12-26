@@ -186,7 +186,7 @@ class Request
         // 1. Admin Context
         $adminPrefixes = \GaiaAlpha\Env::get('admin_prefixes', ['/@/admin']);
         foreach ((array) $adminPrefixes as $prefix) {
-            if (strpos($path, $prefix) === 0) {
+            if (str_starts_with($path, $prefix)) {
                 return 'admin';
             }
         }

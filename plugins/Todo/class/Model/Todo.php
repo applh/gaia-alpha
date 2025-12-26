@@ -119,6 +119,11 @@ class Todo
     {
         return DB::fetchColumn("SELECT count(*) FROM todos");
     }
+
+    public static function countByUserId(int $userId)
+    {
+        return DB::fetchColumn("SELECT count(*) FROM todos WHERE user_id = ?", [$userId]);
+    }
 }
 
 

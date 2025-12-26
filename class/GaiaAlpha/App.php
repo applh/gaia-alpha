@@ -84,6 +84,14 @@ class App
         // Resolve Site / DB Path
         \GaiaAlpha\SiteManager::resolve();
 
+        // Load Global Configuration for Admin Slug
+        if (class_exists('\\GaiaAlpha\\Model\\DataStore')) {
+            $adminSlug = \GaiaAlpha\Model\DataStore::get(0, 'global_config', 'admin_slug');
+            if ($adminSlug) {
+                Env::set('admin_prefixes', ['/@/' . $adminSlug]);
+            }
+        }
+
         Env::set('controllers', []);
         Env::set('framework_tasks', [
             "step00" => "GaiaAlpha\\Debug::init",

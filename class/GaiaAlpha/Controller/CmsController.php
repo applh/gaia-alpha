@@ -115,55 +115,7 @@ class CmsController extends BaseController
         \GaiaAlpha\Router::add('PATCH', '/@/cms/pages/(\d+)', [$this, 'update']);
         \GaiaAlpha\Router::add('DELETE', '/@/cms/pages/(\d+)', [$this, 'delete']);
         \GaiaAlpha\Router::add('POST', '/@/cms/upload', [$this, 'upload']);
-
-        // Template Routes
-        \GaiaAlpha\Router::add('GET', '/@/cms/templates', [$this, 'getTemplates']);
-        \GaiaAlpha\Router::add('POST', '/@/cms/templates', [$this, 'createTemplate']);
-        \GaiaAlpha\Router::add('PATCH', '/@/cms/templates/(\d+)', [$this, 'updateTemplate']);
-        \GaiaAlpha\Router::add('DELETE', '/@/cms/templates/(\d+)', [$this, 'deleteTemplate']);
     }
 
-    public function getTemplates()
-    {
-        if (!$this->requireAuth())
-            return;
-        Response::json(Template::findAllByUserId(\GaiaAlpha\Session::id()));
-    }
-
-    public function createTemplate()
-    {
-        if (!$this->requireAuth())
-            return;
-        $data = Request::input();
-
-        if (empty($data['title']) || empty($data['slug'])) {
-            Response::json(['error' => 'Missing title or slug'], 400);
-            return;
-        }
-
-        try {
-            $id = Template::create(\GaiaAlpha\Session::id(), $data);
-            Response::json(['success' => true, 'id' => $id]);
-        } catch (\PDOException $e) {
-            Response::json(['error' => 'Slug already exists'], 400);
-        }
-    }
-
-    public function updateTemplate($id)
-    {
-        if (!$this->requireAuth())
-            return;
-        $data = Request::input();
-        Template::update($id, \GaiaAlpha\Session::id(), $data);
-        Response::json(['success' => true]);
-    }
-
-    public function deleteTemplate($id)
-    {
-        if (!$this->requireAuth())
-            return;
-        Template::delete($id, \GaiaAlpha\Session::id());
-        Response::json(['success' => true]);
-    }
 
 }

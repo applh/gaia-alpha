@@ -57,11 +57,37 @@ class UserController extends BaseController
         Response::json(['success' => true]);
     }
 
+    public function settings()
+    {
+        if (!isset($_SESSION['user_id'])) {
+            Response::json(['error' => 'Unauthorized'], 401);
+            return;
+        }
+
+        $data = Request::input();
+        $key = $data['key'] ?? null;
+        $value = $data['value'] ?? null;
+
+        if (!$key) {
+            Response::json(['error' => 'Missing key'], 400);
+            return;
+        }
+
+        // Use DataStore for user preferences
+        \GaiaAlpha\Model\DataStore::set($_SESSION['user_id'], 'user_pref', $key, $value);
+
+        Response::json(['success' => true]);
+    }
+
     public function registerRoutes()
     {
-        \GaiaAlpha\Router::add('GET', '/@/admin/users', [$this, 'index']);
-        \GaiaAlpha\Router::add('POST', '/@/admin/users', [$this, 'create']);
-        \GaiaAlpha\Router::add('PATCH', '/@/admin/users/(\d+)', [$this, 'update']);
-        \GaiaAlpha\Router::add('DELETE', '/@/admin/users/(\d+)', [$this, 'delete']);
+        $prefix = \GaiaAlpha\Router::adminPrefix();
+        \GaiaAlpha\Router::add('GET', $prefix . '/users', [$this, 'index']);
+        \GaiaAlpha\Router::add('POST', $prefix . '/users', [$this, 'create']);
+        \GaiaAlpha\Router::add('PATCH', $prefix . '/users/(\d+)', [$this, 'update']);
+        \GaiaAlpha\Router::add('DELETE', $prefix . '/users/(\d+)', [$this, 'delete']);
+
+        // Authenticated user settings
+        \GaiaAlpha\Router::add('POST', '/@/api/user/settings', [$this, 'settings']);
     }
 }

@@ -9,6 +9,15 @@ class User
 
 
     /**
+     * Find a user by ID
+     * @return object|false
+     */
+    public static function find($id)
+    {
+        return DB::fetch("SELECT * FROM users WHERE id = ?", [$id]);
+    }
+
+    /**
      * Find a user by username
      * @return array|false 
      */

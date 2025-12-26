@@ -48,8 +48,8 @@ class SettingsController extends BaseController
         \GaiaAlpha\Router::add('POST', '/@/user/settings', [$this, 'update']);
 
         // Global Site Settings (Admin only)
-        \GaiaAlpha\Router::add('GET', '/@/admin/settings', [$this, 'getGlobal']);
-        \GaiaAlpha\Router::add('POST', '/@/admin/settings', [$this, 'updateGlobal']);
+        \GaiaAlpha\Router::add('GET', \GaiaAlpha\Router::adminPrefix() . '/settings', [$this, 'getGlobal']);
+        \GaiaAlpha\Router::add('POST', \GaiaAlpha\Router::adminPrefix() . '/settings', [$this, 'updateGlobal']);
 
 
     }

@@ -119,7 +119,8 @@ const App = {
             if (!activePlugins.includes('ComponentBuilder')) return;
 
             try {
-                const res = await fetch('/@/admin/component-builder/list');
+                const adminPrefix = store.state.admin_prefix || '/@/admin';
+                const res = await fetch(`${adminPrefix}/component-builder/list`);
                 const components = await res.json();
                 if (Array.isArray(components)) {
                     components.forEach(comp => {
@@ -146,8 +147,24 @@ const App = {
             }
         };
 
-        const onLogin = async (loggedInUser) => {
-            store.setUser(loggedInUser);
+        const onLogin = async (data) => {
+            // Support both old (user object) and new (data object) formats for safety
+            const user = data.user || data;
+            const adminPrefix = data.admin_prefix;
+
+            store.setUser(user);
+
+            // Redirect to Admin Panel if Admin and not already there
+            if (user && user.level >= 100 && adminPrefix) {
+                const currentPath = window.location.pathname.replace(/\/$/, '');
+                const targetPath = adminPrefix.replace(/\/$/, '');
+
+                if (currentPath !== targetPath) {
+                    window.location.href = targetPath;
+                    return;
+                }
+            }
+
             // Only set default if current view is the default 'todos' or 'login' state (respect deep links)
             if (!store.state.currentView || store.state.currentView === 'todos' || store.state.currentView === 'login') {
                 setDefaultView();

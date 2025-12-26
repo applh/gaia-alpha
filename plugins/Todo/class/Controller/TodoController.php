@@ -101,12 +101,33 @@ class TodoController extends BaseController
         }
     }
 
+    public function uploadAttachment()
+    {
+        // Stub
+        Response::json(['success' => true]);
+    }
+
+    public function importData()
+    {
+        // Stub
+        Response::json(['success' => true]);
+    }
+
+    public function stats()
+    {
+        if (!$this->requireAuth())
+            return;
+
+        $total = Todo::countByUserId(\GaiaAlpha\Session::id());
+        Response::json(['total' => $total]);
+    }
+
     public function registerRoutes()
     {
         \GaiaAlpha\Router::add('GET', '/@/api/todos', [$this, 'index']);
         \GaiaAlpha\Router::add('POST', '/@/api/todos', [$this, 'create']);
-        \GaiaAlpha\Router::add('PUT', '/@/api/todos/{id}', [$this, 'update']);
-        \GaiaAlpha\Router::add('DELETE', '/@/api/todos/{id}', [$this, 'delete']);
+        \GaiaAlpha\Router::add('PUT', '/@/api/todos/([0-9]+)', [$this, 'update']);
+        \GaiaAlpha\Router::add('DELETE', '/@/api/todos/([0-9]+)', [$this, 'delete']);
         \GaiaAlpha\Router::add('POST', '/@/api/todos/reorder', [$this, 'reorder']);
         \GaiaAlpha\Router::add('POST', '/@/api/todos/upload', [$this, 'uploadAttachment']);
         \GaiaAlpha\Router::add('POST', '/@/api/todos/import', [$this, 'importData']);

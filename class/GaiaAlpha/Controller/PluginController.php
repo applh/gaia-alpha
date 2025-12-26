@@ -274,9 +274,10 @@ class PluginController extends BaseController
 
     public function registerRoutes()
     {
-        \GaiaAlpha\Router::add('GET', '/@/admin/plugins', [$this, 'index']);
-        \GaiaAlpha\Router::add('POST', '/@/admin/plugins/install', [$this, 'install']);
-        \GaiaAlpha\Router::add('POST', '/@/admin/plugins/toggle', [$this, 'togglePlugin']);
-        \GaiaAlpha\Router::add('POST', '/@/admin/plugins/save', [$this, 'savePlugins']);
+        $prefix = \GaiaAlpha\Router::adminPrefix();
+        \GaiaAlpha\Router::add('GET', $prefix . '/plugins', [$this, 'index']);
+        \GaiaAlpha\Router::add('POST', $prefix . '/plugins/install', [$this, 'install']);
+        \GaiaAlpha\Router::add('POST', $prefix . '/plugins/toggle', [$this, 'togglePlugin']);
+        \GaiaAlpha\Router::add('POST', $prefix . '/plugins/save', [$this, 'savePlugins']);
     }
 }

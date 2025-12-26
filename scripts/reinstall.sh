@@ -47,5 +47,5 @@ echo "Login credentials:"
 echo "  Username: $username"
 echo "  Password: $password"
 echo ""
-echo "Start server: php -S localhost:8000 -t www"
+echo "Start server: ./scripts/start_server.sh"
 

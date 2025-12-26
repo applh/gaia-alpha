@@ -10,6 +10,7 @@ const state = reactive({
     theme: localStorage.getItem('theme') || 'dark', // 'dark' | 'light'
     layout: localStorage.getItem('layout') || 'top', // 'top' | 'side'
     currentView: initialView, // 'dashboard', 'users', 'cms', 'map', etc.
+    admin_prefix: '/@/admin', // default
     loginMode: 'login', // 'login' | 'register'
     notifications: [], // Array of { id, message, type='info'|'success'|'error', duration }
     confirm: {
@@ -86,6 +87,12 @@ const setUser = (user) => {
     }
 };
 
+const setAdminPrefix = (prefix) => {
+    if (prefix) {
+        state.admin_prefix = prefix;
+    }
+};
+
 const toggleTheme = () => {
     const newTheme = state.theme === 'dark' ? 'light' : 'dark';
     setTheme(newTheme);
@@ -107,6 +114,7 @@ const checkSession = async () => {
     try {
         const data = await api.get('user');
         setUser(data.user);
+        setAdminPrefix(data.admin_prefix);
         return true;
     } catch (e) {
         console.error("Session check failed", e);

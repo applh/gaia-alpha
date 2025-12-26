@@ -42,11 +42,17 @@ class LmsController
         Response::json(['id' => $id, 'message' => 'Course created'], 201);
     }
 
+    public function saveProgress()
+    {
+        // Stub
+        Response::json(['success' => true]);
+    }
+
     public function registerRoutes()
     {
-        \GaiaAlpha\Router::add('GET', '/@/api/lms/courses', [$this, 'courses']);
-        \GaiaAlpha\Router::add('GET', '/@/api/lms/courses/{id}', [$this, 'course']);
-        \GaiaAlpha\Router::add('POST', '/@/api/lms/courses', [$this, 'saveCourse']);
+        \GaiaAlpha\Router::add('GET', '/@/api/lms/courses', [$this, 'getCourses']);
+        \GaiaAlpha\Router::add('GET', '/@/api/lms/courses/([0-9]+)', [$this, 'getCourse']);
+        \GaiaAlpha\Router::add('POST', '/@/api/lms/courses', [$this, 'createCourse']);
         \GaiaAlpha\Router::add('POST', '/@/api/lms/progress', [$this, 'saveProgress']);
     }
 }

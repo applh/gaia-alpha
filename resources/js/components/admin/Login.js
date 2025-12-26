@@ -59,7 +59,7 @@ export default {
                 const data = await api.post(path, { username: username.value, password: password.value });
 
                 if (isLogin.value) {
-                    emit('login', data.user);
+                    emit('login', data);
                 } else {
                     store.setLoginMode('login');
                     // AsyncForm will show success

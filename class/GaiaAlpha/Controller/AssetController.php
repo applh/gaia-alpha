@@ -207,6 +207,11 @@ class AssetController extends BaseController
         // Matches /assets/... for static resources
         Router::get('/assets/(.+)', [$this, 'servePublic']);
 
+        // Explicit Favicon Route
+        Router::get('/favicon.ico', function () {
+            $this->servePublic('favicon.ico');
+        });
+
         // Matches /min/plugins/(.+) for Plugin Assets
         Router::get('/min/plugins/(.+)', function ($path) {
             if (substr($path, -4) === '.css') {

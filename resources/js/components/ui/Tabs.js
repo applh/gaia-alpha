@@ -1,3 +1,5 @@
+import { computed } from 'vue';
+
 export default {
     props: {
         modelValue: String, // name of active tab
@@ -27,7 +29,7 @@ export default {
         return {
             registerTab: this.registerTab,
             unregisterTab: this.unregisterTab,
-            activeTabName: Vue.computed(() => this.modelValue)
+            activeTabName: computed(() => this.modelValue)
         };
     },
     template: `

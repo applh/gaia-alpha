@@ -210,7 +210,8 @@ $latestPages = \GaiaAlpha\Model\Page::getLatestPublic(3);
             <p class="hero-subtitle">Unified, scalable, and secure. Gaia Alpha empowers your team to build, manage, and
                 deploy mission-critical applications with zero friction.</p>
             <div class="hero-actions">
-                <a href="/app" class="button btn-lg nav-cta">Start Free Trial</a>
+                <a href="/<?= htmlspecialchars($globalSettings['app_slug'] ?? 'app') ?>" class="button btn-lg nav-cta">Start
+                    Free Trial</a>
                 <a href="#features" class="button btn-lg"
                     style="background:transparent; border:1px solid var(--border-color);">Learn More</a>
             </div>

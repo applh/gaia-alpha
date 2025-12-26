@@ -182,9 +182,18 @@
                 <div id="app-slug-group" class="form-group" style="margin-top: 1rem;">
                     <label for="app_slug">App URI Path</label>
                     <div style="display: flex; align-items: center; gap: 0.5rem;">
-                        <span style="color: var(--gray);">/</span>
+                        <span style="color: var(--gray);">/@/</span>
                         <input type="text" id="app_slug" name="app_slug" value="app" placeholder="app"
-                            pattern="[a-z0-9_-]+" title="Lowercase letters, numbers, and hyphens only">
+                            pattern="[a-z0-9\-_]+" title="Lowercase letters, numbers, and hyphens only">
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-top: 1rem;">
+                    <label for="admin_slug">Admin URI Path</label>
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <span style="color: var(--gray);">/@/</span>
+                        <input type="text" id="admin_slug" name="admin_slug" value="admin" placeholder="admin"
+                            pattern="[a-z0-9\-_]+" title="Lowercase letters, numbers, and hyphens only">
                     </div>
                 </div>
 
@@ -316,6 +325,13 @@
                     }, 500);
                 } else {
                     const json = await res.json();
+                    if (res.status === 403 && json.error === 'Application already installed') {
+                        btn.textContent = 'Already Installed! Redirecting...';
+                        setTimeout(() => {
+                            window.location.href = '/';
+                        }, 500);
+                        return;
+                    }
                     throw new Error(json.error || 'Installation failed');
                 }
             } catch (err) {

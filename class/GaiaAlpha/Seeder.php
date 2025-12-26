@@ -74,11 +74,17 @@ class Seeder
             DB::execute($sql, [$userId, $partial['name'], $partial['content']]);
         }
 
+        // Fetch actual App Slug if it exists (set in InstallController)
+        $appSlug = \GaiaAlpha\Model\DataStore::get(0, 'global_config', 'app_slug') ?: 'app';
+
         // echo "3. Seeding Pages...\n";
         $pagesDir = $seedDir . '/pages';
         if (File::isDirectory($pagesDir)) {
             foreach (File::glob($pagesDir . '/*.json') as $pageFile) {
                 $pageData = File::readJson($pageFile);
+                if (isset($pageData['content'])) {
+                    $pageData['content'] = str_replace('/@/app', '/@/' . $appSlug, $pageData['content']);
+                }
                 Page::create($userId, $pageData);
             }
         }
@@ -88,9 +94,15 @@ class Seeder
         if (File::exists($menusFile)) {
             $menus = File::readJson($menusFile);
             foreach ($menus as $menu) {
+                $items = $menu['items'] ?? [];
+                foreach ($items as &$item) {
+                    if (isset($item['href']) && $item['href'] === '/@/app') {
+                        $item['href'] = '/@/' . $appSlug;
+                    }
+                }
                 DB::execute(
                     "INSERT INTO menus (title, location, items, created_at, updated_at) VALUES (?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)",
-                    [$menu['title'], $menu['location'], json_encode($menu['items'])]
+                    [$menu['title'], $menu['location'], json_encode($items)]
                 );
             }
         }

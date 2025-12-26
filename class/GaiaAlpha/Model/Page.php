@@ -9,7 +9,15 @@ class Page
 {
     private static array $cache = [];
 
-    // ... (findAllByUserId unchanged)
+    public static function findAllByUserId(int $userId, string $cat = 'page')
+    {
+        return DB::fetchAll("
+            SELECT * 
+            FROM cms_pages 
+            WHERE user_id = ? AND cat = ? 
+            ORDER BY created_at DESC
+        ", [$userId, $cat]);
+    }
 
     public static function getLatestPublic(int $limit = 10)
     {

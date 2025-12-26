@@ -47,10 +47,10 @@ export default {
                 Media Library
             </ui-title>
             <div style="display: flex; gap: 8px; align-items: center;">
-                <ui-button :variant="viewMode === 'grid' ? 'primary' : 'default'" @click="viewMode = 'grid'">
+                <ui-button :variant="viewMode === 'grid' ? 'primary' : 'secondary'" @click="viewMode = 'grid'">
                     <LucideIcon name="grid" size="16" />
                 </ui-button>
-                <ui-button :variant="viewMode === 'list' ? 'primary' : 'default'" @click="viewMode = 'list'">
+                <ui-button :variant="viewMode === 'list' ? 'primary' : 'secondary'" @click="viewMode = 'list'">
                     <LucideIcon name="list" size="16" />
                 </ui-button>
                 <label style="cursor: pointer; margin: 0;">
@@ -249,8 +249,8 @@ export default {
                 <div v-else-if="isVideo(mediaEditor.file)">
                     <div style="display: flex; justify-content: center; margin-bottom: 24px;">
                         <div style="background: var(--bg-secondary); padding: 4px; border-radius: 12px; display: flex; gap: 4px;">
-                            <ui-button :variant="mediaEditor.mode === 'view' ? 'primary' : 'default'" size="sm" @click="mediaEditor.mode = 'view'">Player</ui-button>
-                            <ui-button :variant="mediaEditor.mode === 'edit' ? 'primary' : 'default'" size="sm" @click="mediaEditor.mode = 'edit'">Editor</ui-button>
+                            <ui-button :variant="mediaEditor.mode === 'view' ? 'primary' : 'secondary'" size="sm" @click="mediaEditor.mode = 'view'">Player</ui-button>
+                            <ui-button :variant="mediaEditor.mode === 'edit' ? 'primary' : 'secondary'" size="sm" @click="mediaEditor.mode = 'edit'">Editor</ui-button>
                         </div>
                     </div>
 

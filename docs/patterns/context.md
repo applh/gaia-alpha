@@ -35,6 +35,12 @@ Context prefixes are configurable via `Env` variables, allowing for white-labeli
 ## Usage
 
 Context is primarily used for:
-- **Plugin Loading**: Load only necessary plugins for the current context (e.g., don't load admin tools in a public context).
+- **Plugin Loading**: Load only necessary plugins for the current context (e.g., don't load admin tools in a public context) via the `context` field in `plugin.json` or by checking `Request::context()`.
 - **Error Handling**: The `Router` returns JSON errors for `api` and `admin` contexts instead of HTML 404 pages.
-- **Access Control**: Controllers can use context-aware checks for more granular security.
+- **Access Control**: Controllers can use context-aware checks for more granular security:
+  ```php
+  if (Request::isAdmin()) {
+      // Allow dangerous ops
+  }
+  ```
+- **Hook Filtering**: Register hooks only for specific contexts to optimize performance (e.g., specific `admin` hooks).

@@ -25,7 +25,8 @@ class DbController extends BaseController
     public function registerRoutes()
     {
         // Routes moved to DatabaseManager plugin
-        // Router::add('GET', '/@/admin/db/tables', [$this, 'listTables']);
+        // $prefix = \GaiaAlpha\Router::adminPrefix();
+        // Router::add('GET', $prefix . '/db/tables', [$this, 'listTables']);
         // ...
     }
 

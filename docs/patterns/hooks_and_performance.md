@@ -27,8 +27,10 @@ Standardizing all frontend calls through the `Api.js` helper:
 - **Consistent Optimization**: Allows for global caching or monitoring strategies.
 - **Payload Minimization**: Prefer returning structured JSON over HTML partials for better performance and reactivity.
 
-### Hook Filtering
-Register hooks only when the current context matches your plugin's purpose to avoid unnecessary execution during public page renders.
+### Hook Filtering & Lazy Loading
+Register hooks only when the current context matches your plugin's purpose.
+- **Lazy Loading**: Plugins defined in `plugin.json` with a specific context (e.g., `admin`) are only loaded when that context is active.
+- **Manual Filtering**: In `index.php`, wrap `Hook::add` calls in context checks if the plugin is global but the hook is specific.
 
 ## 2. Naming Conventions
 Use snake_case.
@@ -78,8 +80,6 @@ Hook::add('auth_session_data', [$this, 'injectMenu'], 10, 'admin');
 ```
 
 This ensures that "heavy" admin listeners don't slow down public page delivery.
-
-### Measuring Impact
 
 ## 5. Case Study: Database Hooks
 We recently added hooks to `GaiaAlpha\Model\DB` to support the [Audit Trail plugin](../plugins/audit_trail.md).

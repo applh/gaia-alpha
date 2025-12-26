@@ -1,4 +1,5 @@
 import { ref, onMounted, nextTick } from 'vue';
+import { store } from 'store';
 import Icon from 'ui/Icon.js';
 
 export default {
@@ -82,7 +83,8 @@ export default {
                     return;
                 }
 
-                const res = await fetch('/@/console/run', {
+                const adminPrefix = store.state.admin_prefix || '/@/admin';
+                const res = await fetch(`${adminPrefix}/console/run`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ command: cmd })

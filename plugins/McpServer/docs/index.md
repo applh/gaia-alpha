@@ -3,6 +3,8 @@
 ## Objective
 The **McpServer** plugin implements the **Model Context Protocol (MCP)**, allowing external AI agents to interact with the Gaia Alpha CMS. It provides a standardized interface for agents to discover and execute tools, read resources, and manage prompts.
 
+The implementation is fully **JSON-RPC 2.0 compliant**, correctly handling notifications and initialization handshakes as per the MCP specification.
+
 ## Configuration
 - **Type**: `core`
 - **Enabled**: Always enabled for agent interaction.

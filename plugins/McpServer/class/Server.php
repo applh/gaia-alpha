@@ -85,27 +85,29 @@ class Server
             $result = $this->dispatch($method, $params);
 
             if ($id === null) {
-                return null;
+                // This is a notification, do not return a response
+                $response = null;
+            } else {
+                $response = [
+                    'jsonrpc' => '2.0',
+                    'id' => $id,
+                    'result' => $result
+                ];
             }
-
-            $response = [
-                'jsonrpc' => '2.0',
-                'id' => $id,
-                'result' => $result
-            ];
         } catch (\Exception $e) {
             if ($id === null) {
-                // We should still log internal errors for notifications/methods without ID
-                // but we return null as per JSON-RPC spec
+                // This is a notification, do not return an error response
+                $response = null;
+            } else {
+                $response = [
+                    'jsonrpc' => '2.0',
+                    'id' => $id,
+                    'error' => [
+                        'code' => $e->getCode() ?: -32603,
+                        'message' => $e->getMessage()
+                    ]
+                ];
             }
-            $response = [
-                'jsonrpc' => '2.0',
-                'id' => $id,
-                'error' => [
-                    'code' => $e->getCode() ?: -32603,
-                    'message' => $e->getMessage()
-                ]
-            ];
         }
 
         $duration = microtime(true) - $startTime;
@@ -130,19 +132,22 @@ class Server
                 if (isset($params['clientInfo'])) {
                     $this->clientInfo = $params['clientInfo'];
                 }
+                $protocolVersion = $params['protocolVersion'] ?? '2024-11-05';
                 return [
-                    'protocolVersion' => '2024-11-05',
+                    'protocolVersion' => $protocolVersion,
                     'capabilities' => [
                         'tools' => ['listChanged' => false],
-                        'resources' => ['listChanged' => false]
+                        'resources' => ['listChanged' => false],
+                        'prompts' => ['listChanged' => false]
                     ],
                     'serverInfo' => [
                         'name' => 'GaiaAlpha MCP',
-                        'version' => '1.1.0'
+                        'version' => '1.1.1'
                     ]
                 ];
 
             case 'initialized':
+            case 'notifications/initialized':
                 return [];
 
             case 'tools/list':

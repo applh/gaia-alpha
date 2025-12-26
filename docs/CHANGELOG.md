@@ -1,3 +1,11 @@
+## [v0.60.1] - 2025-12-26
+### Fixed
+- **MCP Server**: Improved protocol compliance for JSON-RPC.
+    - Corrected notification handling (requests with `id: null`) to prevent invalid error responses.
+    - Added support for `notifications/initialized` handshake.
+    - Updated initialization response to include `prompts` capabilities.
+    - Mirrored client `protocolVersion` in server handshake.
+
 ## [v0.60.0] - 2025-12-26
 ### Added
 - **Application Context System**: Implemented granular context detection (`public`, `api`, `admin`, `app`, `cli`, `worker`) with configurable prefixes.

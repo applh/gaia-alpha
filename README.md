@@ -94,7 +94,7 @@ Our comprehensive **UI Design System** is built to be "Agent-Friendly," allowing
  We are actively seeking contributors to help shape the future of AI-native web development. Whether you're an AI researcher, a Vue wizard, or a backend architect, there's a place for you in Gaia Alpha.
  
  ### How to Contribute
- 1. Check out our **[Roadmap](../../docs/strategy/roadmap.md)** to see where we're heading.
+ 1. Check out our **[Roadmap](docs/strategy/roadmap.md)** to see where we're heading.
  2. Browse existing **Issues** or propose new features.
  3. Fork the repository and create a Pull Request.
  

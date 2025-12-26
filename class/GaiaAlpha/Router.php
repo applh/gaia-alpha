@@ -52,6 +52,13 @@ class Router
         return is_array($prefixes) ? $prefixes[0] : $prefixes;
     }
 
+    public static function allDashPrefixes(): array
+    {
+        $admin = (array) Env::get('admin_prefixes', ['/@/admin']);
+        $app = (array) Env::get('app_prefixes', ['/@/app']);
+        return array_unique(array_merge($admin, $app));
+    }
+
     public static function dispatch(string $method, string $uri)
     {
         // Hook before dispatch

@@ -74,6 +74,12 @@ class App
         }
         Env::set('path_data', $dataPath);
 
+        // Check for Install Context
+        if (Request::context() === 'install') {
+            self::install_setup($rootDir);
+            return;
+        }
+
         // 2. Load Config
         if (file_exists($dataPath . '/config.php')) {
             require_once $dataPath . '/config.php';
@@ -154,6 +160,34 @@ class App
             "step05" => "GaiaAlpha\\Framework::loadPlugins",
             "step06" => "GaiaAlpha\\Framework::appBoot",
             "step10" => "GaiaAlpha\\Cli::run"
+        ]);
+
+        self::registerAutoloaders();
+    }
+
+    public static function install_setup(string $rootDir)
+    {
+        Hook::run('app_init');
+        Env::set('root_dir', $rootDir);
+
+        // Define minimal data path for installation lock check (already done in Request usually)
+        if (!defined('GAIA_DATA_PATH')) {
+            define('GAIA_DATA_PATH', $rootDir . '/my-data');
+        }
+        Env::set('path_data', GAIA_DATA_PATH);
+
+        // Minimal Framework Tasks for Installation
+        Env::set('framework_tasks', [
+            "step00" => "GaiaAlpha\\Debug::init",
+            "step01" => "GaiaAlpha\\Response::startBuffer",
+            // Skip loading plugins or safely load core only if needed. For now skip.
+            "step06" => "GaiaAlpha\\Framework::appBoot",
+            // Manually register InstallController
+            "step10" => "GaiaAlpha\\Framework::registerInstallController",
+            "step15" => "GaiaAlpha\\Framework::registerRoutes",
+            "step18" => "GaiaAlpha\\Controller\\InstallController::checkInstalled",
+            "step20" => "GaiaAlpha\\Router::handle",
+            "step99" => "GaiaAlpha\\Response::flush",
         ]);
 
         self::registerAutoloaders();

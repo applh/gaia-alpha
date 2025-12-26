@@ -34,16 +34,8 @@ Hook::add('auth_session_data', function ($data) {
         }
 
         $found = false;
-        foreach ($data['user']['menu_items'] as &$item) {
+        foreach ($data['user']['menu_items'] as $item) {
             if (isset($item['id']) && $item['id'] === 'grp-reports') {
-                if (!isset($item['children'])) {
-                    $item['children'] = [];
-                }
-                $item['children'][] = [
-                    'label' => 'MCP Activity',
-                    'view' => 'mcp_dashboard',
-                    'icon' => 'zap'
-                ];
                 $found = true;
                 break;
             }
@@ -54,18 +46,12 @@ Hook::add('auth_session_data', function ($data) {
                 'id' => 'grp-reports',
                 'label' => 'Reports',
                 'icon' => 'bar-chart-2',
-                'children' => [
-                    [
-                        'label' => 'MCP Activity',
-                        'view' => 'mcp_dashboard',
-                        'icon' => 'zap'
-                    ]
-                ]
+                'children' => []
             ];
         }
     }
     return $data;
-});
+}, 9);
 
 // Register Logging (Pluggable)
 Hook::add('mcp_request_handled', [McpServer\Service\McpLogger::class, 'logRequest']);

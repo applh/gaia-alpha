@@ -11,7 +11,17 @@
     "type": "core",
     "context": "admin",
     "author": "Gaia Alpha",
-    "menu": {},
+    "menu": {
+        "items": [
+            {
+                "label": "MCP Activity",
+                "view": "mcp_dashboard",
+                "icon": "zap",
+                "group": "grp-reports",
+                "adminOnly": true
+            }
+        ]
+    },
     "dependencies": {
         "php": {
             "symfony/process": "^6.0"

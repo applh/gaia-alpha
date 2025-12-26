@@ -11,7 +11,9 @@ class AnalyticsController extends BaseController
 {
     public function registerRoutes()
     {
-        Router::add('GET', '/@/analytics/stats', [$this, 'getStats']);
+        foreach (Router::allDashPrefixes() as $prefix) {
+            Router::add('GET', $prefix . '/analytics/stats', [$this, 'getStats']);
+        }
     }
 
     public function getStats()

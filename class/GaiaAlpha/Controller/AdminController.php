@@ -103,7 +103,49 @@ class AdminController extends BaseController
             // Extract for template
             extract(['globalSettings' => $globalSettings]);
 
+            ob_start();
+
             include $templatePath;
+            $content = ob_get_clean();
+
+            // Inject Debug Toolbar
+            if (\GaiaAlpha\Session::isAdmin()) {
+                if (strpos($content, '</html>') !== false) {
+                    $vueUrl = \GaiaAlpha\Asset::url('/js/vendor/vue.esm-browser.js');
+                    $timestamp = time();
+                    $componentUrl = \GaiaAlpha\Asset::url('/js/components/admin/DebugToolbar.js');
+                    // Use specific timestamp to avoid caching issues if needed, or rely on Asset::url logic
+                    // Asset::url usually appends v=...
+
+                    // Note: ViewController sends a placeholder. PublicController sends real data.
+                    // AdminController likely runs after appBoot, so Debug data is collecting.
+                    // If we are just rendering the app shell, the JS app will make requests.
+                    // But the initial request also has SQL queries (e.g. stats).
+                    // So we should inject current debug data to be useful.
+                    $debugData = \GaiaAlpha\Debug::getData();
+                    $jsonData = json_encode($debugData);
+
+                    $toolbarScript = <<<HTML
+<div id="gaia-debug-root" style="position:fixed;bottom:0;left:0;right:0;z-index:99999;"></div>
+<script>
+    window.GAIA_DEBUG_DATA = $jsonData;
+</script>
+<script type="module">
+    import { createApp } from '$vueUrl';
+    import * as Vue from '$vueUrl';
+    import DebugToolbar from '$componentUrl';
+    
+    window.Vue = Vue;
+    
+    const app = createApp(DebugToolbar);
+    app.mount('#gaia-debug-root');
+</script>
+HTML;
+                    $content = str_replace('</body>', $toolbarScript . '</body>', $content);
+                }
+            }
+
+            echo $content;
         } else {
             echo "Admin Template not found";
         }

@@ -22,6 +22,17 @@ class Framework
                     $pluginPath = is_array($pluginData) ? $pluginData['path'] : $pluginData;
                     $pluginContext = is_array($pluginData) ? ($pluginData['context'] ?? 'all') : 'all';
 
+                    // Register menu items if available (from cache)
+                    if (is_array($pluginData) && isset($pluginData['menu'])) {
+                        // Inherit plugin dir name from path or store it?
+                        // Path is absolute, so basename(dirname($pluginPath)) gives the dir name.
+                        self::registerPluginMenuItems($pluginData['menu'], basename(dirname($pluginPath)));
+                    }
+
+                    if ($currentContext === 'install' && $pluginContext !== 'install') {
+                        continue;
+                    }
+
                     if ($pluginContext !== 'all' && $pluginContext !== $currentContext) {
                         continue;
                     }
@@ -76,7 +87,8 @@ class Framework
 
                 $manifest[] = [
                     'path' => $plugin,
-                    'context' => $pluginContext
+                    'context' => $pluginContext,
+                    'menu' => $config['menu'] ?? null
                 ];
 
                 if ($pluginContext === 'all' || $pluginContext === $currentContext) {
@@ -90,6 +102,16 @@ class Framework
         File::writeJson($manifestFile, $manifest, 0);
 
         Hook::run('plugins_loaded');
+    }
+
+    public static function registerInstallController()
+    {
+        $className = 'GaiaAlpha\\Controller\\InstallController';
+        if (class_exists($className)) {
+            $controller = new $className();
+            // No init needed
+            Env::add('controllers', $controller, 'install');
+        }
     }
 
     /**
@@ -121,10 +143,31 @@ class Framework
 
                 // Add to group or create new group
                 if (isset($item['group'])) {
-                    $data['user']['menu_items'][] = [
-                        'id' => $item['group'],
-                        'children' => [$menuItem]
-                    ];
+                    if (!isset($data['user']['menu_items'])) {
+                        $data['user']['menu_items'] = [];
+                    }
+
+                    $foundGroup = false;
+                    foreach ($data['user']['menu_items'] as &$existingItem) {
+                        if (isset($existingItem['id']) && $existingItem['id'] === $item['group']) {
+                            if (!isset($existingItem['children'])) {
+                                $existingItem['children'] = [];
+                            }
+                            $existingItem['children'][] = $menuItem;
+                            $foundGroup = true;
+                            break;
+                        }
+                    }
+
+                    if (!$foundGroup) {
+                        $data['user']['menu_items'][] = [
+                            'id' => $item['group'],
+                            // Try to infer label/icon for standard groups, or default
+                            'label' => ucfirst(str_replace('grp-', '', $item['group'])),
+                            'icon' => 'folder',
+                            'children' => [$menuItem]
+                        ];
+                    }
                 } else {
                     $data['user']['menu_items'][] = $menuItem;
                 }

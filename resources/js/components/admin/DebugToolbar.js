@@ -433,7 +433,7 @@ const DebugToolbar = {
 
         const logout = async () => {
             try {
-                const res = await fetch('/@/logout', { method: 'POST' });
+                const res = await fetch('/@/api/logout', { method: 'POST' });
                 if (res.ok) {
                     window.location.reload();
                 }

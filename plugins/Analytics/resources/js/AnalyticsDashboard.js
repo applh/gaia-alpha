@@ -193,7 +193,8 @@ export default {
         const loadData = async () => {
             loading.value = true;
             try {
-                const res = await fetch('/@/analytics/stats');
+                const adminPath = window.location.pathname.replace(/\/$/, '');
+                const res = await fetch(`${adminPath}/analytics/stats`);
                 if (res.ok) {
                     stats.value = await res.json();
                     if (stats.value.history && stats.value.history.length > 0) {

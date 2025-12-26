@@ -1,4 +1,4 @@
-import { ref, onMounted, computed, provide, inject } from 'vue';
+import { ref, onMounted, computed, provide, inject, onActivated } from 'vue';
 import { store } from 'store';
 import { api } from 'api';
 import CalendarView from '/min/js/plugins/Todo/CalendarView.js';

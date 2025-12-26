@@ -183,6 +183,25 @@ class Request
 
         $path = self::path();
 
+        // 0. Install Context (Priority)
+        // Check if installed.lock exists in data path
+        $dataPath = \GaiaAlpha\Env::get('path_data');
+        if (!$dataPath) {
+            $dataPath = defined('GAIA_DATA_PATH') ? GAIA_DATA_PATH : \GaiaAlpha\Env::get('root_dir') . '/my-data';
+        }
+
+        $isInstalled = file_exists($dataPath . '/installed.lock');
+
+        // If explicitly requesting install page, allow it as 'install' context unless redirected later
+        if (str_starts_with($path, '/install') || str_starts_with($path, '/@/install')) {
+            return 'install';
+        }
+
+        // If not installed, force 'install' context
+        if (!$isInstalled) {
+            return 'install';
+        }
+
         // 1. Admin Context
         $adminPrefixes = \GaiaAlpha\Env::get('admin_prefixes', ['/@/admin']);
         foreach ((array) $adminPrefixes as $prefix) {

@@ -64,6 +64,15 @@ class UserController extends BaseController
             return;
         }
 
+        if (Request::isMethod('GET')) {
+            $settings = \GaiaAlpha\Model\DataStore::getAll($_SESSION['user_id'], 'user_pref');
+            // Ensure settings is an object
+            if (empty($settings))
+                $settings = new \stdClass();
+            Response::json(['settings' => $settings]);
+            return;
+        }
+
         $data = Request::input();
         $key = $data['key'] ?? null;
         $value = $data['value'] ?? null;
@@ -89,5 +98,6 @@ class UserController extends BaseController
 
         // Authenticated user settings
         \GaiaAlpha\Router::add('POST', '/@/api/user/settings', [$this, 'settings']);
+        \GaiaAlpha\Router::add('GET', '/@/api/user/settings', [$this, 'settings']);
     }
 }

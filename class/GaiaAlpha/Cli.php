@@ -77,7 +77,8 @@ class Cli
 
         // Hook for plugins to resolve commands
         if (!class_exists($className)) {
-            $resolved = \GaiaAlpha\Hook::filter('cli_resolve_command', null, $command, $parts ?? null);
+            $groupName = isset($parts) ? $parts[0] : $command;
+            $resolved = \GaiaAlpha\Hook::filter('cli_resolve_command', null, $groupName, $parts ?? null);
             if ($resolved && class_exists($resolved)) {
                 $className = $resolved;
             }

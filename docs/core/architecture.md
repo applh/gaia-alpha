@@ -109,10 +109,12 @@ Regeneration is triggered by `?clear_cache=1` or when the manifests are missing.
 
 ### 2. Contextual Loading
 To minimize memory usage, code is loaded only when relevant to the current `Request::context()`:
-- **`public`**: Frontend pages (Lightweight).
-- **`admin`**: Managed panels like `/@/admin` or `/app`.
-- **`api`**: Stateless endpoints under `/api/`.
-Plugins can restrict their loading to specific contexts via `plugin.json`.
+- **`public`**: Guest-facing website and pages.
+- **`admin`**: System administration and management (e.g., `/@/admin`).
+- **`app`**: User-facing applications and dashboards (e.g., `/@/app`).
+- **`api`**: Standardized API endpoints (e.g., `/@/api`).
+- **`cli`**: Command-line operations.
+Plugins can restrict their loading to specific contexts via their `plugin.json` file.
 
 ### 3. Model & Data Caching
 - **Static Caching**: Models like `Page` and `DataStore` use in-memory static arrays to cache query results within a single request.
@@ -140,22 +142,22 @@ The response lifecycle includes hooks to modify output:
 
 | Controller | Use Case | Prefix | Key Routes |
 | :--- | :--- | :--- | :--- |
-| **Admin** | Dashboard Stats | `/api/admin` | `/stats` |
-| **ApiBuilder** | Dynamic APIs | `/api/admin` | `/api-builder` |
-| **Auth** | Authentication | `/api` | `/login`, `/register`, `/logout`, `/user` |
-| **CMS** | Page Management | `/api/cms` | `/pages`, `/upload` |
-| **Dynamic** | Generated CRUD | `/api/v1` | `/{table}` |
-| **Form** | Form Builder | `/api/forms` | `/forms`, `/public/form` |
-| **Map** | Maps & Markers | `/api` | `/markers` |
+| **Admin** | Dashboard Stats | `/@/admin` | `/stats` |
+| **ApiBuilder** | Dynamic APIs | `/@/admin` | `/api-builder` |
+| **Auth** | Authentication | `/@/api` | `/login`, `/register`, `/logout`, `/user` |
+| **CMS** | Page Management | `/@/api/cms` | `/pages`, `/upload` |
+| **Dynamic** | Generated CRUD | `/@/api/v1` | `/{table}` |
+| **Form** | Form Builder | `/@/api/forms` | `/forms`, `/public/form` |
+| **Map** | Maps & Markers | `/@/api` | `/markers` |
 | **Media** | File Serving | `/media` | `/{userId}/{filename}` |
-| **Menu** | Navigation | `/api` | `/menus` |
-| **Partial** | Partial Management | `/api/cms` | `/partials` |
-| **Plugin** | Plugin Management | `/api/admin` | `/plugins` |
-| **Settings** | User Preferences | `/api/user` | `/settings` |
-| **Template** | Template Management | `/api/cms` | `/templates` |
-| **Todo** | Tasks | `/api` | `/todos` |
-| **User** | User Management | `/api/admin` | `/users` |
-| **View** | Frontend Display | `/` | `/app`, `/f/`, `/page/`, `Home` |
+| **Menu** | Navigation | `/@/api` | `/menus` |
+| **Partial** | Partial Management | `/@/api/cms` | `/partials` |
+| **Plugin** | Plugin Management | `/@/api/admin` | `/plugins` |
+| **Settings** | User Preferences | `/@/api/user` | `/settings` |
+| **Template** | Template Management | `/@/api/cms` | `/templates` |
+| **Todo** | Tasks | `/@/api` | `/todos` |
+| **User** | User Management | `/@/api/admin` | `/users` |
+| **View** | Frontend Display | `/` | `Home`, `/page/` |
 
 ## Media Handling
 The `Media` class provides on-demand image processing with caching.

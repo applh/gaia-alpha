@@ -1,4 +1,5 @@
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
+import { api } from 'api';
 import Icon from 'ui/Icon.js';
 import DataTable from 'ui/DataTable.js';
 import Pagination from 'ui/Pagination.js';
@@ -32,8 +33,8 @@ export default {
 
         <div class="admin-card">
             <div class="filters" style="display: flex; gap: 10px; margin-bottom: 20px;">
-                <ui-input v-model="filters.user_id" placeholder="User ID" style="width: 150px;" @keyup.enter="loadLogs" />
-                <ui-input v-model="filters.action" placeholder="Action (e.g. POST)" @keyup.enter="loadLogs" />
+                <ui-input v-model="userFilter" placeholder="User ID" style="width: 150px;" @keyup.enter="loadLogs" />
+                <ui-input v-model="eventFilter" placeholder="Action (e.g. POST)" @keyup.enter="loadLogs" />
                 <ui-button @click="loadLogs">Filter</ui-button>
             </div>
 
@@ -60,11 +61,11 @@ export default {
             </ui-data-table>
 
             <div class="pagination-container" style="margin-top: 20px; display: flex; justify-content: space-between; align-items: center;">
-                <span class="text-muted">Total: {{ meta.total }} records</span>
+                <span class="text-muted">Total: {{ totalItems }} records</span>
                 <ui-pagination 
-                    v-model:currentPage="meta.page"
-                    :total="meta.total"
-                    :page-size="meta.limit"
+                    v-model:currentPage="currentPage"
+                    :total="totalItems"
+                    :page-size="pageSize"
                     @current-change="loadLogs"
                 />
             </div>
@@ -111,11 +112,18 @@ export default {
     `,
     setup() {
         const logs = ref([]);
-        const meta = ref({ page: 1, limit: 20, total: 0, pages: 1 });
         const loading = ref(false);
         const selectedLog = ref(null);
         const modalVisible = ref(false);
-        const filters = ref({ user_id: '', action: '' });
+
+        // Pagination and filtering state
+        const currentPage = ref(1);
+        const pageSize = ref(20);
+        const totalItems = ref(0);
+        const totalPages = ref(1);
+        const userFilter = ref('');
+        const eventFilter = ref('');
+        const stats = ref({});
 
         const columns = [
             { label: 'Date', prop: 'created_at', width: '200px' },
@@ -126,29 +134,36 @@ export default {
             { label: 'Details', prop: 'actions', align: 'center', width: '100px' }
         ];
 
-        const loadLogs = async (page = 1) => {
-            // Handle pagination component sending page via event or using meta.page
-            const targetPage = typeof page === 'number' ? page : meta.value.page;
-
+        const loadLogs = async () => {
             loading.value = true;
             try {
-                const params = new URLSearchParams({
-                    page: targetPage,
-                    limit: meta.value.limit,
-                    user_id: filters.value.user_id,
-                    action: filters.value.action
-                });
+                const queryParams = {
+                    page: currentPage.value,
+                    limit: pageSize.value,
+                    user_id: userFilter.value,
+                    action: eventFilter.value
+                };
 
-                const res = await fetch('/api/audit-logs?' + params.toString());
-                if (res.ok) {
-                    const data = await res.json();
-                    logs.value = data.data;
-                    meta.value = data.meta;
-                }
+                const filteredParams = Object.fromEntries(
+                    Object.entries(queryParams).filter(([, value]) => value !== '' && value !== null && value !== undefined)
+                );
+
+                const data = await api.get('audit-logs', { params: filteredParams });
+                logs.value = data.logs;
+                totalItems.value = data.total;
+                totalPages.value = data.total_pages;
             } catch (err) {
-                console.error("Failed to load logs:", err);
+                console.error("Failed to load audit logs", err);
             } finally {
                 loading.value = false;
+            }
+        };
+
+        const loadStats = async () => {
+            try {
+                stats.value = await api.get('audit-logs/stats');
+            } catch (err) {
+                console.error("Failed to load audit log stats", err);
             }
         };
 
@@ -178,15 +193,21 @@ export default {
 
         onMounted(() => {
             loadLogs();
+            loadStats();
         });
 
         return {
             logs,
-            meta,
             loading,
             selectedLog,
             modalVisible,
-            filters,
+            currentPage,
+            pageSize,
+            totalItems,
+            totalPages,
+            userFilter,
+            eventFilter,
+            stats,
             columns,
             loadLogs,
             viewDetails,

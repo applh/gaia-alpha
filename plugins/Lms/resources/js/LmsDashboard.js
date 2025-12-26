@@ -1,6 +1,9 @@
 import Icon from 'ui/Icon.js';
 import UIButton from 'ui/Button.js';
 import Card from 'ui/Card.js';
+import { ref, onMounted } from 'vue';
+import { api } from 'api';
+import { store } from 'store';
 import Container from 'ui/Container.js';
 import Row from 'ui/Row.js';
 import Col from 'ui/Col.js';
@@ -28,16 +31,15 @@ export default {
         }
     },
     async mounted() {
-        this.fetchCourses();
+        this.loadCourses();
     },
     methods: {
-        async fetchCourses() {
+        async loadCourses() {
             this.loading = true;
             try {
-                const res = await fetch('/api/lms/courses');
-                if (res.ok) {
-                    this.courses = await res.json();
-                }
+                this.courses = await api.get('lms/courses');
+            } catch (err) {
+                console.error('Failed to load courses', err);
             } finally {
                 this.loading = false;
             }
@@ -46,13 +48,16 @@ export default {
             const title = prompt("Course Title:");
             if (!title) return;
 
-            await fetch('/api/lms/courses', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ title, slug: title.toLowerCase().replace(/ /g, '-') })
-            });
-            this.fetchCourses();
-            store.addNotification('Course created', 'success');
+            try {
+                await api.post('lms/courses', {
+                    title,
+                    slug: title.toLowerCase().replace(/ /g, '-')
+                });
+                await this.loadCourses();
+                store.addNotification('Course created', 'success');
+            } catch (err) {
+                store.addNotification('Error creating course: ' + err.message, 'error');
+            }
         }
     },
     template: `

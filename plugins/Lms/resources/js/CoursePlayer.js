@@ -1,28 +1,55 @@
+import { ref, onMounted, computed } from 'vue';
+import { api } from 'api';
+
 export default {
     props: ['courseId'],
-    data() {
-        return {
-            course: null,
-            currentLesson: null,
-            loading: true
-        }
-    },
-    async mounted() {
-        const res = await fetch(`/api/lms/courses/${this.courseId}`);
-        this.course = await res.json();
+    setup(props) {
+        const course = ref(null);
+        const currentLesson = ref(null);
+        const loading = ref(true);
 
-        if (this.course.modules && this.course.modules.length > 0) {
-            // Select first lesson
-            if (this.course.modules[0].lessons && this.course.modules[0].lessons.length > 0) {
-                this.currentLesson = this.course.modules[0].lessons[0];
+        const loadCourse = async () => {
+            loading.value = true;
+            try {
+                course.value = await api.get(`lms/courses/${props.courseId}`);
+                if (course.value.modules && course.value.modules.length > 0) {
+                    // Select first lesson
+                    if (course.value.modules[0].lessons && course.value.modules[0].lessons.length > 0) {
+                        currentLesson.value = course.value.modules[0].lessons[0];
+                    }
+                }
+            } catch (err) {
+                console.error('Failed to load course', err);
+            } finally {
+                loading.value = false;
             }
-        }
-        this.loading = false;
-    },
-    methods: {
-        selectLesson(lesson) {
-            this.currentLesson = lesson;
-        }
+        };
+
+        const updateProgress = async (lessonId) => {
+            try {
+                await api.post('lms/progress', {
+                    course_id: props.courseId,
+                    lesson_id: lessonId,
+                    status: 'completed'
+                });
+            } catch (err) {
+                console.error('Failed to update progress', err);
+            }
+        };
+
+        const selectLesson = (lesson) => {
+            currentLesson.value = lesson;
+            updateProgress(lesson.id);
+        };
+
+        onMounted(loadCourse);
+
+        return {
+            course,
+            currentLesson,
+            loading,
+            selectLesson
+        };
     },
     template: `
         <div class="flex h-screen">

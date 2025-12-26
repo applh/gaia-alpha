@@ -13,6 +13,23 @@ Hooks should be added when you anticipate that plugins will need to:
 - **Data Persistence**: Before/After saving to the database (`db_create_after`).
 - **Response Rendering**: modifying output before flush (`response_send_before`).
 
+---
+
+## Performance Best Practices
+
+### Context-Based Plugin Loading
+Gaia Alpha uses the `context` defined in `plugin.json` to filter which plugins are loaded per request.
+- **Why**: Reduces memory overhead and file I/O by only loading relevant code.
+- **Tip**: Set `context: "admin"` for tools that are only needed in the dashboard.
+
+### API Standardization
+Standardizing all frontend calls through the `Api.js` helper:
+- **Consistent Optimization**: Allows for global caching or monitoring strategies.
+- **Payload Minimization**: Prefer returning structured JSON over HTML partials for better performance and reactivity.
+
+### Hook Filtering
+Register hooks only when the current context matches your plugin's purpose to avoid unnecessary execution during public page renders.
+
 ## 2. Naming Conventions
 Use snake_case.
 - **Timing Suffixes**: `_before`, `_after` (e.g., `user_login_after`).

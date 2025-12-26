@@ -1,4 +1,6 @@
-import { ref, onMounted, onActivated, computed, provide, inject } from 'vue';
+import { ref, onMounted, computed, provide, inject } from 'vue';
+import { store } from 'store';
+import { api } from 'api';
 import CalendarView from '/min/js/plugins/Todo/CalendarView.js';
 import GanttView from '/min/js/plugins/Todo/GanttView.js';
 import ColorPicker from 'ui/ColorPicker.js';
@@ -342,22 +344,21 @@ export default {
 
         const fetchSettings = async () => {
             try {
-                const res = await fetch('/@/user/settings');
-                if (res.ok) {
-                    const data = await res.json();
-                    if (data.settings && data.settings.default_todo_duration) {
-                        defaultDuration.value = parseInt(data.settings.default_todo_duration);
-                        localStorage.setItem('defaultDuration', defaultDuration.value);
-                        newEndDate.value = getEndDate(newStartDate.value, defaultDuration.value);
-                    }
-                    if (data.settings && data.settings.todo_palette) {
-                        try {
-                            palette.value = JSON.parse(data.settings.todo_palette);
-                            localStorage.setItem('todo_palette', data.settings.todo_palette);
-                        } catch (e) { }
-                    }
+                const data = await api.get('user/settings');
+                if (data.settings && data.settings.default_todo_duration) {
+                    defaultDuration.value = parseInt(data.settings.default_todo_duration);
+                    localStorage.setItem('defaultDuration', defaultDuration.value);
+                    newEndDate.value = getEndDate(newStartDate.value, defaultDuration.value);
                 }
-            } catch (e) { }
+                if (data.settings && data.settings.todo_palette) {
+                    try {
+                        palette.value = JSON.parse(data.settings.todo_palette);
+                        localStorage.setItem('todo_palette', data.settings.todo_palette);
+                    } catch (e) { }
+                }
+            } catch (e) {
+                console.error('Failed to fetch settings:', e);
+            }
         };
 
         const allLabels = computed(() => {
@@ -371,8 +372,11 @@ export default {
         });
 
         const fetchTodos = async () => {
-            const res = await fetch('/@/todos');
-            if (res.ok) todos.value = await res.json();
+            try {
+                todos.value = await api.get('todos');
+            } catch (e) {
+                store.addNotification('Failed to fetch todos: ' + e.message, 'error');
+            }
         };
 
         const addTodo = async () => {
@@ -388,53 +392,40 @@ export default {
             };
 
             try {
-                const res = await fetch('/@/todos', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
-                });
-
-                if (res.ok) {
-                    const todo = await res.json();
-                    todos.value.push(todo);
-                    newTodo.value = '';
-                    newLabels.value = '';
-                    newStartDate.value = new Date().toISOString().split('T')[0];
-                    newEndDate.value = getEndDate(newStartDate.value, defaultDuration.value);
-                    newColor.value = '';
-                    showColorPicker.value = false;
-                    newParentId.value = null;
-                } else {
-                    const error = await res.json();
-                    store.addNotification('Failed to add todo: ' + (error.error || 'Unknown error'), 'error');
-                }
+                const todo = await api.post('todos', data);
+                todos.value.push(todo);
+                newTodo.value = '';
+                newLabels.value = '';
+                newStartDate.value = new Date().toISOString().split('T')[0];
+                newEndDate.value = getEndDate(newStartDate.value, defaultDuration.value);
+                newColor.value = '';
+                showColorPicker.value = false;
+                newParentId.value = null;
             } catch (e) {
-                store.addNotification('Connection error: ' + e.message, 'error');
+                store.addNotification('Failed to add todo: ' + (e.message || 'Unknown error'), 'error');
             }
         };
 
         const toggleTodo = async (todo) => {
             const updated = !todo.completed;
-            const res = await fetch(`/@/todos/${todo.id}`, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ completed: updated })
-            });
-            if (res.ok) {
+            try {
+                await api.patch(`todos/${todo.id}`, { completed: updated });
                 const realTodo = todos.value.find(t => t.id === todo.id);
                 if (realTodo) realTodo.completed = updated ? 1 : 0;
+            } catch (e) {
+                store.addNotification('Failed to update todo status: ' + e.message, 'error');
             }
         };
 
         const deleteTodo = async (id) => {
             if (!(await store.showConfirm('Delete Todo', 'Are you sure you want to delete this todo?'))) return;
 
-            const res = await fetch(`/@/todos/${id}`, { method: 'DELETE' });
-            if (res.ok) {
+            try {
+                await api.delete(`todos/${id}`);
                 todos.value = todos.value.filter(t => t.id !== id);
                 store.addNotification('Todo deleted', 'success');
-            } else {
-                store.addNotification('Failed to delete todo', 'error');
+            } catch (e) {
+                store.addNotification('Failed to delete todo: ' + e.message, 'error');
             }
         };
 
@@ -452,16 +443,14 @@ export default {
         };
 
         const saveEdit = async () => {
-            const res = await fetch(`/@/todos/${editingTodo.value.id}`, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(editForm.value)
-            });
-
-            if (res.ok) {
+            try {
+                await api.put(`todos/${editingTodo.value.id}`, editForm.value);
                 const realTodo = todos.value.find(t => t.id === editingTodo.value.id);
                 if (realTodo) Object.assign(realTodo, editForm.value);
                 cancelEdit();
+                store.addNotification('Todo updated', 'success');
+            } catch (e) {
+                store.addNotification('Failed to update todo: ' + e.message, 'error');
             }
         };
 
@@ -489,7 +478,6 @@ export default {
                 srcTodo.parent_id = newParentId;
                 srcTodo.position = newPosition;
 
-                // Expand the parent automatically
                 if (!expandedIds.value.includes(newParentId)) {
                     expandedIds.value.push(newParentId);
                 }
@@ -519,16 +507,16 @@ export default {
         };
 
         const updatePosition = async (id, parentId, position) => {
-            await fetch('/@/todos/reorder', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
+            try {
+                await api.post('todos/reorder', {
                     id,
                     parent_id: parentId,
                     position
-                })
-            });
-            await fetchTodos();
+                });
+                await fetchTodos();
+            } catch (e) {
+                store.addNotification('Failed to move todo: ' + e.message, 'error');
+            }
         }
 
         onMounted(() => {

@@ -1,4 +1,5 @@
 import { ref, onMounted, computed, reactive, h } from 'vue';
+import { api } from 'api';
 import { store } from 'store';
 import Icon from 'ui/Icon.js';
 import UIButton from 'ui/Button.js';
@@ -317,27 +318,22 @@ export default {
         const loadFiles = async () => {
             loading.value = true;
             try {
-                const res = await fetch('/@/media-library/files');
-                if (res.ok) {
-                    files.value = await res.json();
-                }
+                files.value = await api.get('media-library/files');
             } finally {
                 loading.value = false;
             }
         };
 
         const loadTags = async () => {
-            const res = await fetch('/@/media-library/tags');
-            if (res.ok) {
-                tags.value = await res.json();
-            }
+            try {
+                tags.value = await api.get('media-library/tags');
+            } catch (e) { }
         };
 
         const loadStats = async () => {
-            const res = await fetch('/@/media-library/stats');
-            if (res.ok) {
-                stats.value = await res.json();
-            }
+            try {
+                stats.value = await api.get('media-library/stats');
+            } catch (e) { }
         };
 
         const handleFileUpload = async (event) => {
@@ -348,17 +344,12 @@ export default {
                 formData.append('file', file);
 
                 try {
-                    const res = await fetch('/@/media-library/files', {
-                        method: 'POST',
-                        body: formData
-                    });
-
-                    if (res.ok) {
-                        await loadFiles();
-                        await loadStats();
-                    }
+                    await api.post('media-library/files', formData);
+                    await loadFiles();
+                    await loadStats();
                 } catch (error) {
                     console.error('Upload failed:', error);
+                    store.addNotification('Upload failed: ' + error.message, 'error');
                 }
             }
 
@@ -402,48 +393,52 @@ export default {
         const saveFile = async () => {
             if (!editingFile.value) return;
 
-            // Update metadata
-            await fetch(`/@/media-library/files/${editingFile.value.id}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
+            try {
+                // Update metadata
+                await api.put(`media-library/files/${editingFile.value.id}`, {
                     original_filename: editingFile.value.original_filename,
                     alt_text: editingFile.value.alt_text,
                     caption: editingFile.value.caption
-                })
-            });
+                });
 
-            // Update tags
-            await fetch(`/@/media-library/files/${editingFile.value.id}/tags`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ tag_ids: editingFileTags.value })
-            });
+                // Update tags
+                await api.post(`media-library/files/${editingFile.value.id}/tags`, {
+                    tag_ids: editingFileTags.value
+                });
 
-            editingFile.value = null;
-            await loadFiles();
+                editingFile.value = null;
+                await loadFiles();
+                store.addNotification('Media updated', 'success');
+            } catch (e) {
+                store.addNotification('Update failed: ' + e.message, 'error');
+            }
         };
 
         const deleteFile = async (fileId) => {
             if (!confirm('Are you sure you want to delete this file?')) return;
 
-            await fetch(`/@/media-library/files/${fileId}`, { method: 'DELETE' });
-            await loadFiles();
-            await loadStats();
+            try {
+                await api.delete(`media-library/files/${fileId}`);
+                await loadFiles();
+                await loadStats();
+                store.addNotification('File deleted', 'success');
+            } catch (e) {
+                store.addNotification('Delete failed: ' + e.message, 'error');
+            }
         };
 
         const createTag = async () => {
             if (!newTag.value.name) return;
 
-            await fetch('/@/media-library/tags', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(newTag.value)
-            });
-
-            newTag.value = { name: '', color: '#6366f1' };
-            showTagModal.value = false;
-            await loadTags();
+            try {
+                await api.post('media-library/tags', newTag.value);
+                newTag.value = { name: '', color: '#6366f1' };
+                showTagModal.value = false;
+                await loadTags();
+                store.addNotification('Tag created', 'success');
+            } catch (e) {
+                store.addNotification('Error creating tag: ' + e.message, 'error');
+            }
         };
 
         const bulkTag = async () => {
@@ -457,13 +452,17 @@ export default {
         const bulkDelete = async () => {
             if (!confirm(`Delete ${selectedFiles.value.length} file(s)?`)) return;
 
-            for (const fileId of selectedFiles.value) {
-                await fetch(`/@/media-library/files/${fileId}`, { method: 'DELETE' });
+            try {
+                for (const fileId of selectedFiles.value) {
+                    await api.delete(`media-library/files/${fileId}`);
+                }
+                selectedFiles.value = [];
+                await loadFiles();
+                await loadStats();
+                store.addNotification('Selected files deleted', 'success');
+            } catch (e) {
+                store.addNotification('Bulk delete partially failed', 'error');
             }
-
-            selectedFiles.value = [];
-            await loadFiles();
-            await loadStats();
         };
 
         const getFileUrl = (file) => {

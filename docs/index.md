@@ -32,14 +32,18 @@ Welcome to the Gaia Alpha documentation. This documentation is organized topical
 - **[Hooks & Menus](plugins/hooks_and_menus.md)**: Extending the system without modifying core.
 - **[Plugin Directory](plugins/index.md)**: Documentation for individual plugins (e.g., [LMS](../../plugins/Lms/docs/index.md), [Ecommerce](../../plugins/Ecommerce/docs/index.md), [Drawing](../../plugins/Drawing/docs/index.md), [Screen Recorder](../../plugins/ScreenRecorder/docs/index.md), [Social Networks](../../plugins/SocialNetworks/docs/index.md), [Form Builder](../../plugins/FormBuilder/docs/index.md)).
 
-## 📋 Implementation Patterns
-*Standardized approach to common coding tasks.*
-- **[Controllers](patterns/controller.md)**
-- **[Models](patterns/model.md)**
-- **[Services](patterns/service.md)**
-- **[Form Integration](patterns/form_integration.md)**
-- **[UI Components](patterns/ui_component.md)**
-- **[MCP Tools](patterns/mcp_tool.md)**
+- [Application Contexts](patterns/context.md)
+- [API Standardization](patterns/api_standardization.md)
+- [Controllers](patterns/controller.md)
+- [Models](patterns/model.md)
+- [Services](patterns/service.md)
+- [Form Integration](patterns/form_integration.md)
+- [UI Components](patterns/ui_component.md)
+- [MCP Tools](patterns/mcp_tool.md)
+
+## ✅ Testing & Verification
+- [Backend Testing](testing/backend.md)
+- [Context-Aware Testing](testing/context_aware_testing.md)
 
 ## 🚀 Operations & Deployment
 *Setup, performance, and maintenance.*

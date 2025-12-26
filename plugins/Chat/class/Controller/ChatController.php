@@ -12,10 +12,10 @@ class ChatController extends BaseController
 {
     public function registerRoutes()
     {
-        Router::get('/@/chat/users', [$this, 'getUsers']);
-        Router::get('/@/chat/messages/(\d+)', [$this, 'getMessages']);
-        Router::post('/@/chat', [$this, 'sendMessage']);
-        Router::patch('/@/chat/read/(\d+)', [$this, 'markRead']);
+        \GaiaAlpha\Router::add('GET', '/@/api/chat/users', [$this, 'getUsers']);
+        \GaiaAlpha\Router::add('GET', '/@/api/chat/messages/(\d+)', [$this, 'getMessages']);
+        \GaiaAlpha\Router::add('POST', '/@/api/chat', [$this, 'sendMessage']);
+        \GaiaAlpha\Router::add('PATCH', '/@/api/chat/read/(\d+)', [$this, 'markRead']);
     }
 
     public function getUsers()

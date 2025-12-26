@@ -171,18 +171,42 @@ class Request
     /**
      * Determine the request context (public, admin, api)
      */
-    public static function context(): string
+    /**
+     * Determine current application context
+     * @return string public|api|admin|app|cli|worker
+     */
+    public static function context()
     {
+        if (php_sapi_name() == 'cli' && !defined('GAIA_TEST_HTTP')) {
+            return 'cli';
+        }
+
         $path = self::path();
-        if (strpos($path, '/@/') === 0) {
-            return 'admin';
+
+        // 1. Admin Context
+        $adminPrefixes = \GaiaAlpha\Env::get('admin_prefixes', ['/@/admin']);
+        foreach ((array) $adminPrefixes as $prefix) {
+            if (strpos($path, $prefix) === 0) {
+                return 'admin';
+            }
         }
-        if (strpos($path, '/api/') === 0) {
-            return 'api';
+
+        // 2. App Context (User Application)
+        $appPrefixes = \GaiaAlpha\Env::get('app_prefixes', ['/@/app']);
+        foreach ((array) $appPrefixes as $prefix) {
+            if (strpos($path, $prefix) === 0) {
+                return 'app';
+            }
         }
-        if ($path === '/app') {
-            return 'admin'; // /app is also admin-only
+
+        // 3. API Context
+        $apiPrefixes = \GaiaAlpha\Env::get('api_prefixes', ['/@/api']);
+        foreach ((array) $apiPrefixes as $prefix) {
+            if (strpos($path, $prefix) === 0) {
+                return 'api';
+            }
         }
+
         return 'public';
     }
 

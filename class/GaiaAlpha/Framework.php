@@ -3,6 +3,7 @@
 namespace GaiaAlpha;
 use GaiaAlpha\Env;
 use GaiaAlpha\Debug;
+use GaiaAlpha\File;
 
 class Framework
 {
@@ -85,10 +86,8 @@ class Framework
         }
 
         // Save manifest
-        if (!is_dir(dirname($manifestFile))) {
-            mkdir(dirname($manifestFile), 0755, true);
-        }
-        file_put_contents($manifestFile, json_encode($manifest));
+        File::makeDirectory(dirname($manifestFile));
+        File::writeJson($manifestFile, $manifest, 0);
 
         Hook::run('plugins_loaded');
     }
@@ -158,7 +157,7 @@ class Framework
             $manifest = json_decode(file_get_contents($manifestFile), true);
             if (is_array($manifest)) {
                 foreach ($manifest as $key => $className) {
-                    Debug::startTask("load_ctrl_$key", "Load $className");
+                    Hook::run('app_task_before', "load_ctrl_$key", "Load $className");
                     if (class_exists($className)) {
                         $controller = new $className();
                         if (method_exists($controller, 'init')) {
@@ -167,7 +166,7 @@ class Framework
                         Hook::run('controller_init', $controller, $key);
                         $controllers[$key] = $controller;
                     }
-                    Debug::endTask("load_ctrl_$key", "Load $className");
+                    Hook::run('app_task_after', "load_ctrl_$key", "Load $className");
                 }
                 Env::set('controllers', $controllers);
                 Hook::run('framework_load_controllers_after', $controllers);
@@ -185,7 +184,7 @@ class Framework
             $key = strtolower(str_replace('Controller', '', $filename));
             $className = "GaiaAlpha\\Controller\\$filename";
 
-            Debug::startTask("load_ctrl_$key", "Load $filename");
+            Hook::run('app_task_before', "load_ctrl_$key", "Load $filename");
 
             if (class_exists($className)) {
                 $controller = new $className();
@@ -200,14 +199,12 @@ class Framework
                 $manifest[$key] = $className;
             }
 
-            Debug::endTask("load_ctrl_$key", "Load $filename");
+            Hook::run('app_task_after', "load_ctrl_$key", "Load $filename");
         }
 
         // Save manifest
-        if (!is_dir(dirname($manifestFile))) {
-            mkdir(dirname($manifestFile), 0755, true);
-        }
-        file_put_contents($manifestFile, json_encode($manifest));
+        File::makeDirectory(dirname($manifestFile));
+        File::writeJson($manifestFile, $manifest, 0);
 
         Env::set('controllers', $controllers);
         Hook::run('framework_load_controllers_after', $controllers);

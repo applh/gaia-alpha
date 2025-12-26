@@ -132,11 +132,11 @@ class Router
         $handled = self::dispatch($method, $uri);
 
         if (!$handled) {
-            // Hook for 404
+            $context = Request::context();
             Hook::run('router_404', $uri);
 
-            if (strpos($uri, '/api/') === 0 || strpos($uri, '/@/') === 0) {
-                Response::json(['error' => 'API Endpoint Not Found'], 404);
+            if ($context === 'api' || $context === 'admin') {
+                Response::json(['error' => 'Endpoint Not Found'], 404);
             } else {
                 echo "File not found";
             }

@@ -1,4 +1,5 @@
 import { ref, onMounted, onUnmounted, nextTick } from 'vue';
+import { api } from 'api';
 import { store } from 'store';
 import Icon from 'ui/Icon.js';
 import UIButton from 'ui/Button.js';
@@ -133,10 +134,7 @@ export default {
 
         const fetchUsers = async () => {
             try {
-                const res = await fetch('/@/chat/users');
-                if (res.ok) {
-                    users.value = await res.json();
-                }
+                users.value = await api.get('chat/users');
             } catch (e) {
                 console.error('Failed to fetch users', e);
             }
@@ -145,21 +143,18 @@ export default {
         const fetchMessages = async () => {
             if (!selectedUser.value) return;
             try {
-                const res = await fetch(`/@/chat/messages/${selectedUser.value.id}`);
-                if (res.ok) {
-                    const newData = await res.json();
-                    const initialLoad = messages.value.length === 0;
-                    const diff = newData.length !== messages.value.length;
+                const newData = await api.get(`chat/messages/${selectedUser.value.id}`);
+                const initialLoad = messages.value.length === 0;
+                const diff = newData.length !== messages.value.length;
 
-                    if (diff || (newData.length > 0 && messages.value.length > 0 && newData[newData.length - 1].id !== messages.value[messages.value.length - 1].id)) {
-                        messages.value = newData;
-                        if (initialLoad || diff) {
-                            scrollToBottom();
-                        }
+                if (diff || (newData.length > 0 && messages.value.length > 0 && newData[newData.length - 1].id !== messages.value[messages.value.length - 1].id)) {
+                    messages.value = newData;
+                    if (initialLoad || diff) {
+                        scrollToBottom();
+                    }
 
-                        if (selectedUser.value.unread > 0) {
-                            markRead(selectedUser.value.id);
-                        }
+                    if (selectedUser.value.unread > 0) {
+                        markRead(selectedUser.value.id);
                     }
                 }
             } catch (e) { }
@@ -180,9 +175,11 @@ export default {
         };
 
         const markRead = async (senderId) => {
-            await fetch(`/@/chat/read/${senderId}`, { method: 'PATCH' });
-            const u = users.value.find(u => u.id === senderId);
-            if (u) u.unread = 0;
+            try {
+                await api.patch(`chat/read/${senderId}`);
+                const u = users.value.find(u => u.id === senderId);
+                if (u) u.unread = 0;
+            } catch (e) { }
         };
 
         const sendMessage = async () => {
@@ -193,32 +190,22 @@ export default {
             isSending.value = true;
 
             try {
-                const res = await fetch('/@/chat', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        to: selectedUser.value.id,
-                        content: content
-                    })
+                const data = await api.post('chat', {
+                    to: selectedUser.value.id,
+                    content: content
                 });
 
-                if (res.ok) {
-                    const data = await res.json();
-                    messages.value.push({
-                        id: data.id,
-                        sender_id: currentUser.id,
-                        receiver_id: selectedUser.value.id,
-                        content: content,
-                        created_at: data.created_at
-                    });
-                    scrollToBottom();
-                } else {
-                    newMessage.value = content;
-                    store.addNotification('Failed to send message', 'error');
-                }
+                messages.value.push({
+                    id: data.id,
+                    sender_id: currentUser.id,
+                    receiver_id: selectedUser.value.id,
+                    content: content,
+                    created_at: data.created_at
+                });
+                scrollToBottom();
             } catch (e) {
                 newMessage.value = content;
-                store.addNotification('Error sending message', 'error');
+                store.addNotification('Error sending message: ' + e.message, 'error');
             } finally {
                 isSending.value = false;
                 inputField.value?.focus();

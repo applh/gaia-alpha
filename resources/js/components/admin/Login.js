@@ -1,5 +1,6 @@
 import { ref, watch, computed, defineAsyncComponent } from 'vue';
 import { store } from 'store';
+import { api } from 'api';
 import Input from 'ui/Input.js';
 import Button from 'ui/Button.js';
 import AsyncForm from 'ui/AsyncForm.js';
@@ -52,30 +53,19 @@ export default {
         // const loading = ref(false); // Handled by AsyncForm
 
         const login = async () => {
-            const endpoint = isLogin.value ? '/@/login' : '/@/register';
+            const path = isLogin.value ? 'login' : 'register';
 
-            const response = await fetch(endpoint, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username: username.value, password: password.value })
-            });
-            const data = await response.json();
+            try {
+                const data = await api.post(path, { username: username.value, password: password.value });
 
-            if (response.ok) {
                 if (isLogin.value) {
                     emit('login', data.user);
                 } else {
-                    // Switch to login mode after successful register
                     store.setLoginMode('login');
-                    // AsyncForm will show success. We might want to show a message though?
-                    // AsyncForm catches errors, but for success it just says "Saved!" default.
-                    // We can return a value or just let it finish.
-                    throw new Error('Registration successful. Please login.'); // Hack to show message as error? No.
-                    // Ideally AsyncForm supports customized success message per call.
-                    // For now, standard success is fine.
+                    // AsyncForm will show success
                 }
-            } else {
-                throw new Error(data.error || 'An error occurred');
+            } catch (e) {
+                throw new Error(e.message || 'An error occurred');
             }
         };
 

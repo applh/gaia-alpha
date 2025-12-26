@@ -28,8 +28,12 @@ class YourController extends BaseController
      */
     public function registerRoutes()
     {
-        Router::add('GET', '/@/your-plugin/items', [$this, 'index']);
-        Router::add('POST', '/@/your-plugin/items', [$this, 'create']);
+        // Use /@/api/ for data endpoints
+        \GaiaAlpha\Router::add('GET', '/@/api/todos', [$this, 'index']);
+        \GaiaAlpha\Router::add('POST', '/@/api/todos', [$this, 'create']);
+        
+        // Use /@/admin/ for administrative tools
+        \GaiaAlpha\Router::add('GET', '/@/admin/stats', [$this, 'stats']);
     }
 
     public function index()
@@ -131,6 +135,14 @@ Controllers are the gatekeepers of the system. Follow these security patterns:
 
 ## Common Pitfalls
 
+### Standardized Route Prefixes
+
+All system routes should follow the `/@/` convention:
+- `/@/api/*`: Standardized JSON API endpoints.
+- `/@/admin/*`: System administration.
+- `/@/app/*`: User-facing specialized application dashboards.
+
+Always use the fully qualified `\GaiaAlpha\Router::add()` to avoid namespace conflicts in plugins.
 ## Checklist
 
 - [x] Resides in `YourPlugin/class/Controller/`.
@@ -142,3 +154,4 @@ Controllers are the gatekeepers of the system. Follow these security patterns:
 ## See Also
 
 - [AssetController Pattern](../frontend/asset_controller.md): For details on serving static assets.
+```

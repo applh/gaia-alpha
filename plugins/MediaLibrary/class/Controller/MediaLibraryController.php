@@ -326,22 +326,22 @@ class MediaLibraryController extends BaseController
      */
     public function registerRoutes()
     {
-        Router::add('GET', '/@/media-library/files', [$this, 'listFiles']);
-        Router::add('GET', '/@/media-library/files/(\d+)', [$this, 'getFile']);
-        Router::add('POST', '/@/media-library/files', [$this, 'uploadFile']);
-        Router::add('PUT', '/@/media-library/files/(\d+)', [$this, 'updateFile']);
-        Router::add('DELETE', '/@/media-library/files/(\d+)', [$this, 'deleteFile']);
+        Router::add('GET', '/@/api/media-library/files', [$this, 'listFiles']);
+        Router::add('GET', '/@/api/media-library/files/(\d+)', [$this, 'getFile']);
+        Router::add('POST', '/@/api/media-library/files', [$this, 'uploadFile']);
+        Router::add('PUT', '/@/api/media-library/files/(\d+)', [$this, 'updateFile']);
+        Router::add('DELETE', '/@/api/media-library/files/(\d+)', [$this, 'deleteFile']);
 
-        Router::add('GET', '/@/media-library/tags', [$this, 'listTags']);
-        Router::add('POST', '/@/media-library/tags', [$this, 'createTag']);
-        Router::add('DELETE', '/@/media-library/tags/(\d+)', [$this, 'deleteTag']);
+        Router::add('GET', '/@/api/media-library/tags', [$this, 'listTags']);
+        Router::add('POST', '/@/api/media-library/tags', [$this, 'createTag']);
+        Router::add('DELETE', '/@/api/media-library/tags/(\d+)', [$this, 'deleteTag']);
 
-        Router::add('POST', '/@/media-library/files/(\d+)/tags', [$this, 'assignTags']);
-        Router::add('GET', '/@/media-library/search', [$this, 'search']);
-        Router::add('GET', '/@/media-library/stats', [$this, 'stats']);
+        Router::add('POST', '/@/api/media-library/files/(\d+)/tags', [$this, 'assignTags']);
+        Router::add('GET', '/@/api/media-library/search', [$this, 'search']);
+        Router::add('GET', '/@/api/media-library/stats', [$this, 'stats']);
 
         // Processing Routes
-        Router::add('POST', '/@/media-library/process-image', [$this, 'processImage']);
-        Router::add('POST', '/@/media-library/process-video', [$this, 'processVideo']);
+        Router::add('POST', '/@/api/media-library/process-image', [$this, 'processImage']);
+        Router::add('POST', '/@/api/media-library/process-video', [$this, 'processVideo']);
     }
 }

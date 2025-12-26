@@ -1,4 +1,6 @@
 import { ref, reactive, onMounted, computed } from 'vue';
+import { api } from 'api';
+import { store } from 'store';
 import Icon from 'ui/Icon.js';
 import UIButton from 'ui/Button.js';
 import Card from 'ui/Card.js';
@@ -180,10 +182,9 @@ export default {
         const fetchComments = async () => {
             loading.value = true;
             try {
-                const res = await fetch(`/@/api/comments?type=${props.targetType}&id=${props.targetId}`);
-                const data = await res.json();
-                if (data.data) {
-                    comments.value = data.data;
+                const data = await api.get(`comments?type=${props.targetType}&id=${props.targetId}`);
+                if (data) {
+                    comments.value = data;
                 }
             } catch (e) {
                 console.error("Failed to load comments", e);
@@ -197,25 +198,21 @@ export default {
             submitting.value = true;
 
             try {
-                const res = await fetch('/@/api/comments', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        commentable_type: props.targetType,
-                        commentable_id: props.targetId,
-                        content: newComment.content,
-                        rating: props.allowRating ? newComment.rating : null
-                    })
+                const data = await api.post('comments', {
+                    commentable_type: props.targetType,
+                    commentable_id: props.targetId,
+                    content: newComment.content,
+                    rating: props.allowRating ? newComment.rating : null
                 });
 
-                if (res.ok) {
+                if (data) {
                     newComment.content = '';
                     newComment.rating = 0;
                     await fetchComments();
                     store.addNotification('Comment posted', 'success');
                 }
             } catch (e) {
-                store.addNotification('Error posting comment', 'error');
+                store.addNotification('Error posting comment: ' + e.message, 'error');
             } finally {
                 submitting.value = false;
             }
@@ -234,25 +231,19 @@ export default {
             if (!replyContent.value) return;
 
             try {
-                const res = await fetch('/@/api/comments', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        commentable_type: props.targetType,
-                        commentable_id: props.targetId,
-                        parent_id: parentId,
-                        content: replyContent.value
-                    })
+                await api.post('comments', {
+                    commentable_type: props.targetType,
+                    commentable_id: props.targetId,
+                    parent_id: parentId,
+                    content: replyContent.value
                 });
 
-                if (res.ok) {
-                    replyingTo.value = null;
-                    replyContent.value = '';
-                    await fetchComments();
-                    store.addNotification('Reply posted', 'success');
-                }
+                replyingTo.value = null;
+                replyContent.value = '';
+                await fetchComments();
+                store.addNotification('Reply posted', 'success');
             } catch (e) {
-                store.addNotification('Error posting reply', 'error');
+                store.addNotification('Error posting reply: ' + e.message, 'error');
             }
         };
 

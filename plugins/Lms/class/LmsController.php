@@ -44,8 +44,9 @@ class LmsController
 
     public function registerRoutes()
     {
-        \GaiaAlpha\Router::get('/api/lms/courses', [$this, 'getCourses']);
-        \GaiaAlpha\Router::get('/api/lms/courses/(\d+)', [$this, 'getCourse']);
-        \GaiaAlpha\Router::post('/api/lms/courses', [$this, 'createCourse']);
+        \GaiaAlpha\Router::add('GET', '/@/api/lms/courses', [$this, 'courses']);
+        \GaiaAlpha\Router::add('GET', '/@/api/lms/courses/{id}', [$this, 'course']);
+        \GaiaAlpha\Router::add('POST', '/@/api/lms/courses', [$this, 'saveCourse']);
+        \GaiaAlpha\Router::add('POST', '/@/api/lms/progress', [$this, 'saveProgress']);
     }
 }

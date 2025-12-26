@@ -44,3 +44,6 @@ Execute the runner from the project root:
 ```bash
 php tests/run.php
 ```
+
+## See Also
+- [Context-Aware Testing](./context_aware_testing.md): How to test code that relies on request contexts.

@@ -1,4 +1,5 @@
 import { reactive, computed } from 'vue';
+import { api } from 'api';
 
 // 1. Reactive State
 const getHashView = () => window.location.hash.replace(/^#/, '') || '';
@@ -44,11 +45,7 @@ const savePreference = async (key, value) => {
     state.user.settings[key] = value;
 
     try {
-        await fetch('/@/user/settings', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ key, value })
-        });
+        await api.post('user/settings', { key, value });
     } catch (e) {
         console.error(`Failed to save ${key}`, e);
     }
@@ -108,12 +105,9 @@ const setLoginMode = (mode) => {
 
 const checkSession = async () => {
     try {
-        const res = await fetch('/@/user');
-        if (res.ok) {
-            const data = await res.json();
-            setUser(data.user);
-            return true;
-        }
+        const data = await api.get('user');
+        setUser(data.user);
+        return true;
     } catch (e) {
         console.error("Session check failed", e);
     }
@@ -140,10 +134,9 @@ const removeNotification = (id) => {
 
 const logout = async () => {
     try {
-        await fetch('/@/logout', { method: 'POST' });
+        await api.post('logout');
         state.user = null;
         setView('todos'); // Reset view and URL
-        // Optional: reset theme to system default or keep current
     } catch (e) {
         console.error("Logout failed", e);
     }

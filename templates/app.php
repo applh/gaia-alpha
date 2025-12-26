@@ -16,7 +16,9 @@
                 "composables/": "/min/js/composables/",
                 "builders/": "/min/js/components/builders/",
                 "plugins/": "/min/js/plugins/",
-                "store": "/min/js/store.js"
+                "store": "/min/js/store.js",
+                "api": "/min/js/utils/Api.js",
+                "utils/": "/min/js/utils/"
             }
         }
     </script>

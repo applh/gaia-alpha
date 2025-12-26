@@ -1,3 +1,15 @@
+## [v0.60.0] - 2025-12-26
+### Added
+- **Application Context System**: Implemented granular context detection (`public`, `api`, `admin`, `app`, `cli`, `worker`) with configurable prefixes.
+- **API Standardization**: Introduced centralized `Api.js` helper and moved all API traffic to the forced `/@/api/` namespace.
+- **Testing**: Added `ContextTest.php` and `PluginLoadingTest.php` to verify the new context-aware architectural logic.
+- **Docs**: Comprehensive documentation upgrade focusing on architectural patterns, testing, and performance.
+
+### Refactored
+- **Core**: Updated `Request::context()` to support granular detection and configurable system-level prefixes, removing all legacy `/api/` and `/app` routing fallbacks.
+- **Core**: Integrated `Api.js` into the system importmap.
+- **Plugins**: Migrated Auth system and 6 major plugins (Todo, AuditTrail, Comments, Lms, MediaLibrary, Chat) to the new `/@/api/` prefix.
+
 ## [v0.59.1] - 2025-12-25
 ### Optimized
 - **Router**: Refactored `Router` class to use O(1) static route lookup and method grouping.

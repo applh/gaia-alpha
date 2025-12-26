@@ -103,11 +103,13 @@ class TodoController extends BaseController
 
     public function registerRoutes()
     {
-        \GaiaAlpha\Router::add('GET', '/@/todos', [$this, 'index']);
-        \GaiaAlpha\Router::add('POST', '/@/todos', [$this, 'create']);
-        \GaiaAlpha\Router::add('PATCH', '/@/todos/(\d+)', [$this, 'update']);
-        \GaiaAlpha\Router::add('DELETE', '/@/todos/(\d+)', [$this, 'delete']);
-        \GaiaAlpha\Router::add('GET', '/@/todos/(\d+)/children', [$this, 'getChildren']);
-        \GaiaAlpha\Router::add('POST', '/@/todos/reorder', [$this, 'reorder']);
+        \GaiaAlpha\Router::add('GET', '/@/api/todos', [$this, 'index']);
+        \GaiaAlpha\Router::add('POST', '/@/api/todos', [$this, 'create']);
+        \GaiaAlpha\Router::add('PUT', '/@/api/todos/{id}', [$this, 'update']);
+        \GaiaAlpha\Router::add('DELETE', '/@/api/todos/{id}', [$this, 'delete']);
+        \GaiaAlpha\Router::add('POST', '/@/api/todos/reorder', [$this, 'reorder']);
+        \GaiaAlpha\Router::add('POST', '/@/api/todos/upload', [$this, 'uploadAttachment']);
+        \GaiaAlpha\Router::add('POST', '/@/api/todos/import', [$this, 'importData']);
+        \GaiaAlpha\Router::add('GET', '/@/api/todos/stats', [$this, 'stats']);
     }
 }

@@ -100,5 +100,18 @@ These documentation updates will help prevent:
 ### Additional Refactoring (Login & CMS)
 -   **`Login.js`**: Standardized login form with `AsyncForm`.
 -   **`CMS.js`**: Replaced manual page/template form handling with `AsyncForm` for unified UX.
--   **CSS Audit**: Standardized input styles (higher contrast) and refactored hardcoded spacing (`10px` -> `var(--space-md)`) in `site.css`.
+
+## Architectural & Performance Upgrades (2025-12-26)
+
+### New Patterns & Contexts
+1. **[Application Context System](patterns/context.md)**: Detailed documentation of the refined context system (`api`, `app`, `admin`, etc.) with configurable prefixes.
+2. **[API Standardization Pattern](patterns/api_standardization.md)**: Standardized usage of the new `Api.js` helper for consistent, secure, and performant frontend requests.
+
+### Enhanced Testing Guides
+1. **[Backend Testing Guide Refresh](testing/backend.md)**: Updated descriptions of the custom PHP test framework.
+2. **[Context-Aware Testing Guide](testing/context_aware_testing.md)**: New guide on mocking contexts and server variables for robust backend verification.
+
+### Core Documentation Refactor
+1. **[System Architecture Update](core/architecture.md)**: Integrated context-based plugin loading and the new route structure into the core flow description.
+2. **[Pattern Updates](patterns/controller.md)**: Refreshed controller and hook documentation to promote the `/@/api/` prefixing convention and fully qualified class references.
 

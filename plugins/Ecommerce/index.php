@@ -12,7 +12,7 @@ Hook::add('framework_load_controllers_after', function () {
 // Register UI Component
 \GaiaAlpha\UiManager::registerComponent(
     'ecommerce_dashboard',
-    'plugins/Ecommerce/resources/js/ProductList.js',
+    'plugins/Ecommerce/resources/js/EcommerceDashboard.js',
     true // Admin only
 );
 

@@ -51,9 +51,23 @@ class EcommerceController
         }
     }
 
+    public function getStats()
+    {
+        $totalSales = \GaiaAlpha\Model\DB::fetch("SELECT SUM(total) as total FROM ecommerce_orders WHERE status = 'paid'")['total'] ?? 0;
+        $orderCount = \GaiaAlpha\Model\DB::fetch("SELECT COUNT(*) as count FROM ecommerce_orders")['count'] ?? 0;
+        $productCount = \GaiaAlpha\Model\DB::fetch("SELECT COUNT(*) as count FROM ecommerce_products")['count'] ?? 0;
+
+        Response::json([
+            'total_sales' => round($totalSales, 2),
+            'order_count' => $orderCount,
+            'product_count' => $productCount
+        ]);
+    }
+
     public function registerRoutes()
     {
         \GaiaAlpha\Router::get('/api/ecommerce/products', [$this, 'getProducts']);
+        \GaiaAlpha\Router::get('/api/ecommerce/stats', [$this, 'getStats']);
         \GaiaAlpha\Router::get('/api/ecommerce/cart', [$this, 'getCart']);
         \GaiaAlpha\Router::post('/api/ecommerce/cart', [$this, 'addToCart']);
         \GaiaAlpha\Router::post('/api/ecommerce/checkout', [$this, 'checkout']);

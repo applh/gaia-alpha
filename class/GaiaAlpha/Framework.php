@@ -178,10 +178,8 @@ class Framework
 
     public static function appBoot()
     {
-        // Debug hooking
-        Hook::add('database_query_executed', function ($sql, $params, $duration) {
-            Debug::logQuery($sql, $params, $duration);
-        });
+        // Debug hooking - moved to Debug plugin
+        // Hook::add('database_query_executed', ...) removed
 
         Hook::run('app_boot');
     }

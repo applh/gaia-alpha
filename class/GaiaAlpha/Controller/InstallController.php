@@ -80,7 +80,7 @@ class InstallController extends BaseController
 
             $dataPath = Env::get('path_data');
             if (!$dataPath) {
-                $dataPath = defined('GAIA_DATA_PATH') ? GAIA_DATA_PATH : Env::get('root_dir') . '/my-data';
+                $dataPath = getenv('GAIA_DATA_PATH') ?: Env::get('root_dir') . '/my-data';
             }
             if (!is_dir($dataPath)) {
                 mkdir($dataPath, 0755, true);
@@ -134,6 +134,7 @@ class InstallController extends BaseController
             }
 
             file_put_contents($dataPath . '/config.php', $configContent);
+
 
             // Re-inject DB instance into Model Layer
             \GaiaAlpha\Model\DB::setConnection($db);
@@ -219,7 +220,7 @@ class InstallController extends BaseController
     {
         $dataPath = Env::get('path_data');
         if (!$dataPath) {
-            $dataPath = defined('GAIA_DATA_PATH') ? GAIA_DATA_PATH : Env::get('root_dir') . '/my-data';
+            $dataPath = getenv('GAIA_DATA_PATH') ?: Env::get('root_dir') . '/my-data';
         }
         $lockFile = $dataPath . '/installed.lock';
 
@@ -249,7 +250,7 @@ class InstallController extends BaseController
     {
         $dataPath = Env::get('path_data');
         if (!$dataPath) {
-            $dataPath = defined('GAIA_DATA_PATH') ? GAIA_DATA_PATH : Env::get('root_dir') . '/my-data';
+            $dataPath = getenv('GAIA_DATA_PATH') ?: Env::get('root_dir') . '/my-data';
         }
 
         if (is_dir($dataPath)) {

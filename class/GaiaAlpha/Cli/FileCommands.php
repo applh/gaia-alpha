@@ -12,7 +12,7 @@ class FileCommands
 {
     private static function getDataPath(): string
     {
-        return defined('GAIA_DATA_PATH') ? GAIA_DATA_PATH : Env::get('root_dir') . '/my-data';
+        return Env::get('path_data') ?: (getenv('GAIA_DATA_PATH') ?: Env::get('root_dir') . '/my-data');
     }
 
     private static function validatePath(string $path): string

@@ -1,0 +1,7 @@
+{
+    "name": "Debug",
+    "description": "System debugging tool and profiler",
+    "version": "1.0.0",
+    "type": "core",
+    "context": "all"
+}

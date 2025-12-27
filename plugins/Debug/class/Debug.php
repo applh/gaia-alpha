@@ -1,6 +1,9 @@
 <?php
 
-namespace GaiaAlpha;
+namespace GaiaAlpha\Plugin\Debug;
+
+use GaiaAlpha\Hook;
+use GaiaAlpha\Session;
 
 class Debug
 {
@@ -15,7 +18,7 @@ class Debug
 
     public static function init()
     {
-        self::$startTime = microtime(true);
+        self::$startTime = $_SERVER['REQUEST_TIME_FLOAT'] ?? microtime(true);
         self::$memoryStart = memory_get_usage();
 
         // Register hooks to capture data
@@ -23,6 +26,7 @@ class Debug
         Hook::add('app_task_before', [self::class, 'startTask']);
         Hook::add('app_task_after', [self::class, 'endTask']);
         Hook::add('response_send', [self::class, 'injectHeader']);
+        Hook::add('database_query_executed', [self::class, 'logQuery']);
     }
 
     /**
@@ -32,7 +36,7 @@ class Debug
      */
     public static function injectHeader($context = null)
     {
-        $isAdmin = \GaiaAlpha\Session::isAdmin();
+        $isAdmin = Session::isAdmin();
         $isPublicDebug = isset($_GET['debug']) && $_GET['debug'] == '1';
 
         // Only proceed if Admin or Public Debug is enabled via param
@@ -187,8 +191,8 @@ class Debug
             'post' => $_POST,
             'get' => $_GET,
             'user' => [
-                'username' => \GaiaAlpha\Session::get('username', 'Guest'),
-                'level' => \GaiaAlpha\Session::level()
+                'username' => Session::get('username', 'Guest'),
+                'level' => Session::level()
             ]
         ];
     }

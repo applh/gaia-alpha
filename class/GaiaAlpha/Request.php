@@ -187,7 +187,7 @@ class Request
         // Check if installed.lock exists in data path
         $dataPath = \GaiaAlpha\Env::get('path_data');
         if (!$dataPath) {
-            $dataPath = defined('GAIA_DATA_PATH') ? GAIA_DATA_PATH : \GaiaAlpha\Env::get('root_dir') . '/my-data';
+            $dataPath = getenv('GAIA_DATA_PATH') ?: \GaiaAlpha\Env::get('root_dir') . '/my-data';
         }
 
         $isInstalled = file_exists($dataPath . '/installed.lock');

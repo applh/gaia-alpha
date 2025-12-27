@@ -50,28 +50,15 @@ class App
 
     public static function web_setup(string $rootDir)
     {
+        // 1. Determine Data Path first
+        $dataPath = getenv('GAIA_DATA_PATH') ?: $rootDir . '/my-data';
+
         Hook::run('app_init');
         Env::set('root_dir', $rootDir);
 
-        // 1. Determine Data Path
-        if (getenv('GAIA_DATA_PATH')) {
-            if (!defined('GAIA_DATA_PATH')) {
-                define('GAIA_DATA_PATH', getenv('GAIA_DATA_PATH'));
-            }
-        }
+        File::requireOnce($rootDir . '/loader.php');
 
-        if (file_exists($rootDir . '/loader.php')) {
-            require_once $rootDir . '/loader.php';
-        }
-
-        if (!defined('GAIA_DATA_PATH')) {
-            define('GAIA_DATA_PATH', $rootDir . '/my-data');
-        }
-
-        $dataPath = GAIA_DATA_PATH;
-        if (!is_dir($dataPath)) {
-            mkdir($dataPath, 0755, true);
-        }
+        File::makeDirectory($dataPath);
         Env::set('path_data', $dataPath);
 
         // Check for Install Context
@@ -81,10 +68,8 @@ class App
         }
 
         // 2. Load Config
-        if (file_exists($dataPath . '/config.php')) {
-            require_once $dataPath . '/config.php';
-        } elseif (file_exists($rootDir . '/my-config.php')) {
-            require_once $rootDir . '/my-config.php';
+        if (!File::requireOnce($dataPath . '/config.php')) {
+            File::requireOnce($rootDir . '/my-config.php');
         }
 
         // Resolve Site / DB Path
@@ -100,7 +85,6 @@ class App
 
         Env::set('controllers', []);
         Env::set('framework_tasks', [
-            "step00" => "GaiaAlpha\\Debug::init",
             "step01" => "GaiaAlpha\\Response::startBuffer",
             "step05" => "GaiaAlpha\\Framework::loadPlugins",
             "step06" => "GaiaAlpha\\Framework::appBoot",
@@ -121,42 +105,25 @@ class App
             die("This script must be run from the command line.\n");
         }
 
+        // 1. Determine Data Path first
+        $dataPath = getenv('GAIA_DATA_PATH') ?: $rootDir . '/my-data';
+
         Hook::run('app_init');
         Env::set('root_dir', $rootDir);
+        File::requireOnce($rootDir . '/loader.php');
 
-        // 1. Determine Data Path
-        if (getenv('GAIA_DATA_PATH')) {
-            if (!defined('GAIA_DATA_PATH')) {
-                define('GAIA_DATA_PATH', getenv('GAIA_DATA_PATH'));
-            }
-        }
-
-        if (file_exists($rootDir . '/loader.php')) {
-            require_once $rootDir . '/loader.php';
-        }
-
-        if (!defined('GAIA_DATA_PATH')) {
-            define('GAIA_DATA_PATH', $rootDir . '/my-data');
-        }
-
-        $dataPath = GAIA_DATA_PATH;
-        if (!is_dir($dataPath)) {
-            mkdir($dataPath, 0755, true);
-        }
+        File::makeDirectory($dataPath);
         Env::set('path_data', $dataPath);
 
         // 2. Load Config
-        if (file_exists($dataPath . '/config.php')) {
-            require_once $dataPath . '/config.php';
-        } elseif (file_exists($rootDir . '/my-config.php')) {
-            require_once $rootDir . '/my-config.php';
+        if (!File::requireOnce($dataPath . '/config.php')) {
+            File::requireOnce($rootDir . '/my-config.php');
         }
 
         // Resolve Site / DB Path
         \GaiaAlpha\SiteManager::resolve();
 
         Env::set('framework_tasks', [
-            "step00" => "GaiaAlpha\\Debug::init",
             "step05" => "GaiaAlpha\\Framework::loadPlugins",
             "step06" => "GaiaAlpha\\Framework::appBoot",
             "step10" => "GaiaAlpha\\Cli::run"
@@ -167,18 +134,18 @@ class App
 
     public static function install_setup(string $rootDir)
     {
+        // Define minimal data path for installation lock check (already done in Request usually)
+        $dataPath = getenv('GAIA_DATA_PATH') ?: $rootDir . '/my-data';
+
         Hook::run('app_init');
         Env::set('root_dir', $rootDir);
 
         // Define minimal data path for installation lock check (already done in Request usually)
-        if (!defined('GAIA_DATA_PATH')) {
-            define('GAIA_DATA_PATH', $rootDir . '/my-data');
-        }
-        Env::set('path_data', GAIA_DATA_PATH);
+        // Already defined above
+        Env::set('path_data', $dataPath);
 
         // Minimal Framework Tasks for Installation
         Env::set('framework_tasks', [
-            "step00" => "GaiaAlpha\\Debug::init",
             "step01" => "GaiaAlpha\\Response::startBuffer",
             // Skip loading plugins or safely load core only if needed. For now skip.
             "step06" => "GaiaAlpha\\Framework::appBoot",

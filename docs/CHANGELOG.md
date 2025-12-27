@@ -1,3 +1,13 @@
+## [v2.5.1] - 2025-12-28
+### Refactored
+- **Core**: Removed outdated `GAIA_DATA_PATH` constant in favor of `Env::get('path_data')`.
+- **Core**: `App.php` no longer manages the Debug module.
+- **File**: Added `File::requireOnce()` wrapper for consistent file loading.
+- **Plugins**: Converted the `Debug` module into a standalone Core Plugin (`plugins/Debug/`).
+    - Moved debug logic from `Framework` and `App` to the plugin.
+    - Decoupled query logging via `database_query_executed` hook.
+- **Install**: Removed manual "Enable Debug Mode" option; Debug is now a standard, manageable plugin.
+
 ## [v0.60.1] - 2025-12-26
 ### Fixed
 - **MCP Server**: Improved protocol compliance for JSON-RPC.

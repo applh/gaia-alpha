@@ -173,4 +173,15 @@ class File
 
         return $mimeTypes[$ext] ?? 'application/octet-stream';
     }
+    /**
+     * Require a file once if it exists.
+     */
+    public static function requireOnce(string $path): bool
+    {
+        if (self::exists($path)) {
+            require_once $path;
+            return true;
+        }
+        return false;
+    }
 }

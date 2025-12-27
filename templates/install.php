@@ -217,6 +217,8 @@
                     Populate with Demo Data (recommended)
                 </label>
 
+
+
                 <div class="form-group" style="margin-top: 1.5rem; border-top: 1px solid #334155; padding-top: 1rem;">
                     <label>Plugins</label>
                     <div id="plugins-list" style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">

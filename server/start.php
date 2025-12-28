@@ -81,7 +81,7 @@ try {
                 // For now, we just loop and sleep. 
                 // TODO: Park fiber in SessionManager
                 while (true) {
-                    \GaiaAlpha\Daemon\Loop::sleep(15);
+                    Loop::sleep(15);
                     // Check if client is still there?
                     // Writing to check connectivity
                     try {

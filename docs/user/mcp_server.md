@@ -17,8 +17,32 @@ To connect any MCP-compatible client, you need to provide the command to run the
 ### IMPORTANT: Server Ports
 The new MCP server is a hybrid server that listens on:
 1.  **STDIO**: For local MCP communication (JSON-RPC).
-2.  **TCP 8081**: For WebSocket and SSE connections.
-*Ensure port 8081 is available before starting the server.*
+2.  **TCP 8081** (Default): For WebSocket and SSE connections.
+
+You can configure the protocols and port using command line arguments.
+
+## Configuration Options
+
+The `server/start.php` script accepts the following arguments:
+
+-   `--modes`: Comma-separated list of protocols to enable.
+    -   `stdio`: Enables Standard Input/Output (for local agents).
+    -   `socket`: Enables TCP Server (for WebSockets/SSE).
+    -   *Default*: `stdio,socket` (Both enabled)
+-   `--port`: The TCP port to listen on (only used if `socket` mode is enabled).
+    -   *Default*: `8081`
+
+### Examples
+
+**Run in Stdio-Only Mode (No network ports):**
+```bash
+php server/start.php --modes=stdio
+```
+
+**Run on a custom port:**
+```bash
+php server/start.php --port=9090
+```
 
 ## Tutorials
 
@@ -35,11 +59,28 @@ Add the following to your MCP settings:
     "gaia-cms": {
       "command": "php",
       "args": [
-        "/absolute/path/to/project/server/start.php"
+        "/absolute/path/to/project/server/start.php",
+        "--modes=stdio"
       ],
       "env": {
         "GAIA_ENV": "production"
       }
+    }
+  }
+}
+```
+
+If you need to use the WebSocket/SSE features on a remote server or a specific port:
+
+```json
+{
+  "mcpServers": {
+    "gaia-cms": {
+      "command": "php",
+      "args": [
+        "/absolute/path/to/project/server/start.php",
+        "--port=9090"
+      ]
     }
   }
 }
@@ -64,7 +105,8 @@ To use the CMS with the Claude Desktop app:
     "gaia-cms": {
       "command": "php",
       "args": [
-        "/Users/username/path/to/gaia-alpha/server/start.php"
+        "/Users/username/path/to/gaia-alpha/server/start.php",
+        "--modes=stdio"
       ]
     }
   }

@@ -9,6 +9,7 @@ class Socket
 {
     private $resource;
     private int $port;
+    private bool $running = true;
 
     public function __construct(int $port = 8080)
     {
@@ -35,7 +36,7 @@ class Socket
         Loop::get()->async(function () use ($onConnect) {
             echo "Listening on port {$this->port}...\n";
 
-            while (true) {
+            while ($this->running) {
                 Loop::awaitReadable($this->resource);
 
                 // Keep accepting connections
@@ -59,5 +60,10 @@ class Socket
                 }
             }
         });
+    }
+
+    public function stop(): void
+    {
+        $this->running = false;
     }
 }

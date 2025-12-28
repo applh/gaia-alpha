@@ -11,8 +11,14 @@ The **Model Context Protocol (MCP)** plugin allows external AI agents to directl
 To connect any MCP-compatible client, you need to provide the command to run the server.
 
 - **Command**: `php`
-- **Arguments**: `[absolute-path-to-cli.php] mcp:server`
+- **Arguments**: `[absolute-path-to-project]/server/start.php`
 - **Working Directory**: `[absolute-path-to-project-root]`
+
+### IMPORTANT: Server Ports
+The new MCP server is a hybrid server that listens on:
+1.  **STDIO**: For local MCP communication (JSON-RPC).
+2.  **TCP 8081**: For WebSocket and SSE connections.
+*Ensure port 8081 is available before starting the server.*
 
 ## Tutorials
 
@@ -29,8 +35,7 @@ Add the following to your MCP settings:
     "gaia-cms": {
       "command": "php",
       "args": [
-        "/absolute/path/to/project/cli.php",
-        "mcp:server"
+        "/absolute/path/to/project/server/start.php"
       ],
       "env": {
         "GAIA_ENV": "production"
@@ -59,8 +64,7 @@ To use the CMS with the Claude Desktop app:
     "gaia-cms": {
       "command": "php",
       "args": [
-        "/Users/username/path/to/gaia-alpha/cli.php",
-        "mcp:server"
+        "/Users/username/path/to/gaia-alpha/server/start.php"
       ]
     }
   }
@@ -71,9 +75,9 @@ To use the CMS with the Claude Desktop app:
 
 ### 3. Cursor (and others) API
 
-For agents that connect via HTTP (SSE), you will need to expose the web server endpoint.
+For agents that connect via HTTP (SSE), you can use the exposed web server available at `http://localhost:8081/sse`.
 
-*Note: The current implementation primarily supports Stdio (Command Line) transport. HTTP/SSE support is planned for future updates.*
+*Note: The `server/start.php` script automatically handles both Stdio and SSE/WebSocket connections concurrently.*
 
 ## Available Tools
 
@@ -130,4 +134,4 @@ Reusable prompt templates are available via the `prompts/list` and `prompts/get`
 ## Troubleshooting
 
 -   **"Unknown command group: mcp"**: Ensure you have enabled the `McpServer` plugin (it should be auto-loaded as a Core Plugin).
--   **JSON Errors**: Ensure no other script or `echo` statement is outputting text to STDOUT. The MCP channel must be pure JSON.
+-   **JSON Errors / ANSI Codes**: The server automatically redirects logs to `STDERR` to keep `STDOUT` clean for JSON-RPC. If you see parse errors, check if your environment is forcing ANSI color codes and ensure the server is invoked with `stream_select` compatible modes.

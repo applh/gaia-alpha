@@ -18,13 +18,13 @@ try {
     $server = new Socket($port);
     $server->listen(function (Stream $stream) {
         $peer = stream_socket_get_name($stream->getResource(), true);
-        echo "TCP: New connection from $peer\n";
+        fprintf(STDERR, "TCP: New connection from $peer\n");
 
         $http = new \GaiaAlpha\Daemon\Protocol\Http();
         $request = $http->parseRequest($stream);
 
         if (!$request) {
-            echo "TCP: Failed to parse HTTP request from $peer\n";
+            fprintf(STDERR, "TCP: Failed to parse HTTP request from $peer\n");
             $stream->close();
             return;
         }
@@ -37,10 +37,10 @@ try {
 
         // 1. WebSocket Upgrade
         if (isset($headers['upgrade']) && strtolower($headers['upgrade']) === 'websocket') {
-            echo "Routing to WebSocket Handshake...\n";
+            fprintf(STDERR, "Routing to WebSocket Handshake...\n");
             $ws = new \GaiaAlpha\Daemon\Protocol\WebSocket();
             if (!$ws->handshake($stream, $request)) {
-                echo "WS: Handshake failed for $peer\n";
+                fprintf(STDERR, "WS: Handshake failed for $peer\n");
                 $stream->close();
                 return;
             }
@@ -49,7 +49,7 @@ try {
             while (true) {
                 $message = $ws->read($stream);
                 if ($message === null) {
-                    echo "WS: Closed $peer\n";
+                    fprintf(STDERR, "WS: Closed $peer\n");
                     break;
                 }
                 $ws->write($stream, "Echo: " . $message);
@@ -59,14 +59,14 @@ try {
 
         // 2. SSE Initialization (GET /sse)
         if ($method === 'GET' && strpos($uri, '/sse') === 0) {
-            echo "Routing to SSE Init...\n";
+            fprintf(STDERR, "Routing to SSE Init...\n");
             $sse = new \GaiaAlpha\Daemon\Protocol\Sse();
             $http->sendSseHeaders($stream);
 
             $sessionId = \GaiaAlpha\Daemon\SessionManager::get()->createSession($stream);
             $sse->sendEvent($stream, 'endpoint', ['uri' => "/messages?sessionId=$sessionId"]);
 
-            echo "SSE: Started Session $sessionId for $peer\n";
+            fprintf(STDERR, "SSE: Started Session $sessionId for $peer\n");
 
             // Keep connection open and send pings
             // In a real server, we'd park this Fiber until an event needs to be sent.
@@ -79,7 +79,7 @@ try {
                 try {
                     $sse->sendKeepAlive($stream);
                 } catch (\Throwable $e) {
-                    echo "SSE: Client disconnected $sessionId\n";
+                    fprintf(STDERR, "SSE: Client disconnected $sessionId\n");
                     \GaiaAlpha\Daemon\SessionManager::get()->closeSession($sessionId);
                     break;
                 }
@@ -89,7 +89,7 @@ try {
 
         // 3. MCP Message (POST /messages)
         if ($method === 'POST') {
-            echo "Routing to MCP POST...\n";
+            fprintf(STDERR, "Routing to MCP POST...\n");
             // Parse Query Params to find sessionId
             parse_str(parse_url($uri, PHP_URL_QUERY), $queryParams);
             $sessionId = $queryParams['sessionId'] ?? null;
@@ -108,7 +108,7 @@ try {
             }
 
             $json = json_decode($body, true);
-            echo "MCP POST: Received " . substr($body, 0, 50) . "... for session $sessionId\n";
+            fprintf(STDERR, "MCP POST: Received " . substr($body, 0, 50) . "... for session $sessionId\n");
 
             // Forward to SSE Client as an event
             $sse = new \GaiaAlpha\Daemon\Protocol\Sse();
@@ -130,32 +130,39 @@ try {
 
     // We run the MCP loop in a separate Fiber
     Loop::get()->async(function () use ($mcpIn, $mcpOut) {
+        // Use the existing robust McpServer definition from the plugin
+        // This handles initialize, tools/list, tools/call etc.
+        $mcpServer = new \McpServer\Server(STDIN, STDOUT);
+
+        // We need to manually drive the loop because we are inside a Fiber
+        // and McpServer::runStdio() is a blocking while loop on fgets() which might block the whole process
+        // if not careful. However, pure PHP fgets() on STDIN might block key inputs.
+        // BUT, since we are in a Fiber architecture, we should ideally use non-blocking reads.
+
+        // ADAPTER: We will read from our Stream wrapper (which yields) and pass to McpServer
+        // We will instantiate McpServer but bypass its runStdio() loop.
+
         $protocol = new \GaiaAlpha\Daemon\Protocol\Mcp();
-        // fprintf(STDERR, "MCP: Listening on STDIN...\n"); // Debug log to stderr to avoid corrupting stdout JSON
 
         while (true) {
-            $request = $protocol->read($mcpIn);
+            $request = $protocol->read($mcpIn); // Yields until line available
             if ($request === null)
                 break; // EOF
             if (empty($request))
                 continue;
 
-            // Basic JSON-RPC Handling
-            $id = $request['id'] ?? null;
-            $method = $request['method'] ?? '';
+            // Delegate to McpServer
+            // We pass null as sessionId for now (Stdio is one session)
+            $response = $mcpServer->handleRequestPublic($request, 'stdio');
 
-            if ($method === 'ping') {
-                $response = $protocol->createResponse($id, 'pong');
-                $protocol->write($mcpOut, $response);
-            } else {
-                // Unknown method
-                $response = $protocol->createError($id, -32601, "Method not found: $method");
+            if ($response) {
+                // Write back using our async-friendly stream
                 $protocol->write($mcpOut, $response);
             }
         }
     });
 
-    echo "Starting Hybrid Fiber Server (WS: $port, MCP: Stdio)...\n";
+    fprintf(STDERR, "Starting Hybrid Fiber Server (WS: $port, MCP: Stdio)...\n");
     Loop::get()->run();
 
 } catch (Throwable $e) {

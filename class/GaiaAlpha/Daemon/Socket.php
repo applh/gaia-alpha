@@ -34,7 +34,7 @@ class Socket
     {
         // Start a fiber that monitors accept
         Loop::get()->async(function () use ($onConnect) {
-            echo "Listening on port {$this->port}...\n";
+            fprintf(STDERR, "Listening on port {$this->port}...\n");
 
             while ($this->running) {
                 Loop::awaitReadable($this->resource);
@@ -50,13 +50,13 @@ class Socket
                             try {
                                 $onConnect($stream);
                             } catch (Throwable $e) {
-                                echo "Client Error: " . $e->getMessage() . "\n";
+                                fprintf(STDERR, "Client Error: " . $e->getMessage() . "\n");
                                 $stream->close();
                             }
                         });
                     }
                 } catch (Throwable $e) {
-                    echo "Accept Error: " . $e->getMessage() . "\n";
+                    fprintf(STDERR, "Accept Error: " . $e->getMessage() . "\n");
                 }
             }
         });

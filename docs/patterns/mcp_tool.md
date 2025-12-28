@@ -9,6 +9,7 @@ MCP tools are individual classes residing in the `McpServer\Tool` namespace. The
 - **Dynamic Discovery**: The `tools/list` response is built by scanning the `plugins/McpServer/class/Tool/` directory.
 - **Self-Documenting**: Each tool class provides its own metadata (name, description, schema) via the `getDefinition()` method.
 - **Dynamic Resolution**: Tool calls are automatically routed to the corresponding class based on the tool name.
+- **Async Execution**: The system runs on a non-blocking Fiber loop (`server/start.php`), allowing tools to perform I/O without halting the server.
 
 ## AI-Assisted Development & Dynamic Powers
 
@@ -110,7 +111,7 @@ Hook::add('mcp_tool_call', function ($null, $name, $arguments) {
 ## Documentation Requirement
 
 New MCP tools, prompts, or resources **must** be documented in:
-1.  **`docs/architect/mcp_roadmap.md`**: Update the status and add the new tool to the relevant roadmap phase.
+1.  **`docs/strategy/roadmap.md`**: Update the status and add the new tool to the relevant roadmap phase.
 2.  **Plugin/Tool specific docs**: Document the tool's specific purpose and complex behaviors if they exceed the standard metadata description.
 
 ## Recommended Design Patterns

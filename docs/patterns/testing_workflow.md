@@ -14,6 +14,9 @@ When working on the codebase, adopt the following patterns to ensure stability:
     ```
 3.  **Fix**: Apply your fix in the codebase.
 4.  **Verify Success**: Run the test again to confirm it passes.
+    > [!IMPORTANT] 
+    > Every bug fix **must** be accompanied by a regression test to prevent future regressions.
+
 
 ### 2. Refactoring or New Features
 1.  **Run All Tests**: Before pushing your changes, run the full regression suite to ensure no existing functionality is broken.

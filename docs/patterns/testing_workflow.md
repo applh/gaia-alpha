@@ -23,4 +23,11 @@ When working on the codebase, adopt the following patterns to ensure stability:
     ```bash
     php tests/run.php tests/Regression
     ```
-2.  **Add Coverage**: If your new feature is critical, add a new regression/integration test for it.
+### 3. Frontend/UI Testing
+When working on Vue 3 components (`resources/js/components/` or plugins), use the UI Test Runner.
+
+1.  **Write Tests**: Create a `.js` test file in `tests/js/`.
+2.  **Run Runner**: Start `php tests/js/server.php` and open the runner in your browser.
+3.  **Verify**: Ensure your component renders correctly and handles interactions.
+
+For detailed patterns, see [UI Testing Pattern](testing_ui.md).

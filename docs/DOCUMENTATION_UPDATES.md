@@ -86,20 +86,20 @@ These documentation updates will help prevent:
 
 ### New Standard Components
 1.  **TreeView (`ui/TreeView.js`)**: Generic, recursive tree component with advanced drag-and-drop (reordering & nesting).
-2.  **AsyncForm (`ui/AsyncForm.js`)**: Standardized form wrapper handling loading states, success/error feedback, and accessible errors.
+2.  **Form (`ui/Form.js`)**: Standardized form wrapper handling loading states, success/error feedback, and accessible errors.
 
 ### Component Updates
 1.  **Refactored `FileExplorer.js`, `TodoList.js`, `ComponentTree.js`** to use shared `TreeView`.
-2.  **Refactored `SiteSettings.js`, `UsersAdmin.js`** to use shared `AsyncForm` (Enabling "Premium" UX feedback everywhere).
+2.  **Refactored `SiteSettings.js`, `UsersAdmin.js`** to use shared `Form` (Enabling "Premium" UX feedback everywhere).
 
 ### Key Frontend Patterns
 -   **Composition**: Use generic UI primitives (`ui/`) instead of duplicating logic.
 -   **Data-Driven**: Transform flat data to trees in computed properties (e.g. `TodoList`'s `treeData`) rather than managing nested state manually.
--   **Async UX**: Always provide visual feedback for async actions (now automatic with `AsyncForm`).
+-   **Async UX**: Always provide visual feedback for async actions (now automatic with `Form`).
 
 ### Additional Refactoring (Login & CMS)
--   **`Login.js`**: Standardized login form with `AsyncForm`.
--   **`CMS.js`**: Replaced manual page/template form handling with `AsyncForm` for unified UX.
+-   **`Login.js`**: Standardized login form with `Form`.
+-   **`CMS.js`**: Replaced manual page/template form handling with `Form` for unified UX.
 
 ## Architectural & Performance Upgrades (2025-12-26)
 

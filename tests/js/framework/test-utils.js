@@ -1,6 +1,6 @@
 // Micro-testing framework (Jasmine/Jest style)
 
-export const suites = [];
+export let suites = [];
 let currentSuite = null;
 
 export function describe(name, fn) {
@@ -11,7 +11,11 @@ export function describe(name, fn) {
         afterEach: []
     };
     suites.push(currentSuite);
-    fn();
+    try {
+        fn();
+    } catch (e) {
+        console.error(`Error in suite definition "${name}":`, e);
+    }
     currentSuite = null;
 }
 
@@ -20,6 +24,53 @@ export function it(name, fn) {
         throw new Error("it() must be called inside describe()");
     }
     currentSuite.tests.push({ name, fn });
+}
+
+export function beforeEach(fn) {
+    if (currentSuite) currentSuite.beforeEach.push(fn);
+}
+
+export function afterEach(fn) {
+    if (currentSuite) currentSuite.afterEach.push(fn);
+}
+
+export function clearSuites() {
+    suites = [];
+}
+
+export async function runSuites() {
+    const results = [];
+
+    for (const suite of suites) {
+        const suiteResult = {
+            name: suite.name,
+            tests: [],
+            passed: 0,
+            failed: 0,
+            total: suite.tests.length
+        };
+
+        for (const test of suite.tests) {
+            try {
+                // Run beforeEach
+                for (const hook of suite.beforeEach) await hook();
+
+                await test.fn();
+
+                // Run afterEach
+                for (const hook of suite.afterEach) await hook();
+
+                suiteResult.tests.push({ name: test.name, status: 'passed' });
+                suiteResult.passed++;
+            } catch (e) {
+                console.error(`Test failed: ${test.name}`, e);
+                suiteResult.tests.push({ name: test.name, status: 'failed', error: e.message });
+                suiteResult.failed++;
+            }
+        }
+        results.push(suiteResult);
+    }
+    return results;
 }
 
 export function expect(actual) {
@@ -54,12 +105,15 @@ export function expect(actual) {
         },
         toBeFalsy() {
             if (actual) throw new Error(`Expected ${actual} to be falsy`);
+        },
+        toBeNull() {
+            if (actual !== null) throw new Error(`Expected ${actual} to be null`);
         }
     };
 }
 
 // Vue Component Utils
-import { createApp, h } from '/resources/js/vendor/vue.esm-browser.js';
+import { createApp, h, nextTick } from '/resources/js/vendor/vue.esm-browser.js';
 
 let appInstance = null;
 let container = null;
@@ -68,7 +122,7 @@ export function mount(Component, options = {}) {
     // Cleanup previous mount
     if (appInstance) {
         appInstance.unmount();
-        document.body.removeChild(container);
+        if (container && container.parentNode) container.parentNode.removeChild(container);
     }
 
     container = document.createElement('div');
@@ -90,7 +144,10 @@ export function mount(Component, options = {}) {
 
     appInstance = createApp(Wrapper);
 
-    // Stub plugins/mixins if needed...
+    // Install plugins if needed
+    if (options.global && options.global.plugins) {
+        options.global.plugins.forEach(p => appInstance.use(p));
+    }
 
     const vm = appInstance.mount(container);
 
@@ -113,7 +170,7 @@ export function mount(Component, options = {}) {
             const el = container.firstElementChild;
             const event = new Event(eventName);
             el.dispatchEvent(event);
-            await flushPromises();
+            await nextTick();
         }
     };
 }

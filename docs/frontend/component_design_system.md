@@ -88,13 +88,13 @@ Features:
 -   **Drag & Drop**: Supports `before`, `after`, and `inside` placements.
 -   **Slots**: `#item` for node content, `#toggle-icon` for expander.
 
-### 8. AsyncForm (`ui/AsyncForm.js`)
+### 8. Form (`ui/Form.js`)
 Standardized form wrapper with auto-loading states and feedback.
 ```javascript
-import AsyncForm from 'ui/AsyncForm.js';
-// <AsyncForm :action="saveFunction" submitLabel="Update">
+import Form from 'ui/Form.js';
+// <Form :action="saveFunction" submitLabel="Update">
 //     <input v-model="name">
-// </AsyncForm>
+// </Form>
 ```
 Features:
 -   **Smart Submit**: Auto-shows spinner, success checkmark, or error icon.

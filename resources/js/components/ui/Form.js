@@ -2,7 +2,7 @@ import { ref, defineComponent } from 'vue';
 import Icon from 'ui/Icon.js';
 
 export default defineComponent({
-    name: 'AsyncForm',
+    name: 'Form',
     components: { LucideIcon: Icon },
     props: {
         action: {
@@ -41,7 +41,7 @@ export default defineComponent({
                     }
                 }, 2000);
             } catch (e) {
-                console.error("AsyncForm error:", e);
+                console.error("Form error:", e);
                 error.value = e.message || props.errorMessage;
                 status.value = 'error';
                 setTimeout(() => {

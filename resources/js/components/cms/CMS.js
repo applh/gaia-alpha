@@ -7,12 +7,12 @@ import MenuBuilder from 'builders/MenuBuilder.js';
 import Icon from 'ui/Icon.js';
 import ImageSelector from 'ui/ImageSelector.js';
 import CodeEditor from 'ui/CodeEditor.js';
-import AsyncForm from 'ui/AsyncForm.js';
+import Form from 'ui/Form.js';
 import { useSorting } from 'composables/useSorting.js';
 import { store } from 'store';
 
 export default {
-    components: { SortTh, TemplateBuilder, ComponentBuilder, MenuBuilder, LucideIcon: Icon, SlotEditor, ImageSelector, CodeEditor, AsyncForm },
+    components: { SortTh, TemplateBuilder, ComponentBuilder, MenuBuilder, LucideIcon: Icon, SlotEditor, ImageSelector, CodeEditor, Form },
     template: `
         <div class="admin-page">
             <div class="admin-header">
@@ -111,7 +111,7 @@ export default {
             <!-- Form View -->
             <div v-if="showForm" class="cms-form">
                 <h3>{{ form.id ? 'Edit ' + (filterCat === 'template' ? 'Template' : 'Page') : 'New ' + (filterCat === 'template' ? 'Template' : 'Page') }}</h3>
-                <AsyncForm 
+                <Form 
                     :action="savePage"
                     :submitLabel="form.id ? 'Update' : 'Create'"
                 >
@@ -280,7 +280,7 @@ export default {
                     <template #extra-buttons>
                         <button type="button" @click="cancelForm" class="btn-secondary">Cancel</button>
                     </template>
-                </AsyncForm>
+                </Form>>
             </div>
         </div>
 

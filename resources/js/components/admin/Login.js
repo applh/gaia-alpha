@@ -3,18 +3,18 @@ import { store } from 'store';
 import { api } from 'api';
 import Input from 'ui/Input.js';
 import Button from 'ui/Button.js';
-import AsyncForm from 'ui/AsyncForm.js';
+import Form from 'ui/Form.js';
 
 export default {
     components: {
         'password-input': defineAsyncComponent(() => import('ui/PasswordInput.js')),
         'ui-input': Input,
         'ui-button': Button,
-        AsyncForm
+        Form
     },
     template: `
         <div class="login-container">
-            <AsyncForm 
+            <Form 
                 :action="login" 
                 submitLabel="Login"
             >
@@ -33,7 +33,7 @@ export default {
                 
                 <!-- Helper for toggling mode (if intended) or just extra spacing -->
                 <!-- The existing code had logic for toggleMode but no button. -->
-            </AsyncForm>
+            </Form>>
         </div>
     `,
     setup(props, { emit }) {
@@ -49,8 +49,8 @@ export default {
 
         const username = ref('');
         const password = ref('');
-        // const error = ref(''); // Handled by AsyncForm
-        // const loading = ref(false); // Handled by AsyncForm
+        // const error = ref(''); // Handled by Form
+        // const loading = ref(false); // Handled by Form
 
         const login = async () => {
             const path = isLogin.value ? 'login' : 'register';
@@ -62,7 +62,7 @@ export default {
                     emit('login', data);
                 } else {
                     store.setLoginMode('login');
-                    // AsyncForm will show success
+                    // Form will show success
                 }
             } catch (e) {
                 throw new Error(e.message || 'An error occurred');

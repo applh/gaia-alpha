@@ -1,4 +1,4 @@
-import TodoList from '/min/js/plugins/Todo/TodoList.js';
+import TodoList from 'plugins/Todo/TodoList.js';
 // We use the same path as site.js uses, knowing our import map maps it to the file.
 // Or we can import directly if we prefer?
 // "plugins/" -> "/plugins/"
@@ -13,7 +13,7 @@ describe('Todo List Plugin', () => {
         // Mock fetch for todos
         const originalFetch = window.fetch;
         window.fetch = async (url) => {
-            if (url.includes('/@/todos')) {
+            if (url.includes('todos')) {
                 return {
                     ok: true,
                     json: async () => ([
@@ -21,10 +21,18 @@ describe('Todo List Plugin', () => {
                     ])
                 };
             }
-            if (url.includes('/@/user/settings')) {
-                return { ok: false };
+            if (url.includes('settings')) {
+                return {
+                    ok: true,
+                    json: async () => ({ settings: {} })
+                };
             }
-            return { ok: false };
+            // Add mocks for other endpoints if needed, or default error with json
+            return {
+                ok: false,
+                status: 404,
+                json: async () => ({ error: 'Not Found' })
+            };
         };
 
         const wrapper = mount(TodoList);

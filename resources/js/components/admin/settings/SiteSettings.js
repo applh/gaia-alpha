@@ -1,10 +1,10 @@
 import { ref, reactive, onMounted } from 'vue';
 import Icon from 'ui/Icon.js';
 import ImageSelector from 'ui/ImageSelector.js';
-import AsyncForm from 'ui/AsyncForm.js';
+import Form from 'ui/Form.js';
 
 export default {
-    components: { LucideIcon: Icon, ImageSelector, AsyncForm },
+    components: { LucideIcon: Icon, ImageSelector, Form },
     template: `
         <div class="admin-page">
             <div class="admin-header">
@@ -21,7 +21,7 @@ export default {
                         These settings control how your site appears in search engines and browser tabs.
                     </p>
 
-                    <AsyncForm :action="saveSettings">
+                    <Form :action="saveSettings">
                         <div class="form-group">
                             <label>Site Title</label>
                             <input v-model="settings.site_title" placeholder="e.g. Gaia Alpha">
@@ -79,7 +79,7 @@ export default {
                                 Private: <code>User-agent: *<br>Disallow: /</code>
                             </div>
                         </div>
-                    </AsyncForm>
+                    </Form>
                 </div>
             </div>
             
@@ -128,7 +128,7 @@ export default {
                 });
             });
 
-            // If any fail, AsyncForm will catch the error
+            // If any fail, Form will catch the error
             const responses = await Promise.all(promises);
             // Optional: check individual responses if needed
         };

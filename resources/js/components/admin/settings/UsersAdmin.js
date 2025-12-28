@@ -2,7 +2,7 @@ import { ref, reactive, onMounted, defineAsyncComponent } from 'vue';
 import SortTh from 'ui/SortTh.js';
 import Icon from 'ui/Icon.js';
 import Modal from 'ui/Modal.js';
-import AsyncForm from 'ui/AsyncForm.js';
+import Form from 'ui/Form.js';
 import { useSorting } from 'composables/useSorting.js';
 import { useCrud } from 'composables/useCrud.js';
 
@@ -10,7 +10,7 @@ export default {
     components: {
         SortTh,
         Modal,
-        AsyncForm,
+        Form,
         'password-input': defineAsyncComponent(() => import('ui/PasswordInput.js'))
     },
     template: `
@@ -61,7 +61,7 @@ export default {
             </div>
 
             <Modal :show="showModal" :title="editMode ? 'Edit User' : 'Create User'" @close="showModal = false">
-                <AsyncForm 
+                <Form 
                     :action="saveUser" 
                     :submitLabel="editMode ? 'Update' : 'Create'"
                 >
@@ -81,7 +81,7 @@ export default {
                     <template #extra-buttons>
                         <button type="button" @click="showModal = false" class="btn-secondary">Cancel</button>
                     </template>
-                </AsyncForm>
+                </Form>
             </Modal>
         </div>
     </div>
@@ -125,9 +125,9 @@ export default {
         };
 
         const saveUser = async () => {
-            // AsyncForm handles try/catch and loading state.
+            // Form handles try/catch and loading state.
             // We just perform the logic.
-            // If error occurs, we throw, AsyncForm catches and shows error.
+            // If error occurs, we throw, Form catches and shows error.
 
             if (editMode.value) {
                 await updateItem(form.id, form);
@@ -135,9 +135,9 @@ export default {
                 await createItem(form);
             }
             // Close modal after short success delay? 
-            // AsyncForm creates a success state. 
+            // Form creates a success state. 
             // In a modal we usually want to close.
-            // We can wait for AsyncForm to finish or close immediately?
+            // We can wait for Form to finish or close immediately?
             // Let's close after 1s?
             setTimeout(() => {
                 showModal.value = false;

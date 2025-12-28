@@ -48,6 +48,28 @@ class Bug123_LoginFixTest extends ApiTestCase
 
 The custom test runner is located at `tests/run.php`. It handles bootstrapping the application environment and executing tests found in the provided paths.
 
+## UI Test Runner
+
+Gaia Alpha includes a dedicated UI Test Runner for testing frontend components (Vue 3).
+
+### Running UI Tests
+1.  Start the test server:
+    ```bash
+    php tests/js/server.php
+    ```
+2.  Open the runner in your browser:
+    [http://localhost:8001/?mode=auto](http://localhost:8001/?mode=auto)
+
+The runner will automatically discover and execute tests defined in `tests/js/`.
+
+### Directory Structure
+-   `tests/js/admin/`: Tests for Admin Panel components.
+-   `tests/js/cms/`: Tests for CMS components.
+-   `tests/js/plugins/`: Tests for Plugins.
+-   `tests/js/framework/`: Core test framework utilities.
+
+For details on writing UI tests, see the [UI Testing Pattern](patterns/testing_ui.md).
+
 ## Developer Workflow
 
 See [Testing Workflow Patterns](patterns/testing_workflow.md) for detailed instructions on TDD and Regression testing patterns.

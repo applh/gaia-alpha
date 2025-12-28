@@ -27,7 +27,7 @@ This document compares the current implementation of UI components in `gaia-alph
 | | Select | ✅ | ✅ | ✅ | `Select.js` |
 | | Switch / Toggle | ✅ | ✅ | ✅ | `Switch.js` |
 | | Textarea | ✅ | ✅ | ✅ | `Textarea.js` |
-| | Form Wrapper | ✅ | ✅ | ✅ | `AsyncForm.js` |
+| | Form Wrapper | ✅ | ✅ | ✅ | `Form.js` |
 | | Color Picker | ✅ | ❌ | ✅ | `ColorPicker.js` |
 | | Date/Time Picker | ✅ | ❌* | ❌ | *UIkit has separate datepicker |
 | | Upload / File Input | ✅ | ✅ | ✅ | `ImageSelector.js` (Specialized) |

@@ -23,6 +23,12 @@ When working on the codebase, adopt the following patterns to ensure stability:
     ```bash
     php tests/run.php tests/Regression
     ```
+    
+    You should also run Unit and Integration suites if your changes affect core logic:
+    ```bash
+    php tests/run.php tests/Unit
+    php tests/run.php tests/Integration
+    ```
 ### 3. Frontend/UI Testing
 When working on Vue 3 components (`resources/js/components/` or plugins), use the UI Test Runner.
 

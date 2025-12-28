@@ -1,24 +1,24 @@
 <?php
 
-require_once 'class/GaiaAlpha/Env.php';
-require_once 'class/GaiaAlpha/Debug.php';
-require_once 'class/GaiaAlpha/File.php';
-require_once 'class/GaiaAlpha/Request.php';
-require_once 'class/GaiaAlpha/Hook.php';
-require_once 'class/GaiaAlpha/Session.php';
-require_once 'class/GaiaAlpha/UiManager.php';
-require_once 'class/GaiaAlpha/Framework.php';
+require_once __DIR__ . '/../../class/GaiaAlpha/Env.php';
+require_once __DIR__ . '/../../class/GaiaAlpha/Debug.php';
+require_once __DIR__ . '/../../class/GaiaAlpha/File.php';
+require_once __DIR__ . '/../../class/GaiaAlpha/Request.php';
+require_once __DIR__ . '/../../class/GaiaAlpha/Hook.php';
+require_once __DIR__ . '/../../class/GaiaAlpha/Session.php';
+require_once __DIR__ . '/../../class/GaiaAlpha/UiManager.php';
+require_once __DIR__ . '/../../class/GaiaAlpha/Framework.php';
 
 use GaiaAlpha\Framework;
 use GaiaAlpha\Env;
 use GaiaAlpha\Hook;
 use GaiaAlpha\File;
 
-Env::set('root_dir', dirname(__DIR__));
+Env::set('root_dir', dirname(__DIR__, 2));
 // Use a temp data dir for testing to avoid messaging with real data, OR just use real data carefully.
 // Let's use real data path but different cache file? No, framework hardcodes filename.
 // Used real path so we can verify against real plugins.
-Env::set('path_data', dirname(__DIR__) . '/my-data');
+Env::set('path_data', dirname(__DIR__, 2) . '/my-data');
 
 // Mock request
 $_SERVER['REQUEST_METHOD'] = 'GET';

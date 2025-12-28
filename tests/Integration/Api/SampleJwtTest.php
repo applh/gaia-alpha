@@ -1,6 +1,6 @@
 <?php
 
-namespace GaiaAlpha\Tests\Api;
+namespace GaiaAlpha\Tests\Integration\Api;
 
 use GaiaAlpha\Tests\Framework\ApiTestCase;
 use GaiaAlpha\Tests\Framework\Assert;

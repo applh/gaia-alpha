@@ -1,7 +1,15 @@
 <?php
-require_once __DIR__ . '/../class/GaiaAlpha/App.php';
+require_once __DIR__ . '/../../class/GaiaAlpha/App.php';
+require_once __DIR__ . '/../../class/GaiaAlpha/Env.php';
+require_once __DIR__ . '/../../class/GaiaAlpha/Hook.php';
+
+\GaiaAlpha\Env::set('autoloaders', [
+    [\GaiaAlpha\App::class, 'autoloadFramework'],
+    [\GaiaAlpha\App::class, 'autoloadPlugins'],
+    [\GaiaAlpha\App::class, 'autoloadAliases']
+]);
 \GaiaAlpha\App::registerAutoloaders();
-\GaiaAlpha\App::web_setup(__DIR__ . '/..');
+\GaiaAlpha\App::web_setup(__DIR__ . '/../..');
 
 use GaiaAlpha\Model\DB;
 use GaiaAlpha\Model\Page;

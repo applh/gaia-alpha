@@ -1,7 +1,15 @@
 <?php
 // tests/verify_canonical.php
 
-require_once __DIR__ . '/../class/GaiaAlpha/App.php';
+require_once __DIR__ . '/../../class/GaiaAlpha/App.php';
+require_once __DIR__ . '/../../class/GaiaAlpha/Env.php';
+require_once __DIR__ . '/../../class/GaiaAlpha/Hook.php';
+
+\GaiaAlpha\Env::set('autoloaders', [
+    [\GaiaAlpha\App::class, 'autoloadFramework'],
+    [\GaiaAlpha\App::class, 'autoloadPlugins'],
+    [\GaiaAlpha\App::class, 'autoloadAliases']
+]);
 \GaiaAlpha\App::registerAutoloaders();
 
 use GaiaAlpha\Model\DB;
@@ -11,7 +19,7 @@ use GaiaAlpha\Request;
 use GaiaAlpha\Env;
 
 // Mock environment
-$rootDir = realpath(__DIR__ . '/..');
+$rootDir = realpath(__DIR__ . '/../..');
 Env::set('root_dir', $rootDir);
 Env::set('path_data', $rootDir . '/my-data');
 \GaiaAlpha\SiteManager::resolve();

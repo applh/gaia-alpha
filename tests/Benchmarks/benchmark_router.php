@@ -1,6 +1,6 @@
 <?php
-require_once __DIR__ . '/../class/GaiaAlpha/Router.php';
-require_once __DIR__ . '/../class/GaiaAlpha/Hook.php';
+require_once __DIR__ . '/../../class/GaiaAlpha/Router.php';
+require_once __DIR__ . '/../../class/GaiaAlpha/Hook.php';
 
 use GaiaAlpha\Router;
 use GaiaAlpha\Hook;
@@ -24,9 +24,11 @@ for ($i = 0; $i < $routeCount; $i++) {
 }
 // Add target routes
 Router::get("/target/first", function () {
-    return "first"; });
+    return "first";
+});
 Router::get("/target/last", function () {
-    return "last"; });
+    return "last";
+});
 $registrationTime = microtime(true) - $start;
 
 echo "Registration took: " . number_format($registrationTime, 4) . "s\n";

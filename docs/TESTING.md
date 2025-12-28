@@ -16,6 +16,12 @@ You can also run a specific test file:
 php tests/run.php tests/Regression/Bug000_ExampleTest.php
 ```
 
+### Running Manual Verification Sripts
+
+```bash
+php tests/Manual/verify_schema.php
+```
+
 ## Creating Regression Tests
 
 Regression tests are used to verify bug fixes and prevent re-occurrence.
@@ -63,10 +69,13 @@ Gaia Alpha includes a dedicated UI Test Runner for testing frontend components (
 The runner will automatically discover and execute tests defined in `tests/js/`.
 
 ### Directory Structure
--   `tests/js/admin/`: Tests for Admin Panel components.
--   `tests/js/cms/`: Tests for CMS components.
--   `tests/js/plugins/`: Tests for Plugins.
--   `tests/js/framework/`: Core test framework utilities.
+-   `tests/Unit/`: Unit tests (isolated classes).
+-   `tests/Integration/`: Integration tests (API, DB, full stack).
+-   `tests/Regression/`: Regression tests.
+-   `tests/Manual/`: Manual verification scripts.
+-   `tests/Benchmarks/`: Performance scripts.
+-   `tests/Framework/`: Core test framework utilities.
+-   `tests/js/`: UI Test Runner and Vue components tests.
 
 For details on writing UI tests, see the [UI Testing Pattern](patterns/testing_ui.md).
 

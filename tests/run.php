@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/framework/TestRunner.php';
+require_once __DIR__ . '/Framework/TestRunner.php';
 
 require_once __DIR__ . '/../class/GaiaAlpha/App.php';
 require_once __DIR__ . '/../class/GaiaAlpha/Env.php';

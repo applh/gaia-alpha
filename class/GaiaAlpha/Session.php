@@ -9,7 +9,7 @@ class Session
      */
     public static function start()
     {
-        if (session_status() === PHP_SESSION_NONE) {
+        if (session_status() === PHP_SESSION_NONE && !headers_sent()) {
             session_start();
         }
     }
@@ -107,7 +107,9 @@ class Session
         self::start();
 
         if (!isset($_SESSION['user_id']) || !isset($_SESSION['level']) || $_SESSION['level'] < $level) {
-            http_response_code(403);
+            if (!headers_sent()) {
+                http_response_code(403);
+            }
             echo json_encode(['error' => 'Unauthorized']);
             exit;
         }

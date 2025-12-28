@@ -1,5 +1,5 @@
 <?php
-// templates/layout/header.php
+// templates/header.php
 // Expected variables: $title, $desc, $keywords, $page (optional), $globalSettings (optional)
 $page = $page ?? null;
 $globalSettings = $globalSettings ?? []; // Default to empty if not passed
@@ -43,8 +43,8 @@ $appSlug = \GaiaAlpha\Model\Page::getAppDashboard();
     <?php endif; ?>
     <?php if (isset($schemaJson)): ?>
         <script type="application/ld+json">
-                <?= $schemaJson ?>
-            </script>
+                    <?= $schemaJson ?>
+                </script>
     <?php endif; ?>
     <?php if ($favicon): ?>
         <link rel="icon" href="<?= htmlspecialchars($favicon) ?>">

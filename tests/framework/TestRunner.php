@@ -36,11 +36,17 @@ class TestRunner
             $this->runTestFile($file);
         }
 
+        $hasColor = function_exists('stream_isatty') && stream_isatty(STDOUT);
+        $green = $hasColor ? "\033[32m" : "";
+        $red = $hasColor ? "\033[31m" : "";
+        $yellow = $hasColor ? "\033[33m" : "";
+        $reset = $hasColor ? "\033[0m" : "";
+
         echo "\n-------------------------------------------------\n";
         echo "Summary: ";
-        echo "\033[32mPassed: $this->passed\033[0m, ";
-        echo "\033[31mFailed: $this->failed\033[0m, ";
-        echo "\033[33mErrors: $this->errors\033[0m\n";
+        echo "{$green}Passed: $this->passed{$reset}, ";
+        echo "{$red}Failed: $this->failed{$reset}, ";
+        echo "{$yellow}Errors: $this->errors{$reset}\n";
 
         if ($this->failed > 0 || $this->errors > 0) {
             exit(1);
@@ -108,12 +114,16 @@ class TestRunner
                 } catch (AssertionFailedException $e) {
                     echo "F";
                     $this->failed++;
-                    echo "\n\033[31mFailure in $className::$method\033[0m\n";
+                    $color = (function_exists('stream_isatty') && stream_isatty(STDOUT)) ? "\033[31m" : "";
+                    $reset = (function_exists('stream_isatty') && stream_isatty(STDOUT)) ? "\033[0m" : "";
+                    echo "\n{$color}Failure in $className::$method{$reset}\n";
                     echo "  " . $e->getMessage() . "\n";
                 } catch (\Throwable $e) {
                     echo "E";
                     $this->errors++;
-                    echo "\n\033[33mError in $className::$method\033[0m\n";
+                    $color = (function_exists('stream_isatty') && stream_isatty(STDOUT)) ? "\033[33m" : "";
+                    $reset = (function_exists('stream_isatty') && stream_isatty(STDOUT)) ? "\033[0m" : "";
+                    echo "\n{$color}Error in $className::$method{$reset}\n";
                     echo "  " . $e->getMessage() . "\n";
                 }
             }

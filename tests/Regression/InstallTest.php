@@ -9,11 +9,14 @@ use GaiaAlpha\Database;
 
 class InstallTest extends ApiTestCase
 {
+    private $originalPathData;
     private $testDataPath;
 
     public function setUp()
     {
         parent::setUp();
+
+        $this->originalPathData = Env::get('path_data');
 
         // Define a safe test data path
         $this->testDataPath = Env::get('root_dir') . '/tests/my-data-test';
@@ -29,6 +32,15 @@ class InstallTest extends ApiTestCase
     {
         // Cleanup after test
         $this->cleanup();
+
+        // Restore Env
+        if ($this->originalPathData) {
+            Env::set('path_data', $this->originalPathData);
+        }
+
+        // Reset DB Connection to avoid stale connection in next test
+        \GaiaAlpha\Model\DB::setConnection(null);
+
         parent::tearDown();
     }
 

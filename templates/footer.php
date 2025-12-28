@@ -1,5 +1,5 @@
 <?php
-// templates/layout/footer.php
+// templates/footer.php
 $footerMenu = \GaiaAlpha\Model\Menu::findByLocation('footer');
 $footerItems = $footerMenu ? json_decode($footerMenu['items'], true) : [];
 ?>

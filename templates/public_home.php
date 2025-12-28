@@ -1,7 +1,7 @@
 <?php
 $title = 'Gaia Alpha - Home';
 $desc = 'A modern, lightweight platform for your content.';
-require __DIR__ . '/layout/header.php';
+require __DIR__ . '/header.php';
 ?>
 
 <style>
@@ -132,4 +132,4 @@ require __DIR__ . '/layout/header.php';
     });
 </script>
 
-<?php require __DIR__ . '/layout/footer.php'; ?>
+<?php require __DIR__ . '/footer.php'; ?>

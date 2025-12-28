@@ -34,7 +34,9 @@ class PublicController extends BaseController
         $page = Page::findBySlug($slug);
 
         if (!$page) {
-            http_response_code(404);
+            if (!headers_sent()) {
+                http_response_code(404);
+            }
             // Optional: load a 404 template if exists
             echo "Page not found";
             return;
@@ -138,7 +140,7 @@ class PublicController extends BaseController
         $content = ob_get_clean();
 
         // Inject Debug Toolbar if Admin
-        if (session_status() == PHP_SESSION_NONE) {
+        if (session_status() == PHP_SESSION_NONE && !headers_sent()) {
             session_start();
         }
         $isAdmin = isset($_SESSION['level']) && $_SESSION['level'] >= 100;
@@ -152,7 +154,13 @@ class PublicController extends BaseController
             // For now, I'll use the same logic here to fix it immediately.
 
             if (strpos($content, '</html>') !== false) {
-                $debugData = \GaiaAlpha\Debug::getData();
+                $debugClass = '\\GaiaAlpha\\Plugin\\Debug\\Debug';
+                if (!class_exists($debugClass)) {
+                    echo $content;
+                    return;
+                }
+
+                $debugData = $debugClass::getData();
                 $jsonData = json_encode($debugData);
                 $vueUrl = \GaiaAlpha\Asset::url('/js/vendor/vue.esm-browser.js');
                 $componentUrl = \GaiaAlpha\Asset::url('/js/components/admin/DebugToolbar.js');

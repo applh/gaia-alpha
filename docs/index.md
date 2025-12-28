@@ -24,6 +24,7 @@ Welcome to the Gaia Alpha documentation. This documentation is organized topical
 - **[Templating Guide](frontend/templating_guide.md)**: Advanced templating techniques.
 - **[Asset Controller](frontend/asset_controller.md)**: How assets are served.
 - **[Admin Component Builder](user/admin_component_builder.md)**: Low-code UI builder.
+- **[Theming & Templates](user/theming.md)**: Customizing the site look and feel.
 
 ## 🧩 Plugins & Hooks
 *Extending the system via the plugin architecture.*

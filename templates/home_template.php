@@ -8,7 +8,7 @@ $keywords = $page['meta_keywords'] ?? ($globalSettings['site_keywords'] ?? 'ente
 // Fetch latest pages/news
 $latestPages = \GaiaAlpha\Model\Page::getLatestPublic(3);
 
-require __DIR__ . '/layout/header.php';
+require __DIR__ . '/header.php';
 ?>
 
 <style>
@@ -321,4 +321,4 @@ require __DIR__ . '/layout/header.php';
     </section>
 <?php endif; ?>
 
-<?php require __DIR__ . '/layout/footer.php'; ?>
+<?php require __DIR__ . '/footer.php'; ?>

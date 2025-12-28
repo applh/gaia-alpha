@@ -11,7 +11,7 @@ $keywords = $page['meta_keywords'] ?? $globalSettings['site_keywords'] ?? 'enter
 $latestPages = \GaiaAlpha\Model\Page::getLatestPublic(3);
 
 ?>
-<?php Part::in("site_header") ?>
+<?php require __DIR__ . '/../header.php'; ?>
 <style>
     /* Enterprise Home Specific Overrides */
     :root {
@@ -330,4 +330,4 @@ $latestPages = \GaiaAlpha\Model\Page::getLatestPublic(3);
     </section>
 <?php endif; ?>
 
-<?php Part::in("site_footer") ?>
+<?php require __DIR__ . '/../footer.php'; ?>

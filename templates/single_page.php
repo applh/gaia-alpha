@@ -5,7 +5,7 @@ $title = $page['title'] ?? ($globalSettings['site_title'] ?? 'Gaia Alpha');
 $desc = $page['meta_description'] ?? ($globalSettings['site_description'] ?? 'Gaia Alpha - The unified open-source operating system.');
 $keywords = $page['meta_keywords'] ?? ($globalSettings['site_keywords'] ?? '');
 
-require __DIR__ . '/layout/header.php';
+require __DIR__ . '/header.php';
 ?>
 
 <style>
@@ -146,4 +146,4 @@ require __DIR__ . '/layout/header.php';
     </script>
 <?php endif; ?>
 
-<?php require __DIR__ . '/layout/footer.php'; ?>
+<?php require __DIR__ . '/footer.php'; ?>

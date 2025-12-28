@@ -1,3 +1,15 @@
+## [v2.5.2] - 2025-12-28
+### Optimized
+- **Performance**: Reduced database queries during boot by using `DataStore::getAll` (file access) instead of `DataStore::get` (DB access) for `admin_slug`.
+
+### Refactored
+- **Core**: Major cleanup of application bootstrapping.
+    - **Autoloading**: Converted autoloader logic to named static methods (`autoloadFramework`, `autoloadPlugins`, `autoloadAliases`) and configured via `Env` array.
+    - **Entry Points**: Removed explicit `App::registerAutoloaders()` calls from `index.php` and `cli.php`.
+    - **Initialization**: Extracted app initialization (Config, SiteManager, DataStore) to a dedicated `App::init` framework task (`step04`).
+    - **Dependencies**: Switched to `__DIR__` for internal core class loading, making `App` self-contained.
+- **Developer Experience**: Added `app_autoload_register` hook allows plugins to modify the autoloader list before registration.
+
 ## [v2.5.1] - 2025-12-28
 ### Refactored
 - **Core**: Removed outdated `GAIA_DATA_PATH` constant in favor of `Env::get('path_data')`.

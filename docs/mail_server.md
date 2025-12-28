@@ -19,7 +19,44 @@ Before deploying, you must configure the following DNS records for your domain (
 The mail server is deployed automatically via Ansible or Docker Compose.
 The configuration creates a default admin account based on your Ansible variables (`mail_user` and `mail_pass`).
 
-## 2. Management (CRUD)
+## 2. Server Configuration Details
+
+### Architecture
+The project uses `mailserver/docker-mailserver` which aggregates standard Linux mail tools:
+- **Postfix** (SMTP)
+- **Dovecot** (IMAP/POP3)
+- **SpamAssassin** (Spam filtering)
+- **ClamAV** (Antivirus)
+- **Fail2Ban** (Brute-force protection)
+- **OpenDKIM** (Email signing)
+
+### Key Environment Variables
+These are configured in `docker-compose.prod.yml`:
+
+| Variable | Default | Description |
+|---|---|---|
+| `ENABLE_SPAMASSASSIN` | `1` | Enables spam filtering. High memory usage (~1GB+). |
+| `ENABLE_CLAMAV` | `1` | Enables antivirus. Very high memory usage (~2GB+). Disable for low-RAM servers. |
+| `ENABLE_FAIL2BAN` | `1` | Protects against brute-force login attempts. |
+| `SSL_TYPE` | `manual` | We use `manual` because we inject certificates dumped from Traefik. |
+| `ONE_DIR` | `1` | Persists all config/state in a single directory structure. |
+
+### Volumes & Persistence
+Data is stored in `docker-data/dms` inside your project directory:
+
+- `mail-data`: Stores the actual email contents. **Backup this.**
+- `mail-state`: Stores SpamAssassin/ClamAV databases and state.
+- `mail-logs`: Mail server logs.
+- `config`: Configuration overrides, accounts (`postfix-accounts.cf`), and DKIM keys.
+
+### SSL/TLS Certificate Strategy
+We use a **Split-Horizon SSL** setup:
+1.  **Ingress**: `Traefik` handles ACME (Let's Encrypt) for `mail.example.com` (web portal) and standard routes.
+2.  **Internal**: Traefik stores certs in `acme.json`.
+3.  **Extraction**: The `cert-dumper` container watches `acme.json` and extracts certificates to `./ssl`.
+4.  **Mail Server**: The `mail` container mounts `./ssl` and uses them for SMTP/IMAP TLS.
+
+## 3. Management (CRUD)
 
 We provide a helper script `bin/manage_mail.sh` to simplify managing email accounts and aliases.
 
@@ -54,7 +91,7 @@ Aliases allow you to receive mail for one address (e.g., `info@example.com`) at 
 ./bin/manage_mail.sh alias del info@example.com user@example.com
 ```
 
-## 3. DKIM Configuration (Important!)
+## 4. DKIM Configuration (Important!)
 To prevent your emails from going to Spam, you **must** set up DKIM.
 
 1.  Generate DKIM keys on the server:
@@ -71,7 +108,7 @@ To prevent your emails from going to Spam, you **must** set up DKIM.
     ```
 4.  Add the output as a **TXT** record in your DNS provider for the host `mail._domainkey`.
 
-## 4. Client Configuration
+## 5. Client Configuration
 
 Configure your email client (Outlook, Thunderbird, Apple Mail, etc.) with the following settings:
 

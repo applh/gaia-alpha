@@ -1,0 +1,82 @@
+---
+- name: Deploy Gaia Alpha
+  hosts: gaia_servers
+  become: true
+  vars:
+    app_dir: /opt/gaia-alpha
+
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Install required system packages
+      apt:
+        name:
+          - git
+          - curl
+          - ca-certificates
+          - gnupg
+        state: present
+
+    - name: Add Docker GPG apt Key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Add Docker Repository
+      apt_repository:
+        repo: deb https://download.docker.com/linux/ubuntu focal stable
+        state: present
+
+    - name: Install Docker and Docker Compose
+      apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-buildx-plugin
+          - docker-compose-plugin
+        state: present
+
+    - name: Ensure Docker service is running
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Create app directory
+      file:
+        path: "{{ app_dir }}"
+        state: directory
+        mode: '0755'
+
+    - name: Clone/Update Gaia Alpha repository
+      git:
+        repo: "{{ repo_url }}"
+        dest: "{{ app_dir }}"
+        version: main
+        force: yes
+
+    - name: Create .env file from template
+      copy:
+        dest: "{{ app_dir }}/.env"
+        content: |
+          DOMAIN_NAME={{ domain_name }}
+          ACME_EMAIL={{ acme_email }}
+          GAIA_DB_PASS={{ gaia_db_pass }}
+          DB_ROOT_PASS={{ gaia_db_root_pass }}
+
+    - name: Create proxy network
+      docker_network:
+        name: proxy
+        state: present
+
+    - name: Deploy with Docker Compose
+      community.docker.docker_compose_v2:
+        project_src: "{{ app_dir }}"
+        files:
+          - docker/deployment/docker-compose.prod.yml
+        state: present
+        pull: always

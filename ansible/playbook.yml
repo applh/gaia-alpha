@@ -18,7 +18,48 @@
           - curl
           - ca-certificates
           - gnupg
+          - ufw
+          - fail2ban
+          - unattended-upgrades
+          - net-tools
+          - htop
         state: present
+
+    - name: Configure Unattended Upgrades
+      copy:
+        dest: /etc/apt/apt.conf.d/20auto-upgrades
+        content: |
+          APT::Periodic::Update-Package-Lists "1";
+          APT::Periodic::Unattended-Upgrade "1";
+
+    - name: Configure UFW (Firewall)
+      ufw:
+        state: enabled
+        policy: deny
+        rule: allow
+        port: "{{ item }}"
+        proto: tcp
+      loop:
+        - 22   # SSH
+        - 80   # HTTP
+        - 443  # HTTPS
+        - 25   # SMTP
+        - 465  # SMTPS
+        - 587  # SMTP Submission
+        - 993  # IMAPS
+
+    - name: Configure Fail2Ban
+      copy:
+        dest: /etc/fail2ban/jail.local
+        content: |
+          [sshd]
+          enabled = true
+          port = ssh
+          filter = sshd
+          logpath = /var/log/auth.log
+          maxretry = 3
+          bantime = 3600
+        notify: Restart Fail2Ban
 
     - name: Add Docker GPG apt Key
       apt_key:
@@ -67,11 +108,29 @@
           ACME_EMAIL={{ acme_email }}
           GAIA_DB_PASS={{ gaia_db_pass }}
           DB_ROOT_PASS={{ gaia_db_root_pass }}
+          MAIL_HOSTNAME=mail
+          MAIL_USER={{ mail_user | default('admin') }}
+          MAIL_PASS={{ mail_pass }}
 
     - name: Create proxy network
       docker_network:
         name: proxy
         state: present
+
+    - name: Create docker-data directory structure for Mailserver
+      file:
+        path: "{{ app_dir }}/docker-data/dms/config"
+        state: directory
+        mode: '0755'
+        recurse: yes
+
+    - name: Configure Admin Mail Account
+      copy:
+        dest: "{{ app_dir }}/docker-data/dms/config/postfix-accounts.cf"
+        content: |
+          # Default admin account
+          {{ mail_user | default('admin') }}@{{ domain_name }}|{{ mail_pass | password_hash('sha512', '1000$') }}
+        force: no # Only create if not exists
 
     - name: Deploy with Docker Compose
       community.docker.docker_compose_v2:
@@ -79,4 +138,19 @@
         files:
           - docker/deployment/docker-compose.prod.yml
         state: present
+
         pull: always
+
+    - name: Setup Application Cron Job
+      cron:
+        name: "Gaia Alpha Cron"
+        minute: "*"
+        job: "docker exec -u www-data gaia-php php /var/www/html/cli.php cron >> /var/log/gaia-cron.log 2>&1"
+        user: root
+
+  handlers:
+    - name: Restart Fail2Ban
+      service:
+        name: fail2ban
+        state: restarted
+

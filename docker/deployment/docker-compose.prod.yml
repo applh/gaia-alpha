@@ -24,6 +24,7 @@ services:
     volumes:
       - ./letsencrypt:/letsencrypt
       - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./ssl:/ssl # Shared volume for dumped certs
     networks:
       - proxy
     restart: always
@@ -49,6 +50,7 @@ services:
 
   # PHP Application (FPM)
   php:
+    container_name: gaia-php
     build: .
     volumes:
       - app_code:/var/www/html
@@ -97,6 +99,57 @@ services:
       MYSQL_PASSWORD: ${GAIA_DB_PASS:-secret}
     volumes:
       - db_data:/var/lib/mysql
+    restart: always
+
+  # Mail Server
+  mail:
+    image: mailserver/docker-mailserver:latest
+    container_name: mail
+    hostname: ${MAIL_HOSTNAME:-mail}
+    domainname: ${DOMAIN_NAME}
+    env_file: .env
+    environment:
+      - LOG_LEVEL=info
+      - DMS_DEBUG=0
+      - ONE_DIR=1
+      - ENABLE_SPAMASSASSIN=1
+      - ENABLE_CLAMAV=1
+      - ENABLE_FAIL2BAN=1
+      - ENABLE_POSTGREY=0
+      - ENABLE_SASLAUTHD=0
+      - SSL_TYPE=manual
+      - SSL_CERT_PATH=/tmp/ssl/certs/${DOMAIN_NAME}.crt
+      - SSL_KEY_PATH=/tmp/ssl/private/${DOMAIN_NAME}.key
+      - PERMIT_DOCKER=network
+    ports:
+      - "25:25" # SMTP
+      - "587:587" # SMTP (Submission)
+      - "465:465" # SMTPS
+      - "993:993" # IMAPS
+    volumes:
+      - ./docker-data/dms/mail-data:/var/mail
+      - ./docker-data/dms/mail-state:/var/mail-state
+      - ./docker-data/dms/mail-logs:/var/log/mail
+      - ./docker-data/dms/config:/tmp/docker-mailserver
+      - ./ssl:/tmp/ssl:ro # Mount dumped certs
+      - /etc/localtime:/etc/localtime:ro
+    restart: always
+    stop_grace_period: 1m
+    networks:
+      - proxy
+      - internal
+    depends_on:
+      - cert-dumper
+
+  # Cert Dumper (Extracts certs from Traefik acme.json)
+  cert-dumper:
+    image: ldez/traefik-certs-dumper:v2.8.3
+    entrypoint: sh -c ' apk add jq && while ! [ -e /traefik/acme.json ] || ! [ -s /traefik/acme.json ]; do sleep 1 done && traefik-certs-dumper file --version v2 --watch --source /traefik/acme.json --dest /ssl --domain-subdir '
+    volumes:
+      - ./letsencrypt:/traefik
+      - ./ssl:/ssl
+    networks:
+      - proxy
     restart: always
 
 networks:

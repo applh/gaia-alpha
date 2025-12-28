@@ -138,6 +138,9 @@ The response lifecycle includes hooks to modify output:
 - `response_send_before`: parameters `$data, $status`
     - Useful for logging or setting final headers.
 
+## Middleware & Pipeline
+See [Middleware & Pipeline](middleware.md) for details on the request processing layers.
+
 ## Routes Map
 
 | Controller | Use Case | Prefix | Key Routes |

@@ -11,6 +11,11 @@ require_once __DIR__ . '/../class/GaiaAlpha/Hook.php';
 \GaiaAlpha\Env::set('path_data', realpath(__DIR__ . '/../my-data'));
 
 // Register Autoloaders
+\GaiaAlpha\Env::set('autoloaders', [
+    [\GaiaAlpha\App::class, 'autoloadFramework'],
+    [\GaiaAlpha\App::class, 'autoloadPlugins'],
+    [\GaiaAlpha\App::class, 'autoloadAliases']
+]);
 \GaiaAlpha\App::registerAutoloaders();
 
 use GaiaAlpha\Tests\Framework\TestRunner;

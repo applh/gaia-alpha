@@ -15,13 +15,10 @@ class Database
 
     public function __construct(string $dsn, ?string $user = null, ?string $pass = null)
     {
-        try {
-            $this->pdo = new PDO($dsn, $user, $pass);
-            $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            $this->pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
-        } catch (PDOException $e) {
-            die("Database connection failed: " . $e->getMessage());
-        }
+        // Let PDOException bubble up so it can be caught by the caller
+        $this->pdo = new PDO($dsn, $user, $pass);
+        $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $this->pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
     }
 
     public function ensureSchema(): void

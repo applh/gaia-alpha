@@ -21,6 +21,24 @@ services:
       - GAIA_DB_NAME=gaia
       - GAIA_DB_USER=gaia_user
       - GAIA_DB_PASS=secret
+      - GAIA_DB_PASS=secret
+
+  fiber:
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+    ports:
+      - "8081:8081" # Expose for direct testing if needed
+    environment:
+      - GAIA_DB_TYPE=mysql
+      - GAIA_DB_HOST=db
+      - GAIA_DB_NAME=gaia
+      - GAIA_DB_USER=gaia_user
+      - GAIA_DB_PASS=secret
+    volumes:
+      - app_code:/app/www
+    depends_on:
+      - db
 
   # Option A: MariaDB (Default DB Service)
   db:

@@ -122,3 +122,17 @@ The database data is stored in the `db_data` volume. To back it up:
 # Dump the database from the running container
 docker exec gaia-alpha-db-1 mysqldump -u gaia_user -p'secure_db_password' gaia > backup.sql
 ```
+
+## Appendix: VPS Provider Cost Comparison
+
+Choosing the right VPS is critical for running the Mail Server (ClamAV), which requires **4GB+ RAM**.
+
+| Provider | Plan Name | RAM | vCPU | Storage | Price (Approx.) | Recommendation |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **GCP** | `e2-medium` | 4 GB | 2 | *(Separate)* | ~$25.00/mo | **Flexible**, but expensive. Good for scaling. |
+| **OVHcloud** | `VPS-1` | **8 GB** | 4 | 75 GB | ~$5.00/mo | **Best Value**. 8GB RAM ensures ClamAV never crashes. |
+| **IONOS** | `VPS Linux M` | 4 GB | 2 | 120 GB | ~$4.00/mo | **Good Budget Option**. Promotional pricing usually applies. |
+
+> [!TIP]
+> **Why OVHcloud?**
+> The Mail Server with ClamAV enabled consumes ~2GB of RAM alone. A 4GB instance is the *minimum* safe requirement. OVH provides **8GB** for the price of a coffee, giving you ample headroom for the Gaia application, database, and Redis/Worker processes.
